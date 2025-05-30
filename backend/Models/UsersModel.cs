@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class UsersModel
 {
   [Column("uid")]
-  [Required]
   public int Id { get; set; }
 
   [Column("email")]

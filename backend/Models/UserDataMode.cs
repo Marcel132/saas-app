@@ -1,15 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 public class UserDataModel
 {
   [Column("user_id")]
-  [Required]
   [Key]
   public int UserId { get; set; }
 
+  [JsonIgnore]
   [ForeignKey("UserId")]
-  public UsersModel User { get; set; } = null!;
+  public UsersModel? User { get; set; }
 
   [Column("first_name")]
   [Required]
@@ -23,6 +24,10 @@ public class UserDataModel
   [Required]
   [Phone]
   public string PhoneNumber { get; set; } = string.Empty;
+
+  [Column("city")]
+  [Required]
+  public string City { get; set; } = string.Empty;
 
   [Column("country")]
   [Required]
