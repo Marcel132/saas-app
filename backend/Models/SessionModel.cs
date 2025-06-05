@@ -22,5 +22,5 @@ public class SessionModel
 
   [Column("created_at")]
   [Required]
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+  public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -26,11 +26,14 @@ public class UsersController : ControllerBase
   [HttpGet("{id}")]
   public IActionResult GetUserById(int id)
   {
+    if (id <= 0)
+    {
+      return BadRequest(new { Message = "Invalid user ID." });
+    }
     // This is a placeholder for the actual user retrieval logic by ID.
-    var user = _userService.GetUserByIdAsync(id).Result;
-
     try
     {
+      var user = _userService.GetUserByIdAsync(id).Result;
       return Ok(user);
     }
     catch (KeyNotFoundException ex)
@@ -51,10 +54,25 @@ public class UsersController : ControllerBase
   }
 
   [HttpDelete("delete/{id}")]
-  public IActionResult DeleteUser(int id)
+  public async Task<IActionResult> DeleteUser(int id)
   {
-    // This is a placeholder for the actual user deletion logic.
-    return Ok(new { Message = $"User with ID: {id} deleted successfully" });
+    if (id <= 0)
+    {
+      return BadRequest(new { Message = "Invalid user ID." });
+    }
+
+    try
+    {
+      return await _userService.DeleteUserAsync(id);
+    }
+    catch (ArgumentException ex)
+    {
+      return NotFound(new { Message = ex.Message });
+    }
+    catch (Exception)
+    {
+      throw new Exception("Nie udało się usunąć użytkownika {#003}");
+    }
   }
 
 
@@ -86,14 +104,14 @@ public class UsersController : ControllerBase
       var user = await _userService.RegisterUserInTableUsersAsync(request.User);
       if (user == null)
       {
-        return BadRequest(new { Message = "Nie udało się zarejestrować użytkownika" });
+        return BadRequest(new { Message = "Nie udało się zarejestrować użytkownika {#001}" });
       }
       request.UserData.UserId = user.Id;
       var userData = await _userService.RegisterUserDataInTableUserDataAsync(request.UserData);
 
       if (user == null || userData == null)
       {
-        return BadRequest(new { Message = "Nie udało się zarejestrować użytkownika" });
+        return BadRequest(new { Message = "Nie udało się zarejestrować użytkownika {#002}" });
       }
       else {
         return Ok(new { Message = "Użytkownik zarejestrowany pomyślnie", User = user, UserData = userData });
@@ -101,7 +119,7 @@ public class UsersController : ControllerBase
     }
     catch (Exception ex)
     {
-      return StatusCode(500, new { Message = "An error occurred while registering the user.", Details = ex.Message });
+      return StatusCode(500, new { Message = "An error occurred while registering the user. {#500}", Details = ex.Message });
     }
 
   }

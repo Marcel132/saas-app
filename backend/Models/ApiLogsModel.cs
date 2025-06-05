@@ -29,7 +29,7 @@ public class ApiLogsModel
 
   [Column("timestamp")]
   [Required]
-  public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+  public DateTime? Timestamp { get; set; } = DateTime.UtcNow;
 
   [Column("method")]
   [Required]

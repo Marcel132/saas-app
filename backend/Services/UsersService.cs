@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,6 +42,51 @@ public class UserService
     }
   }
 
+  public async Task<IActionResult> DeleteUserAsync(int userId)
+  {
+    try
+    {
+      var user = await _context.users.FindAsync(userId);
+      if (user == null)
+      {
+        return new NotFoundObjectResult(new { Message = $"User with ID {userId} not found." });
+      }
+
+      _context.users.Remove(user);
+
+      var userSession = await _context.sessions.FirstOrDefaultAsync(s => s.UserId == userId);
+      if (userSession != null)
+      {
+        _context.sessions.Remove(userSession);
+      }
+
+      var userData = await _context.user_data.FirstOrDefaultAsync(ud => ud.UserId == userId);
+      if (userData != null)
+      {
+        _context.user_data.Remove(userData);
+      }
+
+      var userOpinions = await _context.opinions.Where(o => o.TargetId == userId).ToListAsync();
+      if (userOpinions.Any())
+      {
+        _context.opinions.RemoveRange(userOpinions);
+      }
+
+      var userApiLogs = await _context.api_logs.Where(al => al.UserId == userId).ToListAsync();
+      if (userApiLogs.Any())
+      {
+        _context.api_logs.RemoveRange(userApiLogs);
+      }
+
+      await _context.SaveChangesAsync();
+
+      return new OkObjectResult($"User with ID {userId} deleted successfully.");
+    }
+    catch (Exception ex)
+    {
+      return new ObjectResult(new { Message = "An error occurred while deleting the user.", Details = ex.Message }) { StatusCode = 500 };
+    }
+  }
   public async Task<UsersModel> RegisterUserInTableUsersAsync(UsersModel user)
   {
     if (user == null)
