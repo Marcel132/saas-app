@@ -14,7 +14,7 @@ public class UsersController : ControllerBase
     _userService = userService;
     _tokenService = tokenService;
   }
-  
+
   [Authorize(Roles = "Admin")]
   [HttpGet]
   public IActionResult GetUsers()
@@ -142,7 +142,10 @@ public class UsersController : ControllerBase
 
     try
     {
-      var token = await _tokenService.GenerateToken(request.UserId, request.Role);
+      var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
+      var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
+
+      var token = await _tokenService.GenerateToken(request.UserId, request.Role, ip, userAgent);
       return Ok(new { Token = token });
     }
     catch (ArgumentException ex)

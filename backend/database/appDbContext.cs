@@ -37,5 +37,13 @@ public class AppDbContext : DbContext
             .HasMany(u => u.ApiLogs)
             .WithOne(l => l.User)
             .HasForeignKey(l => l.UserId);
-        }
+
+        modelBuilder.Entity<SessionModel>().Property(x => x.CreatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+        modelBuilder.Entity<SessionModel>().Property(x => x.ExpiresAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP + interval '7 days'");
+    }
+        
+    
 }

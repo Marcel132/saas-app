@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
+using BCrypt.Net;
 
 public class TokenService
 {
@@ -21,7 +22,7 @@ public class TokenService
     _audience = configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience is not configured in appsettings.json");
   }
 
-  public async Task<string> GenerateToken(int userId, string role)
+  public async Task<string> GenerateToken(int userId, string role, string ip, string userAgent)
   {
     if (string.IsNullOrEmpty(_jwtKey) || string.IsNullOrEmpty(_issuer) || string.IsNullOrEmpty(_audience))
     {
@@ -65,11 +66,17 @@ public class TokenService
     {
       throw new KeyNotFoundException($"User with ID {userId} not found.");
     }
+    var tokenHash = BCrypt.Net.BCrypt.HashPassword(token.ToString());
     var session = new SessionModel
     {
       UserId = userId,
       RefreshToken = Guid.NewGuid().ToString(),
-      SessionToken = token.Id,
+      AuthToken = tokenHash,
+      CreatedAt = DateTime.UtcNow,
+      ExpiresAt = DateTime.UtcNow.AddDays(7),
+      UserAgent = userAgent,
+      Ip = ip,
+      Revoked = false
     };
 
     await _context.sessions.AddAsync(session);
