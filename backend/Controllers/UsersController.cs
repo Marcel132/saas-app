@@ -7,12 +7,15 @@ using Microsoft.AspNetCore.Mvc;
 public class UsersController : ControllerBase
 {
   private readonly UserService _userService;
+  private readonly TokenService _tokenService;
 
-  public UsersController(UserService userService)
+  public UsersController(UserService userService, TokenService tokenService)
   {
     _userService = userService;
+    _tokenService = tokenService;
   }
-  // [Authorize(Roles = "Admin")]
+  
+  [Authorize(Roles = "Admin")]
   [HttpGet]
   public IActionResult GetUsers()
   {
@@ -22,7 +25,7 @@ public class UsersController : ControllerBase
   }
 
 
-  // [Authorize(Roles = "Admin")]
+  [Authorize(Roles = "Admin")]
   [HttpGet("{id}")]
   public IActionResult GetUserById(int id)
   {
@@ -53,6 +56,7 @@ public class UsersController : ControllerBase
     return Ok(new { Message = $"User with ID: {id} updated successfully", User = user });
   }
 
+  [Authorize(Roles = "Admin")]
   [HttpDelete("delete/{id}")]
   public async Task<IActionResult> DeleteUser(int id)
   {
@@ -113,7 +117,8 @@ public class UsersController : ControllerBase
       {
         return BadRequest(new { Message = "Nie udało się zarejestrować użytkownika {#002}" });
       }
-      else {
+      else
+      {
         return Ok(new { Message = "Użytkownik zarejestrowany pomyślnie", User = user, UserData = userData });
       }
     }
@@ -122,5 +127,35 @@ public class UsersController : ControllerBase
       return StatusCode(500, new { Message = "An error occurred while registering the user. {#500}", Details = ex.Message });
     }
 
+  }
+
+
+  // Token
+
+  [HttpPost("account/token/generate")]
+  public async Task<IActionResult> GenerateToken([FromBody] TokenAuthModel request)
+  {
+    if (request.UserId <= 0 || string.IsNullOrEmpty(request.Role))
+    {
+      return BadRequest(new { Message = "UserId and Role are required." });
+    }
+
+    try
+    {
+      var token = await _tokenService.GenerateToken(request.UserId, request.Role);
+      return Ok(new { Token = token });
+    }
+    catch (ArgumentException ex)
+    {
+      return BadRequest(new { Message = ex.Message });
+    }
+    catch (KeyNotFoundException ex)
+    {
+      return NotFound(new { Message = ex.Message });
+    }
+    catch (InvalidOperationException ex)
+    {
+      return StatusCode(500, new { Message = "An error occurred while generating the token.", Details = ex.Message });
+    }
   }
 }
