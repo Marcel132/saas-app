@@ -17,17 +17,17 @@ public class UsersController : ControllerBase
 
   [Authorize(Roles = "Admin")]
   [HttpGet]
-  public IActionResult GetUsers()
+  public async Task<IActionResult> GetUsers()
   {
     // This is a placeholder for the actual user retrieval logic.
-    var users = _userService.GetAllUsersAsync().Result;
+    var users = await _userService.GetAllUsersAsync();
     return Ok(users);
   }
 
 
   [Authorize(Roles = "Admin")]
   [HttpGet("{id}")]
-  public IActionResult GetUserById(int id)
+  public async Task<IActionResult> GetUserById(int id)
   {
     if (id <= 0)
     {
@@ -36,7 +36,7 @@ public class UsersController : ControllerBase
     // This is a placeholder for the actual user retrieval logic by ID.
     try
     {
-      var user = _userService.GetUserByIdAsync(id).Result;
+      var user = await _userService.GetUserByIdAsync(id);
       return Ok(user);
     }
     catch (KeyNotFoundException ex)
@@ -49,15 +49,34 @@ public class UsersController : ControllerBase
     }
   }
 
-  [HttpPut("update/{id}")]
-  public IActionResult UpdateUser(int id, [FromBody] object user)
+  [HttpPut("{id}")]
+  public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserModel updateUser)
   {
     // This is a placeholder for the actual user update logic.
-    return Ok(new { Message = $"User with ID: {id} updated successfully", User = user });
+    if (id <= 0 || updateUser == null)
+    {
+      return BadRequest(new { Message = "Invalid user ID or update data." });
+    }
+
+    try
+    {
+      var updatedUser = await _userService.UpdateUserAsync(id, updateUser);
+      if (updatedUser == false)
+      {
+        return NotFound(new { Message = "User not found." });
+      }
+
+      return Ok(new { Message = "User updated successfully", User = updatedUser });
+    }
+    catch (Exception ex)
+    {
+      return StatusCode(500, new { Message = "An error occurred while updating the user.", Details = ex.Message });
+    }
+
   }
 
   [Authorize(Roles = "Admin")]
-  [HttpDelete("delete/{id}")]
+  [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteUser(int id)
   {
     if (id <= 0)
@@ -75,26 +94,26 @@ public class UsersController : ControllerBase
     }
     catch (Exception)
     {
-      throw new Exception("Nie udało się usunąć użytkownika {#003}");
+      return StatusCode(500, new { Message = "Nie udało się usunąć użytkownika {#003}" });
     }
   }
 
 
-  [HttpPost("account/login")]
+  [HttpPost("login")]
   public IActionResult Login([FromBody] object loginDetails)
   {
     // This is a placeholder for the actual login logic.
     return Ok(new { Message = "Login successful", Details = loginDetails });
   }
 
-  [HttpPost("account/logout")]
+  [HttpPost("logout")]
   public IActionResult Logout([FromBody] object logoutDetails)
   {
     // This is a placeholder for the actual logout logic.
     return Ok(new { Message = "Logout successful", Details = logoutDetails });
   }
 
-  [HttpPost("account/new/register")]
+  [HttpPost("register")]
   public async Task<IActionResult> Register([FromBody] RegisterRequestModel request)
   {
     // This is a placeholder for the actual registration logic.
@@ -132,7 +151,7 @@ public class UsersController : ControllerBase
 
   // Token
 
-  [HttpPost("account/token/generate")]
+  [HttpPost("token/generate")]
   public async Task<IActionResult> GenerateToken([FromBody] TokenAuthModel request)
   {
     if (request.UserId <= 0 || string.IsNullOrEmpty(request.Role))
