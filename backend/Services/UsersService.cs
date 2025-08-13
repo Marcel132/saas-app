@@ -42,6 +42,47 @@ public class UserService
     }
   }
 
+  public async Task<bool> UpdateUserAsync(int userId, UpdateUserModel userModel)
+  {
+    if (userId <= 0 || userModel == null)
+    {
+      throw new ArgumentException("Invalid user ID or update data.");
+    }
+
+    try
+    {
+      var user = await _context.users.FindAsync(userId) ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
+      var userData = await _context.user_data.FirstOrDefaultAsync(ud => ud.UserId == userId) ?? throw new KeyNotFoundException($"User data for user with ID {userId} not found.");
+
+      user.PasswordHash = string.IsNullOrWhiteSpace(userModel.PasswordHash) ? user.PasswordHash : userModel.PasswordHash;
+      if (Enum.IsDefined(typeof(RoleType), userModel.Role))
+        user.Role = userModel.Role;
+      user.IsActive = userModel.IsActive;
+
+      userData.FirstName = string.IsNullOrWhiteSpace(userModel.FirstName) ? userData.FirstName : userModel.FirstName;
+      userData.LastName = string.IsNullOrWhiteSpace(userModel.LastName) ? userData.LastName : userModel.LastName;
+      userData.PhoneNumber = string.IsNullOrWhiteSpace(userModel.PhoneNumber) ? userData.PhoneNumber : userModel.PhoneNumber;
+      userData.City = string.IsNullOrWhiteSpace(userModel.City) ? userData.City : userModel.City;
+      userData.Country = string.IsNullOrWhiteSpace(userModel.Country) ? userData.Country : userModel.Country;
+      userData.PostalCode = string.IsNullOrWhiteSpace(userModel.PostalCode) ? userData.PostalCode : userModel.PostalCode;
+      userData.Street = string.IsNullOrWhiteSpace(userModel.Street) ? userData.Street : userModel.Street;
+      userData.CompanyName = string.IsNullOrWhiteSpace(userModel.CompanyName) ? userData.CompanyName : userModel.CompanyName;
+      userData.CompanyNip = string.IsNullOrWhiteSpace(userModel.CompanyNip) ? userData.CompanyNip : userModel.CompanyNip;
+
+      userData.IsEmailVerified = userModel.IsEmailVerified;
+      userData.IsTwoFactorEnabled = userModel.IsTwoFactorEnabled;
+      userData.IsProfileCompleted = userModel.IsProfileCompleted;
+      
+      await _context.SaveChangesAsync();
+
+      return true;
+    }
+    catch (Exception ex)
+    {
+      throw new Exception(new { Message = "An error occurred while updating the user.", Details = ex.Message }.ToString());
+    }
+  }
+
   public async Task<IActionResult> DeleteUserAsync(int userId)
   {
     try
