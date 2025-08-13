@@ -15,7 +15,6 @@ public class UsersModel
   [Required]
   public string PasswordHash { get; set; } = string.Empty;
 
-  public enum RoleType { Admin, Company, Pentester }
   [Column("user_role")]
   [Required]
   public RoleType Role { get; set; }
