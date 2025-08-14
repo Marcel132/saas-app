@@ -68,6 +68,14 @@ public class UsersController : ControllerBase
 
       return Ok(new { Message = "User updated successfully", User = updatedUser });
     }
+    catch (ArgumentException ex)
+    {
+      return BadRequest(new { Message = ex.Message });
+    }
+    catch (KeyNotFoundException ex)
+    {
+      return NotFound(new { Message = ex.Message });
+    }
     catch (Exception ex)
     {
       return StatusCode(500, new { Message = "An error occurred while updating the user.", Details = ex.Message });
@@ -83,18 +91,23 @@ public class UsersController : ControllerBase
     {
       return BadRequest(new { Message = "Invalid user ID." });
     }
-
+    
     try
     {
-      return await _userService.DeleteUserAsync(id);
+      await _userService.DeleteUserAsync(id);
+      return Ok(new { Message = "User deleted successfully." });
     }
-    catch (ArgumentException ex)
+    catch (KeyNotFoundException ex)
     {
       return NotFound(new { Message = ex.Message });
     }
-    catch (Exception)
+    catch (ArgumentException ex)
     {
-      return StatusCode(500, new { Message = "Nie udało się usunąć użytkownika {#003}" });
+      return BadRequest(new { Message = ex.Message });
+    }
+    catch (System.Exception)
+    {
+      return StatusCode(500, new { Message = "An error occurred while deleting the user." });
     }
   }
 
@@ -116,36 +129,31 @@ public class UsersController : ControllerBase
   [HttpPost("register")]
   public async Task<IActionResult> Register([FromBody] RegisterRequestModel request)
   {
-    // This is a placeholder for the actual registration logic.
-    if (request.User == null || request.UserData == null)
+
+    if (request == null)
     {
-      return BadRequest(new { Message = "Brak wszystkich danych" });
+      return BadRequest(new { Message = "Request cannot be null." });
     }
 
     try
     {
-      var user = await _userService.RegisterUserInTableUsersAsync(request.User);
+      var user = await _userService.RegisterModelAsync(request);
       if (user == null)
       {
-        return BadRequest(new { Message = "Nie udało się zarejestrować użytkownika {#001}" });
+        return BadRequest(new { Message = "Failed to register user." });
       }
-      request.UserData.UserId = user.Id;
-      var userData = await _userService.RegisterUserDataInTableUserDataAsync(request.UserData);
 
-      if (user == null || userData == null)
-      {
-        return BadRequest(new { Message = "Nie udało się zarejestrować użytkownika {#002}" });
-      }
-      else
-      {
-        return Ok(new { Message = "Użytkownik zarejestrowany pomyślnie", User = user, UserData = userData });
-      }
+      return Ok(new { Message = "User registered successfully", UserEmail = user.Email, UserId = user.Id });
     }
-    catch (Exception ex)
+    catch (ArgumentException ex)
     {
-      return StatusCode(500, new { Message = "An error occurred while registering the user. {#500}", Details = ex.Message });
+      return BadRequest(new { Message = ex.Message });
     }
 
+    catch (System.Exception)
+    {
+      return StatusCode(500, new { Message = "An error occurred while registering the user." });
+    }
   }
 
 
