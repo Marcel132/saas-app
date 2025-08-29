@@ -27,7 +27,7 @@ public class UsersModel
   public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
 
 
-  public SessionModel? Session { get; set; }
+  public ICollection<SessionModel> Sessions { get; set; } = new List<SessionModel>();
   public UserDataModel? UserData { get; set; }
 
   public ICollection<OpinionModel>? Opinions { get; set; }

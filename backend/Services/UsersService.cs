@@ -13,7 +13,7 @@ public class UserService
   public async Task<List<UsersModel>> GetAllUsersAsync()
   {
     var users = await _context.users
-    .Include(u => u.Session)
+    .Include(u => u.Sessions)
     .Include(u => u.UserData)
     .Include(u => u.Opinions)
     .Include(u => u.ApiLogs)
@@ -25,7 +25,7 @@ public class UserService
   public async Task<UsersModel> GetUserByIdAsync(int userId)
   {
     var user = await _context.users
-      .Include(u => u.Session)
+      .Include(u => u.Sessions)
       .Include(u => u.UserData)
       .Include(u => u.Opinions)
       .Include(u => u.ApiLogs)
@@ -72,16 +72,16 @@ public class UserService
       userData.IsEmailVerified = userModel.IsEmailVerified;
       userData.IsTwoFactorEnabled = userModel.IsTwoFactorEnabled;
       userData.IsProfileCompleted = userModel.IsProfileCompleted;
-      
+
       await _context.SaveChangesAsync();
       await transaction.CommitAsync();
 
       return true;
     }
-    catch (Exception ex)
+    catch (System.Exception)
     {
       await transaction.RollbackAsync();
-      throw new Exception($"An error occurred while updating the user: {ex.Message}");
+      throw;
     }
   }
 
@@ -101,7 +101,7 @@ public class UserService
 
       var userSessions = await _context.sessions.Where(s => s.UserId == userId).ToListAsync();
       _context.sessions.RemoveRange(userSessions);
-      
+
       var userData = await _context.user_data.FirstOrDefaultAsync(ud => ud.UserId == userId);
       if (userData != null)
       {
@@ -109,7 +109,7 @@ public class UserService
       }
 
       var userOpinions = await _context.opinions.Where(o => o.TargetId == userId).ToListAsync();
-        _context.opinions.RemoveRange(userOpinions);
+      _context.opinions.RemoveRange(userOpinions);
 
       var userApiLogs = await _context.api_logs.Where(al => al.UserId == userId).ToListAsync();
       _context.api_logs.RemoveRange(userApiLogs);
@@ -119,11 +119,11 @@ public class UserService
 
       return true;
     }
-    catch (Exception ex)
+    catch (System.Exception)
     {
       await transaction.RollbackAsync();
-      throw new Exception($"An error occurred while deleting the user: {ex.Message}");
-    } 
+      throw;
+    }
   }
 
   public async Task<UsersModel> AuthenticateUserAsync(string email, string password)
@@ -145,6 +145,30 @@ public class UserService
     return user;
   }
 
+  public async Task<bool> LogoutUserAsync(string email, string deviceIp)
+  {
+    ArgumentNullException.ThrowIfNull(email);
+
+    var user = await _context.users.FirstOrDefaultAsync(u => u.Email == email)
+      ?? throw new KeyNotFoundException($"User with email {email} not found.");
+
+    var sessions = await _context.sessions
+      .Where(s => s.UserId == user.Id && !s.Revoked && s.Ip == deviceIp)
+      .ToListAsync();
+
+    if (sessions == null || sessions.Count == 0)
+    {
+      throw new KeyNotFoundException("No active sessions found for this user.");
+    }
+
+    foreach (var sess in sessions)
+    {
+      sess.Revoked = true;
+    }
+
+    await _context.SaveChangesAsync();
+    return true;
+  }
   public async Task<UsersModel> RegisterModelAsync(RegisterRequestModel model)
   {
 
@@ -201,4 +225,5 @@ public class UserService
     }
 
   }
+
 }

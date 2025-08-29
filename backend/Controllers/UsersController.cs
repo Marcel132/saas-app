@@ -86,7 +86,7 @@ public class UsersController : ControllerBase
           return NotFound(new { success = false, message = $"User with ID {id} not found." });
         }
 
-        return Ok(new { success = true, data = updatedUser, message = "User updated successfully." });
+        return Ok(new { success = true, message = "User updated successfully." });
       }
       catch (ArgumentException ex)
       {
@@ -144,16 +144,16 @@ public class UsersController : ControllerBase
   [HttpPost("login")]
   public async Task<IActionResult> Login([FromBody] LoginRequestModel request)
   {
+
+    ArgumentNullException.ThrowIfNull(request);
+    ArgumentNullException.ThrowIfNull(request.Email);
+    ArgumentNullException.ThrowIfNull(request.Password);
+
     if (!ModelState.IsValid)
     {
       return BadRequest(new { success = false, message = "Invalid login request." });
     }
-
-    if(request == null || request.Email == null || request.Password == null)
-    {
-      return BadRequest(new { success = false, message = "Login request cannot be null." });
-    }
-
+    
     try
     {
       var user = await _userService.AuthenticateUserAsync(request.Email, request.Password);
@@ -161,7 +161,8 @@ public class UsersController : ControllerBase
       {
         return Unauthorized(new { success = false, message = "Authentication failed. Invalid email or password." });
       }
-      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = user.Role.ToString()}) ?? throw new ArgumentException("Token generation failed.");
+      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = user.Role.ToString() }) ?? throw new ArgumentException("Token generation failed.");
+      return Ok(new { success = true, data = new { email = request.Email, authToken = token }, message = "Login successful." });
     }
     catch (ArgumentException ex)
     {
@@ -179,22 +180,52 @@ public class UsersController : ControllerBase
     {
       return StatusCode(500, new { success = false, message = "An error occurred during authentication.", details = ex.Message });
     }
-
-    // This is a placeholder for the actual login logic.
-    return Ok(new { success = true, data = request, message = "Login successful." });
   }
 
   // path: /users/logout
   [HttpPost("logout")]
-  public IActionResult Logout([FromBody] LogoutRequestModel request)
+  public async Task<IActionResult> Logout([FromBody] LogoutRequestModel request)
   {
+
+    ArgumentNullException.ThrowIfNull(request);
+    ArgumentNullException.ThrowIfNull(request.Email);
+
     if (!ModelState.IsValid)
     {
       return BadRequest(new { success = false, message = "Invalid logout request." });
     }
 
-    // This is a placeholder for the actual logout logic.
-      return Ok(new { success = true, data = request, message = "Logout successful." });
+    var deviceIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
+
+    try
+    {
+      var user = await _userService.LogoutUserAsync(request.Email, deviceIp);
+      if (user == false)
+      {
+        return BadRequest(new { success = false, message = "Cannot delete a session" });
+      }
+
+      Response.Cookies.Append("RefreshToken", "", new CookieOptions
+      {
+        Expires = DateTime.UtcNow.AddDays(-1),
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict
+      });
+      return Ok(new { success = true, message = "Logout successful." });
+    }
+    catch (KeyNotFoundException ex)
+    {
+      return NotFound(new { success = false, message = ex.Message });
+    }
+    catch (ArgumentException ex)
+    {
+      return BadRequest(new { success = false, message = ex.Message });
+    }
+    catch (System.Exception)
+    {
+      throw;
+    }
   }
 
 

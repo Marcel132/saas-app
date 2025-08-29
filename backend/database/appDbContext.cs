@@ -19,9 +19,9 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<UsersModel>()
-        .HasOne(u => u.Session)
+        .HasMany(u => u.Sessions)
         .WithOne(s => s.User)
-        .HasForeignKey<SessionModel>(s => s.UserId);
+        .HasForeignKey(s => s.UserId);
 
         modelBuilder.Entity<UsersModel>()
             .HasOne(u => u.UserData)
