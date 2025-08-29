@@ -42,10 +42,10 @@ public class UserDataModel
   public string Street { get; set; } = string.Empty;
 
   [Column("company_name")]
-  public string? CompanyName { get; set; }
+  public string? CompanyName { get; set; } = string.Empty;
 
   [Column("company_nip")]
-  public string? CompanyNip { get; set; }
+  public string? CompanyNip { get; set; } = string.Empty;
 
   [Column("is_email_verified")]
   [Required]
