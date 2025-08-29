@@ -192,8 +192,14 @@ public class UsersController : ControllerBase
       {
         return BadRequest(new { success = false, message = "User registration failed. User already exists or invalid data." });
       }
+      if (request.User == null)
+      {
+        return BadRequest(new { success = false, message = "User information is missing in the registration request." });
+      }
 
-      return Ok(new { success = true, data = new { email = user.Email, id = user.Id }, message = "User registered successfully." });
+      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = request.User.Role.ToString()}) ?? throw new ArgumentException("Token generation failed.");
+
+      return Ok(new { success = true, data = new { email = user.Email, id = user.Id, authToken = token }, message = "User registered successfully." });
     }
     catch (ArgumentException ex)
     {
@@ -210,6 +216,7 @@ public class UsersController : ControllerBase
   // Token
 
   // Generation Endpoint 
+  // path: /users/token/generate
   [HttpPost("token/generate")]
   public async Task<IActionResult> GenerateToken([FromBody] TokenAuthModel request)
   {
@@ -227,8 +234,17 @@ public class UsersController : ControllerBase
       var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
       var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
 
-      var token = await _tokenService.GenerateToken(request.UserId, request.Role, ip, userAgent);
-      return Ok(new { success = true, data = new { token }, message = "Token generated successfully." });
+      var token = await _tokenService.GenerateAuthToken(request.UserId, request.Role, ip, userAgent);
+
+      Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
+      {
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTime.UtcNow.AddDays(7)
+      });
+
+      return Ok(new { success = true, data = new { authToken = token.AuthToken }, message = "Token generated successfully." });
     }
     catch (ArgumentException ex)
     {
