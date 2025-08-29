@@ -126,6 +126,25 @@ public class UserService
     } 
   }
 
+  public async Task<UsersModel> AuthenticateUserAsync(string email, string password)
+  {
+    if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+    {
+      throw new ArgumentException("Email and password must be provided.");
+    }
+
+    var user = await _context.users
+      .Include(u => u.UserData)
+      .FirstOrDefaultAsync(u => u.Email == email);
+
+    if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+    {
+      throw new UnauthorizedAccessException("Invalid email or password.");
+    }
+
+    return user;
+  }
+
   public async Task<UsersModel> RegisterModelAsync(RegisterRequestModel model)
   {
 
@@ -150,7 +169,7 @@ public class UserService
       throw new ArgumentNullException("Requested data is null or required fields are missing.");
     }
 
-      using var transaction = await _context.Database.BeginTransactionAsync();
+    using var transaction = await _context.Database.BeginTransactionAsync();
     try
     {
       var existingUser = await _context.users.FirstOrDefaultAsync(u => u.Email == user.Email);
@@ -158,6 +177,9 @@ public class UserService
       {
         throw new ArgumentException("User with this email already exists.");
       }
+
+      var hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
+      user.PasswordHash = hashedPassword;
       _context.users.Add(user);
       await _context.SaveChangesAsync();
 

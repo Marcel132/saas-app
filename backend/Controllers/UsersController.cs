@@ -142,12 +142,44 @@ public class UsersController : ControllerBase
   // path: /users/login
   [AllowAnonymous]
   [HttpPost("login")]
-  public IActionResult Login([FromBody] LoginRequestModel request)
+  public async Task<IActionResult> Login([FromBody] LoginRequestModel request)
   {
     if (!ModelState.IsValid)
     {
       return BadRequest(new { success = false, message = "Invalid login request." });
     }
+
+    if(request == null || request.Email == null || request.Password == null)
+    {
+      return BadRequest(new { success = false, message = "Login request cannot be null." });
+    }
+
+    try
+    {
+      var user = await _userService.AuthenticateUserAsync(request.Email, request.Password);
+      if (user == null)
+      {
+        return Unauthorized(new { success = false, message = "Authentication failed. Invalid email or password." });
+      }
+      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = user.Role.ToString()}) ?? throw new ArgumentException("Token generation failed.");
+    }
+    catch (ArgumentException ex)
+    {
+      return BadRequest(new { success = false, message = ex.Message });
+    }
+    catch (KeyNotFoundException ex)
+    {
+      return NotFound(new { success = false, message = ex.Message });
+    }
+    catch (UnauthorizedAccessException ex)
+    {
+      return Unauthorized(new { success = false, message = ex.Message });
+    }
+    catch (System.Exception ex)
+    {
+      return StatusCode(500, new { success = false, message = "An error occurred during authentication.", details = ex.Message });
+    }
+
     // This is a placeholder for the actual login logic.
     return Ok(new { success = true, data = request, message = "Login successful." });
   }
