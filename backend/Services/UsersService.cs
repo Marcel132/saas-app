@@ -1,3 +1,4 @@
+using System.Transactions;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,6 @@ public class UserService
   {
     _context = context;
   }
-
   public async Task<List<UsersModel>> GetAllUsersAsync()
   {
     var users = await _context.users
@@ -48,7 +48,7 @@ public class UserService
     {
       throw new ArgumentException("Invalid user ID or update data.");
     }
-
+    using var transaction = await _context.Database.BeginTransactionAsync();
     try
     {
       var user = await _context.users.FindAsync(userId) ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
@@ -74,11 +74,13 @@ public class UserService
       userData.IsProfileCompleted = userModel.IsProfileCompleted;
       
       await _context.SaveChangesAsync();
+      await transaction.CommitAsync();
 
       return true;
     }
     catch (Exception ex)
     {
+      await transaction.RollbackAsync();
       throw new Exception($"An error occurred while updating the user: {ex.Message}");
     }
   }
@@ -124,7 +126,6 @@ public class UserService
     } 
   }
 
-
   public async Task<UsersModel> RegisterModelAsync(RegisterRequestModel model)
   {
 
@@ -144,16 +145,14 @@ public class UserService
     || string.IsNullOrWhiteSpace(userData.Country)
     || string.IsNullOrWhiteSpace(userData.PostalCode)
     || string.IsNullOrWhiteSpace(userData.Street)
-    || string.IsNullOrWhiteSpace(userData.CompanyName)
-    || string.IsNullOrWhiteSpace(userData.CompanyNip))
+    )
     {
-      throw new ArgumentNullException("User data is null or required fields are missing.");
+      throw new ArgumentNullException("Requested data is null or required fields are missing.");
     }
 
+      using var transaction = await _context.Database.BeginTransactionAsync();
     try
     {
-      using var transaction = await _context.Database.BeginTransactionAsync();
-
       var existingUser = await _context.users.FirstOrDefaultAsync(u => u.Email == user.Email);
       if (existingUser != null)
       {
@@ -173,9 +172,10 @@ public class UserService
       await transaction.CommitAsync();
       return user;
     }
-    catch (System.Exception ex)
+    catch (System.Exception)
     {
-      throw new Exception($"An error occurred while registering the user: {ex.Message}");
+      await transaction.RollbackAsync();
+      throw;
     }
 
   }
