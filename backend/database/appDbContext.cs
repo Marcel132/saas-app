@@ -9,6 +9,7 @@ public class AppDbContext : DbContext
     public DbSet<SessionModel> sessions { get; set; }
     public DbSet<ApiLogsModel> api_logs { get; set; }
     public DbSet<OpinionModel> opinions { get; set; }
+    public DbSet<ContractModel> contracts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -37,6 +38,11 @@ public class AppDbContext : DbContext
             .HasMany(u => u.ApiLogs)
             .WithOne(l => l.User)
             .HasForeignKey(l => l.UserId);
+
+        modelBuilder.Entity<UsersModel>()
+            .HasMany(u => u.Contracts)
+            .WithOne(c => c.Author)
+            .HasForeignKey(c => c.AuthorId);
 
         modelBuilder.Entity<SessionModel>().Property(x => x.CreatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
