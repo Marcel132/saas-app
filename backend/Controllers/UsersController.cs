@@ -140,11 +140,13 @@ public class UsersController : ControllerBase
 
 
   // path: /users/login
+  // This endpoint authenticates a user and generates an auth token.
   [AllowAnonymous]
   [HttpPost("login")]
   public async Task<IActionResult> Login([FromBody] LoginRequestModel request)
   {
 
+    // Validate the request model.
     ArgumentNullException.ThrowIfNull(request);
     ArgumentNullException.ThrowIfNull(request.Email);
     ArgumentNullException.ThrowIfNull(request.Password);
@@ -154,6 +156,8 @@ public class UsersController : ControllerBase
       return BadRequest(new { success = false, message = "Invalid login request." });
     }
     
+    // Attempt to authenticate the user using the provided credentials.
+    // If authentication fails, return a 401 Unauthorized response.
     try
     {
       var user = await _userService.AuthenticateUserAsync(request.Email, request.Password);
@@ -183,6 +187,8 @@ public class UsersController : ControllerBase
   }
 
   // path: /users/logout
+  // This endpoint logs out a user by revoking their active sessions.
+  [Authorize]
   [HttpPost("logout")]
   public async Task<IActionResult> Logout([FromBody] LogoutRequestModel request)
   {
@@ -205,6 +211,7 @@ public class UsersController : ControllerBase
         return BadRequest(new { success = false, message = "Cannot delete a session" });
       }
 
+      // Clear the refresh token cookie
       Response.Cookies.Append("RefreshToken", "", new CookieOptions
       {
         Expires = DateTime.UtcNow.AddDays(-1),
@@ -299,6 +306,7 @@ public class UsersController : ControllerBase
 
       var token = await _tokenService.GenerateAuthToken(request.UserId, request.Role, ip, userAgent);
 
+      // Set the refresh token as an HttpOnly cookie
       Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
       {
         HttpOnly = true,
