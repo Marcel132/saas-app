@@ -61,6 +61,7 @@ public class UsersController : ControllerBase
 
   // path: /users/{id}
   // This endpoint updates a user by their ID.
+  [Authorize]
   [HttpPut("{id}")]
   public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserModel updateUser)
   {
