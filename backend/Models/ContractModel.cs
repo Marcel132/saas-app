@@ -21,8 +21,8 @@ public class ContractModel
   public StatusOfContractModel Status { get; set; } = StatusOfContractModel.Pending;
 
   [Column("description")]
-  [Required]
   [MaxLength(500)]
+  [Required]
   public string Description { get; set; } = string.Empty;
 
   [Column("created_at")]
