@@ -49,6 +49,13 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<SessionModel>().Property(x => x.ExpiresAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP + interval '7 days'");
+
+        modelBuilder.HasPostgresEnum<StatusOfContractModel>();
+        modelBuilder.Entity<ContractModel>()
+            .Property(c => c.Status)
+            .HasConversion<string>();
+
+
     }
         
     
