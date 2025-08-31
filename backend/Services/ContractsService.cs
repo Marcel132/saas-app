@@ -31,4 +31,43 @@ public class ContractsService
 
     return contract;
   }
+
+  public async Task<ContractModel> CreateContractAsync(ContractModel contract)
+  {
+    ArgumentNullException.ThrowIfNull(contract);
+
+    if( contract.AuthorId <= 0 )
+      throw new ArgumentException("AuthorId must be greater than zero.");
+    if( await _context.users.FindAsync(contract.AuthorId) is null )
+      throw new ArgumentException($"Author with ID {contract.AuthorId} does not exist.");
+    if(contract.Price <= 0)
+      throw new ArgumentException("Price must be greater than zero.");
+    ArgumentException.ThrowIfNullOrEmpty(contract.Description);
+
+    using var transaction = await _context.Database.BeginTransactionAsync();
+    try
+    {
+
+      var ctrc = new ContractModel
+      {
+          AuthorId = contract.AuthorId,
+          Price = contract.Price,
+          Description = contract.Description,
+          Status = contract.Status,
+          CreatedAt = DateTime.UtcNow,
+          UpdatedAt = DateTime.UtcNow,
+          Deadline = DateTime.UtcNow.AddDays(30)
+      };
+
+      var createdContract = await _context.contracts.AddAsync(ctrc);
+      await _context.SaveChangesAsync();
+      await transaction.CommitAsync();
+      return contract;
+    }
+    catch
+    {
+      await transaction.RollbackAsync();
+      throw;
+    }
+  }
 }

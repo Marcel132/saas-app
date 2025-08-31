@@ -16,7 +16,7 @@ public class ContractsController : ControllerBase
     _contractsService = contractsService;
   }
 
-  [Authorize]
+  // [Authorize]
   [HttpGet]
   public async Task<IActionResult> GetContracts()
   {
@@ -36,7 +36,7 @@ public class ContractsController : ControllerBase
     }
   }
 
-  [Authorize]
+  // [Authorize]
   [HttpGet("{id}")]
   public async Task<IActionResult> GetContractById(int id)
   {
@@ -65,11 +65,39 @@ public class ContractsController : ControllerBase
     }
   }
 
-  [Authorize(Roles = "Admin, Company")]
+  // [Authorize(Roles = "Admin, Company")]
   [HttpPost]
-  public IActionResult CreateContract([FromBody] object contractData)
+  public async Task<IActionResult> CreateContract([FromBody] ContractModel request)
   {
-    return Ok(new { message = "Create contract endpoint is under construction." });
+    ArgumentNullException.ThrowIfNull(request);
+    // if (request == null)
+    // {
+    //   return BadRequest(new { success = false, message = "Request body is null." });
+    // }
+
+    if (!ModelState.IsValid)
+    {
+      return BadRequest(new { success = false, message = "Invalid contract data."});
+    }
+
+    try
+    {
+      var createdContract = await _contractsService.CreateContractAsync(request);
+      if (createdContract == null)
+      {
+        return BadRequest(new { success = false, message = "Failed to create contract." });
+      }
+      return Ok( new { success = true, data = createdContract, message = "Contract created successfully." });
+    }
+    catch (ArgumentException ex)
+    {
+      return BadRequest(new { success = false, message = ex.Message });
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex, "Error creating contract");
+      return StatusCode(500, new { success = false, message = "An error occurred while creating the contract." });
+    }
   }
 
   [Authorize(Roles = "Admin, Company")]
