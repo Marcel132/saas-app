@@ -12,7 +12,7 @@ public class UserService
   }
   public async Task<List<UsersModel>> GetAllUsersAsync()
   {
-    var users = await _context.users
+    var users = await _context.Users
     .Include(u => u.Sessions)
     .Include(u => u.UserData)
     .Include(u => u.Opinions)
@@ -24,22 +24,15 @@ public class UserService
 
   public async Task<UsersModel> GetUserByIdAsync(int userId)
   {
-    var user = await _context.users
+    var user = await _context.Users
       .Include(u => u.Sessions)
       .Include(u => u.UserData)
       .Include(u => u.Opinions)
       .Include(u => u.ApiLogs)
-      .FirstOrDefaultAsync(u => u.Id == userId);
+      .FirstOrDefaultAsync(u => u.Id == userId)
+      ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
 
-
-    if (user == null)
-    {
-      throw new KeyNotFoundException($"User with ID {userId} not found.");
-    }
-    else
-    {
       return user;
-    }
   }
 
   public async Task<bool> UpdateUserAsync(int userId, UpdateUserModel userModel)
@@ -51,8 +44,8 @@ public class UserService
     using var transaction = await _context.Database.BeginTransactionAsync();
     try
     {
-      var user = await _context.users.FindAsync(userId) ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
-      var userData = await _context.user_data.FirstOrDefaultAsync(ud => ud.UserId == userId) ?? throw new KeyNotFoundException($"User data for user with ID {userId} not found.");
+      var user = await _context.Users.FindAsync(userId) ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
+      var userData = await _context.User_data.FirstOrDefaultAsync(ud => ud.UserId == userId) ?? throw new KeyNotFoundException($"User data for user with ID {userId} not found.");
 
       user.PasswordHash = string.IsNullOrWhiteSpace(userModel.PasswordHash) ? user.PasswordHash : userModel.PasswordHash;
       if (Enum.IsDefined(typeof(RoleType), userModel.Role))
@@ -91,28 +84,28 @@ public class UserService
     try
     {
 
-      var user = await _context.users.FindAsync(userId);
+      var user = await _context.Users.FindAsync(userId);
       if (user == null)
       {
         throw new KeyNotFoundException($"User with ID {userId} not found.");
       }
 
-      _context.users.Remove(user);
+      _context.Users.Remove(user);
 
-      var userSessions = await _context.sessions.Where(s => s.UserId == userId).ToListAsync();
-      _context.sessions.RemoveRange(userSessions);
+      var userSessions = await _context.Sessions.Where(s => s.UserId == userId).ToListAsync();
+      _context.Sessions.RemoveRange(userSessions);
 
-      var userData = await _context.user_data.FirstOrDefaultAsync(ud => ud.UserId == userId);
+      var userData = await _context.User_data.FirstOrDefaultAsync(ud => ud.UserId == userId);
       if (userData != null)
       {
-        _context.user_data.Remove(userData);
+        _context.User_data.Remove(userData);
       }
 
-      var userOpinions = await _context.opinions.Where(o => o.TargetId == userId).ToListAsync();
-      _context.opinions.RemoveRange(userOpinions);
+      var userOpinions = await _context.Opinions.Where(o => o.TargetId == userId).ToListAsync();
+      _context.Opinions.RemoveRange(userOpinions);
 
-      var userApiLogs = await _context.api_logs.Where(al => al.UserId == userId).ToListAsync();
-      _context.api_logs.RemoveRange(userApiLogs);
+      var userApiLogs = await _context.Api_logs.Where(al => al.UserId == userId).ToListAsync();
+      _context.Api_logs.RemoveRange(userApiLogs);
 
       await _context.SaveChangesAsync();
       await transaction.CommitAsync();
@@ -133,7 +126,7 @@ public class UserService
       throw new ArgumentException("Email and password must be provided.");
     }
 
-    var user = await _context.users
+    var user = await _context.Users
       .Include(u => u.UserData)
       .FirstOrDefaultAsync(u => u.Email == email);
 
@@ -149,10 +142,10 @@ public class UserService
   {
     ArgumentNullException.ThrowIfNull(email);
 
-    var user = await _context.users.FirstOrDefaultAsync(u => u.Email == email)
+    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email)
       ?? throw new KeyNotFoundException($"User with email {email} not found.");
 
-    var sessions = await _context.sessions
+    var sessions = await _context.Sessions
       .Where(s => s.UserId == user.Id && !s.Revoked && s.Ip == deviceIp)
       .ToListAsync();
 
@@ -196,7 +189,7 @@ public class UserService
     using var transaction = await _context.Database.BeginTransactionAsync();
     try
     {
-      var existingUser = await _context.users.FirstOrDefaultAsync(u => u.Email == user.Email);
+      var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
       if (existingUser != null)
       {
         throw new ArgumentException("User with this email already exists.");
@@ -204,16 +197,16 @@ public class UserService
 
       var hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
       user.PasswordHash = hashedPassword;
-      _context.users.Add(user);
+      _context.Users.Add(user);
       await _context.SaveChangesAsync();
 
-      userData.UserId = user.Id; // Ensure UserId is set correctly
-      var existingUserData = await _context.user_data.FirstOrDefaultAsync(ud => ud.UserId == userData.UserId);
+      userData.UserId = user.Id; 
+      var existingUserData = await _context.User_data.FirstOrDefaultAsync(ud => ud.UserId == userData.UserId);
       if (existingUserData != null)
       {
         throw new ArgumentException("User data for this user already exists.");
       }
-      _context.user_data.Add(userData);
+      _context.User_data.Add(userData);
       await _context.SaveChangesAsync();
       await transaction.CommitAsync();
       return user;
