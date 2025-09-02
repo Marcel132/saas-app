@@ -46,7 +46,7 @@ public class TokenService
     try
     {
       // Verify that the user exists
-      var user = await _context.users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
+      var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
 
       // Create claims for the token
       var claims = new[]
@@ -86,7 +86,7 @@ public class TokenService
       };
 
       // Save the session to the database
-      await _context.sessions.AddAsync(session);
+      await _context.Sessions.AddAsync(session);
       await _context.SaveChangesAsync();
       await transaction.CommitAsync();
       
