@@ -70,19 +70,19 @@ public class ContractsController : ControllerBase
   public async Task<IActionResult> CreateContract([FromBody] ContractModel request)
   {
     ArgumentNullException.ThrowIfNull(request);
-    // if (request == null)
-    // {
-    //   return BadRequest(new { success = false, message = "Request body is null." });
-    // }
-
+    
     if (!ModelState.IsValid)
     {
-      return BadRequest(new { success = false, message = "Invalid contract data."});
+      return BadRequest(new { success = false, message = "Invalid contract data." });
     }
 
     try
     {
-      var createdContract = await _contractsService.CreateContractAsync(request);
+      if( !Request.Cookies.TryGetValue("refreshToken", out string? refreshToken))
+      {
+        return Unauthorized(new { success = false, message = "Refresh token is missing." });
+      }
+      var createdContract = await _contractsService.CreateContractAsync(request, refreshToken);
       if (createdContract == null)
       {
         return BadRequest(new { success = false, message = "Failed to create contract." });
@@ -100,11 +100,45 @@ public class ContractsController : ControllerBase
     }
   }
 
-  [Authorize(Roles = "Admin, Company")]
+  // [Authorize(Roles = "Admin, Company")]
   [HttpPut("{id}")]
-  public IActionResult UpdateContract(int id, [FromBody] object contractData)
+  public async Task<IActionResult> UpdateContract(int id, [FromBody] ContractRequestModel request)
   {
-    return Ok(new { message = "Update contract endpoint is under construction." });
+    ArgumentNullException.ThrowIfNull(request);
+    if (id <= 0)
+      return BadRequest(new { message = "Invalid contract ID." });
+    if (!ModelState.IsValid)
+      return BadRequest(new { message = "Invalid contract data." });
+
+    try
+    {
+      if( !Request.Cookies.TryGetValue("refreshToken", out string? refreshToken))
+      {
+        return Unauthorized(new { message = "Refresh token is missing." });
+      }
+      var isContractUpdated = await _contractsService.UpdateContractAsync(id, request, refreshToken);
+      if (isContractUpdated == false)
+        return NotFound(new { message = $"Contract with ID {id} not found." });
+
+    return Ok( new { success = true, message = "Contract updated successfully." } );
+    }
+    catch (ArgumentException ex)
+    {
+      return BadRequest(new { message = ex.Message });
+    }
+    catch (KeyNotFoundException ex)
+    {
+      return NotFound(new { message = ex.Message });
+    }
+    catch (UnauthorizedAccessException ex)
+    {
+      return Unauthorized(new { message = ex.Message });
+    }
+    catch (System.Exception)
+    {
+      throw;
+    }
+
   }
 
   [Authorize(Roles = "Admin, Company")]
