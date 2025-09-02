@@ -47,7 +47,7 @@ public class MiddlewareService
 
       var principal = tokenHandler.ValidateToken(token, validationParameter, out SecurityToken validatedToken);
 
-      var sessions = await _context.sessions.ToListAsync();
+      var sessions = await _context.Sessions.ToListAsync();
       var userSession = sessions.FirstOrDefault(s => BCrypt.Net.BCrypt.Verify(token, s.AuthToken));
 
       if (userSession?.ExpiresAt < DateTime.UtcNow)

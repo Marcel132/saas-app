@@ -4,20 +4,26 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<UsersModel> users { get; set; }
-    public DbSet<UserDataModel> user_data { get; set; }
-    public DbSet<SessionModel> sessions { get; set; }
-    public DbSet<ApiLogsModel> api_logs { get; set; }
-    public DbSet<OpinionModel> opinions { get; set; }
-    public DbSet<ContractModel> contracts { get; set; }
+    public DbSet<UsersModel> Users { get; set; }
+    public DbSet<UserDataModel> User_data { get; set; }
+    public DbSet<SessionModel> Sessions { get; set; }
+    public DbSet<ApiLogsModel> Api_logs { get; set; }
+    public DbSet<OpinionModel> Opinions { get; set; }
+    public DbSet<ContractModel> Contracts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+     
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            entity.SetTableName(entity?.GetTableName()?.ToLower());
+        }
+
         modelBuilder.Entity<UsersModel>()
             .Property(u => u.Role)
             .HasConversion<string>();
 
-        base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<UsersModel>()
         .HasMany(u => u.Sessions)
@@ -54,6 +60,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<ContractModel>()
             .Property(c => c.Status)
             .HasConversion<string>();
+
+
 
 
     }

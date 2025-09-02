@@ -311,7 +311,7 @@ public class UsersController : ControllerBase
       Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
       {
         HttpOnly = true,
-        Secure = true,
+        Secure = false,
         SameSite = SameSiteMode.Strict,
         Expires = DateTime.UtcNow.AddDays(7)
       });
