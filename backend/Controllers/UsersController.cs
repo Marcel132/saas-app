@@ -25,7 +25,7 @@ public class UsersController : ControllerBase
     // This endpoint retrieves all users.
     // It includes their session, user data, opinions, and API logs.
     var users = await _userService.GetAllUsersAsync();
-    return Ok(new { success = true, data = users , message = "Users retrieved successfully."});
+    return Ok(new { success = true, data = users, message = "Users retrieved successfully." });
   }
 
 
@@ -46,7 +46,7 @@ public class UsersController : ControllerBase
     try
     {
       var user = await _userService.GetUserByIdAsync(id);
-      return Ok( new { success = true, data = user, message = "User retrieved successfully." });
+      return Ok(new { success = true, data = user, message = "User retrieved successfully." });
     }
     catch (KeyNotFoundException ex)
     {
@@ -68,39 +68,36 @@ public class UsersController : ControllerBase
     // Validate the ID and requested data before proceeding.
     // If the ID is invalid or requested data is null return a 400 Bad Request response. 
     if (id <= 0 || updateUser == null)
-    {
       return BadRequest(new { success = false, message = "Invalid user ID or update data." });
-    }
+    
 
     if (!ModelState.IsValid)
-    {
-      return BadRequest( new { success = false, message = "Invalid model state.", details = ModelState });
-    }
+      return BadRequest(new { success = false, message = "Invalid model state.", details = ModelState });
+    
 
     // Attempt to update the user by ID.
-      // If the user is not found, return a 404 Not Found response.
-      try
-      {
-        var updatedUser = await _userService.UpdateUserAsync(id, updateUser);
-        if (updatedUser != true)
-        {
-          return NotFound(new { success = false, message = $"User with ID {id} not found." });
-        }
+    // If the user is not found, return a 404 Not Found response.
+    try
+    {
+      var updatedUser = await _userService.UpdateUserAsync(id, updateUser);
+      if (updatedUser != true)
+        return NotFound(new { success = false, message = $"User with ID {id} not found." });
+      
 
-        return Ok(new { success = true, message = "User updated successfully." });
-      }
-      catch (ArgumentException ex)
-      {
-        return BadRequest(new { success = false, message = ex.Message });
-      }
-      catch (KeyNotFoundException ex)
-      {
-        return NotFound(new { success = false, message = ex.Message });
-      }
-      catch (Exception ex)
-      {
-        return StatusCode(500, new { success = false, message = "An error occurred whike updating the user.", details = ex.Message });
-      }
+      return Ok(new { success = true, message = "User updated successfully." });
+    }
+    catch (ArgumentException ex)
+    {
+      return BadRequest(new { success = false, message = ex.Message });
+    }
+    catch (KeyNotFoundException ex)
+    {
+      return NotFound(new { success = false, message = ex.Message });
+    }
+    catch (Exception ex)
+    {
+      return StatusCode(500, new { success = false, message = "An error occurred whike updating the user.", details = ex.Message });
+    }
 
   }
 
@@ -117,7 +114,7 @@ public class UsersController : ControllerBase
     {
       return BadRequest(new { success = false, message = $"Invalid user ID: {id}." });
     }
-    
+
     // Attempt to delete the user by ID.
     // If the user is not found, return a 404 Not Found response.
     try
@@ -156,7 +153,7 @@ public class UsersController : ControllerBase
     {
       return BadRequest(new { success = false, message = "Invalid login request." });
     }
-    
+
     // Attempt to authenticate the user using the provided credentials.
     // If authentication fails, return a 401 Unauthorized response.
     try
@@ -249,7 +246,7 @@ public class UsersController : ControllerBase
     {
       return BadRequest(new { success = false, message = "Invalid registration request." });
     }
-    if(!ModelState.IsValid)
+    if (!ModelState.IsValid)
     {
       return BadRequest(new { success = false, message = "Invalid model state.", details = ModelState });
     }
@@ -268,7 +265,7 @@ public class UsersController : ControllerBase
         return BadRequest(new { success = false, message = "User information is missing in the registration request." });
       }
 
-      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = request.User.Role.ToString()}) ?? throw new ArgumentException("Token generation failed.");
+      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = request.User.Role.ToString() }) ?? throw new ArgumentException("Token generation failed.");
 
       return Ok(new { success = true, data = new { email = user.Email, id = user.Id, authToken = token }, message = "User registered successfully." });
     }
@@ -283,30 +280,34 @@ public class UsersController : ControllerBase
     }
   }
 
-
-  // Token
-
   // Generation Endpoint 
   // path: /users/token/generate
-  [HttpPost("token/generate")]
+  [AllowAnonymous]
+  [HttpPost("token/auth")]
   public async Task<IActionResult> GenerateToken([FromBody] TokenAuthModel request)
   {
     if (request.UserId <= 0 || string.IsNullOrEmpty(request.Role))
-    {
-      return BadRequest(new { success = false,  message = "UserId and Role are required." });
-    }
+      return BadRequest(new { success = false, message = "UserId and Role are required." });
+
     if (!ModelState.IsValid)
-    {
       return BadRequest(new { success = false, message = "Invalid model state.", details = ModelState });
-    }
 
     try
     {
       var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
       var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
 
-      var token = await _tokenService.GenerateAuthToken(request.UserId, request.Role, ip, userAgent);
+      var token = await _tokenService.GenerateAuthToken(request.UserId, request.Role, ip, userAgent)
+      ?? throw new ArgumentException("Token generation failed.");
 
+      Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
+      {
+        HttpOnly = true,
+        Secure = false,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTime.UtcNow.AddMinutes(1)
+      });
+     
       // Set the refresh token as an HttpOnly cookie
       Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
       {
@@ -318,17 +319,12 @@ public class UsersController : ControllerBase
 
       return Ok(new { success = true, data = new { authToken = token.AuthToken }, message = "Token generated successfully." });
     }
-    catch (ArgumentException ex)
-    {
-      return BadRequest(new { success = false, message = ex.Message });
-    }
-    catch (KeyNotFoundException ex)
-    {
-      return NotFound(new { success = false, message = ex.Message });
-    }
+    catch (ArgumentException ex){ return BadRequest(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex){  return NotFound(new { success = false, message = ex.Message }); }
     catch (InvalidOperationException ex)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while generating the token.", details = ex.Message });
     }
   }
+
 }
