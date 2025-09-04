@@ -50,6 +50,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<ContractsService>();
+builder.Services.AddScoped<MiddlewareService>();
 
 
 var app = builder.Build();
@@ -59,6 +60,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+app.UseMiddleware<JwtMiddleware>();
+app.UseMiddleware<CookieToBearerMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

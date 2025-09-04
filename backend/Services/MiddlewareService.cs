@@ -21,15 +21,10 @@ public class MiddlewareService
 
   public async Task<ClaimsPrincipal> isValidJwtConfiguration(string token)
   {
-    if (string.IsNullOrEmpty(_jwtKey) || string.IsNullOrEmpty(_issuer) || string.IsNullOrEmpty(_audience))
-    {
-      throw new InvalidOperationException("JWT configuration is not properly set.");
-    }
-
-    if (string.IsNullOrEmpty(token))
-    {
-      throw new ArgumentException("Token cannot be null or empty.", nameof(token));
-    }
+    ArgumentNullException.ThrowIfNull(token);
+    ArgumentNullException.ThrowIfNull(_jwtKey);
+    ArgumentNullException.ThrowIfNull(_issuer);
+    ArgumentNullException.ThrowIfNull(_audience);
 
     try
     {
@@ -47,37 +42,33 @@ public class MiddlewareService
 
       var principal = tokenHandler.ValidateToken(token, validationParameter, out SecurityToken validatedToken);
 
-      var sessions = await _context.Sessions.ToListAsync();
-      var userSession = sessions.FirstOrDefault(s => BCrypt.Net.BCrypt.Verify(token, s.AuthToken));
+      var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+      if (string.IsNullOrEmpty(userId))
+        throw new SecurityTokenException("Invalid token: Missing user ID.");
 
-      if (userSession?.ExpiresAt < DateTime.UtcNow)
-      {
+      var userSessions = await _context.Sessions
+        .Where(s => s.UserId == int.Parse(userId) && !s.Revoked)
+        .ToListAsync();
+
+      var userSession = userSessions.FirstOrDefault(s => BCrypt.Net.BCrypt.Verify(token, s.AuthToken))
+        ?? throw new SecurityTokenException("Invalid token: Session not found.");
+
+      if (userSession.ExpiresAt < DateTime.UtcNow)
         throw new SecurityTokenException("Invalid token: Token has expired.");
-      }
-      else if (userSession.Revoked)
-      {
-        throw new SecurityTokenException("Invalid token: Token has been revoked.");
-      }
-      else
-      {
-        if (userSession == null)
-        {
-          throw new SecurityTokenException("Invalid token: Session not found.");
-        }
-        return principal;
-      }
 
+      if (userSession.Revoked)
+        throw new SecurityTokenException("Invalid token: Token has been revoked.");
+
+      return principal;
 
     }
     catch (SecurityTokenException ex)
     {
-      Console.WriteLine($"Security token validation failed: {ex.Message}");
-      return null;
+      throw new SecurityTokenException($"Token validation failed: {ex.Message}", ex);
     }
     catch (Exception ex)
     {
-      Console.WriteLine($"An error occurred while validating the JWT token: {ex.Message}");
-      return null;
+      throw new Exception("An error occurred during token validation.", ex);
     }
   }
 }
