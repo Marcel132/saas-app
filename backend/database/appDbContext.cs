@@ -5,16 +5,16 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<UsersModel> Users { get; set; }
-    public DbSet<UserDataModel> User_data { get; set; }
+    public DbSet<UserDataModel> UserData { get; set; }
     public DbSet<SessionModel> Sessions { get; set; }
-    public DbSet<ApiLogsModel> Api_logs { get; set; }
+    public DbSet<ApiLogsModel> ApiLogs { get; set; }
     public DbSet<OpinionModel> Opinions { get; set; }
     public DbSet<ContractModel> Contracts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-     
+
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
         {
             entity.SetTableName(entity?.GetTableName()?.ToLower());
@@ -61,7 +61,8 @@ public class AppDbContext : DbContext
             .Property(c => c.Status)
             .HasConversion<string>();
 
-
+        modelBuilder.Entity<ApiLogsModel>().ToTable("api_logs");
+        modelBuilder.Entity<UserDataModel>().ToTable("user_data");
 
 
     }
