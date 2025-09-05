@@ -29,17 +29,14 @@ public class TokenService
   {
     // Vaidate configuration and inputs
     if (string.IsNullOrEmpty(_jwtKey) || string.IsNullOrEmpty(_issuer) || string.IsNullOrEmpty(_audience))
-    {
       throw new InvalidOperationException("JWT configuration is not properly set.");
-    }
+    
     if (userId <= 0)
-    {
       throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
-    }
+    
     if (string.IsNullOrEmpty(role))
-    {
       throw new ArgumentException("Role cannot be null or empty.", nameof(role));
-    }
+    
 
     // Stat a transaction to ensure atomicity
     using var transaction = await _context.Database.BeginTransactionAsync();
