@@ -1,6 +1,8 @@
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 [ApiController]
 [Route("[controller]")]
@@ -28,114 +30,81 @@ public class UsersController : ControllerBase
     return Ok(new { success = true, data = users, message = "Users retrieved successfully." });
   }
 
-
-  // path: /users/{id}
-  // This endpoint retrieves a user by their ID.
-  [Authorize(Roles = "Admin")]
-  [HttpGet("{id}")]
-  public async Task<IActionResult> GetUserById(int id)
+  [Authorize]
+  [HttpGet("me")]
+  public async Task<IActionResult> GetCurrentUser()
   {
-    // Validate the ID before proceeding.
-    if (id <= 0)
-    {
-      return BadRequest(new { success = false, message = "Invalid user ID." });
-    }
+    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)
+      ?? throw new ArgumentException("User ID claim is missing."));
 
-    // Attempt to retrieve the user by ID.
-    // If the user is not found, return a 404 Not Found response.
     try
     {
-      var user = await _userService.GetUserByIdAsync(id);
-      return Ok(new { success = true, data = user, message = "User retrieved successfully." });
-    }
-    catch (KeyNotFoundException ex)
-    {
-      return NotFound(new { success = false, message = ex.Message });
-    }
-    catch (Exception ex)
-    {
-      return StatusCode(500, new { success = false, message = "An error occurred while retrieving the user.", details = ex.Message });
-    }
-  }
+      var user = await _userService.GetCurrentUserAsync(userId);
 
+      return Ok(new { success = true, data = user, message = "Token retrieved successfully." });
+    }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message });  }
+    catch (System.Exception) { return StatusCode(500, new { success = false, message = "An error occurred while getting current user" });  }
+  }
 
   // path: /users/{id}
   // This endpoint updates a user by their ID.
   [Authorize]
-  [HttpPut("{id}")]
-  public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserModel updateUser)
+  [HttpPut]
+  public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateUserModel request)
   {
     // Validate the ID and requested data before proceeding.
     // If the ID is invalid or requested data is null return a 400 Bad Request response. 
-    if (id <= 0 || updateUser == null)
-      return BadRequest(new { success = false, message = "Invalid user ID or update data." });
-    
-
+    ArgumentNullException.ThrowIfNull(request);
     if (!ModelState.IsValid)
-      return BadRequest(new { success = false, message = "Invalid model state.", details = ModelState });
-    
+      return BadRequest(new { success = false, message = "Invalid model state", details = ModelState });
+
+    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)
+      ?? throw new ArgumentException("UserId claims is missing"));
 
     // Attempt to update the user by ID.
     // If the user is not found, return a 404 Not Found response.
     try
     {
-      var updatedUser = await _userService.UpdateUserAsync(id, updateUser);
-      if (updatedUser != true)
-        return NotFound(new { success = false, message = $"User with ID {id} not found." });
-      
 
-      return Ok(new { success = true, message = "User updated successfully." });
+      var user = await _userService.UpdateUserAsync(userId, request);
+      return Ok(new { success = true, message = "User updated succesfulty" });
     }
-    catch (ArgumentException ex)
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message });  }
+    catch (System.Exception)
     {
-      return BadRequest(new { success = false, message = ex.Message });
+      return StatusCode(500, new { success = false, message = "An error occurred while updating a user" });
     }
-    catch (KeyNotFoundException ex)
-    {
-      return NotFound(new { success = false, message = ex.Message });
-    }
-    catch (Exception ex)
-    {
-      return StatusCode(500, new { success = false, message = "An error occurred whike updating the user.", details = ex.Message });
-    }
-
   }
 
 
   // path: /users/{id}
   // This endpoint deletes a user by their ID.
-  [Authorize(Roles = "Admin")]
-  [HttpDelete("{id}")]
-  public async Task<IActionResult> DeleteUser(int id)
+  [Authorize]
+  [HttpDelete]
+  public async Task<IActionResult> DeleteUser()
   {
     //  Validate the ID before proceeding.
     // If the ID is invalid, return a 400 Bad Request response.
-    if (id <= 0)
-    {
-      return BadRequest(new { success = false, message = $"Invalid user ID: {id}." });
-    }
+    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)
+      ?? throw new ArgumentException("UserId claims are missing"));
 
     // Attempt to delete the user by ID.
     // If the user is not found, return a 404 Not Found response.
     try
     {
-      await _userService.DeleteUserAsync(id);
-      return Ok(new { success = true, message = $"User with ID {id} deleted successfully." });
+      await _userService.DeleteUserAsync(userId);
+      return Ok(new { success = true, message = $"User with ID {userId} deleted successfully." });
     }
-    catch (KeyNotFoundException ex)
-    {
-      return NotFound(new { success = false, message = ex.Message });
-    }
-    catch (ArgumentException ex)
-    {
-      return BadRequest(new { success = false, message = ex.Message });
-    }
+    catch (ArgumentException ex)  { return BadRequest(new { success = false, message = ex.Message });  }
+    catch (KeyNotFoundException ex) {  return NotFound(new { success = false, message = ex.Message }); }
     catch (System.Exception)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while deleting the user." });
     }
   }
-
 
   // path: /users/login
   // This endpoint authenticates a user and generates an auth token.
@@ -150,34 +119,23 @@ public class UsersController : ControllerBase
     ArgumentNullException.ThrowIfNull(request.Password);
 
     if (!ModelState.IsValid)
-    {
       return BadRequest(new { success = false, message = "Invalid login request." });
-    }
 
     // Attempt to authenticate the user using the provided credentials.
     // If authentication fails, return a 401 Unauthorized response.
     try
     {
-      var user = await _userService.AuthenticateUserAsync(request.Email, request.Password);
-      if (user == null)
-      {
-        return Unauthorized(new { success = false, message = "Authentication failed. Invalid email or password." });
-      }
-      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = user.Role.ToString() }) ?? throw new ArgumentException("Token generation failed.");
-      return Ok(new { success = true, data = new { email = request.Email, authToken = token }, message = "Login successful." });
+      var user = await _userService.AuthenticateUserAsync(request)
+        ?? throw new UnauthorizedAccessException("Authentication failed! Invalid email or password");
+
+      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = user.Role.ToString() })
+        ?? throw new ArgumentException("Token generation failed.");
+
+      return Ok(new { success = true, message = "Login successful." });
     }
-    catch (ArgumentException ex)
-    {
-      return BadRequest(new { success = false, message = ex.Message });
-    }
-    catch (KeyNotFoundException ex)
-    {
-      return NotFound(new { success = false, message = ex.Message });
-    }
-    catch (UnauthorizedAccessException ex)
-    {
-      return Unauthorized(new { success = false, message = ex.Message });
-    }
+    catch (ArgumentException ex)  { return BadRequest(new { success = false, message = ex.Message });  }
+    catch (KeyNotFoundException ex) {  return NotFound(new { success = false, message = ex.Message }); }
+    catch (UnauthorizedAccessException ex)  { return Unauthorized(new { success = false, message = ex.Message });  }
     catch (System.Exception ex)
     {
       return StatusCode(500, new { success = false, message = "An error occurred during authentication.", details = ex.Message });
@@ -188,27 +146,28 @@ public class UsersController : ControllerBase
   // This endpoint logs out a user by revoking their active sessions.
   [Authorize]
   [HttpPost("logout")]
-  public async Task<IActionResult> Logout([FromBody] LogoutRequestModel request)
+  public async Task<IActionResult> Logout()
   {
 
-    ArgumentNullException.ThrowIfNull(request);
-    ArgumentNullException.ThrowIfNull(request.Email);
-
-    if (!ModelState.IsValid)
-    {
-      return BadRequest(new { success = false, message = "Invalid logout request." });
-    }
+    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)
+      ?? throw new ArgumentException("UserId claim is missing "));
 
     var deviceIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
 
     try
     {
-      var user = await _userService.LogoutUserAsync(request.Email, deviceIp);
-      if (user == false)
-      {
+      var user = await _userService.LogoutUserAsync(userId, deviceIp);
+      if (!user)
         return BadRequest(new { success = false, message = "Cannot delete a session" });
-      }
 
+      // Clear the auth token cookie
+      Response.Cookies.Append("AuthToken", "", new CookieOptions
+      {
+        Expires = DateTime.UtcNow.AddDays(-1),
+        HttpOnly = true,
+        Secure = true,
+        SameSite = SameSiteMode.Strict
+      });
       // Clear the refresh token cookie
       Response.Cookies.Append("RefreshToken", "", new CookieOptions
       {
@@ -217,22 +176,16 @@ public class UsersController : ControllerBase
         Secure = true,
         SameSite = SameSiteMode.Strict
       });
+
       return Ok(new { success = true, message = "Logout successful." });
     }
-    catch (KeyNotFoundException ex)
-    {
-      return NotFound(new { success = false, message = ex.Message });
-    }
-    catch (ArgumentException ex)
-    {
-      return BadRequest(new { success = false, message = ex.Message });
-    }
+    catch (ArgumentException ex)  { return BadRequest(new { success = false, message = ex.Message });  }
+    catch (KeyNotFoundException ex) {  return NotFound(new { success = false, message = ex.Message }); }
     catch (System.Exception)
     {
-      throw;
+      return StatusCode(500, new { success = false, message = "An error occurred while logouta user" });
     }
   }
-
 
   // Registration Endpoint
   // path: /users/register
@@ -242,30 +195,20 @@ public class UsersController : ControllerBase
   {
     // Validate the request model.
     // If the request is null, return a 400 Bad Request response.
-    if (request == null)
-    {
-      return BadRequest(new { success = false, message = "Invalid registration request." });
-    }
+    ArgumentNullException.ThrowIfNull(request);
+
     if (!ModelState.IsValid)
-    {
       return BadRequest(new { success = false, message = "Invalid model state.", details = ModelState });
-    }
 
     // Attempt to register the user using the provided model.
     // If the user registration fails, return a 400 Bad Request response.
     try
     {
-      var user = await _userService.RegisterModelAsync(request);
-      if (user == null)
-      {
-        return BadRequest(new { success = false, message = "User registration failed. User already exists or invalid data." });
-      }
-      if (request.User == null)
-      {
-        return BadRequest(new { success = false, message = "User information is missing in the registration request." });
-      }
+      var user = await _userService.RegisterUserAsync(request);
+      ArgumentNullException.ThrowIfNull(user);
+      ArgumentNullException.ThrowIfNull(user.UserData);
 
-      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = request.User.Role.ToString() }) ?? throw new ArgumentException("Token generation failed.");
+      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = user.Role.ToString() }) ?? throw new ArgumentException("Token generation failed.");
 
       return Ok(new { success = true, data = new { email = user.Email, id = user.Id, authToken = token }, message = "User registered successfully." });
     }
@@ -282,7 +225,7 @@ public class UsersController : ControllerBase
 
   // Generation Endpoint 
   // path: /users/token/generate
-  [AllowAnonymous]
+  [Authorize]
   [HttpPost("token/auth")]
   public async Task<IActionResult> GenerateToken([FromBody] TokenAuthModel request)
   {
