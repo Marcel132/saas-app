@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,10 +24,10 @@ public class ContractsController : ControllerBase
     try
     {
       var contracts = await _contractsService.GetAllContractsAsync();
-      if (contracts == null || contracts.Count == 0)
-      {
+
+      if (contracts.Count == 0)
         return NotFound(new { success = false, message = "No contracts found." });
-      }
+      
       return Ok(new { success = true, data = contracts, message = "Contracts retrieved successfully." });
     }
     catch (Exception ex)
@@ -41,24 +42,16 @@ public class ContractsController : ControllerBase
   public async Task<IActionResult> GetContractById(int id)
   {
     if (id <= 0)
-    {
       return BadRequest(new { success = false, message = "Invalid contract ID." });
-    }
 
     try
     {
       var contract = await _contractsService.GetContractByIdAsync(id);
-      if (contract == null)
-      {
-        return NotFound(new { success = false, message = $"Contract with ID {id} not found." });
-      }
 
       return Ok(new { success = true, data = contract, message = "Contract retrieved successfully." });
     }
-    catch (KeyNotFoundException ex)
-    {
-      return NotFound(new { success = false, message = ex.Message });
-    }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex) {  return NotFound(new { success = false, message = ex.Message }); }
     catch (System.Exception)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while retrieving the contract." });
@@ -69,30 +62,23 @@ public class ContractsController : ControllerBase
   [HttpPost]
   public async Task<IActionResult> CreateContract([FromBody] ContractModel request)
   {
-    ArgumentNullException.ThrowIfNull(request);
+    ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
     
     if (!ModelState.IsValid)
-    {
       return BadRequest(new { success = false, message = "Invalid contract data." });
-    }
 
+    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
+      
     try
     {
-      if( !Request.Cookies.TryGetValue("refreshToken", out string? refreshToken))
-      {
-        return Unauthorized(new { success = false, message = "Refresh token is missing." });
-      }
-      var createdContract = await _contractsService.CreateContractAsync(request, refreshToken);
-      if (createdContract == null)
-      {
-        return BadRequest(new { success = false, message = "Failed to create contract." });
-      }
-      return Ok( new { success = true, data = createdContract, message = "Contract created successfully." });
+
+      var createdContract = await _contractsService.CreateContractAsync(request, userId);
+      ArgumentNullException.ThrowIfNull(createdContract, "Failed to create a contract");
+
+      return Ok(new { success = true, data = createdContract, message = "Contract created successfully." });
     }
-    catch (ArgumentException ex)
-    {
-      return BadRequest(new { success = false, message = ex.Message });
-    }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
     catch (Exception ex)
     {
       _logger.LogError(ex, "Error creating contract");
@@ -104,39 +90,30 @@ public class ContractsController : ControllerBase
   [HttpPut("{id}")]
   public async Task<IActionResult> UpdateContract(int id, [FromBody] ContractRequestModel request)
   {
-    ArgumentNullException.ThrowIfNull(request);
+    ArgumentNullException.ThrowIfNull(request, "Request must have a value");
     if (id <= 0)
       return BadRequest(new { message = "Invalid contract ID." });
     if (!ModelState.IsValid)
       return BadRequest(new { message = "Invalid contract data." });
 
+    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
+      
     try
     {
-      if( !Request.Cookies.TryGetValue("refreshToken", out string? refreshToken))
-      {
-        return Unauthorized(new { message = "Refresh token is missing." });
-      }
-      var isContractUpdated = await _contractsService.UpdateContractAsync(id, request, refreshToken);
+      var isContractUpdated = await _contractsService.UpdateContractAsync(id, request, userId);
+
       if (isContractUpdated == false)
         return NotFound(new { message = $"Contract with ID {id} not found." });
 
-    return Ok( new { success = true, message = "Contract updated successfully." } );
+      return Ok(new { success = true, message = "Contract updated successfully." });
     }
-    catch (ArgumentException ex)
-    {
-      return BadRequest(new { message = ex.Message });
-    }
-    catch (KeyNotFoundException ex)
-    {
-      return NotFound(new { message = ex.Message });
-    }
-    catch (UnauthorizedAccessException ex)
-    {
-      return Unauthorized(new { message = ex.Message });
-    }
+    catch (ArgumentException ex)  { return BadRequest(new { message = ex.Message }); }
+    catch (KeyNotFoundException ex) {  return NotFound(new { message = ex.Message });  }
+    catch (UnauthorizedAccessException ex) {return Unauthorized(new { message = ex.Message }); }
     catch (System.Exception)
     {
-      throw;
+      return StatusCode(500, new { success = false, message = "An error occurred while updating a contract" });
     }
 
   }
