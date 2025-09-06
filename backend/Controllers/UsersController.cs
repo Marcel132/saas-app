@@ -34,8 +34,8 @@ public class UsersController : ControllerBase
   [HttpGet("me")]
   public async Task<IActionResult> GetCurrentUser()
   {
-    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)
-      ?? throw new ArgumentException("User ID claim is missing."));
+    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
 
     try
     {
@@ -60,8 +60,8 @@ public class UsersController : ControllerBase
     if (!ModelState.IsValid)
       return BadRequest(new { success = false, message = "Invalid model state", details = ModelState });
 
-    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)
-      ?? throw new ArgumentException("UserId claims is missing"));
+    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
 
     // Attempt to update the user by ID.
     // If the user is not found, return a 404 Not Found response.
@@ -88,8 +88,8 @@ public class UsersController : ControllerBase
   {
     //  Validate the ID before proceeding.
     // If the ID is invalid, return a 400 Bad Request response.
-    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)
-      ?? throw new ArgumentException("UserId claims are missing"));
+    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
 
     // Attempt to delete the user by ID.
     // If the user is not found, return a 404 Not Found response.
@@ -149,8 +149,8 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> Logout()
   {
 
-    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)
-      ?? throw new ArgumentException("UserId claim is missing "));
+    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
 
     var deviceIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
 
@@ -241,7 +241,7 @@ public class UsersController : ControllerBase
       var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
 
       var token = await _tokenService.GenerateAuthToken(request.UserId, request.Role, ip, userAgent)
-      ?? throw new ArgumentException("Token generation failed.");
+        ?? throw new ArgumentException("Token generation failed.");
 
       Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
       {

@@ -12,44 +12,39 @@ public class UserService
   {
     _context = context;
   }
-  public async Task<List<UsersModel>> GetAllUsersAsync()
+  public async Task<List<UserDto>> GetAllUsersAsync()
   {
-    var users = await _context.Users
-    .Include(u => u.Sessions)
-    .Include(u => u.UserData)
-    .Include(u => u.Opinions)
-    .Include(u => u.ApiLogs)
-    .ToListAsync();
 
-    return users;
+    var usersData = await _context.Users
+      .Include(u => u.UserData)
+      .Select(u => new UserDto
+      {
+      Id = u.Id,
+      Email = u.Email,
+      FirstName = u.UserData.FirstName,
+      LastName = u.UserData.LastName
+      }).ToListAsync();
+
+    if (usersData.Count == 0)
+      throw new ArgumentException("No users found");  
+
+    return usersData;
   }
 
-  // public async Task<UsersModel> GetUserByIdAsync(int userId)
-  // {
-  //   if (userId <= 0)
-  //     throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
-
-  //   var user = await _context.Users
-  //     .Include(u => u.Sessions)
-  //     .Include(u => u.UserData)
-  //     .Include(u => u.Opinions)
-  //     .Include(u => u.ApiLogs)
-  //     .FirstOrDefaultAsync(u => u.Id == userId)
-  //     ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
-
-  //   return user;
-// }
-  
-  public async Task<UsersModel> GetCurrentUserAsync(int userId)
+  public async Task<UserDto> GetCurrentUserAsync(int userId)
   {
     if (userId <= 0)
       throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
 
     var user = await _context.Users
-      .Include(u => u.Sessions)
       .Include(u => u.UserData)
-      .Include(u => u.Opinions)
-      .Include(u => u.ApiLogs)
+      .Select(u => new UserDto
+      {
+        Id = u.Id,
+        Email = u.Email,
+        FirstName = u.UserData.FirstName,
+        LastName = u.UserData.LastName
+      })
       .FirstOrDefaultAsync(u => u.Id == userId)
       ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
 

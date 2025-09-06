@@ -28,7 +28,7 @@ public class UsersModel
 
 
   public ICollection<SessionModel> Sessions { get; set; } = new List<SessionModel>();
-  public UserDataModel? UserData { get; set; }
+  public UserDataModel UserData { get; set; } = null!;
 
   public ICollection<OpinionModel>? Opinions { get; set; }
   public ICollection<ApiLogsModel>? ApiLogs { get; set; }

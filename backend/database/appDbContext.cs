@@ -33,7 +33,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<UsersModel>()
             .HasOne(u => u.UserData)
             .WithOne(ud => ud.User)
-            .HasForeignKey<UserDataModel>(ud => ud.UserId);
+            .HasForeignKey<UserDataModel>(ud => ud.UserId)
+            .IsRequired();
 
         modelBuilder.Entity<UsersModel>()
             .HasMany(u => u.Opinions)
