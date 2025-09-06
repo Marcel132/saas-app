@@ -56,7 +56,7 @@ public class UsersController : ControllerBase
   {
     // Validate the ID and requested data before proceeding.
     // If the ID is invalid or requested data is null return a 400 Bad Request response. 
-    ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
+    // ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
     if (!ModelState.IsValid)
       return BadRequest(new { success = false, message = "Invalid model state", details = ModelState });
 
@@ -114,7 +114,7 @@ public class UsersController : ControllerBase
   {
 
     // Validate the request model.
-    ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
+    // ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
     ArgumentNullException.ThrowIfNull(request.Email, "Email cannot be null");
     ArgumentNullException.ThrowIfNull(request.Password, "Password cannot be null");
 
@@ -195,7 +195,7 @@ public class UsersController : ControllerBase
   {
     // Validate the request model.
     // If the request is null, return a 400 Bad Request response.
-    ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
+    // ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
 
     if (!ModelState.IsValid)
       return BadRequest(new { success = false, message = "Invalid model state.", details = ModelState });
@@ -244,7 +244,7 @@ public class UsersController : ControllerBase
         HttpOnly = true,
         Secure = false,
         SameSite = SameSiteMode.Strict,
-        Expires = DateTime.UtcNow.AddMinutes(1)
+        Expires = DateTime.UtcNow.AddMinutes(15)
       });
      
       // Set the refresh token as an HttpOnly cookie
