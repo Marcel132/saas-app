@@ -56,7 +56,7 @@ public class UsersController : ControllerBase
   {
     // Validate the ID and requested data before proceeding.
     // If the ID is invalid or requested data is null return a 400 Bad Request response. 
-    ArgumentNullException.ThrowIfNull(request);
+    ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
     if (!ModelState.IsValid)
       return BadRequest(new { success = false, message = "Invalid model state", details = ModelState });
 
@@ -114,9 +114,9 @@ public class UsersController : ControllerBase
   {
 
     // Validate the request model.
-    ArgumentNullException.ThrowIfNull(request);
-    ArgumentNullException.ThrowIfNull(request.Email);
-    ArgumentNullException.ThrowIfNull(request.Password);
+    ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
+    ArgumentNullException.ThrowIfNull(request.Email, "Email cannot be null");
+    ArgumentNullException.ThrowIfNull(request.Password, "Password cannot be null");
 
     if (!ModelState.IsValid)
       return BadRequest(new { success = false, message = "Invalid login request." });
@@ -195,7 +195,7 @@ public class UsersController : ControllerBase
   {
     // Validate the request model.
     // If the request is null, return a 400 Bad Request response.
-    ArgumentNullException.ThrowIfNull(request);
+    ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
 
     if (!ModelState.IsValid)
       return BadRequest(new { success = false, message = "Invalid model state.", details = ModelState });
@@ -205,18 +205,14 @@ public class UsersController : ControllerBase
     try
     {
       var user = await _userService.RegisterUserAsync(request);
-      ArgumentNullException.ThrowIfNull(user);
-      ArgumentNullException.ThrowIfNull(user.UserData);
+      ArgumentNullException.ThrowIfNull(user, "User cannot be null");
+      ArgumentNullException.ThrowIfNull(user.UserData, "UserData cannot be null");
 
       var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = user.Role.ToString() }) ?? throw new ArgumentException("Token generation failed.");
 
       return Ok(new { success = true, data = new { email = user.Email, id = user.Id, authToken = token }, message = "User registered successfully." });
     }
-    catch (ArgumentException ex)
-    {
-      return BadRequest(new { success = false, message = ex.Message });
-    }
-
+    catch (ArgumentException ex)  { return BadRequest(new { success = false, message = ex.Message });  }
     catch (System.Exception)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while registering the user." });

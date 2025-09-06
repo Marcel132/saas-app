@@ -133,18 +133,16 @@ public class UserService
   public async Task<UsersModel> AuthenticateUserAsync(LoginRequestModel request)
   {
     if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-    {
       throw new ArgumentException("Email and password must be provided.");
-    }
+    
 
     var user = await _context.Users
       .Include(u => u.UserData)
       .FirstOrDefaultAsync(u => u.Email == request.Email);
 
     if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-    {
       throw new UnauthorizedAccessException("Invalid email or password.");
-    }
+    
 
     return user;
   }
@@ -169,28 +167,24 @@ public class UserService
     await _context.SaveChangesAsync();
     return true;
   }
-  public async Task<UsersModel> RegisterUserAsync(RegisterRequestModel model)
+  public async Task<UsersModel> RegisterUserAsync(RegisterRequestModel request)
   {
-    ArgumentNullException.ThrowIfNull(model);
+    ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
 
-    var user = model.User;
-    ArgumentNullException.ThrowIfNull(user);
+    var user = request.User;
+    ArgumentNullException.ThrowIfNull(user, "User table cannot be null");
 
-    var userData = model.UserData;
-    ArgumentNullException.ThrowIfNull(userData);
+    var userData = request.UserData;
+    ArgumentNullException.ThrowIfNull(userData, "User data table cannot be null");
 
-    if (string.IsNullOrWhiteSpace(user.Email)
-    || string.IsNullOrWhiteSpace(user.Password)
-    || string.IsNullOrWhiteSpace(userData.FirstName)
-    || string.IsNullOrWhiteSpace(userData.LastName)
-    || string.IsNullOrWhiteSpace(userData.PhoneNumber)
-    || string.IsNullOrWhiteSpace(userData.Country)
-    || string.IsNullOrWhiteSpace(userData.PostalCode)
-    || string.IsNullOrWhiteSpace(userData.Street)
-    )
-    {
-      throw new ArgumentNullException("Requested data is null or required fields are missing.");
-    }
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(user.Email, "Email must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(user.Password, "Password must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.FirstName, "First Name must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.LastName, "Last Name must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.PhoneNumber, "Phone Number must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.Country, "Country must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.PostalCode, "Postal Code must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.Street, "Street must have a value");
 
     using var transaction = await _context.Database.BeginTransactionAsync();
     try
@@ -209,9 +203,8 @@ public class UserService
       userData.UserId = user.Id; 
       var existingUserData = await _context.UserData.FirstOrDefaultAsync(ud => ud.UserId == userData.UserId);
       if (existingUserData != null)
-      {
         throw new ArgumentException("User data for this user already exists.");
-      }
+      
       _context.UserData.Add(userData);
       await _context.SaveChangesAsync();
       await transaction.CommitAsync();
