@@ -15,7 +15,7 @@ public class JwtMiddleware
     {
       try
       {
-        var principal = await _middlewareService.isValidJwtConfiguration(token);
+        var principal = await _middlewareService.IsValidJwtConfiguration(token);
         context.User = principal;
       }
       catch

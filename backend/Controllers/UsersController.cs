@@ -44,8 +44,8 @@ public class UsersController : ControllerBase
       return Ok(new { success = true, data = user, message = "Token retrieved successfully." });
     }
     catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
-    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message });  }
-    catch (System.Exception) { return StatusCode(500, new { success = false, message = "An error occurred while getting current user" });  }
+    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
+    catch (System.Exception) { return StatusCode(500, new { success = false, message = "An error occurred while getting current user" }); }
   }
 
   // path: /users/{id}
@@ -72,7 +72,7 @@ public class UsersController : ControllerBase
       return Ok(new { success = true, message = "User updated succesfulty" });
     }
     catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
-    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message });  }
+    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
     catch (System.Exception)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while updating a user" });
@@ -98,8 +98,8 @@ public class UsersController : ControllerBase
       await _userService.DeleteUserAsync(userId);
       return Ok(new { success = true, message = $"User with ID {userId} deleted successfully." });
     }
-    catch (ArgumentException ex)  { return BadRequest(new { success = false, message = ex.Message });  }
-    catch (KeyNotFoundException ex) {  return NotFound(new { success = false, message = ex.Message }); }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
     catch (System.Exception)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while deleting the user." });
@@ -133,9 +133,9 @@ public class UsersController : ControllerBase
 
       return Ok(new { success = true, message = "Login successful." });
     }
-    catch (ArgumentException ex)  { return BadRequest(new { success = false, message = ex.Message });  }
-    catch (KeyNotFoundException ex) {  return NotFound(new { success = false, message = ex.Message }); }
-    catch (UnauthorizedAccessException ex)  { return Unauthorized(new { success = false, message = ex.Message });  }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
+    catch (UnauthorizedAccessException ex) { return Unauthorized(new { success = false, message = ex.Message }); }
     catch (System.Exception ex)
     {
       return StatusCode(500, new { success = false, message = "An error occurred during authentication.", details = ex.Message });
@@ -179,8 +179,8 @@ public class UsersController : ControllerBase
 
       return Ok(new { success = true, message = "Logout successful." });
     }
-    catch (ArgumentException ex)  { return BadRequest(new { success = false, message = ex.Message });  }
-    catch (KeyNotFoundException ex) {  return NotFound(new { success = false, message = ex.Message }); }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
     catch (System.Exception)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while logouta user" });
@@ -212,7 +212,7 @@ public class UsersController : ControllerBase
 
       return Ok(new { success = true, data = new { email = user.Email, id = user.Id, authToken = token }, message = "User registered successfully." });
     }
-    catch (ArgumentException ex)  { return BadRequest(new { success = false, message = ex.Message });  }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
     catch (System.Exception)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while registering the user." });
@@ -246,7 +246,7 @@ public class UsersController : ControllerBase
         SameSite = SameSiteMode.Strict,
         Expires = DateTime.UtcNow.AddMinutes(15)
       });
-     
+
       // Set the refresh token as an HttpOnly cookie
       Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
       {
@@ -258,12 +258,52 @@ public class UsersController : ControllerBase
 
       return Ok(new { success = true, data = new { authToken = token.AuthToken }, message = "Token generated successfully." });
     }
-    catch (ArgumentException ex){ return BadRequest(new { success = false, message = ex.Message }); }
-    catch (KeyNotFoundException ex){  return NotFound(new { success = false, message = ex.Message }); }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
     catch (InvalidOperationException ex)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while generating the token.", details = ex.Message });
     }
   }
 
+  [HttpPost("token/auth/refresh-token")]
+  public async Task<IActionResult> RefreshToken()
+  {
+    if (!Request.Cookies.TryGetValue("RefreshToken", out string? refreshToken))
+      return Unauthorized(new { success = false, message = "Refresh token is missing" });
+
+    try
+    {
+      var token = await _tokenService.RefreshTokenAsync(refreshToken);
+
+      if (token == null)
+        return BadRequest("Cannot refresh a token");
+
+      Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
+      {
+        HttpOnly = true,
+        Secure = false,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTime.UtcNow.AddMinutes(15)
+      });
+
+      // Set the refresh token as an HttpOnly cookie
+      Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
+      {
+        HttpOnly = true,
+        Secure = false,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTime.UtcNow.AddDays(7)
+      });
+
+      return Ok(new { success = true, message = "Token refresh successfuly" });
+    }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (UnauthorizedAccessException ex) { return Unauthorized(new { success = false, message = ex.Message }); }
+    catch (System.Exception)
+    {
+
+      throw;
+    }
+  }
 }

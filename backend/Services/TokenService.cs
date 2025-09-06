@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 public class TokenService
 {
@@ -30,20 +31,21 @@ public class TokenService
     // Vaidate configuration and inputs
     if (string.IsNullOrEmpty(_jwtKey) || string.IsNullOrEmpty(_issuer) || string.IsNullOrEmpty(_audience))
       throw new InvalidOperationException("JWT configuration is not properly set.");
-    
+
     if (userId <= 0)
       throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
-    
+
     if (string.IsNullOrEmpty(role))
       throw new ArgumentException("Role cannot be null or empty.", nameof(role));
-    
+
 
     // Stat a transaction to ensure atomicity
     using var transaction = await _context.Database.BeginTransactionAsync();
     try
     {
       // Verify that the user exists
-      var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId) ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
+      var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId)
+        ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
 
       // Create claims for the token
       var claims = new[]
@@ -86,7 +88,7 @@ public class TokenService
       await _context.Sessions.AddAsync(session);
       await _context.SaveChangesAsync();
       await transaction.CommitAsync();
-      
+
       return new ResponseTokenModel
       {
         AuthToken = jwtString,
@@ -104,6 +106,36 @@ public class TokenService
   {
     var refreshToken = Guid.NewGuid().ToString();
     return Task.FromResult(refreshToken);
+  }
+
+  public async Task<ResponseTokenModel> RefreshTokenAsync(string refreshToken)
+  {
+    if (string.IsNullOrEmpty(refreshToken))
+      throw new ArgumentException("Refresh token is missing");
+
+
+
+    var session = await _context.Sessions
+      .Include(u => u.User)
+      .Where(s => !s.Revoked && s.ExpiresAt > DateTime.UtcNow)
+      .FirstOrDefaultAsync(s => s.RefreshToken == refreshToken);
+
+    if (session == null)
+      throw new UnauthorizedAccessException("Session is missing");
+
+    var newTokens = await GenerateAuthToken(session.UserId, session.User.Role.ToString(), session.Ip, session.UserAgent);
+
+    session.AuthToken = BCrypt.Net.BCrypt.HashPassword(newTokens.AuthToken);
+    session.RefreshToken = newTokens.RefreshToken;
+    session.ExpiresAt = DateTime.UtcNow.AddDays(7);
+
+    await _context.SaveChangesAsync();
+
+    return new ResponseTokenModel
+    {
+      AuthToken = session.AuthToken,
+      RefreshToken = session.RefreshToken
+    };
   }
 
 }

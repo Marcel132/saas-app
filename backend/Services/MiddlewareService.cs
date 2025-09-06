@@ -19,7 +19,7 @@ public class MiddlewareService
     _audience = configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience is not configured in appsettings.json");
   }
 
-  public async Task<ClaimsPrincipal> isValidJwtConfiguration(string token)
+  public async Task<ClaimsPrincipal> IsValidJwtConfiguration(string token)
   {
     ArgumentNullException.ThrowIfNull(token);
     ArgumentNullException.ThrowIfNull(_jwtKey);
