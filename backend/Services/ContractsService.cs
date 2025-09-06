@@ -88,7 +88,7 @@ public class ContractsService
         UpdatedAt = ctrc.UpdatedAt,
         Deadline = ctrc.Deadline
       };
-      
+
       await _context.SaveChangesAsync();
       return userContract;
     }
@@ -127,5 +127,25 @@ public class ContractsService
       throw;
     }
 
+  }
+
+  public async Task<bool> DeleteContractAsync(int contractId, int userId)
+  {
+    if (contractId <= 0)
+      throw new ArgumentOutOfRangeException("Contract ID is lower than 1");
+    if (userId <= 0)
+      throw new ArgumentOutOfRangeException("User ID is lower than 1");
+
+    var contract = await _context.Contracts
+      .FirstOrDefaultAsync(c => c.Id == contractId)
+      ?? throw new KeyNotFoundException($"Not found contract with ID: {contractId}");
+
+    if (contract.AuthorId != userId)
+      throw new UnauthorizedAccessException("You are not allowed to delete this contract");
+
+    _context.Contracts.Remove(contract);
+    await _context.SaveChangesAsync();
+
+    return true;
   }
 }

@@ -118,11 +118,27 @@ public class ContractsController : ControllerBase
 
   }
 
-  [Authorize(Roles = "Admin, Company")]
+  // [Authorize(Roles = "Admin, Company")]
   [HttpDelete("{id}")]
-  public IActionResult DeleteContract(int id)
+  public async Task<IActionResult> DeleteContract(int id)
   {
-    return Ok(new { message = "Delete contract endpoint is under construction." });
+    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+      return Unauthorized(new { success = false, message = "Claims are missing"});
+
+    try
+    {
+      await _contractsService.DeleteContractAsync(id, userId);
+
+      return Ok(new { success = true, message = $"Deleted contract with ID: {id}" });
+    }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message });  }
+    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message });  }
+    catch (UnauthorizedAccessException ex) { return Unauthorized(new { success = false, message = ex.Message });  }
+    catch (System.Exception)
+    {
+      return StatusCode(500, new { success = false, message = "An error occurred while deleteing a contract" });
+    }
+
   }
 
 }
