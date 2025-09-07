@@ -17,7 +17,7 @@ public class UsersModel
 
   [Column("user_role")]
   [Required]
-  public RoleType Role { get; set; }
+  public RoleEnum Role { get; set; }
 
   [Column("is_active")]
   [Required]
@@ -25,6 +25,12 @@ public class UsersModel
 
   [Column("created_at")]
   public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+
+  [Column("specialization")]
+  public SpecializationEnum SpecializationType { get; set; } = SpecializationEnum.Pentester;
+
+  [Column("skills")]
+  public string Skills { get; set; } = string.Empty;
 
 
   public ICollection<SessionModel> Sessions { get; set; } = new List<SessionModel>();

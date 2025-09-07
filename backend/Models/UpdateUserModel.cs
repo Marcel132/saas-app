@@ -11,7 +11,13 @@ public class UpdateUserModel
   public string PasswordHash { get; set; } = string.Empty;
 
   [Column("user_role")]
-  public RoleType Role { get; set; }
+  public RoleEnum Role { get; set; }
+
+  [Column("specialization")]
+  public SpecializationEnum SpecializationType { get; set; } = SpecializationEnum.Pentester;
+
+  [Column("skills")]
+  public string Skills { get; set; } = string.Empty;
 
   [Column("is_active")]
   public bool IsActive { get; set; } = true;
