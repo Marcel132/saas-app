@@ -1,4 +1,4 @@
-public enum RoleType
+public enum RoleEnum
 {
     Admin,
     Company,
