@@ -9,45 +9,85 @@ public class ContractsService
     _context = context;
   }
 
-  public async Task<List<ContractDto>> GetAllContractsAsync()
+  public async Task<List<ContractDto>> GetAllContractsAsync(int? authorId = null)
   {
-    return await _context.Contracts
-      .Include(c => c.Author)
-      .Where(c => c.Author != null && DateTime.UtcNow <= (c.Deadline ?? DateTime.MaxValue))
-      .Select(c => new ContractDto
-      {
-        Id = c.Id,
-        AuthorId = c.AuthorId,
-        Price = c.Price,
-        Status = c.Status,
-        Description = c.Description,
-        CreatedAt = c.CreatedAt,
-        UpdatedAt = c.UpdatedAt,
-        Deadline = c.Deadline
-      })
-      .ToListAsync();
+
+    var contractQuery = _context.Contracts
+      .Include(c => c.Applications)
+      .ThenInclude(a => a.User);
+    // .ThenInclude(u => u.UserData);
+      
+    var userData = await _context.UserData.ToDictionaryAsync(u => u.UserId);
+
+    var contracts = await contractQuery.ToListAsync()
+      ?? throw new KeyNotFoundException("Cannot find any contract");
+
+    var dto = contracts.Select(c => new ContractDto
+    {
+      Id = c.Id,
+      AuthorId = c.AuthorId,
+      Price = c.Price,
+      Status = c.Status,
+      Description = c.Description,
+      CreatedAt = c.CreatedAt,
+      UpdatedAt = c.UpdatedAt,
+      Deadline = c.Deadline,
+      Applications = (authorId == c.AuthorId)
+        ? c.Applications.Select(a =>
+        {
+          userData.TryGetValue(a.UserId, out var ud);
+          return new ContractApplicationDto
+          {
+            UserId = a.UserId,
+            Email = a.User.Email,
+            UserName = ud != null ? $"{ud.FirstName} {ud.LastName}" : a.User.Email,
+            AppliedAt = a.AppliedAt
+          };
+        }).ToList()
+        : new List<ContractApplicationDto>()
+    }).ToList();
+
+    return dto;
   }
 
-  public async Task<ContractDto> GetContractByIdAsync(int contractId)
+  public async Task<ContractDto> GetContractByIdAsync(int contractId, int? authorId = null)
   {
-    var contract = await _context.Contracts
-      .Include(c => c.Author)
-      .Where(c => c.Id == contractId)
-      .Select(c => new ContractDto
-      {
-        Id = c.Id,
-        AuthorId = c.AuthorId,
-        Price = c.Price,
-        Status = c.Status,
-        Description = c.Description,
-        CreatedAt = c.CreatedAt,
-        UpdatedAt = c.UpdatedAt,
-        Deadline = c.Deadline
-      })
-      .FirstOrDefaultAsync()
-      ?? throw new KeyNotFoundException($"Contract with ID {contractId} not found.");
 
-    return contract;
+    var contract = await _context.Contracts
+      .Include(c => c.Applications)
+      .ThenInclude(a => a.User)
+      .Where(c=> c.Id == contractId)
+      .FirstOrDefaultAsync()
+      ?? throw new KeyNotFoundException($"Contract with ID: {contractId} not found");
+
+    var userData = await _context.UserData.ToDictionaryAsync(u => u.UserId);
+
+    var dto = new ContractDto
+    {
+      Id = contract.Id,
+      AuthorId = contract.AuthorId,
+      Price = contract.Price,
+      Status = contract.Status,
+      Description = contract.Description,
+      CreatedAt = contract.CreatedAt,
+      UpdatedAt = contract.UpdatedAt,
+      Deadline = contract.Deadline,
+      Applications = (authorId == contract.AuthorId)
+        ? contract.Applications.Select(a =>
+        {
+          userData.TryGetValue(a.UserId, out var ud);
+          return new ContractApplicationDto
+          {
+            UserId = a.UserId,
+            Email = a.User.Email,
+            UserName = ud != null ? $"{ud.FirstName} {ud.LastName}" : a.User.Email,
+            AppliedAt = a.AppliedAt
+          };
+        }).ToList()
+        : new List<ContractApplicationDto>()
+    };
+
+    return dto;
   }
 
   public async Task<ContractDto> CreateContractAsync(ContractModel contract, int userId)
@@ -129,6 +169,26 @@ public class ContractsService
 
   }
 
+  public async Task<bool> TakeContractAsync(int id, int userId)
+  {
+    if (id <= 0 || userId <= 0)
+      throw new ArgumentException("ID must be greater than 0");
+
+    try
+    {
+      var contract = await _context.Contracts
+        .FirstOrDefaultAsync(c => c.Id == id)
+        ?? throw new KeyNotFoundException($"Contract with ID {id} not found.");
+
+      contract.TargetId = userId;
+      await _context.SaveChangesAsync();
+      return true;
+    }
+    catch (System.Exception)
+    {
+      throw;
+    }
+  }
   public async Task<bool> DeleteContractAsync(int contractId, int userId)
   {
     if (contractId <= 0)

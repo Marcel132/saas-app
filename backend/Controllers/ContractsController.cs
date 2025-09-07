@@ -21,13 +21,15 @@ public class ContractsController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> GetContracts()
   {
+    int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
+
     try
     {
-      var contracts = await _contractsService.GetAllContractsAsync();
+      var contracts = await _contractsService.GetAllContractsAsync(userId);
 
       if (contracts.Count == 0)
         return NotFound(new { success = false, message = "No contracts found." });
-      
+
       return Ok(new { success = true, data = contracts, message = "Contracts retrieved successfully." });
     }
     catch (Exception ex)
@@ -44,14 +46,16 @@ public class ContractsController : ControllerBase
     if (id <= 0)
       return BadRequest(new { success = false, message = "Invalid contract ID." });
 
+    int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
+
     try
     {
-      var contract = await _contractsService.GetContractByIdAsync(id);
+      var contract = await _contractsService.GetContractByIdAsync(id, userId);
 
       return Ok(new { success = true, data = contract, message = "Contract retrieved successfully." });
     }
     catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
-    catch (KeyNotFoundException ex) {  return NotFound(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
     catch (System.Exception)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while retrieving the contract." });
