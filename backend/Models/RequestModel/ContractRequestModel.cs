@@ -10,4 +10,6 @@ public class ContractRequestModel
 
   [ForeignKey("AuthorId")]
   public UsersModel? Author { get; set; }
+  [ForeignKey("TargetId")]
+  public UsersModel? Target { get; set; }
 }

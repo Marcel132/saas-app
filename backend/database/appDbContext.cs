@@ -50,6 +50,10 @@ public class AppDbContext : DbContext
             .HasMany(u => u.Contracts)
             .WithOne(c => c.Author)
             .HasForeignKey(c => c.AuthorId);
+        modelBuilder.Entity<UsersModel>()
+            .HasMany(u => u.ContractsApplication)
+            .WithOne(ca => ca.User)
+            .HasForeignKey(ca => ca.UserId);
 
         modelBuilder.Entity<SessionModel>().Property(x => x.CreatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
@@ -61,9 +65,13 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<ContractModel>()
             .Property(c => c.Status)
             .HasConversion<string>();
+        modelBuilder.Entity<UsersModel>()
+            .Property(u => u.SpecializationType)
+            .HasConversion<string>();
 
         modelBuilder.Entity<ApiLogsModel>().ToTable("api_logs");
         modelBuilder.Entity<UserDataModel>().ToTable("user_data");
+        modelBuilder.Entity<ContractApplicationModel>().ToTable("contract_applications");
 
 
     }

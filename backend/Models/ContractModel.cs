@@ -12,6 +12,9 @@ public class ContractModel
   [Required]
   public int AuthorId { get; set; }
 
+  [Column("target_id")]
+  public int? TargetId { get; set; }
+
   [Column("price")]
   [Required]
   public decimal Price { get; set; }
@@ -34,6 +37,13 @@ public class ContractModel
   [Column("deadline")]
   public DateTime? Deadline { get; set; }
 
+
+
+  public List<ContractApplicationModel> Applications { get; set; } = new(); 
+
   [ForeignKey("AuthorId")]
   public UsersModel? Author { get; set; }
+
+  [ForeignKey("TargetId")]
+  public UsersModel? Target { get; set; }
 }

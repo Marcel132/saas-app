@@ -39,4 +39,5 @@ public class UsersModel
   public ICollection<OpinionModel>? Opinions { get; set; }
   public ICollection<ApiLogsModel>? ApiLogs { get; set; }
   public ICollection<ContractModel> Contracts { get; set; } = new List<ContractModel>();
+  public ICollection<ContractApplicationModel> ContractsApplication { get; set; } = new List<ContractApplicationModel>();
 }
