@@ -15,12 +15,15 @@ public class UserService
   public async Task<List<UserDto>> GetAllUsersAsync()
   {
 
+
     var usersData = await _context.Users
       .Include(u => u.UserData)
       .Select(u => new UserDto
       {
       Id = u.Id,
       Email = u.Email,
+      Specialization = u.SpecializationType.ToString(),
+      Skills = u.SpecializationType == SpecializationEnum.Pentester ? u.Skills : "",
       FirstName = u.UserData.FirstName,
       LastName = u.UserData.LastName
       }).ToListAsync();
@@ -30,18 +33,18 @@ public class UserService
 
     return usersData;
   }
-
   public async Task<UserDto> GetCurrentUserAsync(int userId)
   {
     if (userId <= 0)
       throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
 
     var user = await _context.Users
-      .Include(u => u.UserData)
       .Select(u => new UserDto
       {
         Id = u.Id,
         Email = u.Email,
+        Specialization = u.SpecializationType.ToString(),
+        Skills = u.SpecializationType == SpecializationEnum.Pentester ? u.Skills : "",
         FirstName = u.UserData.FirstName,
         LastName = u.UserData.LastName
       })
@@ -58,15 +61,17 @@ public class UserService
     using var transaction = await _context.Database.BeginTransactionAsync();
     try
     {
-      // var user = await _context.Users.FindAsync(userId) ?? throw new KeyNotFoundException($"User with ID {userId} not found."); 
+      var user = await _context.Users.FindAsync(userId) ?? throw new KeyNotFoundException($"User with ID {userId} not found."); 
       var userData = await _context.UserData.FirstOrDefaultAsync(ud => ud.UserId == userId)
         ?? throw new KeyNotFoundException($"User data for user with ID {userId} not found.");
 
       // user.PasswordHash = string.IsNullOrWhiteSpace(userModel.PasswordHash) ? user.PasswordHash : userModel.PasswordHash;
       // if (Enum.IsDefined(typeof(RoleType), userModel.Role))
       //   user.Role = userModel.Role;
-      // user.IsActive = userModel.IsActive;
-
+      if (Enum.IsDefined<SpecializationEnum>(userModel.SpecializationType))
+        user.SpecializationType = userModel.SpecializationType;
+      user.Skills = string.IsNullOrWhiteSpace(user.Skills) ? user.Skills : userModel.Skills;
+        
       userData.FirstName = string.IsNullOrWhiteSpace(userModel.FirstName) ? userData.FirstName : userModel.FirstName;
       userData.LastName = string.IsNullOrWhiteSpace(userModel.LastName) ? userData.LastName : userModel.LastName;
       userData.PhoneNumber = string.IsNullOrWhiteSpace(userModel.PhoneNumber) ? userData.PhoneNumber : userModel.PhoneNumber;
@@ -179,6 +184,7 @@ public class UserService
 
     ArgumentNullException.ThrowIfNullOrWhiteSpace(user.Email, "Email must have a value");
     ArgumentNullException.ThrowIfNullOrWhiteSpace(user.Password, "Password must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(user.SpecializationType.ToString(), "Specialization type must have a value");
     ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.FirstName, "First Name must have a value");
     ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.LastName, "Last Name must have a value");
     ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.PhoneNumber, "Phone Number must have a value");
