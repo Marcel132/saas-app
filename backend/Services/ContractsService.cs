@@ -16,7 +16,7 @@ public class ContractsService
       .Include(c => c.Applications)
       .ThenInclude(a => a.User);
     // .ThenInclude(u => u.UserData);
-      
+
     var userData = await _context.UserData.ToDictionaryAsync(u => u.UserId);
 
     var contracts = await contractQuery.ToListAsync()
@@ -56,7 +56,7 @@ public class ContractsService
     var contract = await _context.Contracts
       .Include(c => c.Applications)
       .ThenInclude(a => a.User)
-      .Where(c=> c.Id == contractId)
+      .Where(c => c.Id == contractId)
       .FirstOrDefaultAsync()
       ?? throw new KeyNotFoundException($"Contract with ID: {contractId} not found");
 
@@ -169,26 +169,26 @@ public class ContractsService
 
   }
 
-  public async Task<bool> TakeContractAsync(int id, int userId)
-  {
-    if (id <= 0 || userId <= 0)
-      throw new ArgumentException("ID must be greater than 0");
+  // public async Task<bool> TakeContractAsync(int id, int userId)
+  // {
+  //   if (id <= 0 || userId <= 0)
+  //     throw new ArgumentException("ID must be greater than 0");
 
-    try
-    {
-      var contract = await _context.Contracts
-        .FirstOrDefaultAsync(c => c.Id == id)
-        ?? throw new KeyNotFoundException($"Contract with ID {id} not found.");
+  //   try
+  //   {
+  //     var contract = await _context.Contracts
+  //       .FirstOrDefaultAsync(c => c.Id == id)
+  //       ?? throw new KeyNotFoundException($"Contract with ID {id} not found.");
 
-      contract.TargetId = userId;
-      await _context.SaveChangesAsync();
-      return true;
-    }
-    catch (System.Exception)
-    {
-      throw;
-    }
-  }
+  //     contract.TargetId = userId;
+  //     await _context.SaveChangesAsync();
+  //     return true;
+  //   }
+  //   catch (System.Exception)
+  //   {
+  //     throw;
+  //   }
+  // }
   public async Task<bool> DeleteContractAsync(int contractId, int userId)
   {
     if (contractId <= 0)
@@ -208,4 +208,40 @@ public class ContractsService
 
     return true;
   }
+
+  public async Task<ContractApplicationDto> ApplyForContractAsync(int contractId, int userId)
+{
+    if (contractId <= 0 || userId <= 0)
+        throw new ArgumentException("Invalid contract ID or user ID");
+
+    var isApplied = await _context.ContractApplications
+        .FirstOrDefaultAsync(ca => ca.UserId == userId && ca.ContractId == contractId);
+    if (isApplied != null)
+        throw new ArgumentException($"User with ID: {userId} already applied for contract {contractId}");
+
+    var user = await _context.Users
+        .Where(u => u.Id == userId)
+        .Select(u => new ContractApplicationDto
+        {
+            UserId = u.Id,
+            Email = u.Email,
+            UserName = (u.UserData.FirstName ?? "") + " " + (u.UserData.LastName ?? "")
+        })
+        .FirstOrDefaultAsync();
+
+    if (user == null)
+        throw new KeyNotFoundException($"User with ID: {userId} not found.");
+
+    var contractApplicationData = new ContractApplicationModel
+    {
+        ContractId = contractId,
+        UserId = userId,
+        AppliedAt = DateTime.UtcNow
+    };
+
+    await _context.ContractApplications.AddAsync(contractApplicationData);
+    await _context.SaveChangesAsync();
+
+    return user;
+}
 }

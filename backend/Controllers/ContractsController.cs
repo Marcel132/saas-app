@@ -67,13 +67,13 @@ public class ContractsController : ControllerBase
   public async Task<IActionResult> CreateContract([FromBody] ContractModel request)
   {
     ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
-    
+
     if (!ModelState.IsValid)
       return BadRequest(new { success = false, message = "Invalid contract data." });
 
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
       return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
-      
+
     try
     {
 
@@ -102,7 +102,7 @@ public class ContractsController : ControllerBase
 
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
       return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
-      
+
     try
     {
       var isContractUpdated = await _contractsService.UpdateContractAsync(id, request, userId);
@@ -112,9 +112,9 @@ public class ContractsController : ControllerBase
 
       return Ok(new { success = true, message = "Contract updated successfully." });
     }
-    catch (ArgumentException ex)  { return BadRequest(new { message = ex.Message }); }
-    catch (KeyNotFoundException ex) {  return NotFound(new { message = ex.Message });  }
-    catch (UnauthorizedAccessException ex) {return Unauthorized(new { message = ex.Message }); }
+    catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
+    catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+    catch (UnauthorizedAccessException ex) { return Unauthorized(new { message = ex.Message }); }
     catch (System.Exception)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while updating a contract" });
@@ -127,7 +127,7 @@ public class ContractsController : ControllerBase
   public async Task<IActionResult> DeleteContract(int id)
   {
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(new { success = false, message = "Claims are missing"});
+      return Unauthorized(new { success = false, message = "Claims are missing" });
 
     try
     {
@@ -135,9 +135,9 @@ public class ContractsController : ControllerBase
 
       return Ok(new { success = true, message = $"Deleted contract with ID: {id}" });
     }
-    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message });  }
-    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message });  }
-    catch (UnauthorizedAccessException ex) { return Unauthorized(new { success = false, message = ex.Message });  }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
+    catch (UnauthorizedAccessException ex) { return Unauthorized(new { success = false, message = ex.Message }); }
     catch (System.Exception)
     {
       return StatusCode(500, new { success = false, message = "An error occurred while deleteing a contract" });
@@ -145,4 +145,26 @@ public class ContractsController : ControllerBase
 
   }
 
+  [HttpPost("{id}/apply")]
+  public async Task<IActionResult> ApplyForContract(int id)
+  {
+    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+      return Unauthorized(new { success = false, message = "Claims are missing" });
+
+    if (id <= 0)
+      return BadRequest(new { success = false, message = "Invalid user ID" });
+
+    try
+    {
+      var appliedForContract = await _contractsService.ApplyForContractAsync(id, userId);
+
+      return Ok(new { success = true, data = appliedForContract, message = "Applied successfuly" });
+    }
+    catch(ArgumentException ex) { return BadRequest(new {success = false, message = ex.Message});}
+    catch(KeyNotFoundException ex) { return BadRequest(new {success = false, message = ex.Message});}
+    catch (System.Exception)
+    {
+      return StatusCode(500, new { success = false, message = "An error occurred while applied for contract" });
+    }
+  }
 }
