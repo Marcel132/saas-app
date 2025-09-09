@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     public DbSet<ApiLogsModel> ApiLogs { get; set; }
     public DbSet<OpinionModel> Opinions { get; set; }
     public DbSet<ContractModel> Contracts { get; set; }
+    public DbSet<ContractApplicationModel> ContractApplications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
