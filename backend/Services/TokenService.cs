@@ -109,35 +109,49 @@ public class TokenService
   }
 
   public async Task<ResponseTokenModel> RefreshTokenAsync(string refreshToken)
+{
+  if (string.IsNullOrEmpty(refreshToken))
+    throw new ArgumentException("Refresh token is missing");
+
+  var session = await _context.Sessions
+    .Include(u => u.User)
+    .Where(s => !s.Revoked && s.ExpiresAt > DateTime.UtcNow)
+    .FirstOrDefaultAsync(s => s.RefreshToken == refreshToken)
+    ?? throw new UnauthorizedAccessException("Session is missing");
+
+    // Generujemy nowy access token, ale NIE nową sesję
+  var claims = new[]
   {
-    if (string.IsNullOrEmpty(refreshToken))
-      throw new ArgumentException("Refresh token is missing");
+    new Claim(JwtRegisteredClaimNames.Sub, session.UserId.ToString()),
+    new Claim(ClaimTypes.Role, session.User.Role.ToString()),
+    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+  };
 
+  var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
+  var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+  var token = new JwtSecurityToken(
+    issuer: _issuer,
+    audience: _audience,
+    claims: claims,
+    expires: DateTime.UtcNow.AddMinutes(15),
+    signingCredentials: creds
+  );
 
-    var session = await _context.Sessions
-      .Include(u => u.User)
-      .Where(s => !s.Revoked && s.ExpiresAt > DateTime.UtcNow)
-      .FirstOrDefaultAsync(s => s.RefreshToken == refreshToken);
+  var jwtString = new JwtSecurityTokenHandler().WriteToken(token);
 
-    if (session == null)
-      throw new UnauthorizedAccessException("Session is missing");
+  session.AuthToken = BCrypt.Net.BCrypt.HashPassword(jwtString);
+  session.RefreshToken = Guid.NewGuid().ToString(); // nowy refresh token
+  session.ExpiresAt = DateTime.UtcNow.AddDays(7);
 
-    var newTokens = await GenerateAuthToken(session.UserId, session.User.Role.ToString(), session.Ip, session.UserAgent);
+  await _context.SaveChangesAsync();
 
-    session.AuthToken = BCrypt.Net.BCrypt.HashPassword(newTokens.AuthToken);
-    session.RefreshToken = newTokens.RefreshToken;
-    session.ExpiresAt = DateTime.UtcNow.AddDays(7);
-
-    await _context.SaveChangesAsync();
-
-    return new ResponseTokenModel
-    {
-      AuthToken = session.AuthToken,
-      RefreshToken = session.RefreshToken
-    };
-  }
-
+  return new ResponseTokenModel
+  {
+    AuthToken = jwtString,
+    RefreshToken = session.RefreshToken
+  };
+}
 }
 
 public class ResponseTokenModel
