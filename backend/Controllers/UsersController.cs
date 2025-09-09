@@ -191,7 +191,7 @@ public class UsersController : ControllerBase
   // path: /users/register
   [AllowAnonymous]
   [HttpPost("register")]
-  public async Task<IActionResult> Register([FromBody] RegisterRequestModel request)
+  public async Task<IActionResult> Register([FromBody] UsersModel request)
   {
     // Validate the request model.
     // If the request is null, return a 400 Bad Request response.

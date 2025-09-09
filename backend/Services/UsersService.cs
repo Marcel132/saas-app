@@ -172,49 +172,38 @@ public class UserService
     await _context.SaveChangesAsync();
     return true;
   }
-  public async Task<UsersModel> RegisterUserAsync(RegisterRequestModel request)
+  public async Task<UsersModel> RegisterUserAsync(UsersModel request)
   {
     ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
 
-    var user = request.User;
-    ArgumentNullException.ThrowIfNull(user, "User table cannot be null");
-
-    var userData = request.UserData;
-    ArgumentNullException.ThrowIfNull(userData, "User data table cannot be null");
-
-    ArgumentNullException.ThrowIfNullOrWhiteSpace(user.Email, "Email must have a value");
-    ArgumentNullException.ThrowIfNullOrWhiteSpace(user.Password, "Password must have a value");
-    ArgumentNullException.ThrowIfNullOrWhiteSpace(user.SpecializationType.ToString(), "Specialization type must have a value");
-    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.FirstName, "First Name must have a value");
-    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.LastName, "Last Name must have a value");
-    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.PhoneNumber, "Phone Number must have a value");
-    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.Country, "Country must have a value");
-    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.PostalCode, "Postal Code must have a value");
-    ArgumentNullException.ThrowIfNullOrWhiteSpace(userData.Street, "Street must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(request.Email, "Email must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(request.Password, "Password must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(request.SpecializationType.ToString(), "Specialization type must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.FirstName, "First Name must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.LastName, "Last Name must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.PhoneNumber, "Phone Number must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.Country, "Country must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.PostalCode, "Postal Code must have a value");
+    ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.Street, "Street must have a value");
 
     using var transaction = await _context.Database.BeginTransactionAsync();
     try
     {
-      var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
+      var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
       if (existingUser != null)
       {
         throw new ArgumentException("User with this email already exists.");
       }
 
-      var hashedPassword = BCrypt.Net.BCrypt.HashPassword(user.Password);
-      user.Password = hashedPassword;
-      _context.Users.Add(user);
-      await _context.SaveChangesAsync();
+      var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-      userData.UserId = user.Id; 
-      var existingUserData = await _context.UserData.FirstOrDefaultAsync(ud => ud.UserId == userData.UserId);
-      if (existingUserData != null)
-        throw new ArgumentException("User data for this user already exists.");
-      
-      _context.UserData.Add(userData);
+      request.Password = hashedPassword;
+
+      _context.Users.Add(request);
       await _context.SaveChangesAsync();
       await transaction.CommitAsync();
-      return user;
+
+      return request;
     }
     catch (System.Exception)
     {
