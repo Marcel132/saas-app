@@ -9,7 +9,14 @@ public class ContractsController : ControllerBase
 {
   private readonly ILogger<ContractsController> _logger;
   private readonly ContractsService _contractsService;
-
+  protected int? GetUserId()
+  {
+    var user = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)
+      ? userId
+      : (int?)null;
+    _logger.LogInformation($"{user}");
+    return user;
+  }
 
   public ContractsController(ILogger<ContractsController> logger, ContractsService contractsService)
   {
@@ -21,22 +28,24 @@ public class ContractsController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> GetContracts()
   {
-    int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
+    var userId = GetUserId();
+    if (userId is null || userId <= 0)
+      return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
     try
-    {
-      var contracts = await _contractsService.GetAllContractsAsync(userId);
+      {
+        var contracts = await _contractsService.GetAllContractsAsync(userId);
 
-      if (contracts.Count == 0)
-        return NotFound(new { success = false, message = "No contracts found." });
+        if (contracts.Count == 0)
+          return NotFound(new { success = false, message = "No contracts found." });
 
-      return Ok(new { success = true, data = contracts, message = "Contracts retrieved successfully." });
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError(ex, "Error retrieving contracts");
-      return StatusCode(500, new { success = false, message = "An error occurred while retrieving contracts." });
-    }
+        return Ok(new { success = true, data = contracts, message = "Contracts retrieved successfully." });
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, "Error retrieving contracts");
+        return StatusCode(500, new { success = false, message = "An error occurred while retrieving contracts." });
+      }
   }
 
   // [Authorize]
@@ -46,7 +55,9 @@ public class ContractsController : ControllerBase
     if (id <= 0)
       return BadRequest(new { success = false, message = "Invalid contract ID." });
 
-    int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
+    var userId = GetUserId() ?? 0;
+    if (userId <= 0)
+      return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
     try
     {
@@ -71,8 +82,9 @@ public class ContractsController : ControllerBase
     if (!ModelState.IsValid)
       return BadRequest(new { success = false, message = "Invalid contract data." });
 
-    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
+    var userId = GetUserId() ?? 0;
+    if (userId <= 0)
+      return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
     try
     {
@@ -100,8 +112,9 @@ public class ContractsController : ControllerBase
     if (!ModelState.IsValid)
       return BadRequest(new { message = "Invalid contract data." });
 
-    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
+    var userId = GetUserId() ?? 0;
+    if (userId <= 0)
+      return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
     try
     {
@@ -126,8 +139,9 @@ public class ContractsController : ControllerBase
   [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteContract(int id)
   {
-    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(new { success = false, message = "Claims are missing" });
+    var userId = GetUserId() ?? 0;
+    if (userId <= 0)
+      return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
     try
     {
@@ -148,11 +162,12 @@ public class ContractsController : ControllerBase
   [HttpPost("{id}/apply")]
   public async Task<IActionResult> ApplyForContract(int id)
   {
-    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(new { success = false, message = "Claims are missing" });
+    var userId = GetUserId() ?? 0;
+    if (userId <= 0)
+      return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
     if (id <= 0)
-      return BadRequest(new { success = false, message = "Invalid user ID" });
+      return BadRequest(new { success = false, message = "Invalid contract ID" });
 
     try
     {
@@ -160,11 +175,40 @@ public class ContractsController : ControllerBase
 
       return Ok(new { success = true, data = appliedForContract, message = "Applied successfuly" });
     }
-    catch(ArgumentException ex) { return BadRequest(new {success = false, message = ex.Message});}
-    catch(KeyNotFoundException ex) { return BadRequest(new {success = false, message = ex.Message});}
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex) { return BadRequest(new { success = false, message = ex.Message }); }
     catch (System.Exception)
     {
-      return StatusCode(500, new { success = false, message = "An error occurred while applied for contract" });
+      return StatusCode(500, new { success = false, message = "An error occurred while applying for contract" });
     }
   }
+
+  [HttpPut("{contractId}/accept/{userId}")]
+  public async Task<IActionResult> AcceptContract(int contractId, int userId)
+  {
+    if (contractId <= 0)
+      return BadRequest(new { success = false, message = "Invalid contract ID" });
+    if (userId <= 0)
+      return BadRequest(new { success = false, message = "Invalid user ID" });
+
+    var authorId = GetUserId() ?? 0;
+    if (authorId <= 0)
+      return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
+      
+    try
+    {
+      var accepted = await _contractsService.AcceptContractAsync(contractId, userId, authorId);
+      _logger.LogInformation(accepted.ToString());
+
+      return Ok(new { status = true, data = accepted, message = "Contract accepted succesfuly" });
+    }
+    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (KeyNotFoundException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (UnauthorizedAccessException ex) { return BadRequest(new { success = false, message = ex.Message }); }
+    catch (System.Exception)
+    {
+      return StatusCode(500, new { success = false, message = "An error occurred while accepting for contract" });
+    }
+  }
+
 }
