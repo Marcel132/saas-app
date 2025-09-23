@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Security.Cryptography;
 
 public class TokenService
 {
@@ -52,7 +53,8 @@ public class TokenService
       {
         new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
         new Claim(ClaimTypes.Role, role),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
       };
 
       // Create signing credentials
@@ -71,12 +73,12 @@ public class TokenService
 
       // Serialize and hash the token
       var jwtString = new JwtSecurityTokenHandler().WriteToken(token);
-      var tokenHash = BCrypt.Net.BCrypt.HashPassword(jwtString);
+      var securityToken = TokenHasher.HashToken(jwtString);
       var session = new SessionModel
       {
         UserId = userId,
         RefreshToken = await GenerateRefreshToken(),
-        AuthToken = tokenHash,
+        AuthToken = securityToken,
         CreatedAt = DateTime.UtcNow,
         ExpiresAt = DateTime.UtcNow.AddDays(7),
         UserAgent = userAgent,
@@ -104,7 +106,8 @@ public class TokenService
 
   public Task<string> GenerateRefreshToken()
   {
-    var refreshToken = Guid.NewGuid().ToString();
+    var refreshTokenBytes = RandomNumberGenerator.GetBytes(64);
+    var refreshToken = Convert.ToBase64String(refreshTokenBytes);
     return Task.FromResult(refreshToken);
   }
 
@@ -124,7 +127,8 @@ public class TokenService
   {
     new Claim(JwtRegisteredClaimNames.Sub, session.UserId.ToString()),
     new Claim(ClaimTypes.Role, session.User.Role.ToString()),
-    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+    new Claim(ClaimTypes.NameIdentifier, session.UserId.ToString())
   };
 
   var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
@@ -140,7 +144,7 @@ public class TokenService
 
   var jwtString = new JwtSecurityTokenHandler().WriteToken(token);
 
-  session.AuthToken = BCrypt.Net.BCrypt.HashPassword(jwtString);
+  session.AuthToken = TokenHasher.HashToken(jwtString);
   session.RefreshToken = Guid.NewGuid().ToString(); // nowy refresh token
   session.ExpiresAt = DateTime.UtcNow.AddDays(7);
 
@@ -154,6 +158,23 @@ public class TokenService
 }
 }
 
+public class TokenHasher
+{
+    public static string HashToken(string token)
+    {
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(token));
+
+            StringBuilder sb = new StringBuilder();
+            foreach (var b in bytes)
+            {
+                sb.Append(b.ToString("x2")); // zapis hex
+            }
+            return sb.ToString();
+        }
+    }
+}
 public class ResponseTokenModel
 {
   public string AuthToken { get; set; } = string.Empty;

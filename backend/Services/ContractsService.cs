@@ -115,11 +115,13 @@ public class ContractsService
         UpdatedAt = DateTime.UtcNow,
         Deadline = contract.Deadline ?? DateTime.UtcNow.AddDays(30)
       };
+      await _context.SaveChangesAsync();
 
       var createdContract = await _context.Contracts.AddAsync(ctrc);
 
       var userContract = new ContractDto
       {
+        Id = ctrc.Id,
         AuthorId = ctrc.AuthorId,
         Price = ctrc.Price,
         Description = ctrc.Description,
@@ -129,7 +131,6 @@ public class ContractsService
         Deadline = ctrc.Deadline
       };
 
-      await _context.SaveChangesAsync();
       return userContract;
     }
     catch
@@ -247,26 +248,39 @@ public class ContractsService
 
   public async Task<ContractAcceptUserDto> AcceptContractAsync(int contractId, int userId, int authorId)
   {
-    var contract = await _context.Contracts
-      .Where(c => c.Id == contractId)
-      .FirstOrDefaultAsync()
-      ?? throw new KeyNotFoundException($"Contract with ID {contractId} does not exists");
+    using var transaction = await _context.Database.BeginTransactionAsync();
 
-    Console.WriteLine($"AuthorID: {authorId}, Contract AuthorID: {contract.AuthorId}");
-
-    if (contract.AuthorId != authorId)
-      throw new UnauthorizedAccessException($"You are not allowed to use this method");
-
-    contract.TargetId = userId;
-    contract.Status = StatusOfContractModel.InProgress;
-
-    await _context.SaveChangesAsync();
-
-    var response = new ContractAcceptUserDto
+    try
     {
-      UserId = userId,
-      Accpeted = AcceptEnum.Accepted
-    };
-    return response;
+      var contract = await _context.Contracts
+        .Where(c => c.Id == contractId)
+        .FirstOrDefaultAsync()
+        ?? throw new KeyNotFoundException($"Contract with ID {contractId} does not exists");
+
+      Console.WriteLine($"AuthorID: {authorId}, Contract AuthorID: {contract.AuthorId}");
+
+      if (contract.AuthorId != authorId)
+        throw new UnauthorizedAccessException($"You are not allowed to use this method");
+
+      contract.TargetId = userId;
+      contract.Status = StatusOfContractModel.InProgress;
+
+      await _context.SaveChangesAsync();
+
+      var response = new ContractAcceptUserDto
+      {
+        UserId = userId,
+        Accpeted = AcceptEnum.Accepted
+      };
+
+      await transaction.CommitAsync();
+      return response;
+      
+    }
+    catch (System.Exception)
+    {
+      await transaction.RollbackAsync();
+      throw;
+    }
   }
 }
