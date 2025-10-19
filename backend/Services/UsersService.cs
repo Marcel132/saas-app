@@ -14,8 +14,6 @@ public class UserService
   }
   public async Task<List<UserDto>> GetAllUsersAsync()
   {
-
-
     var usersData = await _context.Users
       .Include(u => u.UserData)
       .Select(u => new UserDto
@@ -27,9 +25,6 @@ public class UserService
       FirstName = u.UserData.FirstName,
       LastName = u.UserData.LastName
       }).ToListAsync();
-
-    if (usersData.Count == 0)
-      throw new ArgumentException("No users found");  
 
     return usersData;
   }
@@ -70,7 +65,7 @@ public class UserService
       //   user.Role = userModel.Role;
       if (Enum.IsDefined<SpecializationEnum>(userModel.SpecializationType))
         user.SpecializationType = userModel.SpecializationType;
-      user.Skills = string.IsNullOrWhiteSpace(user.Skills) ? user.Skills : userModel.Skills;
+      user.Skills = string.IsNullOrWhiteSpace(userModel.Skills) ? user.Skills : userModel.Skills;
         
       userData.FirstName = string.IsNullOrWhiteSpace(userModel.FirstName) ? userData.FirstName : userModel.FirstName;
       userData.LastName = string.IsNullOrWhiteSpace(userModel.LastName) ? userData.LastName : userModel.LastName;

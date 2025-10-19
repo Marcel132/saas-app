@@ -200,7 +200,7 @@ public class ContractsController : ControllerBase
       var accepted = await _contractsService.AcceptContractAsync(contractId, userId, authorId);
       _logger.LogInformation(accepted.ToString());
 
-      return Ok(new { status = true, data = accepted, message = "Contract accepted succesfuly" });
+      return Ok(new { success = true, data = accepted, message = "Contract accepted succesfuly" });
     }
     catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
     catch (KeyNotFoundException ex) { return BadRequest(new { success = false, message = ex.Message }); }

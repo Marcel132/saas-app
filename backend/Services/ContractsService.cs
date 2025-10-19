@@ -115,9 +115,11 @@ public class ContractsService
         UpdatedAt = DateTime.UtcNow,
         Deadline = contract.Deadline ?? DateTime.UtcNow.AddDays(30)
       };
+      
+      
+      var added = await _context.Contracts.AddAsync(ctrc);
       await _context.SaveChangesAsync();
 
-      var createdContract = await _context.Contracts.AddAsync(ctrc);
 
       var userContract = new ContractDto
       {

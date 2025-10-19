@@ -50,8 +50,13 @@ public class MiddlewareService
         .Where(s => s.UserId == int.Parse(userId) && !s.Revoked)
         .ToListAsync();
 
-      var userSession = userSessions.FirstOrDefault(s => BCrypt.Net.BCrypt.Verify(token, s.AuthToken))
-        ?? throw new SecurityTokenException("Invalid token: Session not found.");
+      var userSession = userSessions.FirstOrDefault( s =>
+      {
+        var hashed = TokenHasher.HashToken(token);
+        return string.Equals(hashed, s.AuthToken, StringComparison.OrdinalIgnoreCase);
+      }) ?? throw new SecurityTokenException("Invalid token: Session not found.");
+      // var userSession = userSessions.FirstOrDefault(s => BCrypt.Net.BCrypt.Verify(token, s.AuthToken))
+      //   ?? throw new SecurityTokenException("Invalid token: Session not found.");
 
       if (userSession.ExpiresAt < DateTime.UtcNow)
         throw new SecurityTokenException("Invalid token: Token has expired.");

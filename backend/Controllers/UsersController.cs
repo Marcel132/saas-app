@@ -69,7 +69,7 @@ public class UsersController : ControllerBase
     {
 
       var user = await _userService.UpdateUserAsync(userId, request);
-      return Ok(new { success = true, message = "User updated succesfulty" });
+      return Ok(new { success = true, message = "User updated successfully" });
     }
     catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
     catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
@@ -128,8 +128,27 @@ public class UsersController : ControllerBase
       var user = await _userService.AuthenticateUserAsync(request)
         ?? throw new UnauthorizedAccessException("Authentication failed! Invalid email or password");
 
-      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = user.Role.ToString() })
+      var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
+      var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
+
+      var token = await _tokenService.GenerateAuthToken(user.Id, user.Role.ToString(), ip, userAgent)
         ?? throw new ArgumentException("Token generation failed.");
+
+      Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
+      {
+        HttpOnly = true,
+        Secure = HttpContext.Request.IsHttps,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTime.UtcNow.AddMinutes(15)
+      });
+
+      Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
+      {
+        HttpOnly = true,
+        Secure = HttpContext.Request.IsHttps,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTime.UtcNow.AddDays(7)
+      });
 
       return Ok(new { success = true, message = "Login successful." });
     }
@@ -165,7 +184,7 @@ public class UsersController : ControllerBase
       {
         Expires = DateTime.UtcNow.AddDays(-1),
         HttpOnly = true,
-        Secure = true,
+        Secure = HttpContext.Request.IsHttps,
         SameSite = SameSiteMode.Strict
       });
       // Clear the refresh token cookie
@@ -173,7 +192,7 @@ public class UsersController : ControllerBase
       {
         Expires = DateTime.UtcNow.AddDays(-1),
         HttpOnly = true,
-        Secure = true,
+        Secure = HttpContext.Request.IsHttps,
         SameSite = SameSiteMode.Strict
       });
 
@@ -194,9 +213,6 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> Register([FromBody] UsersModel request)
   {
     // Validate the request model.
-    // If the request is null, return a 400 Bad Request response.
-    // ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
-
     if (!ModelState.IsValid)
       return BadRequest(new { success = false, message = "Invalid model state.", details = ModelState });
 
@@ -208,9 +224,27 @@ public class UsersController : ControllerBase
       ArgumentNullException.ThrowIfNull(user, "User cannot be null");
       ArgumentNullException.ThrowIfNull(user.UserData, "UserData cannot be null");
 
-      var token = await GenerateToken(new TokenAuthModel { UserId = user.Id, Role = user.Role.ToString() }) ?? throw new ArgumentException("Token generation failed.");
+      var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
+      var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
 
-      return Ok(new { success = true, data = new { email = user.Email, id = user.Id, authToken = token }, message = "User registered successfully." });
+      var token = await _tokenService.GenerateAuthToken(user.Id, user.Role.ToString(), ip, userAgent) ?? throw new ArgumentException("Token generation failed.");
+
+      Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
+      {
+        HttpOnly = true,
+        Secure = HttpContext.Request.IsHttps,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTime.UtcNow.AddMinutes(15)
+      });
+
+      Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
+      {
+        HttpOnly = true,
+        Secure = HttpContext.Request.IsHttps,
+        SameSite = SameSiteMode.Strict,
+        Expires = DateTime.UtcNow.AddDays(7)
+      });
+      return Ok(new { success = true, data = new { email = user.Email, id = user.Id, authToken = token.AuthToken }, message = "User registered successfully." });
     }
     catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
     catch (System.Exception)
@@ -242,7 +276,7 @@ public class UsersController : ControllerBase
       Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
       {
         HttpOnly = true,
-        Secure = false,
+        Secure = HttpContext.Request.IsHttps,
         SameSite = SameSiteMode.Strict,
         Expires = DateTime.UtcNow.AddMinutes(15)
       });
@@ -251,7 +285,7 @@ public class UsersController : ControllerBase
       Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
       {
         HttpOnly = true,
-        Secure = false,
+        Secure = HttpContext.Request.IsHttps,
         SameSite = SameSiteMode.Strict,
         Expires = DateTime.UtcNow.AddDays(7)
       });
@@ -283,7 +317,7 @@ public class UsersController : ControllerBase
       Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
       {
         HttpOnly = true,
-        Secure = false,
+        Secure = HttpContext.Request.IsHttps,
         SameSite = SameSiteMode.Strict,
         Expires = DateTime.UtcNow.AddMinutes(15)
       });
@@ -292,19 +326,18 @@ public class UsersController : ControllerBase
       Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
       {
         HttpOnly = true,
-        Secure = false,
+        Secure = HttpContext.Request.IsHttps,
         SameSite = SameSiteMode.Strict,
         Expires = DateTime.UtcNow.AddDays(7)
       });
 
-      return Ok(new { success = true, message = "Token refresh successfuly" });
+      return Ok(new { success = true, message = "Token refresh successful" });
     }
     catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
     catch (UnauthorizedAccessException ex) { return Unauthorized(new { success = false, message = ex.Message }); }
     catch (System.Exception)
     {
-
-      throw;
+      return StatusCode(500, new { success = false, message = "An error occurred while refreshing the token" });
     }
   }
 }

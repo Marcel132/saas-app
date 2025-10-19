@@ -62,7 +62,7 @@ public class TokenService
       var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
       // Create the JWT token
-      var token = new JwtSecurityToken
+      var authToken = new JwtSecurityToken
       (
         issuer: _issuer,
         audience: _audience,
@@ -71,14 +71,18 @@ public class TokenService
         signingCredentials: creds
       ) ?? throw new InvalidOperationException("Failed to create JWT token.");
 
-      // Serialize and hash the token
-      var jwtString = new JwtSecurityTokenHandler().WriteToken(token);
-      var securityToken = TokenHasher.HashToken(jwtString);
+      // Serialize and hash tokens
+      var authTokenJwtString = new JwtSecurityTokenHandler().WriteToken(authToken);
+      var authTokenHashed = TokenHasher.HashToken(authTokenJwtString);
+
+      var refreshToken = await GenerateRefreshToken();
+      var refreshTokenHashed = TokenHasher.HashToken(refreshToken);
+
       var session = new SessionModel
       {
         UserId = userId,
-        RefreshToken = await GenerateRefreshToken(),
-        AuthToken = securityToken,
+        RefreshToken = refreshTokenHashed,
+        AuthToken = authTokenHashed,
         CreatedAt = DateTime.UtcNow,
         ExpiresAt = DateTime.UtcNow.AddDays(7),
         UserAgent = userAgent,
@@ -93,8 +97,8 @@ public class TokenService
 
       return new ResponseTokenModel
       {
-        AuthToken = jwtString,
-        RefreshToken = session.RefreshToken
+        AuthToken = authTokenJwtString,
+        RefreshToken = refreshToken
       };
     }
     catch (Exception)
@@ -119,7 +123,7 @@ public class TokenService
   var session = await _context.Sessions
     .Include(u => u.User)
     .Where(s => !s.Revoked && s.ExpiresAt > DateTime.UtcNow)
-    .FirstOrDefaultAsync(s => s.RefreshToken == refreshToken)
+    .FirstOrDefaultAsync(s => s.RefreshToken == TokenHasher.HashToken(refreshToken))
     ?? throw new UnauthorizedAccessException("Session is missing");
 
     // Generujemy nowy access token, ale NIE nową sesję
@@ -134,7 +138,7 @@ public class TokenService
   var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
   var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-  var token = new JwtSecurityToken(
+  var authToken = new JwtSecurityToken(
     issuer: _issuer,
     audience: _audience,
     claims: claims,
@@ -142,18 +146,22 @@ public class TokenService
     signingCredentials: creds
   );
 
-  var jwtString = new JwtSecurityTokenHandler().WriteToken(token);
+  var authTokenJwtString = new JwtSecurityTokenHandler().WriteToken(authToken);
+  var authTokenHashed = TokenHasher.HashToken(authTokenJwtString);
+  
+  var refreshTokenNew = await GenerateRefreshToken();
+  var refreshTokenHashed = TokenHasher.HashToken(refreshTokenNew);
 
-  session.AuthToken = TokenHasher.HashToken(jwtString);
-  session.RefreshToken = Guid.NewGuid().ToString(); // nowy refresh token
+  session.AuthToken = authTokenHashed;
+  session.RefreshToken = refreshTokenHashed;
   session.ExpiresAt = DateTime.UtcNow.AddDays(7);
 
   await _context.SaveChangesAsync();
 
   return new ResponseTokenModel
   {
-    AuthToken = jwtString,
-    RefreshToken = session.RefreshToken
+    AuthToken = authTokenJwtString,
+    RefreshToken = refreshTokenNew
   };
 }
 }
@@ -169,7 +177,7 @@ public class TokenHasher
             StringBuilder sb = new StringBuilder();
             foreach (var b in bytes)
             {
-                sb.Append(b.ToString("x2")); // zapis hex
+                sb.Append(b.ToString("x2"));
             }
             return sb.ToString();
         }
