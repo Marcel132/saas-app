@@ -27,7 +27,7 @@ public class UsersController : ControllerBase
     // This endpoint retrieves all users.
     // It includes their session, user data, opinions, and API logs.
     var users = await _userService.GetAllUsersAsync();
-    return Ok(new { success = true, data = users, message = "Users retrieved successfully." });
+    return Ok(HttpResponseFactory.Ok(HttpContext, users, null, ErrorCodes.Auth.Success));
   }
 
   [Authorize]
@@ -35,17 +35,26 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> GetCurrentUser()
   {
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
+      return Unauthorized(HttpResponseFactory.Unauthorized<object>(HttpContext, "Invalid or missing user name identifier", ErrorCodes.Auth.InvalidNameIdentifier));
 
     try
     {
       var user = await _userService.GetCurrentUserAsync(userId);
 
-      return Ok(new { success = true, data = user, message = "Token retrieved successfully." });
+      return Ok(HttpResponseFactory.Ok(HttpContext, user, "Return a user object", ErrorCodes.Auth.Success));
     }
-    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
-    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
-    catch (System.Exception) { return StatusCode(500, new { success = false, message = "An error occurred while getting current user" }); }
+    catch (ArgumentException ex)
+    {
+      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, ex.Message, ErrorCodes.Validation.MissingRequiredField));
+    }
+    catch (KeyNotFoundException ex)
+    {
+      return NotFound(HttpResponseFactory.NotFound<object>(HttpContext, ex.Message, ErrorCodes.Auth.NotFound));
+    }
+    catch (System.Exception)
+    {
+      return StatusCode(500, HttpResponseFactory.InternalServerError<object>(HttpContext, "An error occurred while getting current user", ErrorCodes.General.ServerError));
+    }
   }
 
   // path: /users/{id}
@@ -56,12 +65,11 @@ public class UsersController : ControllerBase
   {
     // Validate the ID and requested data before proceeding.
     // If the ID is invalid or requested data is null return a 400 Bad Request response. 
-    // ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
     if (!ModelState.IsValid)
-      return BadRequest(new { success = false, message = "Invalid model state", details = ModelState });
+      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, "Invalid model state.", ErrorCodes.Validation.MissingRequiredField));
 
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
+      return Unauthorized(HttpResponseFactory.Unauthorized<object>(HttpContext, "Invalid or missing user name identifier", ErrorCodes.Auth.InvalidNameIdentifier));
 
     // Attempt to update the user by ID.
     // If the user is not found, return a 404 Not Found response.
@@ -71,11 +79,17 @@ public class UsersController : ControllerBase
       var user = await _userService.UpdateUserAsync(userId, request);
       return Ok(new { success = true, message = "User updated successfully" });
     }
-    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
-    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
+    catch (ArgumentException ex)
+    {
+      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, ex.Message, ErrorCodes.Validation.DataTypeMismatch));
+    }
+    catch (KeyNotFoundException ex)
+    {
+      return NotFound(HttpResponseFactory.NotFound<object>(HttpContext, ex.Message, ErrorCodes.Auth.NotFound));
+    }
     catch (System.Exception)
     {
-      return StatusCode(500, new { success = false, message = "An error occurred while updating a user" });
+      return StatusCode(500, HttpResponseFactory.InternalServerError<object>(HttpContext, "An error occurred while updating the user", ErrorCodes.General.ServerError));
     }
   }
 

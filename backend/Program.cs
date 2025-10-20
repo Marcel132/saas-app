@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -60,10 +61,26 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 app.UseMiddleware<CookieToBearerMiddleware>();
 app.UseMiddleware<JwtMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Response.StatusCode == 403)
+    {
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync(JsonSerializer.Serialize(new
+        {
+            error = "Forbidden: You do not have permission to access this resource.",
+            status = 403
+        }));
+    }
+});
 app.MapControllers();
 app.Run();

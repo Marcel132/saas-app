@@ -16,8 +16,11 @@ public static class ErrorCodes
     public const string Success = "AUTH-10/001_SUCCESS";
     public const string ValidToken = "AUTH-10/002_VALID_TOKEN";
     public const string InvalidCredentials = "AUTH-20/010_INVALID_CREDENTIALS";
+    public const string InvalidNameIdentifier = "AUTH-20/011_INVALID_NAME_IDENTIFIER";
     public const string TokenExpired = "AUTH-20/020_TOKEN_EXPIRED";
-    public const string UnauthorizedRole = "AUTH-20/030_UNAUTHORIZED_ROLE";
+    public const string NotFound = "AUTH-20/030_NOT_FOUND";
+    public const string KeyNotFound = "AUTH-20/031_KEY_NOT_FOUND";
+    public const string UnauthorizedRole = "AUTH-20/032_UNAUTHORIZED_ROLE";
     public const string TokenTempered = "AUTH-30/040_TOKEN_TEMPERED";
   }
 
@@ -70,10 +73,11 @@ public static class ErrorCodes
   public static class General
   {
     public const string Success = "GEN-10/001_SUCCESS";
-    public const string UnknownError = "GEN-30/001_UNKNOWN_ERROR";
     public const string OperationSuccessful = "GEN-10/002_OPERATION_SUCCESSFUL";
-    public const string FeatureNotImplemented = "GEN-20/003_FEATURE_NOT_IMPLEMENTED";
-    public const string ServiceUnavailable = "GEN-40/004_SERVICE_UNAVAILABLE";
-    public const string DependencyFailure = "GEN-40/005_DEPENDENCY_FAILURE";
+    public const string FeatureNotImplemented = "GEN-20/001_FEATURE_NOT_IMPLEMENTED";
+    public const string ServerError = "GEN-30/001_SERVER_ERROR";
+    public const string UnknownError = "GEN-30/002_UNKNOWN_ERROR";
+    public const string ServiceUnavailable = "GEN-40/001_SERVICE_UNAVAILABLE";
+    public const string DependencyFailure = "GEN-40/002_DEPENDENCY_FAILURE";
   }
 }
