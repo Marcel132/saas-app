@@ -26,6 +26,11 @@ public class InvalidNameIdentifierException : AppException
       : base(message, 400) { }
 }
 
+public class UnauthorizedAppException : AppException
+{
+  public UnauthorizedAppException(string message = "Unauthorized access.")
+      : base(message, 401) { }
+}
 public class UnauthorizedRoleException : AppException
 {
   public UnauthorizedRoleException(string message = "The user does not have the required role.")
