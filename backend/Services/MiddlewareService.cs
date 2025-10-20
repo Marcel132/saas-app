@@ -50,7 +50,7 @@ public class MiddlewareService
         .Where(s => s.UserId == int.Parse(userId) && !s.Revoked)
         .ToListAsync();
 
-      var userSession = userSessions.FirstOrDefault( s =>
+      var userSession = userSessions.FirstOrDefault(s =>
       {
         var hashed = TokenHasher.HashToken(token);
         return string.Equals(hashed, s.AuthToken, StringComparison.OrdinalIgnoreCase);
@@ -74,6 +74,30 @@ public class MiddlewareService
     catch (Exception ex)
     {
       throw new Exception("An error occurred during token validation.", ex);
+    }
+  }
+
+  public IEnumerable<Claim>? ValidateToken(string token)
+  {
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var keyBytes = Encoding.UTF8.GetBytes(_jwtKey);
+
+    try
+    {
+      var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+      {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ClockSkew = TimeSpan.Zero
+      }, out _);
+
+      return principal.Claims;
+    }
+    catch
+    {
+      return null;
     }
   }
 }
