@@ -20,7 +20,7 @@ public class UsersController : ControllerBase
 
   // User Management Endpoints
   // path: /users
-  [Authorize(Roles = "Admin")]
+  [RequiredRole("Admin")]
   [HttpGet]
   public async Task<IActionResult> GetUsers()
   {
