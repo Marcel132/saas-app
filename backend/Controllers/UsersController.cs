@@ -36,25 +36,9 @@ public class UsersController : ControllerBase
   {
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
       return Unauthorized(HttpResponseFactory.Unauthorized<object>(HttpContext, "Invalid or missing user name identifier", ErrorCodes.Auth.InvalidNameIdentifier));
-
-    try
-    {
-      var user = await _userService.GetCurrentUserAsync(userId);
-
-      return Ok(HttpResponseFactory.Ok(HttpContext, user, "Return a user object", ErrorCodes.Auth.Success));
-    }
-    catch (ArgumentException ex)
-    {
-      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, ex.Message, ErrorCodes.Validation.MissingRequiredField));
-    }
-    catch (KeyNotFoundException ex)
-    {
-      return NotFound(HttpResponseFactory.NotFound<object>(HttpContext, ex.Message, ErrorCodes.Auth.NotFound));
-    }
-    catch (System.Exception)
-    {
-      return StatusCode(500, HttpResponseFactory.InternalServerError<object>(HttpContext, "An error occurred while getting current user", ErrorCodes.General.ServerError));
-    }
+    
+    var user = await _userService.GetCurrentUserAsync(userId);
+    return Ok(HttpResponseFactory.Ok(HttpContext, user, "Return a user object", ErrorCodes.Auth.Success));
   }
 
   // path: /users/{id}
@@ -73,24 +57,8 @@ public class UsersController : ControllerBase
 
     // Attempt to update the user by ID.
     // If the user is not found, return a 404 Not Found response.
-    try
-    {
-
-      var user = await _userService.UpdateUserAsync(userId, request);
-      return Ok(new { success = true, message = "User updated successfully" });
-    }
-    catch (ArgumentException ex)
-    {
-      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, ex.Message, ErrorCodes.Validation.DataTypeMismatch));
-    }
-    catch (KeyNotFoundException ex)
-    {
-      return NotFound(HttpResponseFactory.NotFound<object>(HttpContext, ex.Message, ErrorCodes.Auth.NotFound));
-    }
-    catch (System.Exception)
-    {
-      return StatusCode(500, HttpResponseFactory.InternalServerError<object>(HttpContext, "An error occurred while updating the user", ErrorCodes.General.ServerError));
-    }
+    await _userService.UpdateUserAsync(userId, request);
+    return Ok(HttpResponseFactory.Ok(HttpContext, "User updated successfully", ErrorCodes.Auth.Success));
   }
 
 
@@ -103,21 +71,12 @@ public class UsersController : ControllerBase
     //  Validate the ID before proceeding.
     // If the ID is invalid, return a 400 Bad Request response.
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
+      return Unauthorized(HttpResponseFactory.Unauthorized<object>(HttpContext, "Invalid or missing user ID claim.", ErrorCodes.Auth.InvalidNameIdentifier));
 
     // Attempt to delete the user by ID.
     // If the user is not found, return a 404 Not Found response.
-    try
-    {
-      await _userService.DeleteUserAsync(userId);
-      return Ok(new { success = true, message = $"User with ID {userId} deleted successfully." });
-    }
-    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
-    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
-    catch (System.Exception)
-    {
-      return StatusCode(500, new { success = false, message = "An error occurred while deleting the user." });
-    }
+    await _userService.DeleteUserAsync(userId);
+    return Ok(HttpResponseFactory.Ok(HttpContext, $"User with ID {userId} deleted successfully", ErrorCodes.Auth.Success));
   }
 
   // path: /users/login
@@ -126,53 +85,40 @@ public class UsersController : ControllerBase
   [HttpPost("login")]
   public async Task<IActionResult> Login([FromBody] LoginRequestModel request)
   {
-
-    // Validate the request model.
-    // ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
-    ArgumentNullException.ThrowIfNull(request.Email, "Email cannot be null");
-    ArgumentNullException.ThrowIfNull(request.Password, "Password cannot be null");
+   if (request == null)
+      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, "Request body is required.", ErrorCodes.Validation.MissingRequiredField));
 
     if (!ModelState.IsValid)
-      return BadRequest(new { success = false, message = "Invalid login request." });
+      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, "Invalid model state.", ErrorCodes.Validation.MissingRequiredField));
 
-    // Attempt to authenticate the user using the provided credentials.
-    // If authentication fails, return a 401 Unauthorized response.
-    try
+    if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, "Email and Password are required.", ErrorCodes.Validation.MissingRequiredField));
+
+
+    var user = await _userService.AuthenticateUserAsync(request);
+
+    var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
+    var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
+
+    var token = await _tokenService.GenerateAuthToken(user.Id, user.Role.ToString(), ip, userAgent);
+
+    Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
     {
-      var user = await _userService.AuthenticateUserAsync(request)
-        ?? throw new UnauthorizedAccessException("Authentication failed! Invalid email or password");
+      HttpOnly = true,
+      Secure = HttpContext.Request.IsHttps,
+      SameSite = SameSiteMode.Strict,
+      Expires = DateTime.UtcNow.AddMinutes(15)
+    });
 
-      var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
-      var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
-
-      var token = await _tokenService.GenerateAuthToken(user.Id, user.Role.ToString(), ip, userAgent)
-        ?? throw new ArgumentException("Token generation failed.");
-
-      Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
-      {
-        HttpOnly = true,
-        Secure = HttpContext.Request.IsHttps,
-        SameSite = SameSiteMode.Strict,
-        Expires = DateTime.UtcNow.AddMinutes(15)
-      });
-
-      Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
-      {
-        HttpOnly = true,
-        Secure = HttpContext.Request.IsHttps,
-        SameSite = SameSiteMode.Strict,
-        Expires = DateTime.UtcNow.AddDays(7)
-      });
-
-      return Ok(new { success = true, message = "Login successful." });
-    }
-    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
-    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
-    catch (UnauthorizedAccessException ex) { return Unauthorized(new { success = false, message = ex.Message }); }
-    catch (System.Exception ex)
+    Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
     {
-      return StatusCode(500, new { success = false, message = "An error occurred during authentication.", details = ex.Message });
-    }
+      HttpOnly = true,
+      Secure = HttpContext.Request.IsHttps,
+      SameSite = SameSiteMode.Strict,
+      Expires = DateTime.UtcNow.AddDays(7)
+    });
+
+    return Ok(HttpResponseFactory.Ok(HttpContext,"Login successful", ErrorCodes.Auth.Success));
   }
 
   // path: /users/logout
@@ -183,15 +129,11 @@ public class UsersController : ControllerBase
   {
 
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(new { success = false, message = "Invalid or missing user ID claim." });
+      return Unauthorized(HttpResponseFactory.Unauthorized<object>(HttpContext, "Invalid or missing user ID claim.", ErrorCodes.Auth.InvalidNameIdentifier));
 
     var deviceIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
 
-    try
-    {
-      var user = await _userService.LogoutUserAsync(userId, deviceIp);
-      if (!user)
-        return BadRequest(new { success = false, message = "Cannot delete a session" });
+      await _userService.LogoutUserAsync(userId, deviceIp);
 
       // Clear the auth token cookie
       Response.Cookies.Append("AuthToken", "", new CookieOptions
@@ -210,14 +152,7 @@ public class UsersController : ControllerBase
         SameSite = SameSiteMode.Strict
       });
 
-      return Ok(new { success = true, message = "Logout successful." });
-    }
-    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
-    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
-    catch (System.Exception)
-    {
-      return StatusCode(500, new { success = false, message = "An error occurred while logouta user" });
-    }
+      return Ok(HttpResponseFactory.Ok(HttpContext, "Logout successful", ErrorCodes.Auth.Success));
   }
 
   // Registration Endpoint
@@ -228,43 +163,32 @@ public class UsersController : ControllerBase
   {
     // Validate the request model.
     if (!ModelState.IsValid)
-      return BadRequest(new { success = false, message = "Invalid model state.", details = ModelState });
+      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, "Invalid model state.", ErrorCodes.Validation.MissingRequiredField));
 
-    // Attempt to register the user using the provided model.
-    // If the user registration fails, return a 400 Bad Request response.
-    try
+    var user = await _userService.RegisterUserAsync(request);
+
+    var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
+    var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
+
+    var token = await _tokenService.GenerateAuthToken(user.Id, user.Role.ToString(), ip, userAgent);
+
+    Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
     {
-      var user = await _userService.RegisterUserAsync(request);
-      ArgumentNullException.ThrowIfNull(user, "User cannot be null");
-      ArgumentNullException.ThrowIfNull(user.UserData, "UserData cannot be null");
+      HttpOnly = true,
+      Secure = HttpContext.Request.IsHttps,
+      SameSite = SameSiteMode.Strict,
+      Expires = DateTime.UtcNow.AddMinutes(15)
+    });
 
-      var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
-      var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
-
-      var token = await _tokenService.GenerateAuthToken(user.Id, user.Role.ToString(), ip, userAgent) ?? throw new ArgumentException("Token generation failed.");
-
-      Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
-      {
-        HttpOnly = true,
-        Secure = HttpContext.Request.IsHttps,
-        SameSite = SameSiteMode.Strict,
-        Expires = DateTime.UtcNow.AddMinutes(15)
-      });
-
-      Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
-      {
-        HttpOnly = true,
-        Secure = HttpContext.Request.IsHttps,
-        SameSite = SameSiteMode.Strict,
-        Expires = DateTime.UtcNow.AddDays(7)
-      });
-      return Ok(new { success = true, data = new { email = user.Email, id = user.Id, authToken = token.AuthToken }, message = "User registered successfully." });
-    }
-    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
-    catch (System.Exception)
+    Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
     {
-      return StatusCode(500, new { success = false, message = "An error occurred while registering the user." });
-    }
+      HttpOnly = true,
+      Secure = HttpContext.Request.IsHttps,
+      SameSite = SameSiteMode.Strict,
+      Expires = DateTime.UtcNow.AddDays(7)
+    });
+    
+    return Ok(HttpResponseFactory.Ok(HttpContext, new { email = user.Email, id = user.Id, authToken = token.AuthToken }, "User registered successfully.", ErrorCodes.Auth.Success));
   }
 
   // Generation Endpoint 

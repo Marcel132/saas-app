@@ -33,6 +33,17 @@ public static class HttpResponseFactory
       Timestamp = DateTime.UtcNow
     };
 
+  public static HttpResponseModel<T> Forbidden<T>(HttpContext context, string? message = null, string? errorCode = null)
+    => new()
+    {
+      Success = false,
+      State = HttpResponseState.Forbidden,
+      Message = message,
+      TraceId = context.TraceIdentifier,
+      ErrorCode = errorCode ?? ErrorCodes.General.UnknownError,
+      Timestamp = DateTime.UtcNow
+    };
+
   public static HttpResponseModel<T> BadRequest<T>(HttpContext context, string? message = null, string? errorCode = null)
    => new()
    {
@@ -77,7 +88,16 @@ public static class HttpResponseFactory
       Timestamp = DateTime.UtcNow
    };
 
-
+  public static HttpResponseModel<T> AppException<T>(HttpContext context, string? message = null, string? errorCode = null)
+   => new()
+   {
+     Success = false,
+     State = HttpResponseState.ServerError,
+     Message = message,
+     TraceId = context.TraceIdentifier,
+     ErrorCode = errorCode ?? ErrorCodes.General.UnknownError,
+      Timestamp = DateTime.UtcNow
+   }; 
   public static HttpResponseModel<T> FirewallDetected<T>(HttpContext context, string? message = null, string? errorCode = null)
    => new()
    {

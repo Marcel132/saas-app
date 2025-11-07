@@ -138,12 +138,12 @@ public class UserService
 
     var user = await _context.Users
       .Include(u => u.UserData)
-      .FirstOrDefaultAsync(u => u.Email == request.Email);
+      .FirstOrDefaultAsync(u => u.Email == request.Email)
+      ?? throw new UnauthorizedAccessException("Invalid email");
 
-    if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-      throw new UnauthorizedAccessException("Invalid email or password.");
+    if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+      throw new UnauthorizedAccessException("Invalid password.");
     
-
     return user;
   }
   public async Task<bool> LogoutUserAsync(int userId, string deviceIp)
@@ -156,8 +156,10 @@ public class UserService
 
     var sessions = await _context.Sessions
       .Where(s => s.UserId == user.Id && !s.Revoked && s.Ip == deviceIp)
-      .ToListAsync()
-      ?? throw new KeyNotFoundException("No active sessions found for this user");
+      .ToListAsync();
+
+    if (sessions.Count == 0)
+      throw new KeyNotFoundException("No active sessions found for this user");
 
     foreach (var sess in sessions)
     {
@@ -193,6 +195,10 @@ public class UserService
       var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
       request.Password = hashedPassword;
+
+      if (request.UserData == null)
+        throw new ArgumentNullException("User cannot be null");
+      
 
       _context.Users.Add(request);
       await _context.SaveChangesAsync();
