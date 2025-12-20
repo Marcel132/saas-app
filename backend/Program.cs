@@ -64,11 +64,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseMiddleware<CookieToBearerMiddleware>();
 app.UseMiddleware<GlobalErrorHandlingMiddleware>();
-app.UseMiddleware<AuthorizationMiddleware>();
+app.UseMiddleware<NetworkMiddleware>();
+
 app.UseHttpsRedirection();
+
+app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthentication();
+
+app.UseMiddleware<AuthorizationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
