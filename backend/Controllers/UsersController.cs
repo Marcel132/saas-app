@@ -10,11 +10,13 @@ public class UsersController : ControllerBase
 {
   private readonly UserService _userService;
   private readonly TokenService _tokenService;
+  private readonly ILogger _logger;
 
-  public UsersController(UserService userService, TokenService tokenService)
+  public UsersController(UserService userService, TokenService tokenService, ILogger<UsersController> logger)
   {
     _userService = userService;
     _tokenService = tokenService;
+    _logger = logger;
   }
 
 
@@ -27,7 +29,14 @@ public class UsersController : ControllerBase
     // This endpoint retrieves all users.
     // It includes their session, user data, opinions, and API logs.
     var users = await _userService.GetAllUsersAsync();
-    return Ok(HttpResponseFactory.Ok(HttpContext, users, null, ErrorCodes.Auth.Success));
+    return Ok(HttpResponseFactory.CreateFailureResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      true,
+      "Users retrieved successfully", 
+      ErrorCodes.Auth.Success, 
+      users
+      ));
   }
 
   [Authorize]
@@ -35,10 +44,23 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> GetCurrentUser()
   {
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(HttpResponseFactory.Unauthorized<object>(HttpContext, "Invalid or missing user name identifier", ErrorCodes.Auth.InvalidNameIdentifier));
+      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.Unauthorized, 
+        false, 
+        "Invalid or missing user name identifier", 
+        ErrorCodes.Auth.InvalidNameIdentifier
+        ));
     
     var user = await _userService.GetCurrentUserAsync(userId);
-    return Ok(HttpResponseFactory.Ok(HttpContext, user, "Return a user object", ErrorCodes.Auth.Success));
+    return Ok(HttpResponseFactory.CreateFailureResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      true, 
+      "Current user retrieved successfully", 
+      ErrorCodes.Auth.Success, 
+      user
+      ));
   }
 
   // path: /users/{id}
@@ -50,15 +72,34 @@ public class UsersController : ControllerBase
     // Validate the ID and requested data before proceeding.
     // If the ID is invalid or requested data is null return a 400 Bad Request response. 
     if (!ModelState.IsValid)
-      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, "Invalid model state.", ErrorCodes.Validation.MissingRequiredField));
+      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.BadRequest, 
+        false,
+        "Invalid model state.", 
+        ErrorCodes.Validation.MissingRequiredField
+      ));
+
 
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(HttpResponseFactory.Unauthorized<object>(HttpContext, "Invalid or missing user name identifier", ErrorCodes.Auth.InvalidNameIdentifier));
-
+      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.Unauthorized, 
+        false,
+        "Invalid or missing user name identifier", 
+        ErrorCodes.Auth.InvalidNameIdentifier
+      ));
+    
     // Attempt to update the user by ID.
     // If the user is not found, return a 404 Not Found response.
     await _userService.UpdateUserAsync(userId, request);
-    return Ok(HttpResponseFactory.Ok(HttpContext, "User updated successfully", ErrorCodes.Auth.Success));
+    return Ok(HttpResponseFactory.CreateFailureResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      true,
+      "User updated successfully", 
+      ErrorCodes.Auth.Success
+    ));
   }
 
 
@@ -71,12 +112,24 @@ public class UsersController : ControllerBase
     //  Validate the ID before proceeding.
     // If the ID is invalid, return a 400 Bad Request response.
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(HttpResponseFactory.Unauthorized<object>(HttpContext, "Invalid or missing user ID claim.", ErrorCodes.Auth.InvalidNameIdentifier));
+      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.Unauthorized, 
+        false,
+        "Invalid or missing user name identifier", 
+        ErrorCodes.Auth.InvalidNameIdentifier
+      ));
 
     // Attempt to delete the user by ID.
     // If the user is not found, return a 404 Not Found response.
     await _userService.DeleteUserAsync(userId);
-    return Ok(HttpResponseFactory.Ok(HttpContext, $"User with ID {userId} deleted successfully", ErrorCodes.Auth.Success));
+    return Ok(HttpResponseFactory.CreateFailureResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      true,
+      $"User with ID {userId} deleted successfully",
+     ErrorCodes.Auth.Success
+    )); 
   }
 
   // path: /users/login
@@ -86,14 +139,31 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> Login([FromBody] LoginRequestModel request)
   {
    if (request == null)
-      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, "Request body is required.", ErrorCodes.Validation.MissingRequiredField));
+      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.BadRequest, 
+        false,
+        "Request body is required.", 
+        ErrorCodes.Validation.MissingRequiredField
+      ));
 
     if (!ModelState.IsValid)
-      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, "Invalid model state.", ErrorCodes.Validation.MissingRequiredField));
+      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.BadRequest, 
+        false,
+        "Invalid model state.", 
+        ErrorCodes.Validation.MissingRequiredField
+      ));
 
     if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, "Email and Password are required.", ErrorCodes.Validation.MissingRequiredField));
-
+      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.BadRequest, 
+        false,
+        "Email and Password are required.", 
+        ErrorCodes.Validation.MissingRequiredField
+      ));
 
     var user = await _userService.AuthenticateUserAsync(request);
 
@@ -118,7 +188,13 @@ public class UsersController : ControllerBase
       Expires = DateTime.UtcNow.AddDays(7)
     });
 
-    return Ok(HttpResponseFactory.Ok(HttpContext,"Login successful", ErrorCodes.Auth.Success));
+    return Ok(HttpResponseFactory.CreateFailureResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      true,
+      "Login successful", 
+      ErrorCodes.Auth.Success
+      ));
   }
 
   // path: /users/logout
@@ -129,7 +205,13 @@ public class UsersController : ControllerBase
   {
 
     if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
-      return Unauthorized(HttpResponseFactory.Unauthorized<object>(HttpContext, "Invalid or missing user ID claim.", ErrorCodes.Auth.InvalidNameIdentifier));
+      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.Unauthorized, 
+        false,
+        "Invalid or missing user ID claim.", 
+        ErrorCodes.Auth.InvalidNameIdentifier
+        ));
 
     var deviceIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
 
@@ -152,7 +234,12 @@ public class UsersController : ControllerBase
         SameSite = SameSiteMode.Strict
       });
 
-      return Ok(HttpResponseFactory.Ok(HttpContext, "Logout successful", ErrorCodes.Auth.Success));
+      return Ok(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.Success, 
+        true,
+        "Logout successful", 
+        ErrorCodes.Auth.Success));
   }
 
   // Registration Endpoint
@@ -163,7 +250,13 @@ public class UsersController : ControllerBase
   {
     // Validate the request model.
     if (!ModelState.IsValid)
-      return BadRequest(HttpResponseFactory.BadRequest<object>(HttpContext, "Invalid model state.", ErrorCodes.Validation.MissingRequiredField));
+      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.BadRequest, 
+        false,
+        "Invalid model state.", 
+        ErrorCodes.Validation.MissingRequiredField
+        ));
 
     var user = await _userService.RegisterUserAsync(request);
 
@@ -187,8 +280,15 @@ public class UsersController : ControllerBase
       SameSite = SameSiteMode.Strict,
       Expires = DateTime.UtcNow.AddDays(7)
     });
-    
-    return Ok(HttpResponseFactory.Ok(HttpContext, new { email = user.Email, id = user.Id, authToken = token.AuthToken }, "User registered successfully.", ErrorCodes.Auth.Success));
+
+    return Ok(HttpResponseFactory.CreateFailureResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      true,
+      "User registered successfully.", 
+      ErrorCodes.Auth.Success,  
+      new { email = user.Email, id = user.Id, authToken = token.AuthToken }
+      ));
   }
 
   // Generation Endpoint 
@@ -198,10 +298,22 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> GenerateToken([FromBody] TokenAuthModel request)
   {
     if (request.UserId <= 0 || string.IsNullOrEmpty(request.Role))
-      return BadRequest(new { success = false, message = "UserId and Role are required." });
+      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.BadRequest, 
+        false,
+        "UserId and Role are required.", 
+        ErrorCodes.Validation.MissingRequiredField
+        ));
 
     if (!ModelState.IsValid)
-      return BadRequest(new { success = false, message = "Invalid model state.", details = ModelState });
+      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.BadRequest, 
+        false,
+        "Invalid model state.", 
+        ErrorCodes.Validation.MissingRequiredField
+        ));
 
     try
     {
@@ -228,13 +340,47 @@ public class UsersController : ControllerBase
         Expires = DateTime.UtcNow.AddDays(7)
       });
 
-      return Ok(new { success = true, data = new { authToken = token.AuthToken }, message = "Token generated successfully." });
+      return Ok(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.Success, 
+        true,
+        "Token generated successfully.", 
+        ErrorCodes.Auth.Success, 
+        new { authToken = token.AuthToken }
+        ));
     }
-    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
-    catch (KeyNotFoundException ex) { return NotFound(new { success = false, message = ex.Message }); }
+    catch (ArgumentException ex) 
+    { 
+      _logger.LogError(ex, "Error generating token");
+      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.BadRequest, 
+        false,
+        "Something went wrong while generating the token.", 
+        ErrorCodes.Auth.InvalidToken
+        )); 
+    }
+    catch (KeyNotFoundException ex) 
+    { 
+      _logger.LogError(ex, "Key not found during token generation");
+      return NotFound(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext,
+        HttpResponseState.NotFound, 
+        false,
+        "Something went wrong while finding the key.", 
+        ErrorCodes.Auth.KeyNotFound
+        )); 
+    }
     catch (InvalidOperationException ex)
     {
-      return StatusCode(500, new { success = false, message = "An error occurred while generating the token.", details = ex.Message });
+      _logger.LogError(ex, "Invalid operation during token generation");
+      return Conflict(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.Conflict, 
+        false,
+        "Conflict occurred while generating the token.", 
+        ErrorCodes.Auth.InvalidToken
+        ));
     }
   }
 
@@ -243,14 +389,26 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> RefreshToken()
   {
     if (!Request.Cookies.TryGetValue("RefreshToken", out string? refreshToken))
-      return Unauthorized(new { success = false, message = "Refresh token is missing" });
+      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext,
+        HttpResponseState.Unauthorized,
+        false,
+        "Refresh token is missing", 
+        ErrorCodes.Auth.InvalidNameIdentifier
+        ));
 
     try
     {
       var token = await _tokenService.RefreshTokenAsync(refreshToken);
 
       if (token == null)
-        return BadRequest("Cannot refresh a token");
+        return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
+          HttpContext,
+          HttpResponseState.BadRequest,
+          false,
+          "Cannot refresh a token", 
+          ErrorCodes.Auth.InvalidToken
+          ));
 
       Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
       {
@@ -269,13 +427,46 @@ public class UsersController : ControllerBase
         Expires = DateTime.UtcNow.AddDays(7)
       });
 
-      return Ok(new { success = true, message = "Token refresh successful" });
+      return Ok(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext,
+        HttpResponseState.Success,
+        true,
+        "Token refresh successful",
+        ErrorCodes.Auth.Success
+        ));
     }
-    catch (ArgumentException ex) { return BadRequest(new { success = false, message = ex.Message }); }
-    catch (UnauthorizedAccessException ex) { return Unauthorized(new { success = false, message = ex.Message }); }
-    catch (System.Exception)
+    catch (ArgumentException ex) 
+    { 
+      _logger.LogError(ex, "Error refreshing token");
+      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext,
+        HttpResponseState.BadRequest,
+        false,
+        "Something went wrong while refreshing the token", 
+        ErrorCodes.Auth.InvalidToken
+        )); 
+    }
+    catch (UnauthorizedAccessException ex) 
+    { 
+      _logger.LogError(ex, "Unauthorized access during token refresh");
+      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext,
+        HttpResponseState.Unauthorized,
+        false,
+        "Unauthorized access while refreshing the token", 
+        ErrorCodes.Auth.InvalidNameIdentifier
+        ));
+    }
+    catch (System.Exception ex)
     {
-      return StatusCode(500, new { success = false, message = "An error occurred while refreshing the token" });
+      _logger.LogError(ex, "An error occurred while refreshing the token");
+      return StatusCode(500, HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext,
+        HttpResponseState.ServerError,
+        false,
+        "An error occurred while refreshing the token", 
+        ErrorCodes.General.UnknownError
+        ));
     }
   }
 }
