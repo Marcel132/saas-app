@@ -18,10 +18,12 @@ public static class ErrorCodes
     public const string InvalidCredentials = "AUTH-20/010_INVALID_CREDENTIALS";
     public const string InvalidNameIdentifier = "AUTH-20/011_INVALID_NAME_IDENTIFIER";
     public const string TokenExpired = "AUTH-20/020_TOKEN_EXPIRED";
+    public const string InvalidToken = "AUTH-20/021_INVALID_TOKEN";
     public const string NotFound = "AUTH-20/030_NOT_FOUND";
     public const string KeyNotFound = "AUTH-20/031_KEY_NOT_FOUND";
     public const string UnauthorizedRole = "AUTH-20/032_UNAUTHORIZED_ROLE";
-    public const string TokenTempered = "AUTH-30/040_TOKEN_TEMPERED";
+    public const string TokenTampered = "AUTH-30/040_TOKEN_TAMPERED";
+    public const string ForbiddenAccess = "AUTH-30/050_FORBIDDEN_ACCESS";
   }
 
   public static class Firewall
@@ -32,6 +34,7 @@ public static class ErrorCodes
     public const string MaliciousPayloadDetected = "FIRE-40/004_MALICIOUS_PAYLOAD_DETECTED";
     public const string SQLInjectionDetected = "FIRE-40/005_SQL_INJECTION_DETECTED";
     public const string XSSAttackDetected = "FIRE-40/006_XSS_ATTACK_DETECTED";
+    public const string FirewallDetected = "FIRE-30/007_FIREWALL_DETECTED";
   }
 
   public static class Validation
@@ -41,6 +44,7 @@ public static class ErrorCodes
     public const string ValueOutOfRange = "VALID-20/003_VALUE_OUT_OF_RANGE";
     public const string DuplicateEntry = "VALID-20/004_DUPLICATE_ENTRY";
     public const string DataTypeMismatch = "VALID-20/005_DATA_TYPE_MISMATCH";
+    public const string BadRequest = "VALID-30/006_BAD_REQUEST";
   }
 
   public static class Database
@@ -79,5 +83,6 @@ public static class ErrorCodes
     public const string UnknownError = "GEN-30/002_UNKNOWN_ERROR";
     public const string ServiceUnavailable = "GEN-40/001_SERVICE_UNAVAILABLE";
     public const string DependencyFailure = "GEN-40/002_DEPENDENCY_FAILURE";
+    public const string ConflictError = "GEN-30/003_CONFLICT_ERROR";
   }
 }
