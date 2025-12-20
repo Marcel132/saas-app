@@ -35,6 +35,8 @@ public static class ErrorCodes
     public const string SQLInjectionDetected = "FIRE-40/005_SQL_INJECTION_DETECTED";
     public const string XSSAttackDetected = "FIRE-40/006_XSS_ATTACK_DETECTED";
     public const string FirewallDetected = "FIRE-30/007_FIREWALL_DETECTED";
+    public const string PayloadBlocked = "FIRE-30/008_PAYLOAD_BLOCKED";
+    public const string QueryStringBlocked = "FIRE-30/009_QUERY_STRING_BLOCKED";
   }
 
   public static class Validation
@@ -84,5 +86,6 @@ public static class ErrorCodes
     public const string ServiceUnavailable = "GEN-40/001_SERVICE_UNAVAILABLE";
     public const string DependencyFailure = "GEN-40/002_DEPENDENCY_FAILURE";
     public const string ConflictError = "GEN-30/003_CONFLICT_ERROR";
+    public const string UnsupportedMediaType = "GEN-30/004_UNSUPPORTED_MEDIA_TYPE";
   }
 }

@@ -1,12 +1,14 @@
 public enum HttpResponseState
 {
-  Authorized,
-  Unauthorized,
-  Forbidden,
-  NotFound,
-  BadRequest,
-  ServerError,
-  Success,
-  Conflict,
-  FirewallDetected
+  Authorized = 200, 
+  Success = 200,
+  BadRequest = 400,
+  Unauthorized = 401,
+  Forbidden = 403,
+  FirewallDetected = 403,
+  NotFound = 404,
+  Conflict = 409,
+  ContentTooLarge = 413,
+  UnsupportedMediaType = 415,
+  ServerError = 500
 }
