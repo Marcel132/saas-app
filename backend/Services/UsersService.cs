@@ -130,21 +130,48 @@ public class UserService
       throw;
     }
   }
-  public async Task<UsersModel> AuthenticateUserAsync(LoginRequestModel request)
+  public async Task<AuthLoginResult> AuthenticateUserAsync(LoginRequestModel request)
   {
     if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-      throw new ArgumentException("Email and password must be provided.");
+      return new AuthLoginResult(
+        false,
+        null, 
+        HttpStatusCodes.AuthCodes.InvalidCredentials
+      );
     
 
     var user = await _context.Users
       .Include(u => u.UserData)
-      .FirstOrDefaultAsync(u => u.Email == request.Email)
-      ?? throw new UnauthorizedAccessException("Invalid email");
+      .FirstOrDefaultAsync(u => u.Email == request.Email);
 
-    if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-      throw new UnauthorizedAccessException("Invalid password.");
-    
-    return user;
+    if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+    {
+      // await RegisterFailedLoginAttempt(request.Email);
+
+      return new AuthLoginResult(
+        false,
+        null, 
+        HttpStatusCodes.AuthCodes.InvalidCredentials
+      );
+    }
+
+    if(!user.IsActive)
+    {
+      return new AuthLoginResult(
+        false,
+        null, 
+        HttpStatusCodes.AuthCodes.AccountBlocked
+      );
+    }
+
+    // ResetFailedLoginAttempts(user);
+
+
+    return new AuthLoginResult(
+      true, 
+      user,
+      HttpStatusCodes.AuthCodes.Success
+    );
   }
   public async Task<bool> LogoutUserAsync(int userId, string deviceIp)
   {
