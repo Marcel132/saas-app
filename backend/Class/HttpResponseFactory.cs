@@ -14,7 +14,7 @@ public static class HttpResponseFactory
       Data = data,
       Message = message,
       TraceId = context.TraceIdentifier,
-      ErrorCode = errorCode ?? ErrorCodes.General.UnknownError,
+      ErrorCode = errorCode ?? HttpStatusCodes.GeneralCodes.ServerError,
       Timestamp = DateTime.UtcNow
     };
 
@@ -32,6 +32,22 @@ public static class HttpResponseFactory
       success,
       message,
       errorCode,
+      data
+      );
+
+  public static HttpResponseModel<T> CreateSuccessResponse<T>(
+    HttpContext context,
+    HttpResponseState state,
+    bool success,
+    string? message = null,
+    string? successCode = null,
+    T? data = default
+    ) => CreateResponse<T>(
+      context,
+      state,
+      success,
+      message,
+      successCode,
       data
       );
 }
