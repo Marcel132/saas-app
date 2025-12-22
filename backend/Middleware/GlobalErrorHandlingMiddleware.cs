@@ -43,7 +43,7 @@ public class GlobalErrorHandlingMiddleware
                 HttpResponseState.BadRequest,
                 false,
                 "Bad request parameters",
-                ErrorCodes.Validation.BadRequest
+                HttpStatusCodes.ValidationCodes.BadRequest
                 );
         }
         else if (ex is UnauthorizedAccessException)
@@ -55,7 +55,7 @@ public class GlobalErrorHandlingMiddleware
                 HttpResponseState.Unauthorized,
                 false,
                 "Unauthorized access",
-                ErrorCodes.Auth.UnauthorizedRole
+                HttpStatusCodes.AuthCodes.Unauthorized
                 );
         }
         else if (ex is KeyNotFoundException)
@@ -67,7 +67,7 @@ public class GlobalErrorHandlingMiddleware
                 HttpResponseState.NotFound,
                 false,
                 "Key not found",
-                ErrorCodes.Auth.KeyNotFound
+                HttpStatusCodes.GeneralCodes.NotFound
                 );
         }
         else if (ex is InvalidOperationException)
@@ -79,7 +79,7 @@ public class GlobalErrorHandlingMiddleware
                 HttpResponseState.Conflict,
                 false,
                 "An invalid operation occurred",
-                ErrorCodes.General.ConflictError
+                HttpStatusCodes.GeneralCodes.Conflict
                 );
         }
         else
@@ -89,7 +89,7 @@ public class GlobalErrorHandlingMiddleware
                 HttpResponseState.ServerError,
                 false,
                 "An unexpected error occurred.",
-                ErrorCodes.General.ServerError
+                HttpStatusCodes.GeneralCodes.ServerError
                 );
         }
 

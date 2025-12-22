@@ -31,7 +31,13 @@ public class AuthorizationMiddleware
     if (string.IsNullOrEmpty(token))
     {
       _logger.LogWarning("Missing authorization token");
-      var response = HttpResponseFactory.CreateFailureResponse<object>(context, HttpResponseState.Unauthorized, false, "Missing authorization token", ErrorCodes.Auth.InvalidNameIdentifier);
+      var response = HttpResponseFactory.CreateFailureResponse<object>(
+        context, 
+        HttpResponseState.Unauthorized, 
+        false, 
+        "Missing authorization token", 
+        HttpStatusCodes.AuthCodes.InvalidNameIdentifier
+        );
       // var response = HttpResponseFactory.<object>(context, "Missing authorization token", ErrorCodes.Auth.InvalidNameIdentifier);
       context.Response.StatusCode = StatusCodes.Status401Unauthorized;
       await context.Response.WriteAsJsonAsync(response);
@@ -47,7 +53,7 @@ public class AuthorizationMiddleware
         HttpResponseState.Unauthorized, 
         false, 
         "Invalid authorization token", 
-        ErrorCodes.Auth.InvalidNameIdentifier
+        HttpStatusCodes.AuthCodes.InvalidNameIdentifier
         );
       context.Response.StatusCode = StatusCodes.Status401Unauthorized;
       await context.Response.WriteAsJsonAsync(response);
@@ -63,7 +69,12 @@ public class AuthorizationMiddleware
       if (role != requiredRole)
       {
         var response = HttpResponseFactory.CreateFailureResponse<object>(
-          context, HttpResponseState.Forbidden, false, "You are not allowed to use this method", ErrorCodes.Auth.UnauthorizedRole);
+          context, 
+          HttpResponseState.Forbidden, 
+          false, 
+          "You are not allowed to use this method", 
+          HttpStatusCodes.AuthCodes.Unauthorized
+        );
         context.Response.StatusCode = StatusCodes.Status403Forbidden;
         await context.Response.WriteAsJsonAsync(response);
         _logger.LogWarning("User role '{Role}' does not have access to this resource", role);
