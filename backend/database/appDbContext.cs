@@ -21,54 +21,41 @@ public class AppDbContext : DbContext
             entity.SetTableName(entity?.GetTableName()?.ToLower());
         }
 
-        modelBuilder.Entity<UsersModel>()
-            .Property(u => u.Role)
-            .HasConversion<string>();
 
+        // modelBuilder.Entity<UsersModel>()
+        // .HasMany(u => u.Sessions)
+        // .WithOne(s => s.User)
+        // .HasForeignKey(s => s.UserId);
 
-        modelBuilder.Entity<UsersModel>()
-        .HasMany(u => u.Sessions)
-        .WithOne(s => s.User)
-        .HasForeignKey(s => s.UserId);
+        // modelBuilder.Entity<UsersModel>()
+        //     .HasOne(u => u.UserData)
+        //     .WithOne(ud => ud.User)
+        //     .HasForeignKey<UserDataModel>(ud => ud.UserId)
+        //     .IsRequired();
 
-        modelBuilder.Entity<UsersModel>()
-            .HasOne(u => u.UserData)
-            .WithOne(ud => ud.User)
-            .HasForeignKey<UserDataModel>(ud => ud.UserId)
-            .IsRequired();
+        // modelBuilder.Entity<UsersModel>()
+        //     .HasMany(u => u.Opinions)
+        //     .WithOne(o => o.User);
 
-        modelBuilder.Entity<UsersModel>()
-            .HasMany(u => u.Opinions)
-            .WithOne(o => o.User)
-            .HasForeignKey(o => o.TargetId);
+        // modelBuilder.Entity<UsersModel>()
+        //     .HasMany(u => u.ApiLogs)
+        //     .WithOne(l => l.User)
+        //     .HasForeignKey(l => l.UserId);
 
-        modelBuilder.Entity<UsersModel>()
-            .HasMany(u => u.ApiLogs)
-            .WithOne(l => l.User)
-            .HasForeignKey(l => l.UserId);
-
-        modelBuilder.Entity<UsersModel>()
-            .HasMany(u => u.Contracts)
-            .WithOne(c => c.Author)
-            .HasForeignKey(c => c.AuthorId);
-        modelBuilder.Entity<UsersModel>()
-            .HasMany(u => u.ContractsApplication)
-            .WithOne(ca => ca.User)
-            .HasForeignKey(ca => ca.UserId);
+        // modelBuilder.Entity<UsersModel>()
+        //     .HasMany(u => u.Contracts)
+        //     .WithOne(c => c.Author)
+        //     .HasForeignKey(c => c.AuthorId);
+        // modelBuilder.Entity<UsersModel>()
+        //     .HasMany(u => u.ContractsApplication)
+        //     .WithOne(ca => ca.User)
+        //     .HasForeignKey(ca => ca.UserId);
 
         modelBuilder.Entity<SessionModel>().Property(x => x.CreatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         modelBuilder.Entity<SessionModel>().Property(x => x.ExpiresAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP + interval '7 days'");
-
-        modelBuilder.HasPostgresEnum<StatusOfContractModel>();
-        modelBuilder.Entity<ContractModel>()
-            .Property(c => c.Status)
-            .HasConversion<string>();
-        modelBuilder.Entity<UsersModel>()
-            .Property(u => u.SpecializationType)
-            .HasConversion<string>();
 
         modelBuilder.Entity<ApiLogsModel>().ToTable("api_logs");
         modelBuilder.Entity<UserDataModel>().ToTable("user_data");
