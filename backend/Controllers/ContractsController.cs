@@ -28,6 +28,7 @@ public class ContractsController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> GetContracts()
   {
+    // Move to [Authorize]
     var userId = GetUserId();
     if (userId is null || userId <= 0)
       return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
@@ -103,37 +104,37 @@ public class ContractsController : ControllerBase
   }
 
   // [Authorize(Roles = "Admin, Company")]
-  [HttpPut("{id}")]
-  public async Task<IActionResult> UpdateContract(int id, [FromBody] ContractRequestModel request)
-  {
-    ArgumentNullException.ThrowIfNull(request, "Request must have a value");
-    if (id <= 0)
-      return BadRequest(new { message = "Invalid contract ID." });
-    if (!ModelState.IsValid)
-      return BadRequest(new { message = "Invalid contract data." });
+  // [HttpPut("{id}")]
+  // public async Task<IActionResult> UpdateContract(int id, [FromBody] ContractRequestModel request)
+  // {
+  //   ArgumentNullException.ThrowIfNull(request, "Request must have a value");
+  //   if (id <= 0)
+  //     return BadRequest(new { message = "Invalid contract ID." });
+  //   if (!ModelState.IsValid)
+  //     return BadRequest(new { message = "Invalid contract data." });
 
-    var userId = GetUserId() ?? 0;
-    if (userId <= 0)
-      return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
+  //   var userId = GetUserId() ?? 0;
+  //   if (userId <= 0)
+  //     return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
-    try
-    {
-      var isContractUpdated = await _contractsService.UpdateContractAsync(id, request, userId);
+  //   try
+  //   {
+  //     var isContractUpdated = await _contractsService.UpdateContractAsync(id, request, userId);
 
-      if (isContractUpdated == false)
-        return NotFound(new { message = $"Contract with ID {id} not found." });
+  //     if (isContractUpdated == false)
+  //       return NotFound(new { message = $"Contract with ID {id} not found." });
 
-      return Ok(new { success = true, message = "Contract updated successfully." });
-    }
-    catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
-    catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
-    catch (UnauthorizedAccessException ex) { return Unauthorized(new { message = ex.Message }); }
-    catch (System.Exception)
-    {
-      return StatusCode(500, new { success = false, message = "An error occurred while updating a contract" });
-    }
+  //     return Ok(new { success = true, message = "Contract updated successfully." });
+  //   }
+  //   catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
+  //   catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+  //   catch (UnauthorizedAccessException ex) { return Unauthorized(new { message = ex.Message }); }
+  //   catch (System.Exception)
+  //   {
+  //     return StatusCode(500, new { success = false, message = "An error occurred while updating a contract" });
+  //   }
 
-  }
+  // }
 
   // [Authorize(Roles = "Admin, Company")]
   [HttpDelete("{id}")]

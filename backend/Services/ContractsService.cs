@@ -9,18 +9,33 @@ public class ContractsService
     _context = context;
   }
 
+
+// Future: Create one additional method to get all own contracts
   public async Task<List<ContractDto>> GetAllContractsAsync(int? authorId = null)
   {
 
-    var contractQuery = _context.Contracts
-      .Include(c => c.Applications)
-      .ThenInclude(a => a.User);
-    // .ThenInclude(u => u.UserData);
+    var contracts = await _context.Contracts
+      .Where(c => authorId == null || c.AuthorId == authorId)
+      .ToListAsync();
+    var contractsIds = contracts.Select(c => c.Id).ToList();
 
-    var userData = await _context.UserData.ToDictionaryAsync(u => u.UserId);
+    var applications = await _context.ContractApplications
+      .Where(a => contractsIds.Contains(a.ContractId))
+      .ToListAsync();
 
-    var contracts = await contractQuery.ToListAsync()
-      ?? throw new KeyNotFoundException("Cannot find any contract");
+    var applicationsByContractId = applications
+      .GroupBy(a => a.ContractId)
+      .ToDictionary(g => g.Key, g => g.ToList());
+
+    var userIds = applications.Select(a => a.UserId).Distinct().ToList();
+
+    var users = await _context.Users
+      .Where(u => userIds.Contains(u.Id))
+      .Select(u => new { u.Id, u.Email })
+      .ToDictionaryAsync(u => u.Id);
+
+    var userData = await _context.UserData
+      .ToDictionaryAsync(u => u.UserId);
 
     var dto = contracts.Select(c => new ContractDto
     {
@@ -32,18 +47,25 @@ public class ContractsService
       CreatedAt = c.CreatedAt,
       UpdatedAt = c.UpdatedAt,
       Deadline = c.Deadline,
-      Applications = (authorId == c.AuthorId)
-        ? c.Applications.Select(a =>
-        {
-          userData.TryGetValue(a.UserId, out var ud);
-          return new ContractApplicationDto
+
+      Applications = authorId == c.AuthorId && applicationsByContractId.TryGetValue(c.Id, out var applications)
+        ? applications
+          .Where(a => a.ContractId == c.Id)
+          .Select(a =>
           {
-            UserId = a.UserId,
-            Email = a.User.Email,
-            UserName = ud != null ? $"{ud.FirstName} {ud.LastName}" : a.User.Email,
-            AppliedAt = a.AppliedAt
-          };
-        }).ToList()
+            users.TryGetValue(a.UserId, out var user);
+            userData.TryGetValue(a.UserId, out var ud);
+
+            return new ContractApplicationDto
+            {
+              UserId = a.UserId,
+              Email = user?.Email ?? "",
+              UserName = ud != null
+                ? $"{ud.FirstName} {ud.LastName}"
+                : user?.Email ?? "",
+              AppliedAt = a.AppliedAt
+            };
+          }).ToList()
         : new List<ContractApplicationDto>()
     }).ToList();
 
@@ -52,13 +74,20 @@ public class ContractsService
 
   public async Task<ContractDto> GetContractByIdAsync(int contractId, int? authorId = null)
   {
-
     var contract = await _context.Contracts
-      .Include(c => c.Applications)
-      .ThenInclude(a => a.User)
-      .Where(c => c.Id == contractId)
-      .FirstOrDefaultAsync()
+      .FirstOrDefaultAsync(c => c.Id == contractId)
       ?? throw new KeyNotFoundException($"Contract with ID: {contractId} not found");
+
+    var applications = await _context.ContractApplications
+      .Where(a => a.ContractId == contractId)
+      .ToListAsync();
+
+    var userIds = applications.Select(a => a.UserId).Distinct().ToList();
+
+    var users = await _context.Users
+      .Where(u => userIds.Contains(u.Id))
+      .Select(u => new { u.Id, u.Email })
+      .ToDictionaryAsync(u => u.Id);
 
     var userData = await _context.UserData.ToDictionaryAsync(u => u.UserId);
 
@@ -73,14 +102,16 @@ public class ContractsService
       UpdatedAt = contract.UpdatedAt,
       Deadline = contract.Deadline,
       Applications = (authorId == contract.AuthorId)
-        ? contract.Applications.Select(a =>
+        ? applications.Select(a =>
         {
+          users.TryGetValue(a.UserId, out var user);
           userData.TryGetValue(a.UserId, out var ud);
+
           return new ContractApplicationDto
           {
             UserId = a.UserId,
-            Email = a.User.Email,
-            UserName = ud != null ? $"{ud.FirstName} {ud.LastName}" : a.User.Email,
+            Email = user?.Email ?? "",
+            UserName = ud != null ? $"{ud.FirstName} {ud.LastName}" : user?.Email ?? "",
             AppliedAt = a.AppliedAt
           };
         }).ToList()
@@ -102,75 +133,67 @@ public class ContractsService
     if (string.IsNullOrWhiteSpace(contract.Description))
       throw new ArgumentNullException(nameof(contract.Description), "A contract must have a description");
 
-    try
+    var ctrc = new ContractModel
     {
-
-      var ctrc = new ContractModel
-      {
-        AuthorId = userId,
-        Price = contract.Price,
-        Description = contract.Description,
-        Status = contract.Status,
-        CreatedAt = DateTime.UtcNow,
-        UpdatedAt = DateTime.UtcNow,
-        Deadline = contract.Deadline ?? DateTime.UtcNow.AddDays(30)
-      };
+      AuthorId = userId,
+      Price = contract.Price,
+      Description = contract.Description,
+      Status = StatusOfContractModel.Pending,
+      CreatedAt = DateTime.UtcNow,
+      UpdatedAt = DateTime.UtcNow,
+      Deadline = contract.Deadline ?? DateTime.UtcNow.AddDays(30)
+    };
       
       
-      var added = await _context.Contracts.AddAsync(ctrc);
-      await _context.SaveChangesAsync();
+    var added = await _context.Contracts.AddAsync(ctrc);
+    await _context.SaveChangesAsync();
 
 
-      var userContract = new ContractDto
-      {
-        Id = ctrc.Id,
-        AuthorId = ctrc.AuthorId,
-        Price = ctrc.Price,
-        Description = ctrc.Description,
-        Status = ctrc.Status,
-        CreatedAt = ctrc.CreatedAt,
-        UpdatedAt = ctrc.UpdatedAt,
-        Deadline = ctrc.Deadline
-      };
-
-      return userContract;
-    }
-    catch
+    var userContract = new ContractDto
     {
-      throw;
-    }
+      Id = ctrc.Id,
+      AuthorId = ctrc.AuthorId,
+      Price = ctrc.Price,
+      Description = ctrc.Description,
+      Status = ctrc.Status,
+      CreatedAt = ctrc.CreatedAt,
+      UpdatedAt = ctrc.UpdatedAt,
+      Deadline = ctrc.Deadline
+    };
+
+    return userContract;
   }
 
-  public async Task<bool> UpdateContractAsync(int id, ContractRequestModel request, int userId)
-  {
-    if (request == null)
-      throw new ArgumentNullException(nameof(request), "Request must have a value.");
+// Create the accept and close methods later
+  // public async Task<bool> UpdateContractAsync(int id, ContractRequestModel request, int userId)
+  // {
+  //   if (request == null)
+  //     throw new ArgumentNullException(nameof(request), "Request must have a value.");
 
-    try
-    {
+  //   try
+  //   {
 
-      var contract = await _context.Contracts
-        .FirstOrDefaultAsync(c => c.Id == id)
-        ?? throw new KeyNotFoundException($"Contract with ID {id} not found.");
+  //     var contract = await _context.Contracts
+  //       .FirstOrDefaultAsync(c => c.Id == id)
+  //       ?? throw new KeyNotFoundException($"Contract with ID {id} not found.");
 
-      if (contract.AuthorId != userId)
-        throw new UnauthorizedAccessException("You are not authorized to update this contract.");
+  //     if (contract.AuthorId != userId)
+  //       throw new UnauthorizedAccessException("You are not authorized to update this contract.");
 
-      contract.Price = request.Price > 0 ? request.Price : contract.Price;
-      contract.Status = Enum.IsDefined(typeof(StatusOfContractModel), request.Status) ? request.Status : contract.Status;
-      contract.Description = !string.IsNullOrWhiteSpace(request.Description) ? request.Description : contract.Description;
-      contract.Deadline = request.Deadline ?? contract.Deadline;
+  //     contract.Price = request.Price > 0 ? request.Price : contract.Price;
+  //     contract.Status = Enum.IsDefined(typeof(StatusOfContractModel), request.Status) ? request.Status : contract.Status;
+  //     contract.Description = !string.IsNullOrWhiteSpace(request.Description) ? request.Description : contract.Description;
+  //     contract.Deadline = request.Deadline ?? contract.Deadline;
 
-      await _context.SaveChangesAsync();
+  //     await _context.SaveChangesAsync();
 
-      return true;
-    }
-    catch (System.Exception)
-    {
-      throw;
-    }
-
-  }
+  //     return true;
+  //   }
+  //   catch (System.Exception)
+  //   {
+  //     throw;
+  //   }
+  // }
 
   // public async Task<bool> TakeContractAsync(int id, int userId)
   // {
@@ -212,15 +235,22 @@ public class ContractsService
     return true;
   }
 
+
+// Future: Divide method for saveing and move dto to other method / controller 
   public async Task<ContractApplicationDto> ApplyForContractAsync(int contractId, int userId)
   {
     if (contractId <= 0 || userId <= 0)
       throw new ArgumentException("Invalid contract ID or user ID");
 
     var isApplied = await _context.ContractApplications
-        .FirstOrDefaultAsync(ca => ca.UserId == userId && ca.ContractId == contractId);
+      .FirstOrDefaultAsync(ca => ca.UserId == userId && ca.ContractId == contractId);
+
     if (isApplied != null)
       throw new ArgumentException($"User with ID: {userId} already applied for contract {contractId}");
+
+    var userData = await _context.UserData
+      .FirstOrDefaultAsync(ud => ud.UserId == userId)
+      ?? throw new KeyNotFoundException($"User data for user ID: {userId} not found.");
 
     var user = await _context.Users
         .Where(u => u.Id == userId)
@@ -228,7 +258,7 @@ public class ContractsService
         {
           UserId = u.Id,
           Email = u.Email,
-          UserName = (u.UserData.FirstName ?? "") + " " + (u.UserData.LastName ?? "")
+          UserName = (userData.FirstName ?? "") + " " + (userData.LastName ?? "")
         })
         .FirstOrDefaultAsync();
 
@@ -252,8 +282,6 @@ public class ContractsService
   {
     using var transaction = await _context.Database.BeginTransactionAsync();
 
-    try
-    {
       var contract = await _context.Contracts
         .Where(c => c.Id == contractId)
         .FirstOrDefaultAsync()
@@ -277,12 +305,5 @@ public class ContractsService
 
       await transaction.CommitAsync();
       return response;
-      
-    }
-    catch (System.Exception)
-    {
-      await transaction.RollbackAsync();
-      throw;
-    }
   }
 }

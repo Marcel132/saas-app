@@ -148,6 +148,7 @@ public class UsersController : ControllerBase
       ));
 
     var user = await _userService.AuthenticateUserAsync(request);
+    
 
     if (!user.Success)
       return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
@@ -247,7 +248,7 @@ public class UsersController : ControllerBase
   // path: /users/register
   [AllowAnonymous]
   [HttpPost("register")]
-  public async Task<IActionResult> Register([FromBody] UsersModel request)
+  public async Task<IActionResult> Register([FromBody] RegisterRequestModel request)
   {
     // Validate the request model.
     if (!ModelState.IsValid)
@@ -264,7 +265,7 @@ public class UsersController : ControllerBase
     var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
     var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
 
-    var token = await _tokenService.GenerateAuthToken(user.Id, user.Role.ToString(), ip, userAgent);
+    var token = await _tokenService.GenerateAuthToken(user.User.Id, user.User.Role.ToString(), ip, userAgent);
 
     Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
     {
@@ -288,7 +289,7 @@ public class UsersController : ControllerBase
       true,
       "User registered successfully.", 
       HttpStatusCodes.AuthCodes.Success,  
-      new { email = user.Email, id = user.Id, authToken = token.AuthToken }
+      new { email = user.User.Email, id = user.User.Id, authToken = token.AuthToken }
       ));
   }
 
