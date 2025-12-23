@@ -72,11 +72,8 @@ public async Task<List<UserDto>> GetAllUsersAsync()
 
     return user;
   }
-  public async Task<bool> UpdateUserAsync(int userId, UpdateUserModel userModel)
+  public async Task<bool> UpdateUserAsync(int userId, UpdateUserModel request)
   {
-    if (userId <= 0 || userModel == null)
-      throw new ArgumentException("Invalid user ID or update data.");
-
     using var transaction = await _context.Database.BeginTransactionAsync();
     var user = await _context.Users.FindAsync(userId) ?? throw new KeyNotFoundException($"User with ID {userId} not found."); 
     var userData = await _context.UserData.FirstOrDefaultAsync(ud => ud.UserId == userId)
@@ -85,18 +82,18 @@ public async Task<List<UserDto>> GetAllUsersAsync()
     // user.PasswordHash = string.IsNullOrWhiteSpace(userModel.PasswordHash) ? user.PasswordHash : userModel.PasswordHash;
     // if (Enum.IsDefined(typeof(RoleType), userModel.Role))
     //   user.Role = userModel.Role;
-    user.SpecializationType = userModel.SpecializationType;
-    user.Skills = string.IsNullOrWhiteSpace(userModel.Skills) ? user.Skills : userModel.Skills;
-      
-    userData.FirstName = string.IsNullOrWhiteSpace(userModel.FirstName) ? userData.FirstName : userModel.FirstName;
-    userData.LastName = string.IsNullOrWhiteSpace(userModel.LastName) ? userData.LastName : userModel.LastName;
-    userData.PhoneNumber = string.IsNullOrWhiteSpace(userModel.PhoneNumber) ? userData.PhoneNumber : userModel.PhoneNumber;
-    userData.City = string.IsNullOrWhiteSpace(userModel.City) ? userData.City : userModel.City;
-    userData.Country = string.IsNullOrWhiteSpace(userModel.Country) ? userData.Country : userModel.Country;
-    userData.PostalCode = string.IsNullOrWhiteSpace(userModel.PostalCode) ? userData.PostalCode : userModel.PostalCode;
-    userData.Street = string.IsNullOrWhiteSpace(userModel.Street) ? userData.Street : userModel.Street;
-    userData.CompanyName = string.IsNullOrWhiteSpace(userModel.CompanyName) ? userData.CompanyName : userModel.CompanyName;
-    userData.CompanyNip = string.IsNullOrWhiteSpace(userModel.CompanyNip) ? userData.CompanyNip : userModel.CompanyNip;
+    user.SpecializationType = request.SpecializationType;
+    user.Skills = string.IsNullOrWhiteSpace(request.Skills) ? user.Skills : request.Skills;
+
+    userData.FirstName = string.IsNullOrWhiteSpace(request.FirstName) ? userData.FirstName : request.FirstName;
+    userData.LastName = string.IsNullOrWhiteSpace(request.LastName) ? userData.LastName : request.LastName;
+    userData.PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber) ? userData.PhoneNumber : request.PhoneNumber;
+    userData.City = string.IsNullOrWhiteSpace(request.City) ? userData.City : request.City;
+    userData.Country = string.IsNullOrWhiteSpace(request.Country) ? userData.Country : request.Country;
+    userData.PostalCode = string.IsNullOrWhiteSpace(request.PostalCode) ? userData.PostalCode : request.PostalCode;
+    userData.Street = string.IsNullOrWhiteSpace(request.Street) ? userData.Street : request.Street;
+    userData.CompanyName = string.IsNullOrWhiteSpace(request.CompanyName) ? userData.CompanyName : request.CompanyName;
+    userData.CompanyNip = string.IsNullOrWhiteSpace(request.CompanyNip) ? userData.CompanyNip : request.CompanyNip;
 
     await _context.SaveChangesAsync();
     await transaction.CommitAsync();

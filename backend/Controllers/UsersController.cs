@@ -22,7 +22,8 @@ public class UsersController : ControllerBase
 
   // User Management Endpoints
   // path: /users
-  [RequiredRole("Admin")]
+  // [RequiredRole("Admin")]
+  [Authorize]
   [HttpGet]
   public async Task<IActionResult> GetUsers()
   {
@@ -93,6 +94,7 @@ public class UsersController : ControllerBase
     // Attempt to update the user by ID.
     // If the user is not found, return a 404 Not Found response.
     await _userService.UpdateUserAsync(userId, request);
+    
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 

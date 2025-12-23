@@ -3,15 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 public class UpdateUserModel
 {
-  [Column("uid")]
-  [Required]
-  public int Id { get; set; }
-
   [Column("password_hash")]
   public string PasswordHash { get; set; } = string.Empty;
-
-  [Column("user_role")]
-  public RoleEnum Role { get; set; }
 
   [Column("specialization")]
   public List<string> SpecializationType { get; set; } = new List<string>();
