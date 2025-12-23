@@ -205,7 +205,7 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> Logout()
   {
 
-    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) || userId <= 0)
       return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
         HttpContext, 
         HttpResponseState.Unauthorized, 
@@ -214,34 +214,43 @@ public class UsersController : ControllerBase
         HttpStatusCodes.AuthCodes.InvalidNameIdentifier
         ));
 
-    var deviceIp = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
-
-      await _userService.LogoutUserAsync(userId, deviceIp);
-
-      // Clear the auth token cookie
-      Response.Cookies.Append("AuthToken", "", new CookieOptions
-      {
-        Expires = DateTime.UtcNow.AddDays(-1),
-        HttpOnly = true,
-        Secure = HttpContext.Request.IsHttps,
-        SameSite = SameSiteMode.Strict
-      });
-      // Clear the refresh token cookie
-      Response.Cookies.Append("RefreshToken", "", new CookieOptions
-      {
-        Expires = DateTime.UtcNow.AddDays(-1),
-        HttpOnly = true,
-        Secure = HttpContext.Request.IsHttps,
-        SameSite = SameSiteMode.Strict
-      });
-
-      return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    var deviceIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+    if(string.IsNullOrEmpty(deviceIp))
+      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
         HttpContext, 
-        HttpResponseState.Success, 
-        true,
-        "Logout successful", 
-        HttpStatusCodes.AuthCodes.Success
+        HttpResponseState.BadRequest, 
+        false,
+        "Unable to determine device IP address.", 
+        HttpStatusCodes.AuthCodes.BadRequest
       ));
+    
+    await _userService.LogoutUserAsync(userId, deviceIp);
+
+    // Clear the auth token cookie
+    Response.Cookies.Append("AuthToken", "", new CookieOptions
+    {
+      Expires = DateTime.UtcNow.AddDays(-1),
+      HttpOnly = true,
+      Secure = HttpContext.Request.IsHttps,
+      SameSite = SameSiteMode.Strict
+    });
+    // Clear the refresh token cookie
+    Response.Cookies.Append("RefreshToken", "", new CookieOptions
+    {
+      Expires = DateTime.UtcNow.AddDays(-1),
+      HttpOnly = true,
+      Secure = HttpContext.Request.IsHttps,
+      SameSite = SameSiteMode.Strict
+    });
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      true,
+      "Logout successful", 
+      HttpStatusCodes.AuthCodes.Success,
+      $"UserId: {userId}"
+    ));
   }
 
   // Registration Endpoint

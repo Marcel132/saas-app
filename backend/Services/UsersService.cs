@@ -136,7 +136,6 @@ public async Task<List<UserDto>> GetAllUsersAsync()
   }
   public async Task<AuthLoginResult> AuthenticateUserAsync(LoginRequestModel request)
   {
-
     if(request == null)
     {
       throw new ArgumentNullException("Request model is not valid");
@@ -182,18 +181,15 @@ public async Task<List<UserDto>> GetAllUsersAsync()
   }
   public async Task<bool> LogoutUserAsync(int userId, string deviceIp)
   {
-    if (userId <= 0)
-      throw new ArgumentException("UserId must be greater than 0");
-
     var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId)
-      ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
+      ?? throw new UnauthorizedAccessException($"User with ID {userId} not found.");
 
     var sessions = await _context.Sessions
       .Where(s => s.UserId == user.Id && !s.Revoked && s.Ip == deviceIp)
       .ToListAsync();
 
     if (sessions.Count == 0)
-      throw new KeyNotFoundException("No active sessions found for this user");
+      return false;
 
     foreach (var sess in sessions)
     {

@@ -36,6 +36,7 @@ public static class HttpStatusCodes
     public const string Unauthorized = "AUTH-30/002_UNAUTHORIZED";
     public const string ForbiddenAccess = "AUTH-30/003_FORBIDDEN_ACCESS";
     public const string InvalidToken = "AUTH-30/004_INVALID_TOKEN";
+    public const string BadRequest = "AUTH-30/005_BAD_REQUEST";
     public const string TokenTampered = "AUTH-40/001_TOKEN_TAMPERED";
     public const string MultipleFailedLogins = "AUTH-40/002_MULTIPLE_FAILED_LOGINS";
     public const string AccountBlocked = "AUTH-40/003_ACCOUNT_BLOCKED";
