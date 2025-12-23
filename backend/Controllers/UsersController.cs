@@ -171,7 +171,7 @@ public class UsersController : ControllerBase
     var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
     var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
 
-    var token = await _tokenService.GenerateAuthToken(user.User.Id, user.User.Role.ToString(), ip, userAgent);
+    var token = await _tokenService.GenerateAuthToken(user.User.Id, ip, userAgent);
 
     Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
     {
@@ -260,12 +260,13 @@ public class UsersController : ControllerBase
         HttpStatusCodes.ValidationCodes.MissingRequiredField
         ));
 
+    _logger.LogInformation("Registering user with email: {Email}", request.User?.Email);
     var user = await _userService.RegisterUserAsync(request);
 
     var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
     var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
 
-    var token = await _tokenService.GenerateAuthToken(user.User.Id, user.User.Role.ToString(), ip, userAgent);
+    var token = await _tokenService.GenerateAuthToken(user.User.Id, ip, userAgent);
 
     Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
     {
@@ -322,7 +323,7 @@ public class UsersController : ControllerBase
       var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
       var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
 
-      var token = await _tokenService.GenerateAuthToken(request.UserId, request.Role, ip, userAgent)
+      var token = await _tokenService.GenerateAuthToken(request.UserId, ip, userAgent)
         ?? throw new ArgumentException("Token generation failed.");
 
       Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions

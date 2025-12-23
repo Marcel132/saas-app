@@ -14,7 +14,7 @@ public class UpdateUserModel
   public RoleEnum Role { get; set; }
 
   [Column("specialization")]
-  public SpecializationEnum SpecializationType { get; set; } = SpecializationEnum.Pentester;
+  public List<string> SpecializationType { get; set; } = new List<string>();
 
   [Column("skills")]
   public string Skills { get; set; } = string.Empty;

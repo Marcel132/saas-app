@@ -27,7 +27,7 @@ public class TokenService
 
   // Generates a JWT auth token for a user and creates a session record in the database.
   // The token includes claims for the user's ID and role, and is signed using a symmetric
-  public async Task<ResponseTokenModel> GenerateAuthToken(int userId, string role, string ip, string userAgent)
+  public async Task<ResponseTokenModel> GenerateAuthToken(int userId, string ip, string userAgent)
   {
     // Vaidate configuration and inputs
     if (string.IsNullOrEmpty(_jwtKey) || string.IsNullOrEmpty(_issuer) || string.IsNullOrEmpty(_audience))
@@ -35,9 +35,6 @@ public class TokenService
 
     if (userId <= 0)
       throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
-
-    if (string.IsNullOrEmpty(role))
-      throw new ArgumentException("Role cannot be null or empty.", nameof(role));
 
 
     // Stat a transaction to ensure atomicity
@@ -52,7 +49,6 @@ public class TokenService
       var claims = new[]
       {
         new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-        new Claim(ClaimTypes.Role, role),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         new Claim(ClaimTypes.NameIdentifier, userId.ToString())
       };
@@ -130,7 +126,6 @@ public class TokenService
   var claims = new[]
   {
     new Claim(JwtRegisteredClaimNames.Sub, session.UserId.ToString()),
-    new Claim(ClaimTypes.Role, session.User.Role.ToString()),
     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
     new Claim(ClaimTypes.NameIdentifier, session.UserId.ToString())
   };

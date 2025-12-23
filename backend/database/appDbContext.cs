@@ -21,6 +21,15 @@ public class AppDbContext : DbContext
             entity.SetTableName(entity?.GetTableName()?.ToLower());
         }
 
+        modelBuilder.Entity<UsersModel>()
+            .Property(u => u.CreatedAt)
+            .HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .ValueGeneratedOnAdd();
+
+        modelBuilder.Entity<UsersModel>()
+            .Property(u => u.SpecializationType)
+            .HasColumnType("text[]");
+
 
         // modelBuilder.Entity<UsersModel>()
         // .HasMany(u => u.Sessions)

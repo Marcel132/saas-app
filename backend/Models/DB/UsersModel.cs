@@ -16,10 +16,6 @@ public class UsersModel
   [Required]
   public string Password { get; set; } = string.Empty;
 
-  [Column("user_role")]
-  [Required]
-  public string Role { get; set; } = string.Empty;
-
   [Column("is_active")]
   [Required]
   public bool IsActive { get; set; } = true;
@@ -28,7 +24,8 @@ public class UsersModel
   public DateTime CreatedAt { get; set; }
 
   [Column("specialization")]
-  public SpecializationEnum SpecializationType { get; set; } = SpecializationEnum.Pentester;
+  public List<string> SpecializationType { get; set; } = new List<string>();
+  // public string SpecializationType { get; set; } = string.Empty;
 
   [Column("skills")]
   public string Skills { get; set; } = string.Empty;

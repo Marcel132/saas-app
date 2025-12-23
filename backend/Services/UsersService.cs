@@ -38,8 +38,8 @@ public async Task<List<UserDto>> GetAllUsersAsync()
     {
       Id = u.Id,
       Email = u.Email,
-      Specialization = u.SpecializationType.ToString(),
-      Skills = u.SpecializationType == SpecializationEnum.Pentester ? u.Skills : "",
+      Specialization = u.SpecializationType,
+      Skills = u.Skills,
       FirstName = ud?.FirstName ?? string.Empty,
       LastName  = ud?.LastName  ?? string.Empty
     };
@@ -62,8 +62,8 @@ public async Task<List<UserDto>> GetAllUsersAsync()
       {
         Id = u.Id,
         Email = u.Email,
-        Specialization = u.SpecializationType.ToString(),
-        Skills = u.SpecializationType == SpecializationEnum.Pentester ? u.Skills : "",
+        Specialization = u.SpecializationType,
+        Skills = u.Skills,
         FirstName = userData.FirstName,
         LastName = userData.LastName
       })
@@ -85,8 +85,7 @@ public async Task<List<UserDto>> GetAllUsersAsync()
     // user.PasswordHash = string.IsNullOrWhiteSpace(userModel.PasswordHash) ? user.PasswordHash : userModel.PasswordHash;
     // if (Enum.IsDefined(typeof(RoleType), userModel.Role))
     //   user.Role = userModel.Role;
-    if (Enum.IsDefined<SpecializationEnum>(userModel.SpecializationType))
-      user.SpecializationType = userModel.SpecializationType;
+    user.SpecializationType = userModel.SpecializationType;
     user.Skills = string.IsNullOrWhiteSpace(userModel.Skills) ? user.Skills : userModel.Skills;
       
     userData.FirstName = string.IsNullOrWhiteSpace(userModel.FirstName) ? userData.FirstName : userModel.FirstName;
@@ -209,8 +208,8 @@ public async Task<List<UserDto>> GetAllUsersAsync()
     if(request == null)
       throw new ArgumentNullException("Request model is not valid");
 
-      if(request.User == null || request.UserData == null)
-        throw new ArgumentNullException("User cannot be null");
+    if(request.User == null || request.UserData == null)
+      throw new ArgumentNullException("User cannot be null");
 
     if(string.IsNullOrWhiteSpace(request.User.Email) || string.IsNullOrWhiteSpace(request.User.Password))
       throw new ArgumentException("Email and Password must have a value");
@@ -233,9 +232,11 @@ public async Task<List<UserDto>> GetAllUsersAsync()
       throw new ArgumentException("User with this email already exists.");
     }
 
+
     var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.User.Password);
 
     request.User.Password = hashedPassword;
+    
 
     if (request.UserData == null)
       throw new ArgumentNullException("User cannot be null");
