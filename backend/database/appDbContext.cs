@@ -30,6 +30,12 @@ public class AppDbContext : DbContext
             .Property(u => u.SpecializationType)
             .HasColumnType("text[]");
 
+        modelBuilder.Entity<UsersModel>()
+            .HasOne(u => u.UserData)
+            .WithOne(ud => ud.User)
+            .HasForeignKey<UserDataModel>(ud => ud.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
 
         // modelBuilder.Entity<UsersModel>()
         // .HasMany(u => u.Sessions)
