@@ -53,6 +53,7 @@ public static class HttpStatusCodes
     public const string BadRequest = "VALID-30/005_BAD_REQUEST";
     public const string ValidationFailed = "VALID-30/006_VALIDATION_FAILED";
     public const string PayloadTooLarge = "VALID-30/007_PAYLOAD_TOO_LARGE";
+    public const string InvalidModel = "VALID-30/008_INVALID_MODEL";
   }
 
   public static class UserCodes
