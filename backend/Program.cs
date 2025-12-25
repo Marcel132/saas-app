@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -49,6 +50,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        return new BadRequestObjectResult(
+            HttpResponseFactory.CreateFailureResponse<object>(
+                context.HttpContext,
+                HttpResponseState.BadRequest,
+                false,
+                "Invalid request data",
+                HttpStatusCodes.ValidationCodes.InvalidModel
+            )
+        );
+    };
+});
+
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TokenService>();

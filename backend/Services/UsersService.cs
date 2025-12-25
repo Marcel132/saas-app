@@ -72,17 +72,22 @@ public async Task<List<UserDto>> GetAllUsersAsync()
 
     return user;
   }
-  public async Task<bool> UpdateUserAsync(int userId, UpdateUserModel request)
+  public async Task<bool> UpdateCurrentUserAsync(int userId, UpdateCurrentUserDto request)
   {
     using var transaction = await _context.Database.BeginTransactionAsync();
-    var user = await _context.Users.FindAsync(userId) ?? throw new KeyNotFoundException($"User with ID {userId} not found."); 
+
+    var user = await _context.Users.FindAsync(userId) 
+      ?? throw new KeyNotFoundException($"User with ID {userId} not found."); 
+    
     var userData = await _context.UserData.FirstOrDefaultAsync(ud => ud.UserId == userId)
       ?? throw new KeyNotFoundException($"User data for user with ID {userId} not found.");
 
-    // user.PasswordHash = string.IsNullOrWhiteSpace(userModel.PasswordHash) ? user.PasswordHash : userModel.PasswordHash;
-    // if (Enum.IsDefined(typeof(RoleType), userModel.Role))
-    //   user.Role = userModel.Role;
-    user.SpecializationType = request.SpecializationType;
+    if (!string.IsNullOrWhiteSpace(request.Password))
+    {
+      var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+      user.Password = hashedPassword;
+    }
+    user.SpecializationType = request.SpecializationType ?? user.SpecializationType;
     user.Skills = string.IsNullOrWhiteSpace(request.Skills) ? user.Skills : request.Skills;
 
     userData.FirstName = string.IsNullOrWhiteSpace(request.FirstName) ? userData.FirstName : request.FirstName;
@@ -131,20 +136,8 @@ public async Task<List<UserDto>> GetAllUsersAsync()
 
     return true;
   }
-  public async Task<AuthLoginResult> AuthenticateUserAsync(LoginRequestModel request)
+  public async Task<AuthLoginResult> AuthenticateUserAsync(LoginRequestDto request)
   {
-    if(request == null)
-    {
-      throw new ArgumentNullException("Request model is not valid");
-    }
-    if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-      return new AuthLoginResult(
-        false,
-        null, 
-        HttpStatusCodes.AuthCodes.InvalidCredentials
-      );
-    
-
     var user = await _context.Users
       .FirstOrDefaultAsync(u => u.Email == request.Email);
 
@@ -152,7 +145,6 @@ public async Task<List<UserDto>> GetAllUsersAsync()
     if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
     {
       // await RegisterFailedLoginAttempt(request.Email);
-
       return new AuthLoginResult(
         false,
         null, 
@@ -161,13 +153,11 @@ public async Task<List<UserDto>> GetAllUsersAsync()
     }
 
     if(!user.IsActive)
-    {
       return new AuthLoginResult(
         false,
         null, 
         HttpStatusCodes.AuthCodes.AccountBlocked
       );
-    }
     // ResetFailedLoginAttempts(user);
 
     return new AuthLoginResult(
@@ -196,53 +186,47 @@ public async Task<List<UserDto>> GetAllUsersAsync()
     await _context.SaveChangesAsync();
     return true;
   }
-  public async Task<RegisterRequestModel> RegisterUserAsync(RegisterRequestModel request)
+  public async Task<RegisterResponseDto> RegisterUserAsync(RegisterRequestDto request)
   {
-    if(request == null)
-      throw new ArgumentNullException("Request model is not valid");
-
-    if(request.User == null || request.UserData == null)
-      throw new ArgumentNullException("User cannot be null");
-
-    if(string.IsNullOrWhiteSpace(request.User.Email) || string.IsNullOrWhiteSpace(request.User.Password))
-      throw new ArgumentException("Email and Password must have a value");
-
-    // ArgumentNullException.ThrowIfNullOrWhiteSpace(request.User.Email, "Email must have a value");
-    // ArgumentNullException.ThrowIfNullOrWhiteSpace(request.User.Password, "Password must have a value");
-    // ArgumentNullException.ThrowIfNullOrWhiteSpace(request.User.SpecializationType.ToString(), "Specialization type must have a value");
-    // ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.FirstName, "First Name must have a value");
-    // ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.LastName, "Last Name must have a value");
-    // ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.PhoneNumber, "Phone Number must have a value");
-    // ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.Country, "Country must have a value");
-    // ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.PostalCode, "Postal Code must have a value");
-    // ArgumentNullException.ThrowIfNullOrWhiteSpace(request.UserData.Street, "Street must have a value");
-
-    using var transaction = await _context.Database.BeginTransactionAsync();
-
-    var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.User.Email);
+    var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
     if (existingUser != null)
+      throw new ConflictAppException("A user with the provided email already exists.");
+
+    var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password, workFactor: 12);
+    
+    var user = new UsersModel
     {
-      throw new ArgumentException("User with this email already exists.");
-    }
+      Email = request.Email,
+      Password = hashedPassword,
+      IsActive = true,
+      CreatedAt = DateTime.UtcNow,
+      SpecializationType = request.SpecializationType ?? new List<string>(),
+      Skills = request.Skills ?? string.Empty
 
+    };
 
-    var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.User.Password);
+    var userData = new UserDataModel
+    {
+      FirstName = request.FirstName,
+      LastName = request.LastName,
+      PhoneNumber = request.PhoneNumber,
+      City = request.City,
+      Country = request.Country,
+      PostalCode = request.PostalCode,
+      Street = request.Street,
+      CompanyName = request.CompanyName ?? string.Empty,
+      CompanyNip = request.CompanyNip ?? string.Empty
+    };
 
-    request.User.Password = hashedPassword;
-    
+    user.UserData = userData; 
 
-    if (request.UserData == null)
-      throw new ArgumentNullException("User cannot be null");
-    
-    _context.Users.Add(request.User);
+    _context.Users.Add(user);
     await _context.SaveChangesAsync();
 
-    request.UserData.UserId = request.User.Id;
-
-    _context.UserData.Add(request.UserData);
-    await transaction.CommitAsync();
-
-    return request;
+    return new RegisterResponseDto
+    {
+      Id = user.Id
+    };
   }
 
 }
