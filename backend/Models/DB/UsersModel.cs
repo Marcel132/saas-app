@@ -8,8 +8,6 @@ public class UsersModel
   public int Id { get; set; }
 
   [Column("email")]
-  [Required]
-  [EmailAddress]
   public string Email { get; set; } = string.Empty;
 
   [Column("password_hash")]
@@ -17,7 +15,6 @@ public class UsersModel
   public string Password { get; set; } = string.Empty;
 
   [Column("is_active")]
-  [Required]
   public bool IsActive { get; set; } = true;
 
   [Column("created_at")]
@@ -35,6 +32,8 @@ public class UsersModel
 
   [Column("login_blocked_until")]
   public DateTime? LoginBlockedUntil { get; set; }
+
+  public UserDataModel? UserData { get; set; }
 
   // public ICollection<SessionModel> Sessions { get; set; } = new List<SessionModel>();
   // public UserDataModel UserData { get; set; } = null!;
