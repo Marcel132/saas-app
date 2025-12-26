@@ -59,6 +59,7 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<ContractsService>();
 builder.Services.AddScoped<MiddlewareService>();
+builder.Services.AddScoped<AuthCookieService>();
 
 
 var app = builder.Build();
