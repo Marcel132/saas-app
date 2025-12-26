@@ -27,14 +27,14 @@ public class TokenService
 
   // Generates a JWT auth token for a user and creates a session record in the database.
   // The token includes claims for the user's ID and role, and is signed using a symmetric
-  public async Task<ResponseTokenModel> GenerateAuthToken(int userId, string ip, string userAgent)
+  public async Task<ResponseTokenDto> GenerateAuthToken(Guid userId, string ip, string userAgent)
   {
     // Vaidate configuration and inputs
     if (string.IsNullOrEmpty(_jwtKey) || string.IsNullOrEmpty(_issuer) || string.IsNullOrEmpty(_audience))
       throw new InvalidOperationException("JWT configuration is not properly set.");
 
-    if (userId <= 0)
-      throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
+    if(userId == Guid.Empty)
+      throw new ArgumentException("Invalid user ID");
 
 
     // Stat a transaction to ensure atomicity
@@ -49,7 +49,7 @@ public class TokenService
       var claims = new[]
       {
         new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), 
         new Claim(ClaimTypes.NameIdentifier, userId.ToString())
       };
 
@@ -91,7 +91,7 @@ public class TokenService
       await _context.SaveChangesAsync();
       await transaction.CommitAsync();
 
-      return new ResponseTokenModel
+      return new ResponseTokenDto
       {
         AuthToken = authTokenJwtString,
         RefreshToken = refreshToken
@@ -111,7 +111,7 @@ public class TokenService
     return Task.FromResult(refreshToken);
   }
 
-  public async Task<ResponseTokenModel> RefreshTokenAsync(string refreshToken)
+  public async Task<ResponseTokenDto> RefreshTokenAsync(string refreshToken)
 {
   if (string.IsNullOrEmpty(refreshToken))
     throw new ArgumentException("Refresh token is missing");
@@ -153,13 +153,42 @@ public class TokenService
 
   await _context.SaveChangesAsync();
 
-  return new ResponseTokenModel
+  return new ResponseTokenDto
   {
     AuthToken = authTokenJwtString,
     RefreshToken = refreshTokenNew
   };
 }
+
+  public ClaimsPrincipal? ValidateAuthToken(string authToken)
+  {
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var key = Encoding.UTF8.GetBytes(_jwtKey);
+
+    try
+    {
+      var principal = tokenHandler.ValidateToken(authToken, new TokenValidationParameters
+      {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = _issuer,
+        ValidAudience = _audience,
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+      }, out _);
+
+      return principal;
+    }
+    catch
+    {
+      return null;
+    }
+  }
+
 }
+
+
 
 public class TokenHasher
 {
@@ -177,9 +206,4 @@ public class TokenHasher
             return sb.ToString();
         }
     }
-}
-public class ResponseTokenModel
-{
-  public string AuthToken { get; set; } = string.Empty;
-  public string RefreshToken { get; set; } = string.Empty;
 }

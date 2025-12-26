@@ -12,7 +12,11 @@ public class UsersController : ControllerBase
   private readonly TokenService _tokenService;
   private readonly ILogger _logger;
 
-  public UsersController(UserService userService, TokenService tokenService, ILogger<UsersController> logger)
+  public UsersController(
+    UserService userService, 
+    TokenService tokenService, 
+    ILogger<UsersController> logger
+  )
   {
     _userService = userService;
     _tokenService = tokenService;
@@ -44,15 +48,15 @@ public class UsersController : ControllerBase
   [HttpGet("me")]
   public async Task<IActionResult> GetCurrentUser()
   {
-    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+    if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
       return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
         HttpContext, 
         HttpResponseState.Unauthorized, 
-        false, 
+        false,
         "Invalid or missing user name identifier", 
         HttpStatusCodes.AuthCodes.InvalidNameIdentifier
-        ));
-    
+      ));
+
     var user = await _userService.GetCurrentUserAsync(userId);
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -70,7 +74,7 @@ public class UsersController : ControllerBase
   [HttpPut]
   public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateCurrentUserDto request)
   {
-    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+    if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
       return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
         HttpContext, 
         HttpResponseState.Unauthorized, 
@@ -101,7 +105,7 @@ public class UsersController : ControllerBase
   {
     //  Validate the ID before proceeding.
     // If the ID is invalid, return a 400 Bad Request response.
-    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+    if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
       return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
         HttpContext, 
         HttpResponseState.Unauthorized, 
@@ -185,7 +189,7 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> Logout()
   {
 
-    if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId) || userId <= 0)
+    if (!Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
       return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
         HttpContext, 
         HttpResponseState.Unauthorized, 
@@ -241,7 +245,7 @@ public class UsersController : ControllerBase
   {
     _logger.LogInformation("Registering user with email: {Email}", request.Email);
     var user = await _userService.RegisterUserAsync(request);
-    if (user.Id <= 0)
+    if (user.Id <= Guid.Empty)
       return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
         HttpContext, 
         HttpResponseState.BadRequest, 
@@ -283,92 +287,102 @@ public class UsersController : ControllerBase
 
   // Generation Endpoint 
   // path: /users/token/generate
-  [Authorize]
-  [HttpPost("token/auth")]
-  public async Task<IActionResult> GenerateToken([FromBody] TokenAuthModel request)
-  {
-      var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
-      var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
+  // [Authorize]
+  // [HttpPost("token/auth")]
+  // public async Task<IActionResult> GenerateToken()
+  // {
+  //   var userIdClaim = GetUserClaims.GetUserId(User);
+  //   if (userIdClaim <= 0)
+  //     return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
+  //       HttpContext, 
+  //       HttpResponseState.Unauthorized, 
+  //       false,
+  //       "You are not allowed to use this method", 
+  //       HttpStatusCodes.AuthCodes.InvalidNameIdentifier
+  //     ));
 
-      var token = await _tokenService.GenerateAuthToken(request.UserId, ip, userAgent)
-        ?? throw new ArgumentException("Token generation failed.");
+  //   var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
+  //   var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
 
-      Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
-      {
-        HttpOnly = true,
-        Secure = HttpContext.Request.IsHttps,
-        SameSite = SameSiteMode.Strict,
-        Expires = DateTime.UtcNow.AddMinutes(15)
-      });
+  //     var token = await _tokenService.GenerateAuthToken(userIdClaim, ip, userAgent)
+  //       ?? throw new ArgumentException("Token generation failed.");
 
-      // Set the refresh token as an HttpOnly cookie
-      Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
-      {
-        HttpOnly = true,
-        Secure = HttpContext.Request.IsHttps,
-        SameSite = SameSiteMode.Strict,
-        Expires = DateTime.UtcNow.AddDays(7)
-      });
+  //     Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
+  //     {
+  //       HttpOnly = true,
+  //       Secure = HttpContext.Request.IsHttps,
+  //       SameSite = SameSiteMode.Strict,
+  //       Expires = DateTime.UtcNow.AddMinutes(15)
+  //     });
 
-      return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-        HttpContext, 
-        HttpResponseState.Success, 
-        true,
-        "Token generated successfully.", 
-        HttpStatusCodes.AuthCodes.Success, 
-        new { authToken = token.AuthToken }
-        ));
-  }
+  //     // Set the refresh token as an HttpOnly cookie
+  //     Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
+  //     {
+  //       HttpOnly = true,
+  //       Secure = HttpContext.Request.IsHttps,
+  //       SameSite = SameSiteMode.Strict,
+  //       Expires = DateTime.UtcNow.AddDays(7)
+  //     });
 
-  [AllowAnonymous]
-  [HttpPost("token/auth/refresh-token")]
-  public async Task<IActionResult> RefreshToken()
-  {
-    if (!Request.Cookies.TryGetValue("RefreshToken", out string? refreshToken))
-      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
-        HttpContext,
-        HttpResponseState.Unauthorized,
-        false,
-        "Refresh token is missing", 
-        HttpStatusCodes.AuthCodes.InvalidNameIdentifier
-      ));
+  //     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+  //       HttpContext, 
+  //       HttpResponseState.Success, 
+  //       true,
+  //       "Token generated successfully.", 
+  //       HttpStatusCodes.AuthCodes.Success, 
+  //       new { authToken = token.AuthToken }
+  //       ));
+  // }
+
+  // [AllowAnonymous]
+  // [HttpPost("token/auth/refresh-token")]
+  // public async Task<IActionResult> RefreshToken()
+  // {
+  //   if (!Request.Cookies.TryGetValue("RefreshToken", out string? refreshToken))
+  //     return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
+  //       HttpContext,
+  //       HttpResponseState.Unauthorized,
+  //       false,
+  //       "Refresh token is missing", 
+  //       HttpStatusCodes.AuthCodes.InvalidNameIdentifier
+  //     ));
 
 
-    var token = await _tokenService.RefreshTokenAsync(refreshToken);
+  //   var token = await _tokenService.RefreshTokenAsync(refreshToken);
 
-    if (token == null)
-      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
-        HttpContext,
-        HttpResponseState.BadRequest,
-        false,
-        "Cannot refresh a token", 
-        HttpStatusCodes.AuthCodes.InvalidToken
-      ));
+  //   if (token == null)
+  //     return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
+  //       HttpContext,
+  //       HttpResponseState.BadRequest,
+  //       false,
+  //       "Cannot refresh a token", 
+  //       HttpStatusCodes.AuthCodes.InvalidToken
+  //     ));
 
-    Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
-    {
-      HttpOnly = true,
-      Secure = HttpContext.Request.IsHttps,
-      SameSite = SameSiteMode.Strict,
-      Expires = DateTime.UtcNow.AddMinutes(15)
-    });
+  //   Response.Cookies.Append("AuthToken", token.AuthToken, new CookieOptions
+  //   {
+  //     HttpOnly = true,
+  //     Secure = HttpContext.Request.IsHttps,
+  //     SameSite = SameSiteMode.Strict,
+  //     Expires = DateTime.UtcNow.AddMinutes(15)
+  //   });
 
-    // Set the refresh token as an HttpOnly cookie
-    Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
-    {
-      HttpOnly = true,
-      Secure = HttpContext.Request.IsHttps,
-      SameSite = SameSiteMode.Strict,
-      Expires = DateTime.UtcNow.AddDays(7)
-    });
+  //   // Set the refresh token as an HttpOnly cookie
+  //   Response.Cookies.Append("RefreshToken", token.RefreshToken, new CookieOptions
+  //   {
+  //     HttpOnly = true,
+  //     Secure = HttpContext.Request.IsHttps,
+  //     SameSite = SameSiteMode.Strict,
+  //     Expires = DateTime.UtcNow.AddDays(7)
+  //   });
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext,
-      HttpResponseState.Success,
-      true,
-      "Token refresh successful",
-      HttpStatusCodes.AuthCodes.Success
-    ));
+  //   return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+  //     HttpContext,
+  //     HttpResponseState.Success,
+  //     true,
+  //     "Token refresh successful",
+  //     HttpStatusCodes.AuthCodes.Success
+  //   ));
   
-  }
+  // }
 }

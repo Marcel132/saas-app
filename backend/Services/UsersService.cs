@@ -12,67 +12,73 @@ public class UserService
   {
     _context = context;
   }
-public async Task<List<UserDto>> GetAllUsersAsync()
-{
-  var userData = await _context.UserData
-    .Select(ud => new { ud.UserId, ud.FirstName, ud.LastName })
-    .ToListAsync();
-
-  var userDataDict = userData.ToDictionary(x => x.UserId);
-
-  var users = await _context.Users
-    .Select(u => new
-    {
-      u.Id,
-      u.Email,
-      u.SpecializationType,
-      u.Skills
-    })
-    .ToListAsync();
-
-  var result = users.Select(u =>
+  public async Task<List<UserResponseDto>> GetAllUsersAsync()
   {
-    userDataDict.TryGetValue(u.Id, out var ud);
+    var users = await _context.Users
+      .Select(u => new
+      {
+        u.Id,
+        u.Email,
+        u.SpecializationType,
+        u.CreatedAt,
+        u.IsActive,
+      })
+      .ToListAsync();
 
-    return new UserDto
-    {
-      Id = u.Id,
-      Email = u.Email,
-      Specialization = u.SpecializationType,
-      Skills = u.Skills,
-      FirstName = ud?.FirstName ?? string.Empty,
-      LastName  = ud?.LastName  ?? string.Empty
-    };
-  }).ToList();
-
-  return result;
-}
-  public async Task<UserDto> GetCurrentUserAsync(int userId)
-  {
-    if (userId <= 0 )
-      throw new ArgumentException("User ID must be a positive integer.", nameof(userId));
 
     var userData = await _context.UserData
-      .Select(ud => new { ud.UserId, ud.FirstName, ud.LastName})
-      .FirstOrDefaultAsync(ud => ud.UserId == userId)
-      ?? throw new KeyNotFoundException($"User data for user with ID {userId} not found."); //Thats never gonna happen
+      .Select(ud => new 
+      { 
+        ud.UserId, 
+        ud.FirstName, 
+        ud.LastName,
+        ud.Skills
+      })
+      .ToListAsync();
 
-    var user = await _context.Users
-      .Select(u => new UserDto
+    var userDataDict = userData.ToDictionary(x => x.UserId);
+
+
+    var result = users.Select(u =>
+    {
+      userDataDict.TryGetValue(u.Id, out var ud);
+      return new UserResponseDto
       {
         Id = u.Id,
         Email = u.Email,
         Specialization = u.SpecializationType,
-        Skills = u.Skills,
-        FirstName = userData.FirstName,
-        LastName = userData.LastName
+        Skills = ud.Skills,
+        FirstName = ud?.FirstName,
+        LastName = ud?.LastName,
+        IsActive = u.IsActive,
+        CreatedAt = u.CreatedAt
+      };
+    }).ToList();
+
+    return result;
+  }
+  public async Task<UserResponseDto> GetCurrentUserAsync(Guid userId)
+  {
+
+    var user = await _context.Users
+      .Where(u => u.Id == userId)
+      .Select(u => new UserResponseDto
+      {
+        Id = u.Id,
+        Email = u.Email,
+        Specialization = u.SpecializationType,
+        Skills = u.UserData.Skills,
+        FirstName = u.UserData.FirstName,
+        LastName = u.UserData.LastName,
+        IsActive = u.IsActive,
+        CreatedAt = u.CreatedAt
       })
-      .FirstOrDefaultAsync(u => u.Id == userId)
-      ?? throw new KeyNotFoundException($"User with ID {userId} not found.");
+      .FirstOrDefaultAsync()  
+      ?? throw new KeyNotFoundException($"Not found user with ID {userId}");
 
     return user;
   }
-  public async Task<bool> UpdateCurrentUserAsync(int userId, UpdateCurrentUserDto request)
+  public async Task<bool> UpdateCurrentUserAsync(Guid userId, UpdateCurrentUserDto request)
   {
     using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -88,11 +94,11 @@ public async Task<List<UserDto>> GetAllUsersAsync()
       user.Password = hashedPassword;
     }
     user.SpecializationType = request.SpecializationType ?? user.SpecializationType;
-    user.Skills = string.IsNullOrWhiteSpace(request.Skills) ? user.Skills : request.Skills;
 
     userData.FirstName = string.IsNullOrWhiteSpace(request.FirstName) ? userData.FirstName : request.FirstName;
     userData.LastName = string.IsNullOrWhiteSpace(request.LastName) ? userData.LastName : request.LastName;
     userData.PhoneNumber = string.IsNullOrWhiteSpace(request.PhoneNumber) ? userData.PhoneNumber : request.PhoneNumber;
+    userData.Skills = string.IsNullOrWhiteSpace(request.Skills) ? userData.Skills : request.Skills;
     userData.City = string.IsNullOrWhiteSpace(request.City) ? userData.City : request.City;
     userData.Country = string.IsNullOrWhiteSpace(request.Country) ? userData.Country : request.Country;
     userData.PostalCode = string.IsNullOrWhiteSpace(request.PostalCode) ? userData.PostalCode : request.PostalCode;
@@ -105,10 +111,10 @@ public async Task<List<UserDto>> GetAllUsersAsync()
 
     return true;
   }
-  public async Task<bool> DeleteUserAsync(int userId)
+  public async Task<bool> DeleteUserAsync(Guid userId)
   {
-    if (userId <= 0)
-      throw new ArgumentException("UserId cannot be null or lower than 0");
+    if (userId == Guid.Empty)
+      throw new ArgumentException("UserId cannot be null or empty");
 
     using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -166,7 +172,7 @@ public async Task<List<UserDto>> GetAllUsersAsync()
       HttpStatusCodes.AuthCodes.Success
     );
   }
-  public async Task<bool> LogoutUserAsync(int userId, string deviceIp)
+  public async Task<bool> LogoutUserAsync(Guid userId, string deviceIp)
   {
     var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId)
       ?? throw new UnauthorizedAccessException($"User with ID {userId} not found.");
@@ -200,9 +206,7 @@ public async Task<List<UserDto>> GetAllUsersAsync()
       Password = hashedPassword,
       IsActive = true,
       CreatedAt = DateTime.UtcNow,
-      SpecializationType = request.SpecializationType ?? new List<string>(),
-      Skills = request.Skills ?? string.Empty
-
+      SpecializationType = request.SpecializationType ?? new List<string>()
     };
 
     var userData = new UserDataModel
@@ -210,6 +214,7 @@ public async Task<List<UserDto>> GetAllUsersAsync()
       FirstName = request.FirstName,
       LastName = request.LastName,
       PhoneNumber = request.PhoneNumber,
+      Skills = request.Skills,
       City = request.City,
       Country = request.Country,
       PostalCode = request.PostalCode,
