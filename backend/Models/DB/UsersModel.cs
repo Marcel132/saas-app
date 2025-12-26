@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class UsersModel
 {
-  [Column("uid")]
-  public int Id { get; set; }
+  [Column("user_id")]
+  public Guid Id { get; set; } = Guid.NewGuid();
 
   [Column("email")]
   public string Email { get; set; } = string.Empty;
@@ -23,9 +23,6 @@ public class UsersModel
   [Column("specialization")]
   public List<string> SpecializationType { get; set; } = new List<string>();
   // public string SpecializationType { get; set; } = string.Empty;
-
-  [Column("skills")]
-  public string Skills { get; set; } = string.Empty;
 
   [Column("failed_login_attempts")]
   public int FailedLoginAttempts { get; set; } = 0;

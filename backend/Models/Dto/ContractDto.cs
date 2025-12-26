@@ -1,8 +1,8 @@
 public class ContractDto
 {
-    public int Id { get; set; }
-    public int AuthorId { get; set; }
-    public int TargetId { get; set; }
+    public Guid Id { get; set; }
+    public Guid AuthorId { get; set; }
+    public Guid TargetId { get; set; }
     public decimal Price { get; set; }
     public StatusOfContractModel Status { get; set; }
     public string Description { get; set; } = "";

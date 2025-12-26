@@ -6,7 +6,7 @@ public class UserDataModel
 {
   [Column("user_id")]
   [Key]
-  public int UserId { get; set; }
+  public Guid UserId { get; set; }
 
   [JsonIgnore]
   [ForeignKey("UserId")]
@@ -24,6 +24,9 @@ public class UserDataModel
   [Required]
   [Phone]
   public string PhoneNumber { get; set; } = string.Empty;
+
+  [Column("skills")]
+  public string Skills { get; set; } = string.Empty;
 
   [Column("city")]
   [Required]

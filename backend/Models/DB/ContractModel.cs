@@ -6,14 +6,14 @@ public class ContractModel
   [Column("id")]
   [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
   [Key]
-  public int Id { get; set; }
+  public Guid Id { get; set; }
 
   [Column("author_id")]
   [Required]
-  public int AuthorId { get; set; }
+  public Guid AuthorId { get; set; }
 
   [Column("target_id")]
-  public int? TargetId { get; set; }
+  public Guid? TargetId { get; set; }
 
   [Column("price")]
   [Required]

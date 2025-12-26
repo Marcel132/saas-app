@@ -12,11 +12,11 @@ public class OpinionModel
 
   [Column("author_id")]
   [Required]
-  public int AuthorId { get; set; }
+  public Guid AuthorId { get; set; }
 
   [Column("target_id")]
   [Required]
-  public int TargetId { get; set; }
+  public Guid TargetId { get; set; }
 
   [Column("rating_accuracy")]
   [Required]

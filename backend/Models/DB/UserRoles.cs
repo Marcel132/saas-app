@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class UserRolesModel
 {
   [Column("user_id")]
-  public int UserId { get; set; }
+  public Guid UserId { get; set; }
   [Column("role_id")]
   public string RoleId { get; set; } = string.Empty;
   [Column("assigned_at")]

@@ -8,7 +8,7 @@ public class SessionModel
   public int Id { get; set; }
   [Column("user_id")]
   [Required]
-  public int UserId { get; set; }
+  public Guid UserId { get; set; }
 
   [ForeignKey("UserId")]
   public UsersModel User { get; set; } = null!;

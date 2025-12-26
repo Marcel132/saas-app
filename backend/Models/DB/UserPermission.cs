@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class UserPermissionModel
 {
   [Column("user_id")]
-  public int UserId { get; set; }
+  public Guid UserId { get; set; }
   [Column("permission_id")]
   public Guid PermissionId { get; set; }
   [Column("is_denied")]
