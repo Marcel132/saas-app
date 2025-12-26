@@ -9,11 +9,11 @@ public class ContractsController : ControllerBase
 {
   private readonly ILogger<ContractsController> _logger;
   private readonly ContractsService _contractsService;
-  protected int? GetUserId()
+  protected Guid? GetUserId()
   {
-    var user = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)
+    var user = Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId)
       ? userId
-      : (int?)null;
+      : (Guid?)null;
     _logger.LogInformation($"{user}");
     return user;
   }
@@ -30,7 +30,7 @@ public class ContractsController : ControllerBase
   {
     // Move to [Authorize]
     var userId = GetUserId();
-    if (userId is null || userId <= 0)
+    if (userId is null || userId == Guid.Empty)
       return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
     try
@@ -51,13 +51,13 @@ public class ContractsController : ControllerBase
 
   // [Authorize]
   [HttpGet("{id}")]
-  public async Task<IActionResult> GetContractById(int id)
+  public async Task<IActionResult> GetContractById(Guid id)
   {
-    if (id <= 0)
+    if (id == Guid.Empty)
       return BadRequest(new { success = false, message = "Invalid contract ID." });
 
-    var userId = GetUserId() ?? 0;
-    if (userId <= 0)
+    var userId = GetUserId() ?? Guid.Empty;
+    if (userId == Guid.Empty)
       return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
     try
@@ -83,8 +83,8 @@ public class ContractsController : ControllerBase
     if (!ModelState.IsValid)
       return BadRequest(new { success = false, message = "Invalid contract data." });
 
-    var userId = GetUserId() ?? 0;
-    if (userId <= 0)
+    var userId = GetUserId() ?? Guid.Empty;
+    if (userId == Guid.Empty)
       return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
     try
@@ -138,10 +138,10 @@ public class ContractsController : ControllerBase
 
   // [Authorize(Roles = "Admin, Company")]
   [HttpDelete("{id}")]
-  public async Task<IActionResult> DeleteContract(int id)
+  public async Task<IActionResult> DeleteContract(Guid id)
   {
-    var userId = GetUserId() ?? 0;
-    if (userId <= 0)
+    var userId = GetUserId() ?? Guid.Empty;
+    if (userId == Guid.Empty)
       return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
     try
@@ -161,13 +161,13 @@ public class ContractsController : ControllerBase
   }
 
   [HttpPost("{id}/apply")]
-  public async Task<IActionResult> ApplyForContract(int id)
+  public async Task<IActionResult> ApplyForContract(Guid id)
   {
-    var userId = GetUserId() ?? 0;
-    if (userId <= 0)
+    var userId = GetUserId() ?? Guid.Empty;
+    if (userId == Guid.Empty)
       return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
 
-    if (id <= 0)
+    if (id == Guid.Empty)
       return BadRequest(new { success = false, message = "Invalid contract ID" });
 
     try
@@ -185,15 +185,15 @@ public class ContractsController : ControllerBase
   }
 
   [HttpPut("{contractId}/accept/{userId}")]
-  public async Task<IActionResult> AcceptContract(int contractId, int userId)
+  public async Task<IActionResult> AcceptContract(Guid contractId, Guid userId)
   {
-    if (contractId <= 0)
+    if (contractId == Guid.Empty)
       return BadRequest(new { success = false, message = "Invalid contract ID" });
-    if (userId <= 0)
+    if (userId == Guid.Empty)
       return BadRequest(new { success = false, message = "Invalid user ID" });
 
-    var authorId = GetUserId() ?? 0;
-    if (authorId <= 0)
+    var authorId = GetUserId() ?? Guid.Empty;
+    if (authorId == Guid.Empty)
       return Unauthorized(new { success = false, message = "You are not allowed to use this method" });
       
     try

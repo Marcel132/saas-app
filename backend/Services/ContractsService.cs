@@ -11,7 +11,7 @@ public class ContractsService
 
 
 // Future: Create one additional method to get all own contracts
-  public async Task<List<ContractDto>> GetAllContractsAsync(int? authorId = null)
+  public async Task<List<ContractDto>> GetAllContractsAsync(Guid? authorId = null)
   {
 
     var contracts = await _context.Contracts
@@ -72,7 +72,7 @@ public class ContractsService
     return dto;
   }
 
-  public async Task<ContractDto> GetContractByIdAsync(int contractId, int? authorId = null)
+  public async Task<ContractDto> GetContractByIdAsync(Guid contractId, Guid? authorId = null)
   {
     var contract = await _context.Contracts
       .FirstOrDefaultAsync(c => c.Id == contractId)
@@ -121,11 +121,11 @@ public class ContractsService
     return dto;
   }
 
-  public async Task<ContractDto> CreateContractAsync(ContractModel contract, int userId)
+  public async Task<ContractDto> CreateContractAsync(ContractModel contract, Guid userId)
   {
     if (contract == null)
       throw new ArgumentNullException(nameof(contract), "Contract must have a value.");
-    if (userId <= 0)
+    if (userId == Guid.Empty)
       throw new ArgumentException("UserId must have a value");
     if (contract.Price <= 0)
       throw new ArgumentException("Price must be greater than zero.");
@@ -215,12 +215,12 @@ public class ContractsService
   //     throw;
   //   }
   // }
-  public async Task<bool> DeleteContractAsync(int contractId, int userId)
+  public async Task<bool> DeleteContractAsync(Guid contractId, Guid userId)
   {
-    if (contractId <= 0)
-      throw new ArgumentOutOfRangeException("Contract ID is lower than 1");
-    if (userId <= 0)
-      throw new ArgumentOutOfRangeException("User ID is lower than 1");
+    if (contractId == Guid.Empty)
+      throw new ArgumentOutOfRangeException("Contract ID is empty");
+    if (userId == Guid.Empty)
+      throw new ArgumentOutOfRangeException("User ID is empty");
 
     var contract = await _context.Contracts
       .FirstOrDefaultAsync(c => c.Id == contractId)
@@ -237,9 +237,9 @@ public class ContractsService
 
 
 // Future: Divide method for saveing and move dto to other method / controller 
-  public async Task<ContractApplicationDto> ApplyForContractAsync(int contractId, int userId)
+  public async Task<ContractApplicationDto> ApplyForContractAsync(Guid contractId, Guid userId)
   {
-    if (contractId <= 0 || userId <= 0)
+    if (contractId == Guid.Empty || userId == Guid.Empty)
       throw new ArgumentException("Invalid contract ID or user ID");
 
     var isApplied = await _context.ContractApplications
@@ -278,7 +278,7 @@ public class ContractsService
     return user;
   }
 
-  public async Task<ContractAcceptUserDto> AcceptContractAsync(int contractId, int userId, int authorId)
+  public async Task<ContractAcceptUserDto> AcceptContractAsync(Guid contractId, Guid userId, Guid authorId)
   {
     using var transaction = await _context.Database.BeginTransactionAsync();
 

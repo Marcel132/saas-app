@@ -47,7 +47,7 @@ public class MiddlewareService
         throw new SecurityTokenException("Invalid token: Missing user ID.");
 
       var userSessions = await _context.Sessions
-        .Where(s => s.UserId == int.Parse(userId) && !s.Revoked)
+        .Where(s => s.UserId == Guid.Parse(userId) && !s.Revoked)
         .ToListAsync();
 
       var userSession = userSessions.FirstOrDefault(s =>
