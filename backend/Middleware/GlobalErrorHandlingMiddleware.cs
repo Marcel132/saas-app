@@ -82,6 +82,18 @@ public class GlobalErrorHandlingMiddleware
                 HttpStatusCodes.GeneralCodes.Conflict
                 );
         }
+        else if (ex is ConflictAppException)
+        {
+            code = HttpStatusCode.Conflict;
+            _logger.LogWarning("ConflictAppException: {Message}", ex.Message);
+            response = HttpResponseFactory.CreateFailureResponse<object>(
+                context, 
+                HttpResponseState.Conflict,
+                false,
+                "Conflict occurred",
+                HttpStatusCodes.GeneralCodes.Conflict
+                );
+        }
         else
         {
             response = HttpResponseFactory.CreateFailureResponse<object>(
