@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,25 +26,7 @@ var JwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOper
 
 Console.WriteLine($"JWT KEY: {JwtKey}");
 Console.WriteLine($"JWT ISSUER: {JwtIssuer}");
-Console.WriteLine($"JWT AUDIENCE: {JwtAudience}");
-
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = JwtIssuer,
-            ValidAudience = JwtAudience,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(JwtKey)
-            )
-        };
-    }
-);
+Console.WriteLine($"JWT AUDIENCE: {JwtAudience}");  
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
@@ -67,6 +50,10 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 
+builder.Services.AddAuthentication("CookieAuth")
+    .AddScheme<AuthenticationSchemeOptions, CookieAuthHandler>(
+        "CookieAuth", null);
+
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TokenService>();
@@ -87,10 +74,7 @@ app.UseMiddleware<NetworkMiddleware>();
 
 app.UseHttpsRedirection();
 
-app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthentication();
-
-app.UseMiddleware<AuthorizationMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

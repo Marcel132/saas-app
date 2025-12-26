@@ -34,6 +34,7 @@ public class AppDbContext : DbContext
             .HasOne(u => u.UserData)
             .WithOne(ud => ud.User)
             .HasForeignKey<UserDataModel>(ud => ud.UserId)
+            .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
 
