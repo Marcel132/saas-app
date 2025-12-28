@@ -76,7 +76,7 @@ public class ContractsController : ControllerBase
 
   // [Authorize(Roles = "Admin, Company")]
   [HttpPost]
-  public async Task<IActionResult> CreateContract([FromBody] ContractModel request)
+  public async Task<IActionResult> CreateContract([FromBody] ContractsModel request)
   {
     ArgumentNullException.ThrowIfNull(request, "Request cannot be null");
 

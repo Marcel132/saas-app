@@ -121,7 +121,7 @@ public class ContractsService
     return dto;
   }
 
-  public async Task<ContractDto> CreateContractAsync(ContractModel contract, Guid userId)
+  public async Task<ContractDto> CreateContractAsync(ContractsModel contract, Guid userId)
   {
     if (contract == null)
       throw new ArgumentNullException(nameof(contract), "Contract must have a value.");
@@ -133,7 +133,7 @@ public class ContractsService
     if (string.IsNullOrWhiteSpace(contract.Description))
       throw new ArgumentNullException(nameof(contract.Description), "A contract must have a description");
 
-    var ctrc = new ContractModel
+    var ctrc = new ContractsModel
     {
       AuthorId = userId,
       Price = contract.Price,
