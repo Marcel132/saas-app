@@ -1,7 +1,7 @@
 public record AuthLoginResult
 (
   bool Success,
-  UsersModel? User,
+  Guid userId,
   string HttpCode
 );
 
