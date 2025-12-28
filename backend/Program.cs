@@ -1,13 +1,7 @@
-using System.Net;
-using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +54,7 @@ builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<ContractsService>();
 builder.Services.AddScoped<MiddlewareService>();
 builder.Services.AddScoped<AuthCookieService>();
+builder.Services.AddScoped<AuthService>();
 
 
 var app = builder.Build();
