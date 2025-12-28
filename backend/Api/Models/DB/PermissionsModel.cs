@@ -1,8 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+[Table("permissions")]
 public class PermissionsModel
 {
   [Column("permission_id")]
+  [Key]
   public Guid PermissionId { get; set; } = Guid.NewGuid();
   [Column("action")]
   public string Action { get; set; } = string.Empty;

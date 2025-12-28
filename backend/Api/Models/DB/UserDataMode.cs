@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
+[Table("user_data")]
 public class UserDataModel
 {
   [Column("user_id")]

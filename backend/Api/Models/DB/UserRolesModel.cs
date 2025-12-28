@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
+[Table("user_roles")]
 public class UserRolesModel
 {
   [Column("user_id")]

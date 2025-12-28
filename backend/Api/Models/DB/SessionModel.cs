@@ -1,10 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class SessionModel
+[Table("sessions")]
+public class SessionsModel
 {
-  [Key]
   [Column("id")]
+  [Key]
   public int Id { get; set; }
   [Column("user_id")]
   [Required]

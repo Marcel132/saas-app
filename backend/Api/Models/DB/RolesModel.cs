@@ -1,8 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+[Table("roles")]
 public class RolesModel
 {
   [Column("role_id")]
+  [Key]
   public Guid RoleId { get; set; } = Guid.NewGuid();
   [Column("code")]
   public string Code { get; set; } = string.Empty;

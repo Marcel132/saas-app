@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+[Table("api_logs")]
 public class ApiLogsModel
 {
   [Column("id")]

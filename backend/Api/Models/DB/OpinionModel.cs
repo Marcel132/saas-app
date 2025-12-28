@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class OpinionModel
+[Table("opinions")]
+public class OpinionsModel
 {
   [Column("id")]
   [Required]

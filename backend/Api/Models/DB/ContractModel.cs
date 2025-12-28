@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class ContractModel
+[Table("contracts")]
+public class ContractsModel
 {
   [Column("id")]
   [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

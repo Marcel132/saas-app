@@ -6,10 +6,10 @@ public class AppDbContext : DbContext
 
     public DbSet<UsersModel> Users { get; set; }
     public DbSet<UserDataModel> UserData { get; set; }
-    public DbSet<SessionModel> Sessions { get; set; }
+    public DbSet<SessionsModel> Sessions { get; set; }
     public DbSet<ApiLogsModel> ApiLogs { get; set; }
-    public DbSet<OpinionModel> Opinions { get; set; }
-    public DbSet<ContractModel> Contracts { get; set; }
+    public DbSet<OpinionsModel> Opinions { get; set; }
+    public DbSet<ContractsModel> Contracts { get; set; }
     public DbSet<ContractApplicationModel> ContractApplications { get; set; }
 
 
@@ -45,45 +45,47 @@ public class AppDbContext : DbContext
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
-
-        // modelBuilder.Entity<UsersModel>()
-        // .HasMany(u => u.Sessions)
-        // .WithOne(s => s.User)
-        // .HasForeignKey(s => s.UserId);
-
-        // modelBuilder.Entity<UsersModel>()
-        //     .HasOne(u => u.UserData)
-        //     .WithOne(ud => ud.User)
-        //     .HasForeignKey<UserDataModel>(ud => ud.UserId)
-        //     .IsRequired();
-
-        // modelBuilder.Entity<UsersModel>()
-        //     .HasMany(u => u.Opinions)
-        //     .WithOne(o => o.User);
-
-        // modelBuilder.Entity<UsersModel>()
-        //     .HasMany(u => u.ApiLogs)
-        //     .WithOne(l => l.User)
-        //     .HasForeignKey(l => l.UserId);
-
-        // modelBuilder.Entity<UsersModel>()
-        //     .HasMany(u => u.Contracts)
-        //     .WithOne(c => c.Author)
-        //     .HasForeignKey(c => c.AuthorId);
-        // modelBuilder.Entity<UsersModel>()
-        //     .HasMany(u => u.ContractsApplication)
-        //     .WithOne(ca => ca.User)
-        //     .HasForeignKey(ca => ca.UserId);
-
-        modelBuilder.Entity<SessionModel>().Property(x => x.CreatedAt)
+        modelBuilder.Entity<SessionsModel>().Property(x => x.CreatedAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-        modelBuilder.Entity<SessionModel>().Property(x => x.ExpiresAt)
+        modelBuilder.Entity<SessionsModel>().Property(x => x.ExpiresAt)
             .HasDefaultValueSql("CURRENT_TIMESTAMP + interval '7 days'");
 
-        modelBuilder.Entity<ApiLogsModel>().ToTable("api_logs");
-        modelBuilder.Entity<UserDataModel>().ToTable("user_data");
-        modelBuilder.Entity<ContractApplicationModel>().ToTable("contract_applications");
+        modelBuilder.Entity<UsersModel>()
+            .HasKey(u => u.Id);
+            
+        modelBuilder.Entity<UserDataModel>()
+            .HasKey(u => u.UserId);
+            
+        modelBuilder.Entity<ApiLogsModel>()
+            .HasKey(u => u.Id);
+            
+        modelBuilder.Entity<ContractApplicationModel>()
+            .HasKey(u => u.Id);
+            
+        modelBuilder.Entity<ContractsModel>()
+            .HasKey(u => u.Id);
+            
+        modelBuilder.Entity<OpinionsModel>()
+            .HasKey(u => u.Id);
+        
+        modelBuilder.Entity<PermissionsModel>()
+            .HasKey(u => u.PermissionId);
+            
+        modelBuilder.Entity<RolePermissionsModel>()
+            .HasKey(u => new { u.PermissionId, u.RoleId });
+            
+        modelBuilder.Entity<RolesModel>()
+            .HasKey(u => u.RoleId);
+            
+        modelBuilder.Entity<SessionsModel>()
+            .HasKey(u => u.Id);
+            
+        modelBuilder.Entity<UserPermissionsModel>()
+            .HasKey(u => new { u.UserId, u.PermissionId});
+            
+        modelBuilder.Entity<UserRolesModel>()
+            .HasKey(u => new { u.UserId, u.RoleId});
 
 
     }
