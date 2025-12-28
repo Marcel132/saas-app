@@ -102,3 +102,9 @@ public class DataTypeMismatchException : AppException
   public DataTypeMismatchException(string message = "The provided data type does not match the expected type.")
       : base(message, HttpStatusCode.BadRequest, HttpStatusCodes.ValidationCodes.DataTypeMismatch) { }
 }
+
+public class AccountBlockedException : AppException
+{
+  public AccountBlockedException(string message = "The user account is blocked.")
+      : base(message, HttpStatusCode.Forbidden, HttpStatusCodes.AuthCodes.AccountBlocked) { }
+}
