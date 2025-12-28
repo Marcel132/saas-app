@@ -83,7 +83,7 @@ public class TokenService
     var authTokenHashed = TokenHasher.HashToken(authTokenJwtString);
     var refreshTokenHashed = TokenHasher.HashToken(refreshToken);
 
-    var session = new SessionModel
+    var session = new SessionsModel
     {
       UserId = userId,
       RefreshToken = refreshTokenHashed,
