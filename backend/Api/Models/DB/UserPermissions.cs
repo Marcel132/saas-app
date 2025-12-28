@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class UserPermissionModel
+public class UserPermissionsModel
 {
   [Column("user_id")]
   public Guid UserId { get; set; }
