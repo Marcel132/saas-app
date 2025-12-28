@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class PermissionsModel
 {
   [Column("permission_id")]
-  public Guid PermissionId { get; set; }
+  public Guid PermissionId { get; set; } = Guid.NewGuid();
   [Column("action")]
   public string Action { get; set; } = string.Empty;
   [Column("resource")]
