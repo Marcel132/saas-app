@@ -24,7 +24,7 @@ public class UsersController : ControllerBase
   }
 
   // -------------------------------
-  // path: /users         READ, UPDATE, DELETE
+  // path: /users         READ
   // -------------------------------
 
   // [RequiredRole("Admin")]
@@ -32,9 +32,8 @@ public class UsersController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> GetUsers()
   {
-    // This endpoint retrieves all users.
-    // It includes their session, user data, opinions, and API logs.
     var users = await _userService.GetAllUsersAsync();
+    
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 
@@ -45,45 +44,58 @@ public class UsersController : ControllerBase
       ));
   }
 
-  [Authorize]
-  [HttpPut]
-  public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateCurrentUserDto request)
-  {
-    var userId = GetUserClaims.GetUserId(User);
-    
-    // Attempt to update the user by ID.
-    // If the user is not found, return a 404 Not Found response.
-    await _userService.UpdateCurrentUserAsync(userId, request);
-    
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      true,
-      "User updated successfully", 
-      HttpStatusCodes.AuthCodes.Success
-    ));
-  }
-  
-
   // -------------------------------
-  // path: /users/{id}         READ
+  // path: /users/{id}         READ, UPDATE, DELETE
   // -------------------------------
 
   [Authorize]
   [HttpGet("{id}")]
-  public async Task<IActionResult> GetUserById([FromRoute] Guid id)
+  public async Task<IActionResult> GetUserById([FromRoute] Guid userId)
   {
-    return NotFound(HttpResponseFactory.CreateFailureResponse<object>(
-      HttpContext, 
-      HttpResponseState.NotFound, 
-      false,
-      $"User with ID {id} not found",
-      HttpStatusCodes.GeneralCodes.NotFound
-      ));
+    var user = await _userService.GetUserByIdAsync(userId);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext,
+      HttpResponseState.Success,
+      true,
+      "User retrieved successfully",
+      HttpStatusCodes.AuthCodes.Success,
+      user
+    ));
+  }
+
+  [Authorize]
+  [HttpPut("{id}")]
+  public async Task<IActionResult> UpdateUserById([FromRoute] Guid userId, [FromBody] UpdateUserDto request)
+  {
+    await _userService.UpdateUserByIdAsync(userId, request);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext,
+      HttpResponseState.Success,
+      true,
+      "User updated successfully",
+      HttpStatusCodes.AuthCodes.Success
+    ));
+  }
+
+  [Authorize]
+  [HttpDelete("{id}")]
+  public async Task<IActionResult> DeleteUserById([FromRoute] Guid userId)
+  {
+    await _userService.DeleteUserByIdAsync(userId);
+    
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext,
+      HttpResponseState.Success,
+      true,
+      "Deleted user successfully",
+      HttpStatusCodes.AuthCodes.Success
+    ));
   }
 
   // -------------------------------
-  // path: /users/me         READ
+  // path: /users/me         READ, UPDATE, DELETE
   // -------------------------------
 
   [Authorize]
@@ -91,8 +103,8 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> GetCurrentUser()
   {
     var userId = GetUserClaims.GetUserId(User);
-
     var user = await _userService.GetCurrentUserAsync(userId);
+    
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 
@@ -104,16 +116,29 @@ public class UsersController : ControllerBase
   }
 
   [Authorize]
+  [HttpPut("me")]
+  public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateCurrentUserDto request)
+  {
+    var userId = GetUserClaims.GetUserId(User);
+    
+    await _userService.UpdateCurrentUserAsync(userId, request);
+    
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      true,
+      "User updated successfully", 
+      HttpStatusCodes.AuthCodes.Success
+    ));
+  }
+  
+  [Authorize]
   [HttpDelete("me")]
   public async Task<IActionResult> DeleteCurrentUser()
   {
-    //  Validate the ID before proceeding.
-    // If the ID is invalid, return a 400 Bad Request response.
     var userId = GetUserClaims.GetUserId(User);
-
-    // Attempt to delete the user by ID.
-    // If the user is not found, return a 404 Not Found response.
     await _userService.DeleteCurrentUserAsync(userId);
+    
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 
@@ -122,120 +147,7 @@ public class UsersController : ControllerBase
       HttpStatusCodes.AuthCodes.Success
     )); 
   }
-  
-  // -------------------------------
-  // path: /users/login         CREATE
-  // -------------------------------
-
-  [AllowAnonymous]
-  [HttpPost("login")]
-  public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
-  {
-    var user = await _userService.AuthenticateUserAsync(request);
-    
-    if (!user.Success)
-      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
-        HttpContext, 
-        HttpResponseState.Unauthorized, 
-        false,
-        "Authentication failed.", 
-        user.HttpCode
-        ));
-
-    if(user.User == null)
-      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
-        HttpContext, 
-        HttpResponseState.Unauthorized, 
-        false,
-        "Authentication failed.", 
-        user.HttpCode
-        ));
-
-    var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
-    var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
-
-    var token = await _tokenService.GenerateAuthToken(user.User.Id, ip, userAgent);
-
-    _authCookieService.SetAuthCookie(Response, token);
-
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      true,
-      "Login successful", 
-      HttpStatusCodes.AuthCodes.Success
-      ));
-  }
-
-  // -------------------------------
-  // path: /users/logout         UPDATE
-  // -------------------------------
-
-  [Authorize]
-  [HttpPost("logout")]
-  public async Task<IActionResult> Logout()
-  {
-    var userId = GetUserClaims.GetUserId(User);
-
-    var deviceIp = HttpContext.Connection.RemoteIpAddress?.ToString();
-    if(string.IsNullOrEmpty(deviceIp))
-      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
-        HttpContext, 
-        HttpResponseState.BadRequest, 
-        false,
-        "Unable to determine device IP address.", 
-        HttpStatusCodes.AuthCodes.BadRequest
-      ));
-    
-    await _userService.LogoutUserAsync(userId, deviceIp);
-    _authCookieService.ClearAuthCookie(Response);
-
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      true,
-      "Logout successful", 
-      HttpStatusCodes.AuthCodes.Success,
-      $"UserId: {userId} logged out from IP: {deviceIp}"
-    ));
-  }
-
-  // -------------------------------
-  // path: /users/register         CREATE
-  // -------------------------------
-
-  [AllowAnonymous]
-  [HttpPost("register")]
-  public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
-  {
-    _logger.LogInformation("Registering user with email: {Email}", request.Email);
-
-    var user = await _userService.RegisterUserAsync(request);
-    if (user.Id <= Guid.Empty)
-      return BadRequest(HttpResponseFactory.CreateFailureResponse<object>(
-        HttpContext, 
-        HttpResponseState.BadRequest, 
-        false,
-        "Failed to register user.", 
-        HttpStatusCodes.AuthCodes.InvalidCredentials
-      ));
-
-    var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
-    var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
-
-    var token = await _tokenService.GenerateAuthToken(user.Id, ip, userAgent);
-
-    _authCookieService.SetAuthCookie(Response, token);
-
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      true,
-      "User registered successfully.", 
-      HttpStatusCodes.AuthCodes.Success,  
-      new { id = user.Id}
-      ));
-  }
+}
 
   // Generation Endpoint 
   // path: /users/token/generate
@@ -337,4 +249,3 @@ public class UsersController : ControllerBase
   //   ));
   
   // }
-}
