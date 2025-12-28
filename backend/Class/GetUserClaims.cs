@@ -10,4 +10,13 @@ public static class GetUserClaims
 
         return Guid.Parse(userClaim);
     }
+
+    public static string GetUserIp(HttpContext httpContext)
+    {
+        var deviceIp = httpContext.Connection.RemoteIpAddress?.ToString();
+        if(deviceIp == null)
+            throw new BadRequestAppException("Unable to determine device IP address");
+
+        return deviceIp;
+    }
 }
