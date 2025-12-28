@@ -5,43 +5,48 @@ public class AuthService
 
   private readonly AppDbContext _context;
   private readonly TokenService _tokenService;
+  private readonly RoleService _roleService;
   public AuthService(
     AppDbContext context,
-    TokenService tokenService
+    TokenService tokenService,
+    RoleService roleService
   )
   {
     _context = context;
     _tokenService = tokenService;
+    _roleService = roleService;
   }
 
   public async Task<AuthLoginResult> AuthenticateUserAsync(LoginRequestDto request)
   {
     var user = await _context.Users
+      .Select(u => new
+      {
+        u.Id,
+        u.Email,
+        u.Password,
+        u.IsActive
+      })
       .FirstOrDefaultAsync(u => u.Email == request.Email);
 
-    
-    if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+
+    if(user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
     {
       // await RegisterFailedLoginAttempt(request.Email);
-      return new AuthLoginResult(
-        false,
-        Guid.Empty, 
-        HttpStatusCodes.AuthCodes.InvalidCredentials
-      );
+      throw new UnauthorizedAccessException("Invalid credentials");
     }
 
     if(!user.IsActive)
-      return new AuthLoginResult(
-        false,
-        Guid.Empty, 
-        HttpStatusCodes.AuthCodes.AccountBlocked
-      );
+      throw new ForbiddenAppException("Account blocked");
     // ResetFailedLoginAttempts(user);
-
+    
+    var userPermissions = await _roleService.GetEffectivePermissions(user.Id);
+    
     return new AuthLoginResult(
-      true, 
+      true,
       user.Id,
-      HttpStatusCodes.AuthCodes.Success
+      userPermissions,
+      HttpStatusCodes.AuthCodes.Authorized
     );
   }
 
@@ -83,9 +88,12 @@ public class AuthService
     _context.Users.Add(user);
     await _context.SaveChangesAsync();
 
+    var userPermissions = await _roleService.GetEffectivePermissions(user.Id);
+
     return new RegisterResponseDto
     {
-      Id = user.Id
+      Id = user.Id,
+      Permissions = userPermissions
     };
   }
 

@@ -3,4 +3,6 @@ public class RegisterResponseDto
 {
   [Required]
   public Guid Id { get; set; }
+
+  public required HashSet<string> Permissions { get; set; }
 }

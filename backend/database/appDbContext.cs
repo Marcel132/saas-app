@@ -12,6 +12,14 @@ public class AppDbContext : DbContext
     public DbSet<ContractModel> Contracts { get; set; }
     public DbSet<ContractApplicationModel> ContractApplications { get; set; }
 
+
+    // AUTH
+    public DbSet<PermissionsModel> Permissions { get; set; }
+    public DbSet<RolePermissionsModel> RolePermissions { get; set; }
+    public DbSet<RolesModel> Roles { get; set; }
+    public DbSet<UserRolesModel> UserRoles { get; set; }
+    public DbSet<UserPermissionsModel> UserPermissions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

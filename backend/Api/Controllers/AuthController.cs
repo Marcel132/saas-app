@@ -31,28 +31,11 @@ public class AuthController : ControllerBase
   public async Task<IActionResult> LoginUser([FromBody] LoginRequestDto request)
   {
     var user = await _authService.AuthenticateUserAsync(request);
-    if (!user.Success)
-      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
-        HttpContext, 
-        HttpResponseState.Unauthorized, 
-        false,
-        "Authentication failed.", 
-        user.HttpCode
-        ));
-
-    if(user.userId == Guid.Empty)
-      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
-        HttpContext, 
-        HttpResponseState.Unauthorized, 
-        false,
-        "Authentication failed.", 
-        user.HttpCode
-        ));
-
+    
     var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
     var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
 
-    var token = await _tokenService.GenerateAuthToken(user.userId, ip, userAgent);
+    var token = await _tokenService.GenerateAuthToken(user.userId, ip, userAgent, user.Permissions);
 
     _authCookieService.SetAuthCookie(Response, token);
 
@@ -74,7 +57,7 @@ public class AuthController : ControllerBase
     var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
     var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
 
-    var token = await _tokenService.GenerateAuthToken(user.Id, ip, userAgent);
+    var token = await _tokenService.GenerateAuthToken(user.Id, ip, userAgent, user.Permissions);
 
     _authCookieService.SetAuthCookie(Response, token);
 
