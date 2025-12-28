@@ -55,6 +55,7 @@ builder.Services.AddScoped<ContractsService>();
 builder.Services.AddScoped<MiddlewareService>();
 builder.Services.AddScoped<AuthCookieService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<RoleService>();
 
 
 var app = builder.Build();
