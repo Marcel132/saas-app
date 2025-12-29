@@ -124,7 +124,6 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<ContractsService>();
-builder.Services.AddScoped<MiddlewareService>();
 builder.Services.AddScoped<AuthCookieService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RoleService>();
