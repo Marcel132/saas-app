@@ -58,6 +58,18 @@ public class GlobalErrorHandlingMiddleware
                 HttpStatusCodes.AuthCodes.Unauthorized
                 );
         }
+        else if (ex is ForbiddenAppException)
+        {
+            code = HttpStatusCode.Forbidden;
+            _logger.LogWarning($"Forbidden: {ex.Message}");
+            response = HttpResponseFactory.CreateFailureResponse<object>(
+                context,
+                HttpResponseState.Forbidden,
+                false,
+                "Forbidden",
+                HttpStatusCodes.AuthCodes.ForbiddenAccess
+            );
+        }
         else if (ex is KeyNotFoundException)
         {
             code = HttpStatusCode.NotFound;

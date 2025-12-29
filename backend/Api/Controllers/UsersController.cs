@@ -27,8 +27,7 @@ public class UsersController : ControllerBase
   // path: /users         READ
   // -------------------------------
 
-  // [RequiredRole("Admin")]
-  [Authorize]
+  [HasPermission(Permissions.Users.Read)]
   [HttpGet]
   public async Task<IActionResult> GetUsers()
   {
@@ -48,7 +47,7 @@ public class UsersController : ControllerBase
   // path: /users/{id}         READ, UPDATE, DELETE
   // -------------------------------
 
-  [Authorize]
+  [HasPermission(Permissions.Users.Read)]
   [HttpGet("{id}")]
   public async Task<IActionResult> GetUserById([FromRoute] Guid userId)
   {
@@ -64,7 +63,7 @@ public class UsersController : ControllerBase
     ));
   }
 
-  [Authorize]
+  [HasPermission(Permissions.Users.Update)]
   [HttpPut("{id}")]
   public async Task<IActionResult> UpdateUserById([FromRoute] Guid userId, [FromBody] UpdateUserDto request)
   {
@@ -79,7 +78,7 @@ public class UsersController : ControllerBase
     ));
   }
 
-  [Authorize]
+  [HasPermission(Permissions.Users.Delete)]
   [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteUserById([FromRoute] Guid userId)
   {
@@ -98,7 +97,7 @@ public class UsersController : ControllerBase
   // path: /users/me         READ, UPDATE, DELETE
   // -------------------------------
 
-  [Authorize]
+  [HasPermission(Permissions.Profile.Read)]
   [HttpGet("me")]
   public async Task<IActionResult> GetCurrentUser()
   {
@@ -115,7 +114,7 @@ public class UsersController : ControllerBase
       ));
   }
 
-  [Authorize]
+  [HasPermission(Permissions.Profile.Update)]
   [HttpPut("me")]
   public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateCurrentUserDto request)
   {
@@ -132,7 +131,7 @@ public class UsersController : ControllerBase
     ));
   }
   
-  [Authorize]
+  [HasPermission(Permissions.Profile.Delete)]
   [HttpDelete("me")]
   public async Task<IActionResult> DeleteCurrentUser()
   {

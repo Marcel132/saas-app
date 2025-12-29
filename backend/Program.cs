@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,6 +48,77 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddAuthentication("CookieAuth")
     .AddScheme<AuthenticationSchemeOptions, CookieAuthHandler>(
         "CookieAuth", null);
+
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
+
+builder.Services.AddAuthorization(options =>
+{
+    // -----------------
+    // PROFILE
+    // -----------------
+
+    options.AddPolicy("profile.create",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("profile.create")
+        ));
+    options.AddPolicy("profile.read",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("profile.read")
+        ));
+    options.AddPolicy("profile.update",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("profile.update")
+        ));
+    options.AddPolicy("profile.delete",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("profile.delete")
+        ));
+
+
+    // -----------------
+    // USERS
+    // -----------------
+
+    options.AddPolicy("users.create",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("users.create")
+        ));
+    options.AddPolicy("users.read",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("users.read")
+        ));
+    options.AddPolicy("users.update",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("users.update")
+        ));
+    options.AddPolicy("users.delete",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("users.delete")
+        ));
+
+
+    // -----------------
+    // Contracts
+    // -----------------
+    
+    options.AddPolicy("contracts.create",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("contracts.create")
+        ));
+    options.AddPolicy("contracts.read",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("contracts.read")
+        ));
+    options.AddPolicy("contracts.update",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("contracts.update")
+        ));
+    options.AddPolicy("contracts.delete",
+        policy => policy.Requirements.Add(
+            new PermissionRequirement("contracts.delete")
+        ));
+});
 
 
 builder.Services.AddScoped<UserService>();

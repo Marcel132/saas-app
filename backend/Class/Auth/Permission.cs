@@ -15,7 +15,6 @@ public static class Permissions
     public const string Delete = "users.delete";
     
   }
-
   public static class Contracts
   {
     public const string Create = "contracts.create";
@@ -23,6 +22,4 @@ public static class Permissions
     public const string Update = "contracts.update";
     public const string Delete = "contracts.delete";
   }
-
-
 }
