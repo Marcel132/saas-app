@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+
+// Must to change
 public class ContractRequestModel
 {
   public decimal Price { get; set; }
-  public StatusOfContractModel Status { get; set; }
+  public StatusOfContractEnum Status { get; set; }
   public string? Description { get; set; }
   public DateTime? Deadline { get; set; }
 

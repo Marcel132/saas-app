@@ -66,7 +66,6 @@ public class NetworkMiddleware
     }
 
     // Check query string for invalid characters
-    
     if (!string.IsNullOrEmpty(context.Request.QueryString.Value))
     {
       var query = context.Request.QueryString.Value;
@@ -116,14 +115,14 @@ public class NetworkMiddleware
     }
     
     // Add to authorization header token from cookie if exists
-    if(!context.Request.Headers.ContainsKey("Authorization"))
-    {
-      var token = context.Request.Cookies["AuthToken"];
-      if (!string.IsNullOrEmpty(token))
-      {
-        context.Request.Headers.Append("Authorization", $"Bearer {token}");
-      }
-    }
+    // if(!context.Request.Headers.ContainsKey("Authorization"))
+    // {
+    //   var token = context.Request.Cookies["AuthToken"];
+    //   if (!string.IsNullOrEmpty(token))
+    //   {
+    //     context.Request.Headers.Append("Authorization", $"Bearer {token}");
+    //   }
+    // }
 
     _logger.LogInformation("Incoming Request: ");
     _logger.LogInformation("Processing request {Method} {Path}", context.Request.Method, context.Request.Path);

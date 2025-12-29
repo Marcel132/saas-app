@@ -22,7 +22,7 @@ public class ContractsModel
 
   [Column("status")]
   [Required]
-  public StatusOfContractModel Status { get; set; } = StatusOfContractModel.Pending;
+  public StatusOfContractEnum Status { get; set; } = StatusOfContractEnum.Pending;
 
   [Column("description")]
   [MaxLength(500)]

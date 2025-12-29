@@ -138,7 +138,7 @@ public class ContractsService
       AuthorId = userId,
       Price = contract.Price,
       Description = contract.Description,
-      Status = StatusOfContractModel.Pending,
+      Status = StatusOfContractEnum.Pending,
       CreatedAt = DateTime.UtcNow,
       UpdatedAt = DateTime.UtcNow,
       Deadline = contract.Deadline ?? DateTime.UtcNow.AddDays(30)
@@ -293,7 +293,7 @@ public class ContractsService
         throw new UnauthorizedAccessException($"You are not allowed to use this method");
 
       contract.TargetId = userId;
-      contract.Status = StatusOfContractModel.InProgress;
+      contract.Status = StatusOfContractEnum.Pending;
 
       await _context.SaveChangesAsync();
 

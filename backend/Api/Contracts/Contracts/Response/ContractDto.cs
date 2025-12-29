@@ -4,7 +4,7 @@ public class ContractDto
     public Guid AuthorId { get; set; }
     public Guid TargetId { get; set; }
     public decimal Price { get; set; }
-    public StatusOfContractModel Status { get; set; }
+    public StatusOfContractEnum Status { get; set; }
     public string Description { get; set; } = "";
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
