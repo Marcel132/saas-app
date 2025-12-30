@@ -6,41 +6,42 @@ public class AuthService
   private readonly AppDbContext _context;
   private readonly TokenService _tokenService;
   private readonly RoleService _roleService;
+
+  // Policy
+  private readonly LoginPolicy _loginPolicy;
   public AuthService(
     AppDbContext context,
     TokenService tokenService,
-    RoleService roleService
+    RoleService roleService,
+
+    LoginPolicy loginPolicy
   )
   {
     _context = context;
     _tokenService = tokenService;
     _roleService = roleService;
+
+    _loginPolicy = loginPolicy;
   }
 
   public async Task<AuthLoginResult> AuthenticateUserAsync(LoginRequestDto request)
   {
+    request.Email = request.Email.Trim().ToLowerInvariant();
     var user = await _context.Users
-      .Select(u => new
+      .Select(u => new UserLoginDataDto
       {
-        u.Id,
-        u.Email,
-        u.Password,
-        u.IsActive
+        Id = u.Id,
+        Email = u.Email,
+        HashedPassword = u.Password,
+        IsActive = u.IsActive
       })
       .FirstOrDefaultAsync(u => u.Email == request.Email);
 
+    _loginPolicy.Validate(user, request.Password);
 
-    if(user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-    {
-      // await RegisterFailedLoginAttempt(request.Email);
-      throw new UnauthorizedAccessException("Invalid credentials");
-    }
-
-    if(!user.IsActive)
-      throw new ForbiddenAppException("Account blocked");
-    // ResetFailedLoginAttempts(user);
+    var userId = user!.Id;
     
-    var userPermissions = await _roleService.GetEffectivePermissions(user.Id);
+    var userPermissions = await _roleService.GetEffectivePermissions(userId);
     
     return new AuthLoginResult(
       true,
@@ -52,6 +53,8 @@ public class AuthService
 
   public async Task<RegisterResponseDto> RegisterUserAsync(RegisterRequestDto request)
   {
+
+    request.Email = request.Email.Trim().ToLowerInvariant();
     var existingUser = await _context.Users
       .FirstOrDefaultAsync(u => u.Email == request.Email);
       
@@ -64,7 +67,6 @@ public class AuthService
     {
       Email = request.Email,
       Password = hashedPassword,
-      IsActive = true,
       CreatedAt = DateTime.UtcNow,
       SpecializationType = request.SpecializationType ?? new List<string>()
     };
@@ -99,9 +101,10 @@ public class AuthService
 
   public async Task<bool> LogoutUserAsync(Guid userId, string? deviceIp)
   {
+
     var isSessionsRevoked = await _tokenService.RevokeSessionAsync(userId, deviceIp);
     if(!isSessionsRevoked)
-      throw new KeyNotFoundException("No active sessions");
+      throw new InvalidOperationException("No active sessions");
 
     return true;
   }

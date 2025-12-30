@@ -128,6 +128,9 @@ builder.Services.AddScoped<AuthCookieService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RoleService>();
 
+// Policy
+builder.Services.AddScoped<LoginPolicy>(); 
+
 
 var app = builder.Build();
 

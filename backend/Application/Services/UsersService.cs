@@ -55,7 +55,7 @@ public class UserService
         Id = u.Id,
         Email = u.Email,
         Specialization = u.SpecializationType,
-        Skills = ud?.Skills,
+        Skills = ud.Skills,
         FirstName = ud?.FirstName,
         LastName = ud?.LastName,
         IsActive = u.IsActive,

@@ -188,10 +188,10 @@ public class TokenService
     }
   }
 
-  public async Task<bool> RevokeSessionAsync(Guid userId, string deviceIp)
+  public async Task<bool> RevokeSessionAsync(Guid userId, string? deviceIp)
   {
     var sessions = await _context.Sessions
-      .Where(s => s.UserId == userId && !s.Revoked && s.Ip == deviceIp)
+      .Where(s => (s.UserId == userId && !s.Revoked) || s.Ip == deviceIp)
       .ToListAsync();
 
     if (sessions.Count == 0)
