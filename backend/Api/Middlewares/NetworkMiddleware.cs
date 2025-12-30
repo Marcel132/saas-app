@@ -42,7 +42,7 @@ public class NetworkMiddleware
         HttpResponseState.UnsupportedMediaType,
         false,
         "Unsupported Media Type. Request is missing Content-Type header.",
-        HttpStatusCodes.GeneralCodes.UnsupportedMediaType
+        DomainErrorCodes.GeneralCodes.UnsupportedMediaType
         );
 
       context.Response.ContentType = "application/json";
@@ -57,7 +57,7 @@ public class NetworkMiddleware
         HttpResponseState.UnsupportedMediaType,
         false,
         "Unsupported Media Type. Request has not proper type.",
-        HttpStatusCodes.GeneralCodes.UnsupportedMediaType
+        DomainErrorCodes.GeneralCodes.UnsupportedMediaType
         );
 
       context.Response.ContentType = "application/json";
@@ -79,7 +79,7 @@ public class NetworkMiddleware
           HttpResponseState.BadRequest,
           false,
           "Invalid characters detected in query string.",
-          HttpStatusCodes.FirewallCodes.QueryStringBlocked
+          DomainErrorCodes.FirewallCodes.QueryStringBlocked
         );
 
         context.Response.ContentType = "application/json";
@@ -97,7 +97,7 @@ public class NetworkMiddleware
           HttpResponseState.ContentTooLarge,
           false,
           "Payload Too Large. Request body exceeds the maximum allowed size.",
-          HttpStatusCodes.FirewallCodes.PayloadBlocked
+          DomainErrorCodes.FirewallCodes.PayloadBlocked
           );
 
         context.Response.ContentType = "application/json";

@@ -2,109 +2,71 @@ using System.Net;
 
 public abstract class AppException : Exception
 {
-    public HttpStatusCode StatusCode { get; }
     public string ErrorCode { get; }
 
-    protected AppException(string message, HttpStatusCode statusCode, string errorCode)
+    protected AppException( string errorCode, string? message = null)
         : base(message)
     {
-        StatusCode = statusCode;
         ErrorCode = errorCode;
     }
 }
+// -----------
+// SCHEMA: {nameOfException}AppException
+// -----------
 
-public class TokenExpiredException : AppException
+public sealed class UnauthorizedAppException : AppException
 {
-  public TokenExpiredException(string message = "The provided token is expired.")
-      : base(message, HttpStatusCode.Unauthorized, HttpStatusCodes.AuthCodes.TokenExpired) { }
-
+  public UnauthorizedAppException() : base (DomainErrorCodes.AuthCodes.Unauthorized) {}
 }
-
-public class InvalidCredentialsException : AppException
+public sealed class InvalidCredentialsAppException : AppException
 {
-  public InvalidCredentialsException(string message = "The provided credentials are invalid.")
-      : base(message, HttpStatusCode.Unauthorized, HttpStatusCodes.AuthCodes.InvalidCredentials) { }
+  public InvalidCredentialsAppException() : base (DomainErrorCodes.AuthCodes.InvalidCredentials) {}
 }
-
-public class InvalidNameIdentifierException : AppException
+public sealed class InvalidNameIdentifierAppException : AppException
 {
-  public InvalidNameIdentifierException(string message = "The provided name identifier is invalid.")
-      : base(message, HttpStatusCode.BadRequest, HttpStatusCodes.AuthCodes.InvalidNameIdentifier) { }
+  public InvalidNameIdentifierAppException() : base (DomainErrorCodes.AuthCodes.InvalidNameIdentifier) {}
 }
-
-public class UnauthorizedAppException : AppException
+public sealed class TokenExpiredAppException : AppException
 {
-  public UnauthorizedAppException(string message = "Unauthorized access.")
-      : base(message, HttpStatusCode.Unauthorized, HttpStatusCodes.AuthCodes.Unauthorized) { }
+  public TokenExpiredAppException() : base (DomainErrorCodes.AuthCodes.TokenExpired) {}
 }
-public class UnauthorizedRoleException : AppException
+public sealed class TokenTamperedAppException : AppException
 {
-  public UnauthorizedRoleException(string message = "The user does not have the required role.")
-      : base(message, HttpStatusCode.Forbidden, HttpStatusCodes.AuthCodes.Unauthorized) { }
+  public TokenTamperedAppException() : base (DomainErrorCodes.AuthCodes.TokenTampered) {}
 }
-
-public class TokenTamperedException : AppException
+public sealed class NotFoundAppException : AppException
 {
-  public TokenTamperedException(string message = "The provided token has been tampered with.")
-      : base(message, HttpStatusCode.Unauthorized, HttpStatusCodes.AuthCodes.TokenTampered) { }
+  public NotFoundAppException() : base (DomainErrorCodes.GeneralCodes.NotFound) {}
 }
-
-public class NotFoundAppException : AppException
+public sealed class ConflictAppException : AppException
 {
-  public NotFoundAppException(string message = "The requested resource was not found.")
-      : base(message, HttpStatusCode.NotFound, HttpStatusCodes.GeneralCodes.NotFound) { }
+  public ConflictAppException() : base (DomainErrorCodes.GeneralCodes.Conflict) {}
 }
-
-public class ConflictAppException : AppException
+public sealed class BadRequestAppException : AppException
 {
-  public ConflictAppException(string message = "A conflict occurred with the current state of the resource.")
-      : base(message, HttpStatusCode.Conflict, HttpStatusCodes.GeneralCodes.Conflict) { }
+  public BadRequestAppException() : base (DomainErrorCodes.GeneralCodes.BadRequest) {}
 }
-
-public class BadRequestAppException : AppException
+public sealed class ForbiddenAppException : AppException
 {
-  public BadRequestAppException(string message = "The request was invalid or cannot be served.")
-      : base(message, HttpStatusCode.BadRequest, HttpStatusCodes.GeneralCodes.BadRequest) { }
+  public ForbiddenAppException() : base (DomainErrorCodes.AuthCodes.ForbiddenAccess) {}
 }
-
-public class ForbiddenAppException : AppException
+public sealed class AccountBlockedAppException : AppException
 {
-  public ForbiddenAppException(string message = "You do not have permission to access this resource.")
-      : base(message, HttpStatusCode.Forbidden, HttpStatusCodes.AuthCodes.ForbiddenAccess) { }
+  public AccountBlockedAppException() : base (DomainErrorCodes.AuthCodes.AccountBlocked) {}
 }
-
-public class InternalServerAppException : AppException
+public sealed class MissingRequiredFieldAppException : AppException
 {
-  public InternalServerAppException(string message = "An internal server error occurred.")
-      : base(message, HttpStatusCode.InternalServerError, HttpStatusCodes.GeneralCodes.ServerError) { }
+  public MissingRequiredFieldAppException() : base (DomainErrorCodes.ValidationCodes.MissingRequiredField) {}
 }
-
-public class MissingRequiredFieldException : AppException
+public sealed class InternalServerAppException : AppException
 {
-  public MissingRequiredFieldException(string message = "A required field is missing.")
-      : base(message, HttpStatusCode.BadRequest, HttpStatusCodes.ValidationCodes.MissingRequiredField) { }
+  public InternalServerAppException() : base (DomainErrorCodes.GeneralCodes.ServerError) {}
 }
-
-public class InvalidFormatException : AppException
+public sealed class InvalidFormatAppException : AppException
 {
-  public InvalidFormatException(string message = "The provided format is invalid.")
-      : base(message, HttpStatusCode.BadRequest, HttpStatusCodes.ValidationCodes.InvalidFormat) { }
+  public InvalidFormatAppException() : base (DomainErrorCodes.ValidationCodes.InvalidFormat) {}
 }
-
-public class ValueOutOfRangeException : AppException
+public sealed class ValueOutOfRangeAppException : AppException
 {
-  public ValueOutOfRangeException(string message = "The provided value is out of the acceptable range.")
-      : base(message, HttpStatusCode.BadRequest, HttpStatusCodes.ValidationCodes.ValueOutOfRange) { }
-}
-
-public class DataTypeMismatchException : AppException
-{
-  public DataTypeMismatchException(string message = "The provided data type does not match the expected type.")
-      : base(message, HttpStatusCode.BadRequest, HttpStatusCodes.ValidationCodes.DataTypeMismatch) { }
-}
-
-public class AccountBlockedException : AppException
-{
-  public AccountBlockedException(string message = "The user account is blocked.")
-      : base(message, HttpStatusCode.Forbidden, HttpStatusCodes.AuthCodes.AccountBlocked) { }
+  public ValueOutOfRangeAppException() : base (DomainErrorCodes.ValidationCodes.ValueOutOfRange) {}
 }

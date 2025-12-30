@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
       HttpResponseState.Success, 
       true,
       "Login successful", 
-      HttpStatusCodes.AuthCodes.Success
+      DomainErrorCodes.AuthCodes.Success
       ));
   }
 
@@ -66,7 +66,7 @@ public class AuthController : ControllerBase
       HttpResponseState.Success, 
       true,
       "User registered successfully.", 
-      HttpStatusCodes.AuthCodes.Success,  
+      DomainErrorCodes.AuthCodes.Success,  
       new { id = user.Id}
       ));
   }

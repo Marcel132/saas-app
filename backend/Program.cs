@@ -39,7 +39,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
                 HttpResponseState.BadRequest,
                 false,
                 "Invalid request data",
-                HttpStatusCodes.ValidationCodes.InvalidModel
+                DomainErrorCodes.ValidationCodes.InvalidModel
             )
         );
     };
@@ -129,7 +129,8 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<RoleService>();
 
 // Policy
-builder.Services.AddScoped<LoginPolicy>(); 
+builder.Services.AddScoped<ILoginPolicy, LoginPolicy>(); 
+builder.Services.AddScoped<IRegisterPolicy, RegisterPolicy>();
 
 
 var app = builder.Build();

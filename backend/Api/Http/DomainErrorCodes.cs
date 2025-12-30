@@ -9,7 +9,7 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-public static class HttpStatusCodes
+public static class DomainErrorCodes
 {
   public static class GeneralCodes
   {
@@ -41,7 +41,6 @@ public static class HttpStatusCodes
     public const string MultipleFailedLogins = "AUTH-40/002_MULTIPLE_FAILED_LOGINS";
     public const string AccountBlocked = "AUTH-40/003_ACCOUNT_BLOCKED";
   }
-
   public static class ValidationCodes
   {
     public const string ValidData = "VALID-10/001_VALID_DATA";
@@ -55,7 +54,6 @@ public static class HttpStatusCodes
     public const string PayloadTooLarge = "VALID-30/007_PAYLOAD_TOO_LARGE";
     public const string InvalidModel = "VALID-30/008_INVALID_MODEL";
   }
-
   public static class UserCodes
   {
     public const string UserCreated = "USER-10/001_USER_CREATED";
@@ -69,7 +67,6 @@ public static class HttpStatusCodes
     public const string UserNotFound = "USER-30/004_USER_NOT_FOUND";
     public const string UserAlreadyExists = "USER-30/005_USER_ALREADY_EXISTS";
   } 
-
   public static class FirewallCodes
   {
     public const string IpBlocked = "FIRE-30/001_IP_BLOCKED";

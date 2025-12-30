@@ -14,7 +14,7 @@ public static class HttpResponseFactory
       Data = data,
       Message = message,
       TraceId = context.TraceIdentifier,
-      ErrorCode = errorCode ?? HttpStatusCodes.GeneralCodes.ServerError,
+      ErrorCode = errorCode ?? DomainErrorCodes.GeneralCodes.ServerError,
       Timestamp = DateTime.UtcNow
     };
 

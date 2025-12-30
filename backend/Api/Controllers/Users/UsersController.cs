@@ -38,7 +38,7 @@ public class UsersController : ControllerBase
       HttpResponseState.Success, 
       true,
       "Users retrieved successfully", 
-      HttpStatusCodes.AuthCodes.Success,
+      DomainErrorCodes.AuthCodes.Success,
       users
       ));
   }
@@ -58,7 +58,7 @@ public class UsersController : ControllerBase
       HttpResponseState.Success,
       true,
       "User retrieved successfully",
-      HttpStatusCodes.AuthCodes.Success,
+      DomainErrorCodes.AuthCodes.Success,
       user
     ));
   }
@@ -74,7 +74,7 @@ public class UsersController : ControllerBase
       HttpResponseState.Success,
       true,
       "User updated successfully",
-      HttpStatusCodes.AuthCodes.Success
+      DomainErrorCodes.AuthCodes.Success
     ));
   }
 
@@ -89,7 +89,7 @@ public class UsersController : ControllerBase
       HttpResponseState.Success,
       true,
       "Deleted user successfully",
-      HttpStatusCodes.AuthCodes.Success
+      DomainErrorCodes.AuthCodes.Success
     ));
   }
 
@@ -109,7 +109,7 @@ public class UsersController : ControllerBase
       HttpResponseState.Success, 
       true, 
       "Current user retrieved successfully", 
-      HttpStatusCodes.AuthCodes.Success,
+      DomainErrorCodes.AuthCodes.Success,
       user
       ));
   }
@@ -127,7 +127,7 @@ public class UsersController : ControllerBase
       HttpResponseState.Success, 
       true,
       "User updated successfully", 
-      HttpStatusCodes.AuthCodes.Success
+      DomainErrorCodes.AuthCodes.Success
     ));
   }
   
@@ -143,7 +143,7 @@ public class UsersController : ControllerBase
       HttpResponseState.Success, 
       true,
       $"User with ID {userId} deleted successfully",
-      HttpStatusCodes.AuthCodes.Success
+      DomainErrorCodes.AuthCodes.Success
     )); 
   }
 }

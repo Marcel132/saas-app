@@ -1,130 +1,97 @@
 using System.Net;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 public class GlobalErrorHandlingMiddleware
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<GlobalErrorHandlingMiddleware> _logger;
+  private readonly RequestDelegate _next;
+  private readonly ILogger<GlobalErrorHandlingMiddleware> _logger;
 
-    public GlobalErrorHandlingMiddleware(RequestDelegate next, ILogger<GlobalErrorHandlingMiddleware> logger)
+  public GlobalErrorHandlingMiddleware(RequestDelegate next, ILogger<GlobalErrorHandlingMiddleware> logger)
+  {
+      _next = next;
+      _logger = logger;
+  }
+
+  public async Task InvokeAsync(HttpContext context)
+  {
+    try
     {
-        _next = next;
-        _logger = logger;
+        await _next(context);
+    }
+    catch (Exception ex)
+    {
+      if (ex is AppException appEx)
+      {
+        await HandleAppExceptionAsync(context, appEx);
+        return;
+      }
+
+      await HandleExceptionAsync(context, ex);
+    }
+  }
+
+  private async Task HandleAppExceptionAsync(HttpContext context, AppException ex)
+  {
+    _logger.LogError(ex, "Unhandled exception at {Path} {Method}: {Message}", context.Request.Path, context.Request.Method, ex.Message);
+
+    var (status, state) = ex switch
+    {
+      UnauthorizedAppException => (HttpStatusCode.Unauthorized, HttpResponseState.Unauthorized),
+      InvalidCredentialsAppException => (HttpStatusCode.Unauthorized, HttpResponseState.Unauthorized),
+      InvalidNameIdentifierAppException => (HttpStatusCode.Unauthorized, HttpResponseState.Unauthorized),
+      TokenExpiredAppException => (HttpStatusCode.Unauthorized, HttpResponseState.Unauthorized),
+      TokenTamperedAppException => (HttpStatusCode.Forbidden, HttpResponseState.Forbidden),
+      NotFoundAppException => (HttpStatusCode.NotFound, HttpResponseState.NotFound),
+      ConflictAppException => (HttpStatusCode.Conflict, HttpResponseState.Conflict),
+      BadRequestAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
+      ForbiddenAppException => (HttpStatusCode.Forbidden, HttpResponseState.Forbidden),
+      AccountBlockedAppException => (HttpStatusCode.Unauthorized, HttpResponseState.Unauthorized),
+      MissingRequiredFieldAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
+      InvalidFormatAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
+      ValueOutOfRangeAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
+      InternalServerAppException => (HttpStatusCode.InternalServerError, HttpResponseState.ServerError),
+
+      _ => (HttpStatusCode.InternalServerError, HttpResponseState.ServerError)
+    };
+
+    var response = HttpResponseFactory.CreateFailureResponse<object>(
+      context,
+      state,
+      false,
+      null,
+      ex.ErrorCode
+    );
+    
+    context.Response.StatusCode = (int)status;
+    context.Response.ContentType = "application/json";
+
+    await context.Response.WriteAsJsonAsync(response);
+  }
+
+  private async Task HandleExceptionAsync(HttpContext context, Exception ex)
+{
+    _logger.LogError(ex,
+      "Unhandled exception at {Path} {Method}",
+      context.Request.Path,
+      context.Request.Method
+    );
+
+    if (ex is AppException appEx)
+    {
+      await HandleAppExceptionAsync(context, appEx);
+      return;
     }
 
-    public async Task InvokeAsync(HttpContext context)
-    {
-        try
-        {
-            await _next(context);
-        }
-        catch (Exception ex)
-        {
-            await HandleExceptionAsync(context, ex);
-        }
-    }
+    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
-    private async Task HandleExceptionAsync(HttpContext context, Exception ex)
-    {
-        _logger.LogError(ex, "Unhandled exception at {Path} {Method}: {Message}", context.Request.Path, context.Request.Method, ex.Message);
+    var response = HttpResponseFactory.CreateFailureResponse<object>(
+      context,
+      HttpResponseState.ServerError,
+      false,
+      null,
+      DomainErrorCodes.GeneralCodes.ServerError
+    );
 
-        context.Response.ContentType = "application/json";
-
-        HttpStatusCode code = HttpStatusCode.InternalServerError;
-        object response;
-
-        if (ex is ArgumentException)
-        {
-            code = HttpStatusCode.BadRequest;
-            _logger.LogWarning("ArgumentException: {Message}", ex.Message);
-            response = HttpResponseFactory.CreateFailureResponse<object>(
-                context, 
-                HttpResponseState.BadRequest,
-                false,
-                "Bad request parameters",
-                HttpStatusCodes.ValidationCodes.BadRequest
-                );
-        }
-        else if (ex is UnauthorizedAccessException)
-        {
-            code = HttpStatusCode.Unauthorized;
-            _logger.LogWarning("UnauthorizedAccessException: {Message}", ex.Message);
-            response = HttpResponseFactory.CreateFailureResponse<object>(
-                context, 
-                HttpResponseState.Unauthorized,
-                false,
-                "Unauthorized access",
-                HttpStatusCodes.AuthCodes.Unauthorized
-                );
-        }
-        else if (ex is ForbiddenAppException)
-        {
-            code = HttpStatusCode.Forbidden;
-            _logger.LogWarning($"Forbidden: {ex.Message}");
-            response = HttpResponseFactory.CreateFailureResponse<object>(
-                context,
-                HttpResponseState.Forbidden,
-                false,
-                "Forbidden",
-                HttpStatusCodes.AuthCodes.ForbiddenAccess
-            );
-        }
-        else if (ex is KeyNotFoundException)
-        {
-            code = HttpStatusCode.NotFound;
-            _logger.LogWarning("KeyNotFoundException: {Message}", ex.Message);
-            response = HttpResponseFactory.CreateFailureResponse<object>(
-                context, 
-                HttpResponseState.NotFound,
-                false,
-                "Key not found",
-                HttpStatusCodes.GeneralCodes.NotFound
-                );
-        }
-        else if (ex is InvalidOperationException)
-        {
-            code = HttpStatusCode.Conflict;
-            _logger.LogWarning("InvalidOperationException: {Message}", ex.Message);
-            response = HttpResponseFactory.CreateFailureResponse<object>(
-                context, 
-                HttpResponseState.Conflict,
-                false,
-                "An invalid operation occurred",
-                HttpStatusCodes.GeneralCodes.Conflict
-                );
-        }
-        else if (ex is ConflictAppException)
-        {
-            code = HttpStatusCode.Conflict;
-            _logger.LogWarning("ConflictAppException: {Message}", ex.Message);
-            response = HttpResponseFactory.CreateFailureResponse<object>(
-                context, 
-                HttpResponseState.Conflict,
-                false,
-                "Conflict occurred",
-                HttpStatusCodes.GeneralCodes.Conflict
-                );
-        }
-        else
-        {
-            response = HttpResponseFactory.CreateFailureResponse<object>(
-                context, 
-                HttpResponseState.ServerError,
-                false,
-                "An unexpected error occurred.",
-                HttpStatusCodes.GeneralCodes.ServerError
-                );
-        }
-
-        context.Response.StatusCode = (int)code;
-        await context.Response.WriteAsync(JsonSerializer.Serialize(
-            response,
-            new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-            }
-        ));
-    }
+    await context.Response.WriteAsJsonAsync(response);
 }
+}
+

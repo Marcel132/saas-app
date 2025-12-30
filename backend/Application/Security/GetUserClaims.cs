@@ -15,7 +15,7 @@ public static class GetUserClaims
     {
         var deviceIp = httpContext.Connection.RemoteIpAddress?.ToString();
         if(deviceIp == null)
-            throw new BadRequestAppException("Unable to determine device IP address");
+            throw new BadRequestAppException();
 
         return deviceIp;
     }
