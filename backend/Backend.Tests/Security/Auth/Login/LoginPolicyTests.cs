@@ -1,14 +1,14 @@
 using NUnit.Framework;
 
-public class LoginServiceTests
+public class LoginPolicyTests
 {
     [Test]
     public void Validate_UserIsNull_ThrowsUnauthorized()
     {
         var policy = new LoginPolicy();
 
-        Assert.Throws<UnauthorizedAccessException>(() => 
-            policy.Validate(null, "")
+        Assert.Throws<InvalidCredentialsAppException>(() => 
+            policy.EnsureCanLogin(null, "")
         );
     }
 
@@ -23,8 +23,8 @@ public class LoginServiceTests
             IsActive = true
         };
 
-        Assert.Throws<UnauthorizedAccessException>(() => 
-            policy.Validate(user, "321test")
+        Assert.Throws<InvalidCredentialsAppException>(() => 
+            policy.EnsureCanLogin(user, "321test")
         );
     }
 
@@ -40,7 +40,7 @@ public class LoginServiceTests
         };
 
         Assert.Throws<ForbiddenAppException>(() => 
-            policy.Validate(user, "test")
+            policy.EnsureCanLogin(user, "test")
         );
     }
 
@@ -56,7 +56,7 @@ public class LoginServiceTests
         };
 
         Assert.DoesNotThrow(() => {
-            policy.Validate(user, "test");
+            policy.EnsureCanLogin(user, "test");
         });
     }
 }

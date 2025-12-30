@@ -8,13 +8,15 @@ public class AuthService
   private readonly RoleService _roleService;
 
   // Policy
-  private readonly LoginPolicy _loginPolicy;
+  private readonly ILoginPolicy _loginPolicy;
+  private readonly IRegisterPolicy _registerPolicy;
   public AuthService(
     AppDbContext context,
     TokenService tokenService,
     RoleService roleService,
 
-    LoginPolicy loginPolicy
+    ILoginPolicy loginPolicy,
+    IRegisterPolicy registerPolicy
   )
   {
     _context = context;
@@ -22,12 +24,14 @@ public class AuthService
     _roleService = roleService;
 
     _loginPolicy = loginPolicy;
+    _registerPolicy = registerPolicy;
   }
 
   public async Task<AuthLoginResult> AuthenticateUserAsync(LoginRequestDto request)
   {
-    request.Email = request.Email.Trim().ToLowerInvariant();
+    var lowerCaseEmail = request.Email.Trim().ToLowerInvariant();
     var user = await _context.Users
+      .AsNoTracking()
       .Select(u => new UserLoginDataDto
       {
         Id = u.Id,
@@ -35,9 +39,9 @@ public class AuthService
         HashedPassword = u.Password,
         IsActive = u.IsActive
       })
-      .FirstOrDefaultAsync(u => u.Email == request.Email);
+      .FirstOrDefaultAsync(u => u.Email == lowerCaseEmail);
 
-    _loginPolicy.Validate(user, request.Password);
+    _loginPolicy.EnsureCanLogin(user, request.Password);
 
     var userId = user!.Id;
     
@@ -47,25 +51,24 @@ public class AuthService
       true,
       user.Id,
       userPermissions,
-      HttpStatusCodes.AuthCodes.Authorized
+      DomainErrorCodes.AuthCodes.Authorized
     );
   }
 
   public async Task<RegisterResponseDto> RegisterUserAsync(RegisterRequestDto request)
   {
+    var lowerCaseEmail = request.Email.Trim().ToLowerInvariant();
 
-    request.Email = request.Email.Trim().ToLowerInvariant();
     var existingUser = await _context.Users
-      .FirstOrDefaultAsync(u => u.Email == request.Email);
-      
-    if (existingUser != null)
-      throw new ConflictAppException("A user with the provided email already exists.");
+      .AnyAsync(u => u.Email == lowerCaseEmail);
+
+    _registerPolicy.EnsureCanRegister(existingUser, request);
 
     var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password, workFactor: 12);
     
     var user = new UsersModel
     {
-      Email = request.Email,
+      Email = lowerCaseEmail,
       Password = hashedPassword,
       CreatedAt = DateTime.UtcNow,
       SpecializationType = request.SpecializationType ?? new List<string>()
