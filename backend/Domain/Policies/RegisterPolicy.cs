@@ -1,22 +1,12 @@
 public class RegisterPolicy : IRegisterPolicy
 {
 
-  private static readonly HashSet<string> AllowedSpecializations =
-  [
-    "Analyst",
-    "Developer",
-    "Programmer",
-    "Pentester",
-  ];
   public void EnsureCanRegister(bool emailAlreadyExists, RegisterRequestDto request)
   {
     if(emailAlreadyExists)
       throw new BadRequestAppException();
 
     if(IsPasswordWeak(request))
-      throw new InvalidFormatAppException();
-
-    if(!AllowedSpecializations.IsSupersetOf(request.SpecializationType))
       throw new InvalidFormatAppException();
 
     if(HasInvalidCompanyData(request))

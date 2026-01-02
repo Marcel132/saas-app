@@ -1,4 +1,4 @@
 public interface ILoginPolicy
 {
-  void EnsureCanLogin(UserLoginDataDto? user, string password);
+  void EnsureCanLogin(User? user);
 }

@@ -1,12 +1,12 @@
 public class LoginPolicy : ILoginPolicy
 {
-  public void EnsureCanLogin(UserLoginDataDto? user, string password)
+  public void EnsureCanLogin(User? user)
   {
     if(user == null)
       throw new InvalidCredentialsAppException();
-    
-    if(!BCrypt.Net.BCrypt.Verify(password, user.HashedPassword))
-      throw new InvalidCredentialsAppException();
+
+    if(user.LoginBlockedUntil > DateTime.UtcNow)
+      throw new AccountBlockedAppException();
 
     if(!user.IsActive)
       throw new ForbiddenAppException();
