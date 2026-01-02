@@ -8,24 +8,24 @@ public class LoginPolicyTests
         var policy = new LoginPolicy();
 
         Assert.Throws<InvalidCredentialsAppException>(() => 
-            policy.EnsureCanLogin(null, "")
+            policy.EnsureCanLogin(null)
         );
     }
 
     [Test]
-    public void Validate_PasswordIsInvalid_ThrowsUnauthorized()
+    public void Validate_BlockDuration_ThrowsAccountBlocked()
     {
-        var policy = new LoginPolicy();
+      var policy = new LoginPolicy();
+      var user = new User(
+        "test@testmail.com",
+        "test123"
+      );
 
-        var user = new UserLoginDataDto
-        {
-            HashedPassword = BCrypt.Net.BCrypt.HashPassword("test123"),
-            IsActive = true
-        };
+      user.RegisterFailedLoginAttempt(1, TimeSpan.FromMinutes(15));
 
-        Assert.Throws<InvalidCredentialsAppException>(() => 
-            policy.EnsureCanLogin(user, "321test")
-        );
+      Assert.Throws<AccountBlockedAppException>(() =>
+        policy.EnsureCanLogin(user)
+      );
     }
 
     [Test]
@@ -33,14 +33,15 @@ public class LoginPolicyTests
     {
         var policy = new LoginPolicy();
 
-        var user = new UserLoginDataDto
-        {
-            HashedPassword = BCrypt.Net.BCrypt.HashPassword("test"),
-            IsActive = false
-        };
+        var user = new User(
+          "test@testmail.com",
+          "test123"
+        );
+
+        user.Deactivate();
 
         Assert.Throws<ForbiddenAppException>(() => 
-            policy.EnsureCanLogin(user, "test")
+            policy.EnsureCanLogin(user)
         );
     }
 
@@ -49,14 +50,13 @@ public class LoginPolicyTests
     {
         var policy = new LoginPolicy();
 
-        var user = new UserLoginDataDto
-        {
-            HashedPassword = BCrypt.Net.BCrypt.HashPassword("test"),
-            IsActive = true,
-        };
+        var user = new User(
+          "test@testmail.com",
+          "test123"
+        );
 
         Assert.DoesNotThrow(() => {
-            policy.EnsureCanLogin(user, "test");
+            policy.EnsureCanLogin(user);
         });
     }
 }

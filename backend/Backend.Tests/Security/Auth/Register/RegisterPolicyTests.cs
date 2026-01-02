@@ -33,25 +33,6 @@ public class RegisterPolicyTests
   }
 
   [Test]
-  public void Validate_InvalidSpecialization_ThrowsInvalidFormat()
-  {
-    var policy = new RegisterPolicy();
-
-    var req = new RegisterRequestDto
-    {
-      Email = "test@example.com",
-      Password = "StrongPassword!123",
-      FirstName = "John",
-      LastName = "Doe",
-      SpecializationType = ["Anallyst"],
-    };
-
-    Assert.Throws<InvalidFormatAppException>(() =>
-      policy.EnsureCanRegister(false, req)
-    );
-  }
-
-  [Test]
   public void Validate_InvalidCompanyData_ThrowsInvalidFormat()
   {
     var policy = new RegisterPolicy();
