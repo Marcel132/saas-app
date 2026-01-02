@@ -1,6 +1,5 @@
 public class AuthService
 {
-  private readonly IRegisterPolicy _policy;
   private readonly UserAuthenticationService _authentication;
   private readonly UserRegisterService _registration;
   private readonly AuthSessionService _sessionService;
@@ -8,7 +7,6 @@ public class AuthService
   private readonly RoleService _roleService;
   private readonly AuthCookieService _cookieSerivce;
   public AuthService(
-    IRegisterPolicy policy,
     AuthSessionService sessionService,
     UserAuthenticationService authenticationService,
     UserRegisterService registerService,
@@ -18,7 +16,6 @@ public class AuthService
     AuthCookieService authCookieService
   )
   {
-    _policy = policy;
     _sessionService = sessionService;
     _authentication = authenticationService;
     _registration = registerService;

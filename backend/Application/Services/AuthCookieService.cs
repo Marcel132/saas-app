@@ -28,11 +28,11 @@ public class AuthCookieService
     return cookieOptions;
   }
 
-  public void SetAuthCookie(HttpResponse response, ResponseTokenDto token)
+  public void SetAuthCookie(HttpResponse response, string refreshToken, string authToken)
   {
-    response.Cookies.Append(AuthTokenName, token.AuthToken, CreateAuthCookieOptions(false, null, false));
+    response.Cookies.Append(AuthTokenName, authToken, CreateAuthCookieOptions(false, null, false));
 
-    response.Cookies.Append(RefreshTokenName, token.RefreshToken, CreateAuthCookieOptions(false, null, true));
+    response.Cookies.Append(RefreshTokenName, refreshToken, CreateAuthCookieOptions(false, null, true));
   }
 
   public void ClearAuthCookie(HttpResponse response)

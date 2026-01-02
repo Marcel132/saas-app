@@ -30,14 +30,10 @@ public class AuthController : ControllerBase
   [HttpPost("login")]
   public async Task<IActionResult> LoginUser([FromBody] LoginRequestDto request)
   {
-    var user = await _authService.AuthenticateUserAsync(request);
-    
-    var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
-    var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
+    var deviceIp = UserContextExtension.GetUserIp(HttpContext);
+    var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    var token = await _tokenService.GenerateAuthToken(user.userId, ip, userAgent, user.Permissions);
-
-    _authCookieService.SetAuthCookie(Response, token);
+    await _authService.LoginAsync(request, deviceIp, userAgent, Response);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -52,14 +48,15 @@ public class AuthController : ControllerBase
   [HttpPost("register")]
   public async Task<IActionResult> RegisterUser([FromBody] RegisterRequestDto request)
   {
-    var user = await _authService.RegisterUserAsync(request);
+    var deviceIp = UserContextExtension.GetUserIp(HttpContext);
+    var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
-    var userAgent = HttpContext.Request.Headers["User-Agent"].ToString() ?? "Unknown User Agent";
+    var user = await _authService.RegisterAsync(request, deviceIp, userAgent, Response);
 
-    var token = await _tokenService.GenerateAuthToken(user.Id, ip, userAgent, user.Permissions);
 
-    _authCookieService.SetAuthCookie(Response, token);
+    // var token = await _tokenService.GenerateAuthToken(user.Id, ip, userAgent, user.Permissions);
+
+    // _authCookieService.SetAuthCookie(Response, token);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -67,7 +64,7 @@ public class AuthController : ControllerBase
       true,
       "User registered successfully.", 
       DomainErrorCodes.AuthCodes.Success,  
-      new { id = user.Id}
+      new { id = user.userId}
       ));
   }
 
@@ -75,11 +72,11 @@ public class AuthController : ControllerBase
   [HttpPost("logout")]
   public async Task<IActionResult> LogoutUser()
   {
-    var userId = GetUserClaims.GetUserId(User);
-    var deviceIp = GetUserClaims.GetUserIp(HttpContext);
+    var userId = UserContextExtension.GetUserId(User);
+    var deviceIp = UserContextExtension.GetUserIp(HttpContext);
+    var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    await _authService.LogoutUserAsync(userId, deviceIp);
-    _authCookieService.ClearAuthCookie(Response);
+    await _authService.LogoutAsync(userId, Response);
 
     return NoContent();
   }
