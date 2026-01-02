@@ -2,42 +2,30 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-[Table("users")]
 public class UsersModel
 {
-  [Column("user_id")]
+  // [Column("user_id")]
   public Guid Id { get; set; } = Guid.NewGuid();
 
-  [Column("email")]
+  // [Column("email")]
   public string Email { get; set; } = string.Empty;
 
-  [Column("password_hash")]
-  [Required]
+  // [Column("password_hash")]
   public string Password { get; set; } = string.Empty;
 
-  [Column("is_active")]
+  // [Column("is_active")]
   public bool IsActive { get; set; } = true;
 
-  [Column("created_at")]
+  // [Column("created_at")]
   public DateTime CreatedAt { get; set; }
 
-  [Column("specialization")]
+  // [Column("specialization")]
   public List<string> SpecializationType { get; set; } = new List<string>();
-  // public string SpecializationType { get; set; } = string.Empty;
 
-  [Column("failed_login_attempts")]
+  // [Column("failed_login_attempts")]
   public int FailedLoginAttempts { get; set; } = 0;
 
-  [Column("login_blocked_until")]
+  // [Column("login_blocked_until")]
   public DateTime? LoginBlockedUntil { get; set; }
 
-  public UserDataModel? UserData { get; set; }
-
-  // public ICollection<SessionModel> Sessions { get; set; } = new List<SessionModel>();
-  // public UserDataModel UserData { get; set; } = null!;
-
-  // public ICollection<OpinionModel>? Opinions { get; set; }
-  // public ICollection<ApiLogsModel>? ApiLogs { get; set; }
-  // public ICollection<ContractModel> Contracts { get; set; } = new List<ContractModel>();
-  // public ICollection<ContractApplicationModel> ContractsApplication { get; set; } = new List<ContractApplicationModel>();
 }
