@@ -5,19 +5,22 @@ using Microsoft.AspNetCore.Mvc;
 [Route("[controller]")]
 public class UsersController : ControllerBase
 {
-  private readonly UserService _userService;
+  private readonly UserCommandService _commandService;
+  private readonly UserQueryService _queryService;
   private readonly TokenService _tokenService;
   private readonly AuthCookieService _authCookieService;
   private readonly ILogger _logger;
 
   public UsersController(
-    UserService userService, 
+    UserCommandService commandService, 
+    UserQueryService queryService,
     TokenService tokenService, 
     AuthCookieService authCookieService,
     ILogger<UsersController> logger
   )
   {
-    _userService = userService;
+    _commandService = commandService;
+    _queryService = queryService;
     _tokenService = tokenService;
     _authCookieService = authCookieService;
     _logger = logger;
@@ -31,7 +34,7 @@ public class UsersController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> GetUsers()
   {
-    var users = await _userService.GetAllUsersAsync();
+    var users = await _queryService.GetAllAsync();
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -51,7 +54,7 @@ public class UsersController : ControllerBase
   [HttpGet("{id}")]
   public async Task<IActionResult> GetUserById([FromRoute] Guid userId)
   {
-    var user = await _userService.GetUserByIdAsync(userId);
+    var user = await _queryService.GetByIdAsync(userId);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
@@ -67,7 +70,7 @@ public class UsersController : ControllerBase
   [HttpPut("{id}")]
   public async Task<IActionResult> UpdateUserById([FromRoute] Guid userId, [FromBody] UpdateUserDto request)
   {
-    await _userService.UpdateUserByIdAsync(userId, request);
+    await _commandService.UpdateUserAsync(userId, request);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
@@ -82,7 +85,7 @@ public class UsersController : ControllerBase
   [HttpDelete("{id}")]
   public async Task<IActionResult> DeleteUserById([FromRoute] Guid userId)
   {
-    await _userService.DeleteUserByIdAsync(userId);
+    await _commandService.DeleteUserAsync(userId);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
@@ -101,8 +104,8 @@ public class UsersController : ControllerBase
   [HttpGet("me")]
   public async Task<IActionResult> GetCurrentUser()
   {
-    var userId = GetUserClaims.GetUserId(User);
-    var user = await _userService.GetCurrentUserAsync(userId);
+    var userId = UserContextExtension.GetUserId(User);
+    var user = await _queryService.GetByIdAsync(userId);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -116,11 +119,10 @@ public class UsersController : ControllerBase
 
   [HasPermission(Permissions.Profile.Update)]
   [HttpPut("me")]
-  public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateCurrentUserDto request)
+  public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateUserDto request)
   {
-    var userId = GetUserClaims.GetUserId(User);
-    
-    await _userService.UpdateCurrentUserAsync(userId, request);
+    var userId = UserContextExtension.GetUserId(User); 
+    await _commandService.UpdateUserAsync(userId, request);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -135,8 +137,8 @@ public class UsersController : ControllerBase
   [HttpDelete("me")]
   public async Task<IActionResult> DeleteCurrentUser()
   {
-    var userId = GetUserClaims.GetUserId(User);
-    await _userService.DeleteCurrentUserAsync(userId);
+    var userId = UserContextExtension.GetUserId(User);
+    await _commandService.DeleteUserAsync(userId);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
