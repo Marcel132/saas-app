@@ -121,17 +121,29 @@ builder.Services.AddAuthorization(options =>
 });
 
 
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<TokenService>();
-builder.Services.AddScoped<ContractsService>();
-builder.Services.AddScoped<AuthCookieService>();
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<AuthSessionService>();
+builder.Services.AddScoped<UserAuthenticationService>();
+builder.Services.AddScoped<UserRegisterService>();
 
-// Policy
+builder.Services.AddScoped<UserCommandService>();
+builder.Services.AddScoped<UserQueryService>();
+
+builder.Services.AddScoped<AuthCookieService>();
+
+builder.Services.AddScoped<ContractsService>();
+builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<TokenService>();
+
+
+builder.Services.AddScoped<UserAuthenticationService>();
+
 builder.Services.AddScoped<ILoginPolicy, LoginPolicy>(); 
 builder.Services.AddScoped<IRegisterPolicy, RegisterPolicy>();
 
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ISessionRepository, SessionRepository>();
+builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
 var app = builder.Build();
 
