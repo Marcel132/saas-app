@@ -131,7 +131,7 @@ builder.Services.AddScoped<UserQueryService>();
 
 builder.Services.AddScoped<AuthCookieService>();
 
-builder.Services.AddScoped<ContractsService>();
+// builder.Services.AddScoped<ContractsService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<TokenService>();
 
