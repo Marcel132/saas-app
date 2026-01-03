@@ -82,7 +82,26 @@ public void UpdateUserData(
   string? companyName,
   string? companyNip)
 {
-  UserData.Update(
+  if(UserData == null)
+  {
+    UserData = new UserData(
+      firstName ?? string.Empty,
+      lastName ?? string.Empty,
+      phoneNumber ?? string.Empty,
+      skills ?? string.Empty,
+      city ?? string.Empty,
+      country ?? string.Empty,
+      postalCode ?? string.Empty,
+      street ?? string.Empty,
+      companyName,
+      companyNip
+    );
+
+    return;
+  }
+  else
+  {
+    UserData.Update(
     firstName,
     lastName,
     phoneNumber,
@@ -94,6 +113,7 @@ public void UpdateUserData(
     companyName,
     companyNip
   );
+  }
 }
 
   public void Deactivate()

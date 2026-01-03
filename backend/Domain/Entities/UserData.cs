@@ -27,14 +27,14 @@ public class UserData
     string country,
     string postalCode,
     string street,
-    string CompanyName,
-    string CompanyNip
+    string? companyName,
+    string? companyNip
     )
   {
     Update(
       firstName, lastName, phoneNumber, skills,
       city, country, postalCode, street,
-      CompanyName, CompanyNip
+      companyName, companyNip
     );
   }
 
@@ -59,10 +59,7 @@ public class UserData
     if (postalCode != null) PostalCode = postalCode;
     if (street != null) Street = street;
 
-    if(!string.IsNullOrWhiteSpace(companyName) && !string.IsNullOrWhiteSpace(CompanyNip))
-    { 
-      CompanyName = companyName;
-      CompanyNip = companyNip;    
-    }
+    CompanyName = companyName;
+    CompanyNip  = companyNip;
   }
 }
