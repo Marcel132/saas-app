@@ -1,7 +1,5 @@
 public class UserData
 {
-  public Guid UserId { get; private set; }
-
   public string FirstName { get; private set; } = string.Empty;
   public string LastName { get; private set; } = string.Empty;
   public string PhoneNumber { get; private set; } = string.Empty;
@@ -14,79 +12,57 @@ public class UserData
   public string? CompanyName { get; private set; }
   public string? CompanyNip { get; private set; }
 
-  public bool IsEmailVerified { get; private set; }
-  public bool IsTwoFactorEnabled { get; private set; }
-  public bool IsProfileCompleted { get; private set; }
+  public bool IsEmailVerified { get;  set; }
+  public bool IsTwoFactorEnabled { get; set; }
+  public bool IsProfileCompleted { get; set;} 
 
+  private UserData() {} // EF
 
-  private UserData() { } // EF
-
-  public UserData(
+  internal UserData(
     string firstName,
     string lastName,
     string phoneNumber,
     string skills,
     string city,
-    string country, 
+    string country,
     string postalCode,
-    string street)
+    string street,
+    string CompanyName,
+    string CompanyNip
+    )
   {
-    FirstName = firstName;
-    LastName = lastName;
-    PhoneNumber = phoneNumber;
-    Skills = skills;
-    City = city;
-    Country = country;
-    PostalCode = postalCode;
-    Street = street;
-  }
-
-  public void SetCompanyData(string companyName, string companyNip)
-  {
-    CompanyName = companyName;
-    CompanyNip = companyNip;
+    Update(
+      firstName, lastName, phoneNumber, skills,
+      city, country, postalCode, street,
+      CompanyName, CompanyNip
+    );
   }
 
   public void Update(
-  string? firstName,
-  string? lastName,
-  string? phoneNumber,
-  string? skills,
-  string? city,
-  string? country,
-  string? postalCode,
-  string? street,
-  string? companyName,
-  string? companyNip)
-{
-  if (!string.IsNullOrWhiteSpace(firstName))
-    FirstName = firstName;
+    string? firstName,
+    string? lastName,
+    string? phoneNumber,
+    string? skills,
+    string? city,
+    string? country,
+    string? postalCode,
+    string? street,
+    string? companyName,
+    string? companyNip)
+  {
+    if (firstName != null) FirstName = firstName;
+    if (lastName != null) LastName = lastName;
+    if (phoneNumber != null) PhoneNumber = phoneNumber;
+    if (skills != null) Skills = skills;
+    if (city != null) City = city;
+    if (country != null) Country = country;
+    if (postalCode != null) PostalCode = postalCode;
+    if (street != null) Street = street;
 
-  if (!string.IsNullOrWhiteSpace(lastName))
-    LastName = lastName;
-
-  if (!string.IsNullOrWhiteSpace(phoneNumber))
-    PhoneNumber = phoneNumber;
-
-  if (!string.IsNullOrWhiteSpace(skills))
-    Skills = skills;
-
-  if (!string.IsNullOrWhiteSpace(city))
-    City = city;
-
-  if (!string.IsNullOrWhiteSpace(country))
-    Country = country;
-
-  if (!string.IsNullOrWhiteSpace(postalCode))
-    PostalCode = postalCode;
-
-  if (!string.IsNullOrWhiteSpace(street))
-    Street = street;
-
-  if (!string.IsNullOrWhiteSpace(companyName))
-    CompanyName = companyName;
-
-  if (!string.IsNullOrWhiteSpace(companyNip))
-    CompanyNip = companyNip;
-}
+    if(!string.IsNullOrWhiteSpace(companyName) && !string.IsNullOrWhiteSpace(CompanyNip))
+    { 
+      CompanyName = companyName;
+      CompanyNip = companyNip;    
+    }
+  }
 }

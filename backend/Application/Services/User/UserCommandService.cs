@@ -14,10 +14,10 @@ public class UserCommandService
   public async Task UpdateUserAsync(Guid userId, UpdateUserDto request)
   {
     var user = await _users.GetByIdAsync(userId)
-      ?? throw new KeyNotFoundException();
+      ?? throw new NotFoundAppException();
 
-    if (!string.IsNullOrWhiteSpace(request.Email))
-      user.ChangeEmail(request.Email);
+    // if (!string.IsNullOrWhiteSpace(request.Email))
+    //   user.ChangeEmail(request.Email);
 
     if (!string.IsNullOrWhiteSpace(request.Password))
       user.ChangePassword(_hasher.Hash(request.Password));
@@ -48,7 +48,7 @@ public class UserCommandService
   public async Task DeleteUserAsync(Guid userId)
   {
     var user = await _users.GetByIdAsync(userId)
-      ?? throw new KeyNotFoundException();
+      ?? throw new NotFoundAppException();
 
     user.Deactivate();
 

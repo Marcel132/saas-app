@@ -2,143 +2,231 @@ using Microsoft.EntityFrameworkCore;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+  public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<User> Users { get; set; }
-    public DbSet<UserData> UserData { get; set; }
-    public DbSet<Session> Sessions { get; set; }
-
-
-
-    public DbSet<ApiLogsModel> ApiLogs { get; set; }
-    public DbSet<OpinionsModel> Opinions { get; set; }
-    public DbSet<ContractsModel> Contracts { get; set; }
-    public DbSet<ContractApplicationModel> ContractApplications { get; set; }
+  public DbSet<User> Users { get; set; }
+  // public DbSet<UserData> UserData { get; set; }
+  public DbSet<Session> Sessions { get; set; }
 
 
-    // AUTH
-    public DbSet<PermissionsModel> Permissions { get; set; }
-    public DbSet<RolePermissionsModel> RolePermissions { get; set; }
-    public DbSet<RolesModel> Roles { get; set; }
-    public DbSet<UserRolesModel> UserRoles { get; set; }
-    public DbSet<UserPermissionsModel> UserPermissions { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+  public DbSet<ApiLogsModel> ApiLogs { get; set; }
+  public DbSet<OpinionsModel> Opinions { get; set; }
+  public DbSet<ContractsModel> Contracts { get; set; }
+  public DbSet<ContractApplicationModel> ContractApplications { get; set; }
+
+
+  // AUTH
+  public DbSet<PermissionsModel> Permissions { get; set; }
+  public DbSet<RolePermissionsModel> RolePermissions { get; set; }
+  public DbSet<RolesModel> Roles { get; set; }
+  public DbSet<UserRolesModel> UserRoles { get; set; }
+  public DbSet<UserPermissionsModel> UserPermissions { get; set; }
+
+  protected override void OnModelCreating(ModelBuilder modelBuilder)
+  {
+    base.OnModelCreating(modelBuilder);
+
+    modelBuilder.Entity<User>(entity =>
     {
-      base.OnModelCreating(modelBuilder);
+      // entity.HasOne(u => u.UserData)
+      //   .WithOne()
+      //   .HasForeignKey<UserData>(ud => ud.UserId)
+      //   .OnDelete(DeleteBehavior.Cascade);
 
-      modelBuilder.Entity<User>(entity =>
-      {
-        entity.HasOne(u => u.UserData)
-          .WithOne()
-          .HasForeignKey<UserData>(ud => ud.UserId)
-          .OnDelete(DeleteBehavior.Cascade);
+      entity.OwnsOne(u => u.UserData, ud =>
+        {
+          ud.ToTable("user_data");
+          
+          ud.WithOwner()
+            .HasForeignKey("user_id");
 
-        entity.ToTable("users");
+          ud.Property(p => p.FirstName)
+            .HasColumnName("first_name");
 
-        entity.HasKey(u => u.Id);
+          ud.Property(ud => ud.LastName)
+            .HasColumnName("last_name");
 
-        entity.Property(u => u.Id)
+          ud.Property(ud => ud.PhoneNumber)
+            .HasColumnName("phone_number");
+
+          ud.Property(ud => ud.Skills)
+            .HasColumnName("skills");
+
+          ud.Property(ud => ud.City)
+            .HasColumnName("city");
+
+          ud.Property(ud => ud.Country)
+            .HasColumnName("country");
+
+          ud.Property(ud => ud.PostalCode)
+            .HasColumnName("postal_code");
+
+          ud.Property(ud => ud.Street)
+            .HasColumnName("street");
+
+          ud.Property(ud => ud.CompanyName)
+            .HasColumnName("company_name");
+
+          ud.Property(ud => ud.CompanyNip)
+            .HasColumnName("company_nip");
+
+          ud.Property(ud => ud.IsEmailVerified)
+            .HasColumnName("is_email_verified");
+
+          ud.Property(ud => ud.IsProfileCompleted)
+              .HasColumnName("is_profile_completed");
+          ud.Property(ud => ud.IsTwoFactorEnabled)
+            .HasColumnName("is_two_factor_enabled");
+        });
+
+      entity.ToTable("users");
+
+      entity.HasKey(u => u.Id);
+
+      entity.Property(u => u.Id)
+      .HasColumnName("user_id");
+
+      entity.Property(u => u.Email)
+        .HasColumnName("email")
+        .IsRequired()
+        .HasMaxLength(255);
+
+      entity.Property(u => u.PasswordHash)
+        .HasColumnName("password_hash");
+
+      entity.Property(u => u.CreatedAt)
+        .HasColumnName("created_at");
+      entity.Property(u => u.Specializations)
+        .HasColumnName("specialization")
+        .HasColumnType("text[]")
+        .IsRequired();
+
+      entity.Property(u => u.FailedLoginAttempts)
+        .HasColumnName("failed_login_attempts");
+
+      entity.Property(u => u.LoginBlockedUntil)
+        .HasColumnName("login_blocked_until");
+
+      entity.Property(u => u.IsActive)
+        .HasColumnName("is_active");
+    });
+
+    // modelBuilder.Entity<UserData>(entity =>
+    // {
+    //   entity.ToTable("user_data");
+    //   entity.HasKey(ud => ud.UserId);
+
+    //   entity.Property(ud => ud.UserId)
+    //     .HasColumnName("user_id");
+
+    //   entity.Property(ud => ud.FirstName)
+    //     .HasColumnName("first_name");
+
+    //   entity.Property(ud => ud.LastName)
+    //     .HasColumnName("last_name");
+
+    //   entity.Property(ud => ud.PhoneNumber)
+    //     .HasColumnName("phone_number");
+
+    //   entity.Property(ud => ud.Skills)
+    //     .HasColumnName("skills");
+
+    //   entity.Property(ud => ud.City)
+    //     .HasColumnName("city");
+
+    //   entity.Property(ud => ud.Country)
+    //     .HasColumnName("country");
+
+    //   entity.Property(ud => ud.PostalCode)
+    //     .HasColumnName("postal_code");
+
+    //   entity.Property(ud => ud.Street)
+    //     .HasColumnName("street");
+
+    //   entity.Property(ud => ud.CompanyName)
+    //     .HasColumnName("company_name");
+
+    //   entity.Property(ud => ud.CompanyNip)
+    //     .HasColumnName("company_nip");
+
+    //   entity.Property(ud => ud.IsEmailVerified)
+    //     .HasColumnName("is_email_verified");
+
+    //   entity.Property(ud => ud.IsProfileCompleted)
+    //     .HasColumnName("is_profile_completed");
+
+    //   entity.Property(ud => ud.IsTwoFactorEnabled)
+    //     .HasColumnName("is_two_factor_enabled");
+    // });
+
+    modelBuilder.Entity<Session>(entity =>
+    {
+      entity.HasKey(s => s.SessionId);
+
+      entity.ToTable("sessions");
+
+      entity.HasKey(s => s.SessionId);
+
+      entity.Property(s => s.SessionId)
+        .HasColumnName("id");
+
+      entity.Property(s => s.CreatedAt)
+        .HasColumnName("created_at");
+
+      entity.Property(s => s.ExpiresAt)
+        .HasColumnName("expires_at");
+
+      entity.Property(s => s.Ip)
+        .HasColumnName("ip");
+
+      entity.Property(s => s.UserAgent)
+        .HasColumnName("user_agent");
+
+      entity.Property(s => s.RefreshTokenHash)
+        .HasColumnName("refresh_token");
+
+      entity.Property(s => s.Revoked)
+        .HasColumnName("revoked");
+
+      entity.Property(s => s.UserId)
         .HasColumnName("user_id");
+    });
 
-        entity.Property(u => u.Email)
-          .HasColumnName("email")
-          .IsRequired()
-          .HasMaxLength(255);
+    modelBuilder.Entity<User>().ToTable("users");
+    modelBuilder.Entity<Session>().ToTable("sessions");
 
-        entity.Property(u => u.PasswordHash)
-          .HasColumnName("password_hash");
+    modelBuilder.Entity<ApiLogsModel>().ToTable("api_logs");
+    modelBuilder.Entity<ContractsModel>().ToTable("contracts");
 
-        entity.Property(u => u.CreatedAt)
-          .HasColumnName("created_at");
-        entity.Property(u => u.Specializations)
-          .HasColumnName("specialization")
-          .HasColumnType("text[]")
-          .IsRequired();
+    modelBuilder.Entity<ApiLogsModel>()
+        .HasKey(u => u.Id);
 
-        entity.Property(u => u.FailedLoginAttempts)
-          .HasColumnName("failed_login_attempts");
+    modelBuilder.Entity<ContractApplicationModel>()
+        .HasKey(u => u.Id);
 
-        entity.Property(u => u.LoginBlockedUntil)
-          .HasColumnName("login_blocked_until");
+    modelBuilder.Entity<ContractsModel>()
+        .HasKey(u => u.Id);
 
-        entity.Property(u => u.IsActive)
-          .HasColumnName("is_active");
-      });
+    modelBuilder.Entity<OpinionsModel>()
+        .HasKey(u => u.Id);
 
-      modelBuilder.Entity<UserData>(entity =>
-      {
-        entity.HasKey(ud => ud.UserId);
-      });
+    modelBuilder.Entity<PermissionsModel>()
+        .HasKey(u => u.PermissionId);
 
-      modelBuilder.Entity<Session>(entity =>
-      {
-        entity.HasKey(s => s.SessionId);
+    modelBuilder.Entity<RolePermissionsModel>()
+        .HasKey(u => new { u.PermissionId, u.RoleId });
 
-        entity.ToTable("sessions");
+    modelBuilder.Entity<RolesModel>()
+        .HasKey(u => u.RoleId);
 
-        entity.HasKey(s => s.SessionId);
 
-        entity.Property(s => s.SessionId)
-          .HasColumnName("id");
+    modelBuilder.Entity<UserPermissionsModel>()
+        .HasKey(u => new { u.UserId, u.PermissionId });
 
-        entity.Property(s => s.CreatedAt)
-          .HasColumnName("created_at");
+    modelBuilder.Entity<UserRolesModel>()
+        .HasKey(u => new { u.UserId, u.RoleId });
+  }
 
-        entity.Property(s => s.ExpiresAt)
-          .HasColumnName("expires_at");
 
-        entity.Property(s => s.Ip)
-          .HasColumnName("ip");
-
-        entity.Property(s => s.UserAgent)
-          .HasColumnName("user_agent");
-
-        entity.Property(s => s.RefreshTokenHash)
-          .HasColumnName("refresh_token");
-
-        entity.Property(s => s.Revoked)
-          .HasColumnName("revoked");
-
-        entity.Property(s => s.UserId)
-          .HasColumnName("user_id");
-      });
-
-      modelBuilder.Entity<User>().ToTable("users");
-      modelBuilder.Entity<UserData>().ToTable("user_data");
-      modelBuilder.Entity<Session>().ToTable("sessions");
-
-      modelBuilder.Entity<ApiLogsModel>().ToTable("api_logs");
-      modelBuilder.Entity<ContractsModel>().ToTable("contracts");
-
-      modelBuilder.Entity<ApiLogsModel>()
-          .HasKey(u => u.Id);
-          
-      modelBuilder.Entity<ContractApplicationModel>()
-          .HasKey(u => u.Id);
-          
-      modelBuilder.Entity<ContractsModel>()
-          .HasKey(u => u.Id);
-          
-      modelBuilder.Entity<OpinionsModel>()
-          .HasKey(u => u.Id);
-      
-      modelBuilder.Entity<PermissionsModel>()
-          .HasKey(u => u.PermissionId);
-          
-      modelBuilder.Entity<RolePermissionsModel>()
-          .HasKey(u => new { u.PermissionId, u.RoleId });
-          
-      modelBuilder.Entity<RolesModel>()
-          .HasKey(u => u.RoleId);
-          
-          
-      modelBuilder.Entity<UserPermissionsModel>()
-          .HasKey(u => new { u.UserId, u.PermissionId});
-          
-      modelBuilder.Entity<UserRolesModel>()
-          .HasKey(u => new { u.UserId, u.RoleId});
-    }
-        
-    
 }

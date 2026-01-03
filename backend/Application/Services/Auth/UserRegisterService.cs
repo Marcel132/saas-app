@@ -32,7 +32,7 @@ public class UserRegisterService
         user.AddSpecialization(spec);
     }
 
-    var userData = new UserData(        
+    user.UpdateUserData(        
       request.FirstName,
       request.LastName,
       request.PhoneNumber,
@@ -40,18 +40,11 @@ public class UserRegisterService
       request.City,
       request.Country,
       request.PostalCode,
-      request.Street
+      request.Street,
+      request.CompanyName,
+      request.CompanyNip 
     );
 
-    if(!string.IsNullOrWhiteSpace(request.CompanyName) && !string.IsNullOrWhiteSpace(request.CompanyNip))
-    {
-      userData.SetCompanyData(
-        request.CompanyName,
-        request.CompanyNip!
-      );
-    }
-
-    user.SetUserData(userData);
     await _users.AddAsync(user);
     return user;
   }

@@ -45,6 +45,6 @@ public class UserQueryService
         CreatedAt = u.CreatedAt
       })
       .FirstOrDefaultAsync()
-      ?? throw new KeyNotFoundException();
+      ?? throw new NotFoundAppException();
   }
 }

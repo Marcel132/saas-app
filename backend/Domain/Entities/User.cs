@@ -37,7 +37,7 @@ public class User
   {
     FailedLoginAttempts++;
 
-    if(FailedLoginAttempts >= maxAttempts)
+    if (FailedLoginAttempts >= maxAttempts)
     {
       LoginBlockedUntil = DateTime.UtcNow.Add(blockDuration);
     }
@@ -51,10 +51,10 @@ public class User
 
   public void AddSpecialization(string specializaion)
   {
-    if(string.IsNullOrWhiteSpace(specializaion))
+    if (string.IsNullOrWhiteSpace(specializaion))
       throw new ArgumentException("Invalid specialization");
 
-    if(_specializations.Contains(specializaion))
+    if (_specializations.Contains(specializaion))
       return;
 
     _specializations.Add(specializaion);
@@ -70,7 +70,7 @@ public class User
     UserData = data;
   }
 
-  public void UpdateUserData(
+public void UpdateUserData(
   string? firstName,
   string? lastName,
   string? phoneNumber,
@@ -82,34 +82,18 @@ public class User
   string? companyName,
   string? companyNip)
 {
-  if (UserData == null)
-  {
-    UserData = new UserData(
-      firstName ?? string.Empty,
-      lastName ?? string.Empty,
-      phoneNumber ?? string.Empty,
-      skills ?? string.Empty,
-      city ?? string.Empty,
-      country ?? string.Empty,
-      postalCode ?? string.Empty,
-      street ?? string.Empty
-    );
-  }
-  else
-  {
-    UserData.Update(
-      firstName,
-      lastName,
-      phoneNumber,
-      skills,
-      city,
-      country,
-      postalCode,
-      street,
-      companyName,
-      companyNip
-    );
-  }
+  UserData.Update(
+    firstName,
+    lastName,
+    phoneNumber,
+    skills,
+    city,
+    country,
+    postalCode,
+    street,
+    companyName,
+    companyNip
+  );
 }
 
   public void Deactivate()
@@ -126,7 +110,7 @@ public class User
   {
     PasswordHash = hash;
   }
-  
+
   public void ClearSpecializations()
   {
     _specializations.Clear();
