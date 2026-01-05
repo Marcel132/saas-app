@@ -97,6 +97,7 @@ public class AppDbContext : DbContext
 
       entity.Property(u => u.CreatedAt)
         .HasColumnName("created_at");
+        
       entity.Property(u => u.Specializations)
         .HasColumnName("specialization")
         .HasColumnType("text[]")
@@ -111,54 +112,6 @@ public class AppDbContext : DbContext
       entity.Property(u => u.IsActive)
         .HasColumnName("is_active");
     });
-
-    // modelBuilder.Entity<UserData>(entity =>
-    // {
-    //   entity.ToTable("user_data");
-    //   entity.HasKey(ud => ud.UserId);
-
-    //   entity.Property(ud => ud.UserId)
-    //     .HasColumnName("user_id");
-
-    //   entity.Property(ud => ud.FirstName)
-    //     .HasColumnName("first_name");
-
-    //   entity.Property(ud => ud.LastName)
-    //     .HasColumnName("last_name");
-
-    //   entity.Property(ud => ud.PhoneNumber)
-    //     .HasColumnName("phone_number");
-
-    //   entity.Property(ud => ud.Skills)
-    //     .HasColumnName("skills");
-
-    //   entity.Property(ud => ud.City)
-    //     .HasColumnName("city");
-
-    //   entity.Property(ud => ud.Country)
-    //     .HasColumnName("country");
-
-    //   entity.Property(ud => ud.PostalCode)
-    //     .HasColumnName("postal_code");
-
-    //   entity.Property(ud => ud.Street)
-    //     .HasColumnName("street");
-
-    //   entity.Property(ud => ud.CompanyName)
-    //     .HasColumnName("company_name");
-
-    //   entity.Property(ud => ud.CompanyNip)
-    //     .HasColumnName("company_nip");
-
-    //   entity.Property(ud => ud.IsEmailVerified)
-    //     .HasColumnName("is_email_verified");
-
-    //   entity.Property(ud => ud.IsProfileCompleted)
-    //     .HasColumnName("is_profile_completed");
-
-    //   entity.Property(ud => ud.IsTwoFactorEnabled)
-    //     .HasColumnName("is_two_factor_enabled");
-    // });
 
     modelBuilder.Entity<Session>(entity =>
     {

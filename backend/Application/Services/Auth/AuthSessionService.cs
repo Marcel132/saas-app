@@ -37,4 +37,6 @@ public class AuthSessionService
       await _sessions.UpdateAsync(session);
     }
   }
+
+  // TODO: RevokeSessionById  and RebokeActiveSession
 }

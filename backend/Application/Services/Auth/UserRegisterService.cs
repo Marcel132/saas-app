@@ -24,15 +24,8 @@ public class UserRegisterService
 
     var passwordHash = _hasher.Hash(request.Password);
 
-    var user = new User(email, passwordHash);
 
-    if (request.SpecializationType != null)
-    {
-      foreach (var spec in request.SpecializationType)
-        user.AddSpecialization(spec);
-    }
-
-    user.UpdateUserData(        
+    var userData = new UserData(        
       request.FirstName,
       request.LastName,
       request.PhoneNumber,
@@ -45,6 +38,13 @@ public class UserRegisterService
       request.CompanyNip 
     );
 
+    var user = new User(email, passwordHash, userData);
+
+    if (request.SpecializationType != null)
+    {
+      foreach (var spec in request.SpecializationType)
+        user.AddSpecialization(spec);
+    }
     await _users.AddAsync(user);
     return user;
   }

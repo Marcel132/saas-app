@@ -16,6 +16,7 @@ public class UserQueryService
   public async Task<List<UserResponseDto>> GetAllAsync()
   {
     return await _context.Users
+      .Where(u => u.IsActive)
       .Select( u => new UserResponseDto
       {
         Id = u.Id,
@@ -24,13 +25,31 @@ public class UserQueryService
         CreatedAt = u.CreatedAt,
         FirstName = u.UserData.FirstName,
         LastName = u.UserData.LastName,
-        Skills = u.UserData.Skills
+        Skills = u.UserData.Skills,
+        IsActive = u.IsActive
       })
-      .Where(u => u.IsActive)
       .ToListAsync();
   }
 
-   public async Task<UserResponseDto> GetByIdAsync(Guid userId)
+  public async Task<UserResponseDto> GetActiveUserByIdAsync(Guid userId)
+  {
+    return await _context.Users
+      .Where(u => u.Id == userId && u.IsActive)
+      .Select(u => new UserResponseDto
+      {
+        Id = u.Id,
+        Email = u.Email,
+        Specialization = u.Specializations.ToList(),
+        FirstName = u.UserData.FirstName,
+        LastName = u.UserData.LastName,
+        IsActive = u.IsActive,
+        CreatedAt = u.CreatedAt
+      })
+      .FirstOrDefaultAsync()
+      ?? throw new NotFoundAppException();
+  }
+
+  public async Task<UserResponseDto> GetUserByIdAsync(Guid userId)
   {
     return await _context.Users
       .Where(u => u.Id == userId)
