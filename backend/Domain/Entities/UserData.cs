@@ -59,7 +59,28 @@ public class UserData
     if (postalCode != null) PostalCode = postalCode;
     if (street != null) Street = street;
 
-    CompanyName = companyName;
-    CompanyNip  = companyNip;
+    if(companyName != null && companyNip != null)
+    {
+      CompanyName = companyName;
+      CompanyNip  = companyNip;
+    }
+  }
+
+  public void ClearPersonalData()
+  {
+    FirstName = string.Empty;
+    LastName = string.Empty;
+    PhoneNumber = string.Empty;
+    Skills = string.Empty;
+    City = string.Empty;
+    Country = string.Empty;
+    PostalCode = string.Empty;
+    Street = string.Empty;
+    CompanyName = null;
+    CompanyNip = null;
+
+    IsEmailVerified = false;
+    IsTwoFactorEnabled = false;
+    IsProfileCompleted = false;
   }
 }

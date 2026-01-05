@@ -19,8 +19,9 @@ public class UserCommandService
     // if (!string.IsNullOrWhiteSpace(request.Email))
     //   user.ChangeEmail(request.Email);
 
-    if (!string.IsNullOrWhiteSpace(request.Password))
-      user.ChangePassword(_hasher.Hash(request.Password));
+    // TODO: Check current password; if true, save new password; else 400;
+    if (!string.IsNullOrWhiteSpace(request.NewPassword))
+      user.ChangePassword(_hasher.Hash(request.NewPassword));
 
     if (request.SpecializationType != null)
     {
@@ -50,8 +51,8 @@ public class UserCommandService
     var user = await _users.GetByIdAsync(userId)
       ?? throw new NotFoundAppException();
 
-    user.Deactivate();
+    user.DeleteAccount();
 
-    await _users.DeleteAsync(user);
+    await _users.UpdateAsync(user);
   }
 }

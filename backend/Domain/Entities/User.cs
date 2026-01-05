@@ -12,18 +12,20 @@ public class User
 
   public IReadOnlyCollection<string> Specializations => _specializations.AsReadOnly();
 
-  public UserData? UserData { get; private set; }
+  public UserData UserData { get; private set; } = null!;
   private User() { } // EF
 
-  public User(string email, string passwordHash)
+  public User(string email, string passwordHash, UserData userData)
   {
     Id = Guid.NewGuid();
     Email = email;
     PasswordHash = passwordHash;
     IsActive = true;
     CreatedAt = DateTime.UtcNow;
-  }
 
+    UserData = userData
+      ?? throw new BadRequestAppException();
+  }
 
   //  Domain behaviors
 
@@ -32,7 +34,6 @@ public class User
     return LoginBlockedUntil == null
       || LoginBlockedUntil <= DateTime.UtcNow;
   }
-
   public void RegisterFailedLoginAttempt(int maxAttempts, TimeSpan blockDuration)
   {
     FailedLoginAttempts++;
@@ -42,13 +43,11 @@ public class User
       LoginBlockedUntil = DateTime.UtcNow.Add(blockDuration);
     }
   }
-
   public void ResetFailedLoginAttempts()
   {
     FailedLoginAttempts = 0;
     LoginBlockedUntil = null;
   }
-
   public void AddSpecialization(string specializaion)
   {
     if (string.IsNullOrWhiteSpace(specializaion))
@@ -59,68 +58,73 @@ public class User
 
     _specializations.Add(specializaion);
   }
-
   public void RemoveSpecialization(string specializaion)
   {
     _specializations.Remove(specializaion);
   }
-
+  public void ClearSpecializations()
+  {
+    _specializations.Clear();
+  }
   public void SetUserData(UserData data)
   {
     UserData = data;
   }
+  public void UpdateUserData(
+    string? firstName,
+    string? lastName,
+    string? phoneNumber,
+    string? skills,
+    string? city,
+    string? country,
+    string? postalCode,
+    string? street,
+    string? companyName,
+    string? companyNip
+    )
+    {
+      if(UserData == null)
+      {
+        UserData = new UserData(
+          firstName ?? string.Empty,
+          lastName ?? string.Empty,
+          phoneNumber ?? string.Empty,
+          skills ?? string.Empty,
+          city ?? string.Empty,
+          country ?? string.Empty,
+          postalCode ?? string.Empty,
+          street ?? string.Empty,
+          companyName,
+          companyNip
+        );
 
-public void UpdateUserData(
-  string? firstName,
-  string? lastName,
-  string? phoneNumber,
-  string? skills,
-  string? city,
-  string? country,
-  string? postalCode,
-  string? street,
-  string? companyName,
-  string? companyNip)
-{
-  if(UserData == null)
-  {
-    UserData = new UserData(
-      firstName ?? string.Empty,
-      lastName ?? string.Empty,
-      phoneNumber ?? string.Empty,
-      skills ?? string.Empty,
-      city ?? string.Empty,
-      country ?? string.Empty,
-      postalCode ?? string.Empty,
-      street ?? string.Empty,
-      companyName,
-      companyNip
-    );
+        return;
+      }
+      else
+      {
+        UserData.Update(
+        firstName,
+        lastName,
+        phoneNumber,
+        skills,
+        city,
+        country,
+        postalCode,
+        street,
+        companyName,
+        companyNip
+      );
+      }
+    }
 
-    return;
-  }
-  else
-  {
-    UserData.Update(
-    firstName,
-    lastName,
-    phoneNumber,
-    skills,
-    city,
-    country,
-    postalCode,
-    street,
-    companyName,
-    companyNip
-  );
-  }
-}
-
-  public void Deactivate()
+  public void DeactivateAccount()
   {
     IsActive = false;
   }
-
+  public void AnonymizeEmail()
+  {
+    Email = "deleted_" + Id +"@local";
+  }
   public void ChangeEmail(string email)
   {
     Email = email;
@@ -131,9 +135,11 @@ public void UpdateUserData(
     PasswordHash = hash;
   }
 
-  public void ClearSpecializations()
+  public void DeleteAccount()
   {
-    _specializations.Clear();
+    DeactivateAccount();
+    AnonymizeEmail();
+    ClearSpecializations();
+    UserData.ClearPersonalData();
   }
-
 }
