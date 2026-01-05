@@ -2,24 +2,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class AuthController : ControllerBase
 {
   private readonly AuthService _authService;
-  private readonly TokenService _tokenService;
-  private readonly AuthCookieService _authCookieService;
-  private readonly ILogger _logger;
   public AuthController(
-    AuthService authService,
-    TokenService tokenService, 
-    AuthCookieService authCookieService,
-    ILogger<AuthController> logger
+    AuthService authService
   )
   {
     _authService = authService;
-    _tokenService = tokenService;
-    _authCookieService = authCookieService;
-    _logger = logger;   
   }
 
   // -------------------------------
@@ -53,11 +45,6 @@ public class AuthController : ControllerBase
 
     var user = await _authService.RegisterAsync(request, deviceIp, userAgent, Response);
 
-
-    // var token = await _tokenService.GenerateAuthToken(user.Id, ip, userAgent, user.Permissions);
-
-    // _authCookieService.SetAuthCookie(Response, token);
-
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 
@@ -68,13 +55,14 @@ public class AuthController : ControllerBase
       ));
   }
 
+
   [Authorize]
   [HttpPost("logout")]
   public async Task<IActionResult> LogoutUser()
   {
     var userId = UserContextExtension.GetUserId(User);
-    var deviceIp = UserContextExtension.GetUserIp(HttpContext);
-    var userAgent = UserContextExtension.GetUserAgent(HttpContext);
+    // var deviceIp = UserContextExtension.GetUserIp(HttpContext);
+    // var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
     await _authService.LogoutAsync(userId, Response);
 

@@ -45,6 +45,13 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+});
+
 builder.Services.AddAuthentication("CookieAuth")
     .AddScheme<AuthenticationSchemeOptions, CookieAuthHandler>(
         "CookieAuth", null);
