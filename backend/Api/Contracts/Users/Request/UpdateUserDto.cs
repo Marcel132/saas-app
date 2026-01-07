@@ -13,7 +13,7 @@ public class UpdateUserDto
   public string? NewPassword { get; set; }
   
   [NoHtmlChars]
-  public List<string>? SpecializationType { get; set; }
+  public List<Specialization>? SpecializationType { get; set; }
   
   [RegularExpression(@"^[^%<>]*$")]
   [StringLength(1028)]

@@ -5,15 +5,18 @@ public class UserRegisterService
   private readonly IUserRepository _users;
   private readonly IPasswordHasher _hasher;
   private readonly IRegisterPolicy _policy;
+  private readonly UserRoleSynchronizer _roleSynch;
   public UserRegisterService(
     IUserRepository userRepository,
     IRegisterPolicy registerPolicy,
-    IPasswordHasher passwordHasher
+    IPasswordHasher passwordHasher,
+    UserRoleSynchronizer roleSynchronizer
   )
   {
     _users = userRepository;
     _policy = registerPolicy;
     _hasher = passwordHasher;
+    _roleSynch = roleSynchronizer;
   }
 
   public async Task<User> RegisterAsync(RegisterRequestDto request)
@@ -46,6 +49,11 @@ public class UserRegisterService
         user.AddSpecialization(spec);
     }
     await _users.AddAsync(user);
+
+    await _roleSynch.SyncAsync(user);
+    
+    await _users.SaveChangesAsync();
+
     return user;
   }
 }

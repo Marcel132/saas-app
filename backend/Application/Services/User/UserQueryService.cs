@@ -21,8 +21,10 @@ public class UserQueryService
       {
         Id = u.Id,
         Email = u.Email,
-        Specialization = u.Specializations.ToList(),
         CreatedAt = u.CreatedAt,
+        Specialization = u.UserSpecializations
+          .Select(us => us.Specialization)
+          .ToList(),
         FirstName = u.UserData.FirstName,
         LastName = u.UserData.LastName,
         Skills = u.UserData.Skills,
@@ -39,7 +41,9 @@ public class UserQueryService
       {
         Id = u.Id,
         Email = u.Email,
-        Specialization = u.Specializations.ToList(),
+        Specialization = u.UserSpecializations
+          .Select(us => us.Specialization)
+          .ToList(),
         FirstName = u.UserData.FirstName,
         LastName = u.UserData.LastName,
         IsActive = u.IsActive,
@@ -49,7 +53,7 @@ public class UserQueryService
       ?? throw new NotFoundAppException();
   }
 
-  public async Task<UserResponseDto> GetUserByIdAsync(Guid userId)
+  public async Task<UserResponseDto> GetCurrentUserByIdAsync(Guid userId)
   {
     return await _context.Users
       .Where(u => u.Id == userId)
@@ -57,7 +61,9 @@ public class UserQueryService
       {
         Id = u.Id,
         Email = u.Email,
-        Specialization = u.Specializations.ToList(),
+        Specialization = u.UserSpecializations
+          .Select(us => us.Specialization)
+          .ToList(),
         FirstName = u.UserData.FirstName,
         LastName = u.UserData.LastName,
         IsActive = u.IsActive,

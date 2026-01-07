@@ -55,6 +55,7 @@ public ResponseTokenDto GenerateAuthToken(
     return Convert.ToBase64String(refreshTokenBytes);
   }
 
+  // TODO: Refactor!!!
   public ClaimsPrincipal? ValidateAuthToken(string authToken)
   {
     var tokenHandler = new JwtSecurityTokenHandler();

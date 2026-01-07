@@ -2,61 +2,85 @@ using NUnit.Framework;
 
 public class LoginPolicyTests
 {
-    [Test]
-    public void Validate_UserIsNull_ThrowsUnauthorized()
-    {
-        var policy = new LoginPolicy();
+  [Test]
+  public void Validate_UserIsNull_ThrowsInvalidCredentials()
+  {
+    var policy = new LoginPolicy();
 
-        Assert.Throws<InvalidCredentialsAppException>(() => 
-            policy.EnsureCanLogin(null)
-        );
-    }
+    Assert.Throws<InvalidCredentialsAppException>(() => 
+      policy.EnsureCanLogin(null)
+    );
+  }
 
-    [Test]
-    public void Validate_BlockDuration_ThrowsAccountBlocked()
-    {
-      var policy = new LoginPolicy();
-      var user = new User(
-        "test@testmail.com",
-        "test123"
-      );
+  [Test]
+  public void Validate_BlockDuration_ThrowsAccountBlocked()
+  {
+    var policy = new LoginPolicy();
 
-      user.RegisterFailedLoginAttempt(1, TimeSpan.FromMinutes(15));
+    var userData = new UserData(
+      "Adam", "Nowak", "123",
+      "Skills", "City", "Country",
+      "00-000", "Street",
+      null, null
+    );
+    var user = new User(
+      "test@testmail.com",
+      "test123",
+      userData
+    );
 
-      Assert.Throws<AccountBlockedAppException>(() =>
-        policy.EnsureCanLogin(user)
-      );
-    }
+    user.RegisterFailedLoginAttempt(1, TimeSpan.FromMinutes(15));
 
-    [Test]
-    public void Validate_UserIsNotActive_ThrowsForbidden()
-    {
-        var policy = new LoginPolicy();
+    Assert.Throws<AccountBlockedAppException>(() =>
+      policy.EnsureCanLogin(user)
+    );
+  }
 
-        var user = new User(
-          "test@testmail.com",
-          "test123"
-        );
+  [Test]
+  public void Validate_UserIsNotActive_ThrowsForbidden()
+  {
+    var policy = new LoginPolicy();
 
-        user.Deactivate();
+    var userData = new UserData(
+      "Adam", "Nowak", "123",
+      "Skills", "City", "Country",
+      "00-000", "Street",
+      null, null
+    );
 
-        Assert.Throws<ForbiddenAppException>(() => 
-            policy.EnsureCanLogin(user)
-        );
-    }
+    var user = new User(
+      "test@testmail.com",
+      "test123",
+      userData
+    );
 
-    [Test]
-    public void Validate_UserIsValid_Success()
-    {
-        var policy = new LoginPolicy();
+    user.DeactivateAccount();
 
-        var user = new User(
-          "test@testmail.com",
-          "test123"
-        );
+    Assert.Throws<ForbiddenAppException>(() => 
+      policy.EnsureCanLogin(user)
+    );
+  }
 
-        Assert.DoesNotThrow(() => {
-            policy.EnsureCanLogin(user);
-        });
-    }
+  [Test]
+  public void Validate_UserIsValid_Success()
+  {
+    var policy = new LoginPolicy();
+
+    var userData = new UserData(
+      "Adam", "Nowak", "123",
+      "Skills", "City", "Country",
+      "00-000", "Street",
+      null, null
+    );
+
+    var user = new User(
+      "test@testmail.com",
+      "test123",
+      userData
+    );
+
+    Assert.DoesNotThrow(() => {
+      policy.EnsureCanLogin(user);
+    });
+  }
 }

@@ -1,6 +1,13 @@
 public class User
 {
-  private readonly List<string> _specializations = new();
+  private readonly List<UserSpecialization> _userSpecializations = new();
+  private readonly List<UserRole> _userRole = new();
+  public IReadOnlyCollection<UserSpecialization> UserSpecializations => _userSpecializations.AsReadOnly();
+  public IReadOnlyCollection<UserRole> UserRoles => _userRole.AsReadOnly();
+
+  public IReadOnlyCollection<Specialization> Specializations
+    => _userSpecializations.Select(s => s.Specialization).ToList();
+    
   public Guid Id { get; private set; }
   public string Email { get; private set; } = string.Empty;
   public string PasswordHash { get; private set; } = string.Empty;
@@ -10,7 +17,6 @@ public class User
   public int FailedLoginAttempts { get; private set; }
   public DateTime? LoginBlockedUntil { get; private set; }
 
-  public IReadOnlyCollection<string> Specializations => _specializations.AsReadOnly();
 
   public UserData UserData { get; private set; } = null!;
   private User() { } // EF
@@ -48,23 +54,24 @@ public class User
     FailedLoginAttempts = 0;
     LoginBlockedUntil = null;
   }
-  public void AddSpecialization(string specializaion)
+  public void AddSpecialization(Specialization specialization)
   {
-    if (string.IsNullOrWhiteSpace(specializaion))
-      throw new ArgumentException("Invalid specialization");
-
-    if (_specializations.Contains(specializaion))
+    if (_userSpecializations.Any(s => s.Specialization == specialization))
       return;
 
-    _specializations.Add(specializaion);
+    _userSpecializations.Add(new UserSpecialization(Id, specialization));
   }
-  public void RemoveSpecialization(string specializaion)
+  public void RemoveSpecialization(Specialization specialization)
   {
-    _specializations.Remove(specializaion);
+    var toRemove = _userSpecializations
+      .FirstOrDefault(s => s.Specialization == specialization);
+
+    if (toRemove != null)
+      _userSpecializations.Remove(toRemove);
   }
   public void ClearSpecializations()
   {
-    _specializations.Clear();
+    _userSpecializations.Clear();
   }
   public void SetUserData(UserData data)
   {
@@ -129,17 +136,31 @@ public class User
   {
     Email = email;
   }
-
   public void ChangePassword(string hash)
   {
     PasswordHash = hash;
   }
-
   public void DeleteAccount()
   {
     DeactivateAccount();
     AnonymizeEmail();
     ClearSpecializations();
     UserData.ClearPersonalData();
+    _userRole.Clear();
+  }
+  public bool IsCompany =>
+  _userSpecializations.Any(s => s.Specialization == Specialization.Company);
+
+  public void AddRole(Guid roleId)
+{
+  if (_userRole.Any(r => r.RoleId == roleId))
+    return;
+
+  _userRole.Add(new UserRole(Id, roleId));
+}
+
+  public void RemoveRole(Guid roleId)
+  {
+    _userRole.RemoveAll(r => r.RoleId == roleId);
   }
 }

@@ -23,7 +23,7 @@ public class RegisterPolicyTests
       Password = "JohnTestPassword!123",
       FirstName = "John",
       LastName = "Doe",
-      SpecializationType = ["Analyst"],
+      SpecializationType = [Specialization.Audit, Specialization.Pentester],
       CompanyName = "PorkAndCheese"
     };
 
@@ -43,7 +43,7 @@ public class RegisterPolicyTests
       Password = "StrongPassword!123",
       FirstName = "John",
       LastName = "Doe",
-      SpecializationType = ["Analyst"],
+      SpecializationType = [Specialization.Audit, Specialization.Pentester],
       CompanyName = "PorkAndCheese"
     };
 

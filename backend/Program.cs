@@ -143,6 +143,7 @@ builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<TokenService>();
 
 
+
 builder.Services.AddScoped<UserAuthenticationService>();
 
 builder.Services.AddScoped<ILoginPolicy, LoginPolicy>(); 
@@ -151,6 +152,8 @@ builder.Services.AddScoped<IRegisterPolicy, RegisterPolicy>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<UserRoleSynchronizer>();
 
 var app = builder.Build();
 

@@ -5,8 +5,9 @@ public class AppDbContext : DbContext
   public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
   public DbSet<User> Users { get; set; }
-  // public DbSet<UserData> UserData { get; set; }
   public DbSet<Session> Sessions { get; set; }
+  public DbSet<Role> Roles { get; set; }
+  public DbSet<UserRole> UserRoles { get; set; }
 
 
 
@@ -19,8 +20,6 @@ public class AppDbContext : DbContext
   // AUTH
   public DbSet<PermissionsModel> Permissions { get; set; }
   public DbSet<RolePermissionsModel> RolePermissions { get; set; }
-  public DbSet<RolesModel> Roles { get; set; }
-  public DbSet<UserRolesModel> UserRoles { get; set; }
   public DbSet<UserPermissionsModel> UserPermissions { get; set; }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,10 +28,6 @@ public class AppDbContext : DbContext
 
     modelBuilder.Entity<User>(entity =>
     {
-      // entity.HasOne(u => u.UserData)
-      //   .WithOne()
-      //   .HasForeignKey<UserData>(ud => ud.UserId)
-      //   .OnDelete(DeleteBehavior.Cascade);
 
       entity.OwnsOne(u => u.UserData, ud =>
         {
@@ -98,11 +93,6 @@ public class AppDbContext : DbContext
       entity.Property(u => u.CreatedAt)
         .HasColumnName("created_at");
         
-      entity.Property(u => u.Specializations)
-        .HasColumnName("specialization")
-        .HasColumnType("text[]")
-        .IsRequired();
-
       entity.Property(u => u.FailedLoginAttempts)
         .HasColumnName("failed_login_attempts");
 
@@ -111,6 +101,54 @@ public class AppDbContext : DbContext
 
       entity.Property(u => u.IsActive)
         .HasColumnName("is_active");
+
+      entity.HasMany(s => s.UserSpecializations)
+        .WithOne(us => us.User)
+        .HasForeignKey(us => us.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+      entity.Navigation(u => u.UserSpecializations)
+        .HasField("_userSpecializations")
+        .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+      entity.HasMany(u => u.UserRoles)
+        .WithOne(ur => ur.User)
+        .HasForeignKey(ur => ur.UserId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+      entity.Navigation(u => u.UserRoles)
+        .HasField("_userRole")
+        .UsePropertyAccessMode(PropertyAccessMode.Field);
+    });
+
+
+    modelBuilder.Entity<UserSpecialization>(entity =>
+    {
+      entity.ToTable("user_specializations");
+
+      entity.HasKey(x => new { x.UserId, x.Specialization });
+
+      entity.Property(x => x.UserId)
+        .HasColumnName("user_id");
+
+      entity.Property(x => x.Specialization)
+        .HasColumnName("specialization");
+    });
+    modelBuilder.Entity<UserRole>(entity =>
+    {
+      entity.ToTable("user_roles");
+
+      entity.HasKey(x => new {x.UserId, x.RoleId});
+
+      entity.Property(x => x.UserId)
+        .HasColumnName("user_id");
+      
+      entity.Property(x => x.RoleId)
+        .HasColumnName("role_id");
+      
+      entity.Property(x => x.AssignedAt)
+        .HasColumnName("assigned_at");
+      
     });
 
     modelBuilder.Entity<Session>(entity =>
@@ -146,9 +184,24 @@ public class AppDbContext : DbContext
         .HasColumnName("user_id");
     });
 
-    modelBuilder.Entity<User>().ToTable("users");
-    modelBuilder.Entity<Session>().ToTable("sessions");
+    modelBuilder.Entity<Role>(entity =>
+    {
+      entity.ToTable("roles");
 
+      entity.HasKey(r => r.RoleId);
+
+      entity.Property(r => r.RoleId)
+        .HasColumnName("role_id");
+
+      entity.Property(r => r.Code)
+        .HasColumnName("code");
+
+      entity.Property(r => r.Name)
+        .HasColumnName("name");
+
+      entity.Property(r => r.IsActive)
+        .HasColumnName("is_active");
+    });
     modelBuilder.Entity<ApiLogsModel>().ToTable("api_logs");
     modelBuilder.Entity<ContractsModel>().ToTable("contracts");
 
@@ -170,15 +223,9 @@ public class AppDbContext : DbContext
     modelBuilder.Entity<RolePermissionsModel>()
         .HasKey(u => new { u.PermissionId, u.RoleId });
 
-    modelBuilder.Entity<RolesModel>()
-        .HasKey(u => u.RoleId);
-
 
     modelBuilder.Entity<UserPermissionsModel>()
         .HasKey(u => new { u.UserId, u.PermissionId });
-
-    modelBuilder.Entity<UserRolesModel>()
-        .HasKey(u => new { u.UserId, u.RoleId });
   }
 
 

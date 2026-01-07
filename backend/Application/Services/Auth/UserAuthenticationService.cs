@@ -21,7 +21,7 @@ public class UserAuthenticationService
   public async Task<User> AuthenticateAsync(string email, string password)
   {
     var user = await _users.GetByEmailAsync(email)
-      ?? throw new UnauthorizedAppException();
+      ?? throw new InvalidCredentialsAppException();
 
     _policy.EnsureCanLogin(user);
 
@@ -29,7 +29,7 @@ public class UserAuthenticationService
     {
       user.RegisterFailedLoginAttempt(MaxAttempts, BlockDuration);
       await _users.UpdateAsync(user);
-      throw new UnauthorizedAppException();
+      throw new InvalidCredentialsAppException();
     }
 
     user.ResetFailedLoginAttempts();

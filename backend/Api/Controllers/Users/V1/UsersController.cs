@@ -93,7 +93,7 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> GetCurrentUser()
   {
     var userId = UserContextExtension.GetUserId(User);
-    var user = await _queryService.GetUserByIdAsync(userId);
+    var user = await _queryService.GetCurrentUserByIdAsync(userId);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 

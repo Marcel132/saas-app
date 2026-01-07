@@ -44,9 +44,9 @@ public class GlobalErrorHandlingMiddleware
       ConflictAppException => (HttpStatusCode.Conflict, HttpResponseState.Conflict),
       BadRequestAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
       ForbiddenAppException => (HttpStatusCode.Forbidden, HttpResponseState.Forbidden),
-      AccountBlockedAppException => (HttpStatusCode.Unauthorized, HttpResponseState.Unauthorized),
+      AccountBlockedAppException => (HttpStatusCode.Forbidden, HttpResponseState.Forbidden),
       MissingRequiredFieldAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
-      InvalidFormatAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
+      InvalidFormatAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest), // ? Change http 400 -> 422
       ValueOutOfRangeAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
       InternalServerAppException => (HttpStatusCode.InternalServerError, HttpResponseState.ServerError),
 

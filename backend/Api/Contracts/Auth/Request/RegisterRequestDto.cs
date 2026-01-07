@@ -13,7 +13,7 @@ public class RegisterRequestDto
   
   [Required]
   [NoHtmlChars]
-  public List<string> SpecializationType { get; set; } = new List<string>();
+  public List<Specialization> SpecializationType { get; set; } = [];
 
   [Required]
   [RegularExpression(@"^[^%<>]*$")]
