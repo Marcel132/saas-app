@@ -24,10 +24,32 @@ public class RegisterPolicyTests
       FirstName = "John",
       LastName = "Doe",
       SpecializationType = [Specialization.Audit, Specialization.Pentester],
-      CompanyName = "PorkAndCheese"
+      CompanyName = null,
+      CompanyNip = null
     };
 
     Assert.Throws<InvalidFormatAppException>(() =>
+      policy.EnsureCanRegister(false, req)
+    );
+  }
+
+  [Test]
+  public void Validate_IsSpecializationInvalid_ThrowsBadRequest()
+  {
+    var policy = new RegisterPolicy();
+
+    var req = new RegisterRequestDto
+    {
+      Email = "test@example.com",
+      Password = "StrongPassword!123",
+      FirstName = "John",
+      LastName = "Doe",
+      SpecializationType = [],
+      CompanyName = null,
+      CompanyNip = null
+    };
+
+    Assert.Throws<BadRequestAppException>(() =>
       policy.EnsureCanRegister(false, req)
     );
   }
@@ -43,12 +65,33 @@ public class RegisterPolicyTests
       Password = "StrongPassword!123",
       FirstName = "John",
       LastName = "Doe",
-      SpecializationType = [Specialization.Audit, Specialization.Pentester],
-      CompanyName = "PorkAndCheese"
+      SpecializationType = [Specialization.Pentester],
+      CompanyName = "PorkAndCheese",
+      CompanyNip = null
     };
 
     Assert.Throws<InvalidFormatAppException>(() =>
       policy.EnsureCanRegister(false, req)
     );
   }
+  public void RequestIsValid_Success()
+  {
+    var policy = new RegisterPolicy();
+
+    var req = new RegisterRequestDto
+    {
+      Email = "test@example.com",
+      Password = "StrongPassword!123",
+      FirstName = "John",
+      LastName = "Doe",
+      SpecializationType = [Specialization.Pentester],
+      CompanyName = "PorkAndCheese",
+      CompanyNip = "123-456-789"
+    };
+
+    Assert.DoesNotThrow(() =>
+      policy.EnsureCanRegister(false, req)
+    );
+  }
+
 }

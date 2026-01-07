@@ -9,8 +9,12 @@ public class RegisterPolicy : IRegisterPolicy
     if(IsPasswordWeak(request))
       throw new InvalidFormatAppException();
 
+    if(IsSpecializationInvalid(request))
+      throw new BadRequestAppException(); 
+
     if(HasInvalidCompanyData(request))
       throw new InvalidFormatAppException();
+
   }
 
   private static bool IsPasswordWeak(RegisterRequestDto req)
@@ -28,4 +32,17 @@ public class RegisterPolicy : IRegisterPolicy
     return hasName ^ hasNip; 
   }
 
+  private static bool IsSpecializationInvalid(RegisterRequestDto req)
+  {
+    if(req.SpecializationType == null || !req.SpecializationType.Any())
+      return true;
+    
+    foreach (var spec in req.SpecializationType)
+    {
+      if (!Enum.IsDefined(typeof(Specialization), spec))
+        return true;
+    }
+
+    return false;
+  }
 }
