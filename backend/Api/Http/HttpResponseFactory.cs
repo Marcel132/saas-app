@@ -18,7 +18,6 @@ public static class HttpResponseFactory
       Timestamp = DateTime.UtcNow
     };
 
-
   public static HttpResponseModel<T> CreateFailureResponse<T>(
     HttpContext context,
     HttpResponseState state,

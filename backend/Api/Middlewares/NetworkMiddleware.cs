@@ -113,16 +113,6 @@ public class NetworkMiddleware
         break;
       }  
     }
-    
-    // Add to authorization header token from cookie if exists
-    // if(!context.Request.Headers.ContainsKey("Authorization"))
-    // {
-    //   var token = context.Request.Cookies["AuthToken"];
-    //   if (!string.IsNullOrEmpty(token))
-    //   {
-    //     context.Request.Headers.Append("Authorization", $"Bearer {token}");
-    //   }
-    // }
 
     _logger.LogInformation("Incoming Request: ");
     _logger.LogInformation("Processing request {Method} {Path}", context.Request.Method, context.Request.Path);
@@ -136,6 +126,7 @@ public class NetworkMiddleware
     await _next(context);
   }
 
+  //? refactor =: fake firewall, change it 
   private static readonly Regex ForbiddenQueryPattern = new Regex(
     @"(<|>|script|javascript:|'|"")|(\.\./)|(\.\.\\)|(--|/\*|\*/)|\b(union|select|insert|delete|drop|alter)\b",
     RegexOptions.IgnoreCase | RegexOptions.Compiled

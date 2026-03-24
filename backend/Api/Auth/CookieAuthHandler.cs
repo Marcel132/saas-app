@@ -24,7 +24,7 @@ public class CookieAuthHandler : AuthenticationHandler<AuthenticationSchemeOptio
     if(principal is null)
       return Task.FromResult(AuthenticateResult.Fail("Invalid Auth Token"));
 
-      var ticket = new AuthenticationTicket(principal, Scheme.Name);
-      return Task.FromResult(AuthenticateResult.Success(ticket));
+    var ticket = new AuthenticationTicket(principal, Scheme.Name);
+    return Task.FromResult(AuthenticateResult.Success(ticket));
   }
 }
