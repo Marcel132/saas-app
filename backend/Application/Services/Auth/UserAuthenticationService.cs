@@ -5,7 +5,7 @@ public class UserAuthenticationService
   private readonly ILoginPolicy _policy;
 
   private const int MaxAttempts = 5;
-  private static readonly TimeSpan BlockDuration = TimeSpan.FromMinutes(15);
+  private static readonly TimeSpan BlockDuration = TimeSpan.FromMinutes(10);
 
   public UserAuthenticationService(
     IUserRepository users,

@@ -132,12 +132,30 @@ public class User
   {
     Email = "deleted_" + Id +"@local";
   }
+  
+  // TODO: Add validation for email and password hash
+  private bool IsValidEmail(string email)
+  {
+    return !string.IsNullOrEmpty(email) && email.Contains("@");
+  }
+  private bool IsValidPassword(string hash)
+  {
+    return !string.IsNullOrEmpty(hash);
+  }
+
+  // TODO: Change exceptions to result pattern
   public void ChangeEmail(string email)
   {
+    if (!IsValidEmail(email))
+      throw new ArgumentException("Invalid email address.", nameof(email));
+
     Email = email;
   }
   public void ChangePassword(string hash)
   {
+    if (!IsValidPassword(hash))
+      throw new ArgumentException("Invalid password hash.", nameof(hash));
+      
     PasswordHash = hash;
   }
   public void DeleteAccount()
@@ -149,15 +167,15 @@ public class User
     _userRole.Clear();
   }
   public bool IsCompany =>
-  _userSpecializations.Any(s => s.Specialization == Specialization.Company);
+    _userSpecializations.Any(s => s.Specialization == Specialization.Company);
 
   public void AddRole(Guid roleId)
-{
-  if (_userRole.Any(r => r.RoleId == roleId))
-    return;
+  {
+    if (_userRole.Any(r => r.RoleId == roleId))
+      return;
 
-  _userRole.Add(new UserRole(Id, roleId));
-}
+    _userRole.Add(new UserRole(Id, roleId));
+  }
 
   public void RemoveRole(Guid roleId)
   {
