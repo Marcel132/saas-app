@@ -11,5 +11,6 @@ public enum HttpResponseState
   Conflict = 409,
   ContentTooLarge = 413,
   UnsupportedMediaType = 415,
+  TooManyRequests = 429,
   ServerError = 500
 }

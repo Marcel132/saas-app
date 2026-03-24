@@ -7,15 +7,15 @@ public class GlobalErrorHandlingMiddleware
 
   public GlobalErrorHandlingMiddleware(RequestDelegate next, ILogger<GlobalErrorHandlingMiddleware> logger)
   {
-      _next = next;
-      _logger = logger;
+    _next = next;
+    _logger = logger;
   }
 
   public async Task InvokeAsync(HttpContext context)
   {
     try
     {
-        await _next(context);
+      await _next(context);
     }
     catch (Exception ex)
     {

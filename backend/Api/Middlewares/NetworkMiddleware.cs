@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 
@@ -15,81 +16,34 @@ public class NetworkMiddleware
 
   public async Task InvokeAsync(HttpContext context)
   {
+    var currentDateTime = DateTime.UtcNow;
+    var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-    // if (ForbiddenQueryPattern.IsMatch(context.Request.QueryString.Value ?? ""))
-    // {
-    //   context.Response.StatusCode = StatusCodes.Status400BadRequest;
-
-    //   var response = HttpResponseFactory.CreateFailureResponse<string>(
-    //     context,
-    //     HttpResponseState.BadRequest,
-    //     false,
-    //     "Invalid characters detected in query string.",
-    //     ErrorCodes.Firewall.QueryStringBlocked
-    //   );
-
-    //   context.Response.ContentType = "application/json";
-    //   await context.Response.WriteAsJsonAsync(response);
-    //   return;
-    // }
-
-    // Check for Content-Type header
-    if(string.IsNullOrEmpty(context.Request.ContentType))
+    if(HasBody(context))
     {
-      context.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
-      var response = HttpResponseFactory.CreateFailureResponse<string>(
-        context,
-        HttpResponseState.UnsupportedMediaType,
-        false,
-        "Unsupported Media Type. Request is missing Content-Type header.",
-        DomainErrorCodes.GeneralCodes.UnsupportedMediaType
-        );
-
-      context.Response.ContentType = "application/json";
-      await context.Response.WriteAsJsonAsync(response);
-      return;
-    } 
-    else if(!context.Request.ContentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase))
-    {
-      context.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
-      var response = HttpResponseFactory.CreateFailureResponse<string>(
-        context,
-        HttpResponseState.UnsupportedMediaType,
-        false,
-        "Unsupported Media Type. Request has not proper type.",
-        DomainErrorCodes.GeneralCodes.UnsupportedMediaType
-        );
-
-      context.Response.ContentType = "application/json";
-      await context.Response.WriteAsJsonAsync(response);
-      return;
-    }
-
-    // Check query string for invalid characters
-    if (!string.IsNullOrEmpty(context.Request.QueryString.Value))
-    {
-      var query = context.Request.QueryString.Value;
-
-      if (ForbiddenQueryPattern.IsMatch(query))
+      if(
+        string.IsNullOrEmpty(context.Request.ContentType) ||
+        !context.Request.ContentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase)
+      )
       {
-        context.Response.StatusCode = StatusCodes.Status400BadRequest;
-
+        context.Response.StatusCode = StatusCodes.Status415UnsupportedMediaType;
         var response = HttpResponseFactory.CreateFailureResponse<string>(
           context,
-          HttpResponseState.BadRequest,
+          HttpResponseState.UnsupportedMediaType,
           false,
-          "Invalid characters detected in query string.",
-          DomainErrorCodes.FirewallCodes.QueryStringBlocked
-        );
+          "Unsupported Media Type. Request is missing Content-Type header.",
+          DomainErrorCodes.GeneralCodes.UnsupportedMediaType
+          );
 
         context.Response.ContentType = "application/json";
         await context.Response.WriteAsJsonAsync(response);
         return;
       }
-    }
-
-    // Check body payload for too large size
-    if(context.Request.ContentLength.HasValue && context.Request.ContentLength > 1024 * 1024) // 1 MB limit
+    
+      if(
+        context.Request.ContentLength.HasValue
+        && context.Request.ContentLength > 1024 * 1024 // 1 MB limit
+      )
       {
         context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
         var response = HttpResponseFactory.CreateFailureResponse<string>(
@@ -104,31 +58,76 @@ public class NetworkMiddleware
         await context.Response.WriteAsJsonAsync(response);
         return;
       }
-    
-    // Handle OPTIONS method for CORS preflight
-    foreach(var method in HttpMethodsAllowed.Methods)
-    {
-      if(context.Request.Method == method)
-      {
-        break;
-      }  
+
     }
 
-    _logger.LogInformation("Incoming Request: ");
-    _logger.LogInformation("Processing request {Method} {Path}", context.Request.Method, context.Request.Path);
-    _logger.LogInformation("Request Headers: {Headers}", context.Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString()));
-    _logger.LogInformation("Request Cookies: {Cookies}", context.Request.Cookies.ToDictionary(c => c.Key, c => c.Value));
-    _logger.LogInformation("Request QueryString: {QueryString}", context.Request.QueryString.ToString());
-    _logger.LogInformation("Request TraceIdentifier: {TraceId}", context.TraceIdentifier);
-    _logger.LogInformation("Request RemoteIpAddress: {RemoteIpAddress}", context.Connection.RemoteIpAddress?.ToString());
-    _logger.LogInformation("Request LocalIpAddress: {LocalIpAddress}", context.Connection.LocalIpAddress?.ToString());
+    if(!IsAllowed(ip))
+    {
+      context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+      var response = HttpResponseFactory.CreateFailureResponse<string>(
+        context,
+        HttpResponseState.TooManyRequests,
+        false,
+        "Too Many Requests. You have exceeded the rate limit.",
+        DomainErrorCodes.FirewallCodes.RateLimitExceeded
+        );
+
+      context.Response.ContentType = "application/json";
+      await context.Response.WriteAsJsonAsync(response);
+      return;
+    }
+
 
     await _next(context);
+
+    _logger.LogInformation(
+      "Response {Method} {Path} from {RemoteIpAddress} at {DateTime} // {StatusCode}",
+      context.Request.Method,
+      context.Request.Path,
+      ip,
+      currentDateTime,
+      context.Response.StatusCode
+    );
+
   }
 
-  //? refactor =: fake firewall, change it 
-  private static readonly Regex ForbiddenQueryPattern = new Regex(
-    @"(<|>|script|javascript:|'|"")|(\.\./)|(\.\.\\)|(--|/\*|\*/)|\b(union|select|insert|delete|drop|alter)\b",
-    RegexOptions.IgnoreCase | RegexOptions.Compiled
-);
+  private bool HasBody(HttpContext context)
+  {
+    return HttpMethods.IsPost(context.Request.Method) ||
+      HttpMethods.IsPut(context.Request.Method) ||
+      HttpMethods.IsPatch(context.Request.Method);
+  }
+
+  private static readonly ConcurrentDictionary<string, RateLimitBucket> _buckets = new();
+  private bool IsAllowed(string ip)
+  {
+    var now = DateTime.UtcNow;
+
+    if (!_buckets.TryGetValue(ip, out var bucket))
+    {
+      bucket = new RateLimitBucket
+      {
+        Token = 10, // Initial token count
+        LastRefill = now
+      };
+      _buckets[ip] = bucket;
+    }
+
+    // Refill tokens based on elapsed time
+    var elapsedSeconds = (now - bucket.LastRefill).TotalSeconds;
+    var tokensToAdd = (double)(elapsedSeconds * (10.0 / 60)); // Refill rate: 10 tokens per minute
+    if (tokensToAdd > 0)
+    {
+      bucket.Token = Math.Min(bucket.Token + tokensToAdd, 10); // Max tokens: 10
+      bucket.LastRefill = now;
+    }
+
+    if (bucket.Token >= 1)
+    {
+      bucket.Token--;
+      return true; // Request allowed
+    }
+
+    return false; // Request denied
+  }
 }
