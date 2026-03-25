@@ -21,6 +21,7 @@ public static class DomainErrorCodes
     public const string BadRequest = "GEN-30/003_BAD_REQUEST";
     public const string UnsupportedMediaType = "GEN-30/004_UNSUPPORTED_MEDIA_TYPE";
     public const string NotFound = "GEN-30/005_NOT_FOUND";
+    public const string GenerationFailed = "GEN-30/006_GENERATION_FAILED";
     public const string ServiceUnavailable = "GEN-40/001_SERVICE_UNAVAILABLE";
     public const string DependencyFailure = "GEN-40/002_DEPENDENCY_FAILURE";
   }
@@ -37,6 +38,7 @@ public static class DomainErrorCodes
     public const string ForbiddenAccess = "AUTH-30/003_FORBIDDEN_ACCESS";
     public const string InvalidToken = "AUTH-30/004_INVALID_TOKEN";
     public const string BadRequest = "AUTH-30/005_BAD_REQUEST";
+    public const string SessionNotFound = "AUTH-30/006_SESSION_NOT_FOUND";
     public const string TokenTampered = "AUTH-40/001_TOKEN_TAMPERED";
     public const string MultipleFailedLogins = "AUTH-40/002_MULTIPLE_FAILED_LOGINS";
     public const string AccountBlocked = "AUTH-40/003_ACCOUNT_BLOCKED";

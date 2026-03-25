@@ -6,6 +6,11 @@ public class AuthCookieService
   {
   }
 
+  public string? GetRefreshToken(HttpRequest request)
+  {
+    return request.Cookies[RefreshTokenName];
+  }
+
   public static CookieOptions CreateAuthCookieOptions(
     bool isHttps,
     string? domain = null, 
@@ -19,15 +24,14 @@ public class AuthCookieService
       SameSite = SameSiteMode.Strict,
       Path = "/",
       Domain = domain,
-      Expires = DateTimeOffset.UtcNow.AddHours(15)
+      Expires = DateTimeOffset.UtcNow.AddMinutes(15)
     };
 
     if (isPersistent)
-      cookieOptions.Expires = DateTimeOffset.UtcNow.AddDays(7);
+      cookieOptions.Expires = DateTimeOffset.UtcNow.AddDays(5);
 
     return cookieOptions;
   }
-
   public void SetAuthCookie(HttpResponse response, string refreshToken, string authToken)
   {
     response.Cookies.Append(AuthTokenName, authToken, CreateAuthCookieOptions(false, null, false));
