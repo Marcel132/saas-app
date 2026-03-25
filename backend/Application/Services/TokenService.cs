@@ -32,7 +32,7 @@ public class TokenService
       IssuerSigningKey = _signingKey
     };
   }
-  public ResponseTokenDto GenerateAuthToken(
+  public string GenerateAuthToken(
     Guid userId,
     IEnumerable<string> permissions)
   {
@@ -53,15 +53,11 @@ public class TokenService
       issuer: _issuer,
       audience: _audience,
       claims: claims,
-      expires: DateTime.UtcNow.AddMinutes(15),
+      expires: DateTime.UtcNow.AddSeconds(15),
       signingCredentials: creds
     );
 
-    return new ResponseTokenDto
-    {
-      AuthToken = new JwtSecurityTokenHandler().WriteToken(token),
-      RefreshToken = GenerateRefreshToken()
-    };
+    return new JwtSecurityTokenHandler().WriteToken(token);
   }
 
   public string GenerateRefreshToken()
