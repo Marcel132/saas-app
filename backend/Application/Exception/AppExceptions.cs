@@ -70,3 +70,8 @@ public sealed class ValueOutOfRangeAppException : AppException
 {
   public ValueOutOfRangeAppException() : base (DomainErrorCodes.ValidationCodes.ValueOutOfRange) {}
 }
+
+public sealed class SessionNotFoundAppException : AppException
+{
+  public SessionNotFoundAppException() : base (DomainErrorCodes.AuthCodes.SessionNotFound) {}
+}

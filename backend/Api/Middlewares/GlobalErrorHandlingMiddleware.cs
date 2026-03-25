@@ -19,6 +19,8 @@ public class GlobalErrorHandlingMiddleware
     }
     catch (Exception ex)
     {
+      // ! Delete in production, only for debugging purposes
+      _logger.LogError(ex, ex.Message);
       if (ex is AppException appEx)
       {
         await HandleAppExceptionAsync(context, appEx);
@@ -49,6 +51,7 @@ public class GlobalErrorHandlingMiddleware
       InvalidFormatAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest), // ? Change http 400 -> 422
       ValueOutOfRangeAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
       InternalServerAppException => (HttpStatusCode.InternalServerError, HttpResponseState.ServerError),
+      SessionNotFoundAppException => (HttpStatusCode.Unauthorized, HttpResponseState.Unauthorized),
 
       _ => (HttpStatusCode.InternalServerError, HttpResponseState.ServerError)
     };
