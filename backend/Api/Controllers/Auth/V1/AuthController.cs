@@ -7,11 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 public class AuthController : ControllerBase
 {
   private readonly AuthService _authService;
+  private readonly AuthCookieService _cookieSerivce;
   public AuthController(
-    AuthService authService
+    AuthService authService,
+    AuthCookieService cookieSerivce
   )
   {
     _authService = authService;
+    _cookieSerivce = cookieSerivce;
   }
 
   // -------------------------------
@@ -55,17 +58,61 @@ public class AuthController : ControllerBase
       ));
   }
 
-
   [Authorize]
   [HttpPost("logout")]
   public async Task<IActionResult> LogoutUser()
   {
     var userId = UserContextExtension.GetUserId(User);
+    // TODO: Log device info on logout for security auditing
+    // TODO: Deleted session and tokens from database on user ip or user agent change to prevent session hijacking
     // var deviceIp = UserContextExtension.GetUserIp(HttpContext);
     // var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
     await _authService.LogoutAsync(userId, Response);
 
     return NoContent();
+  }
+
+  [AllowAnonymous]
+  [HttpPost("refresh")]
+  public async Task<IActionResult> RefreshToken()
+  {
+    var deviceIp = UserContextExtension.GetUserIp(HttpContext);
+    var userAgent = UserContextExtension.GetUserAgent(HttpContext);
+    var refreshToken = _cookieSerivce.GetRefreshToken(Request);
+
+    var result = await _authService.RefreshTokenAsync(deviceIp, userAgent, refreshToken);
+
+    // if(string.IsNullOrEmpty(result.RefreshToken) || string.IsNullOrEmpty(result.AuthToken))
+    //   return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
+    //     HttpContext, 
+    //     HttpResponseState.Unauthorized, 
+    //     false,
+    //     "Invalid refresh token.", 
+    //     DomainErrorCodes.AuthCodes.InvalidToken
+    //   ));
+
+    if(result.AuthToken is null || result.RefreshToken is null)
+    {
+      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
+        HttpContext, 
+        HttpResponseState.Unauthorized, 
+        false,
+        "Invalid refresh token.", 
+        DomainErrorCodes.AuthCodes.InvalidToken
+      ));
+    }
+
+    _cookieSerivce.SetAuthCookie(Response, result.RefreshToken, result.AuthToken);
+
+
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      true,
+      "Token refreshed successfully.", 
+      DomainErrorCodes.AuthCodes.Success
+      ));
   }
 }

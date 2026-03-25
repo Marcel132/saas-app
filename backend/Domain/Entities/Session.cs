@@ -22,9 +22,9 @@ public class Session
     return new Session
     {
       UserId = userId,
-      RefreshTokenHash = BCrypt.Net.BCrypt.HashPassword(refreshToken),
+      RefreshTokenHash = TokenHasher.HashToken(refreshToken),
       CreatedAt = DateTime.UtcNow,
-      ExpiresAt = DateTime.UtcNow.AddDays(7),
+      ExpiresAt = DateTime.UtcNow.AddDays(5),
       UserAgent = userAgent,
       Ip = deviceIp,
     };

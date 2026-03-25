@@ -31,4 +31,11 @@ public class SessionRepository : ISessionRepository
     _context.Sessions.Update(sess);
     await _context.SaveChangesAsync();
   }
+  public async Task<Session?> GetSessionByRefreshTokenAsync(string refreshToken)
+  {
+    var shaToken = TokenHasher.HashToken(refreshToken);
+    return await _context.Sessions
+      .Where(s => s.RefreshTokenHash == shaToken)
+      .FirstOrDefaultAsync();
+  }
 }

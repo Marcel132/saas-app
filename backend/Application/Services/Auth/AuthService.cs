@@ -6,6 +6,7 @@ public class AuthService
   private readonly TokenService _tokenService;
   private readonly RoleService _roleService;
   private readonly AuthCookieService _cookieSerivce;
+  private readonly RefreshService _refreshService;
   public AuthService(
     AuthSessionService sessionService,
     UserAuthenticationService authenticationService,
@@ -13,7 +14,8 @@ public class AuthService
 
     TokenService tokenService,
     RoleService roleService,
-    AuthCookieService authCookieService
+    AuthCookieService authCookieService,
+    RefreshService refreshService
   )
   {
     _sessionService = sessionService;
@@ -23,6 +25,7 @@ public class AuthService
     _tokenService = tokenService;
     _roleService = roleService;
     _cookieSerivce = authCookieService;
+    _refreshService = refreshService;
   }
 
   public async Task<AuthResult> LoginAsync(LoginRequestDto request, string deviceIp, string userAgent, HttpResponse response)
@@ -36,11 +39,13 @@ public class AuthService
 
     var permissions = await _roleService.GetEffectivePermissions(user.Id);
 
-    var tokens = _tokenService.GenerateAuthToken(user.Id, permissions);
+    var authToken = _tokenService.GenerateAuthToken(user.Id, permissions);
+    var refreshToken = _tokenService.GenerateRefreshToken();
 
-    await _sessionService.CreateSessionAsync(user, tokens.RefreshToken, deviceIp, userAgent);
 
-    _cookieSerivce.SetAuthCookie(response, tokens.RefreshToken, tokens.AuthToken);
+    await _sessionService.CreateSessionAsync(user.Id, refreshToken, deviceIp, userAgent);
+
+    _cookieSerivce.SetAuthCookie(response, refreshToken, authToken);
 
     return new AuthResult(
       true,
@@ -57,11 +62,12 @@ public class AuthService
 
     var permissions = await _roleService.GetEffectivePermissions(user.Id);
 
-    var tokens = _tokenService.GenerateAuthToken(user.Id, permissions);
+    var authToken = _tokenService.GenerateAuthToken(user.Id, permissions);
+    var refreshToken = _tokenService.GenerateRefreshToken();
 
-    await _sessionService.CreateSessionAsync(user, tokens.RefreshToken, deviceIp, userAgent);
+    await _sessionService.CreateSessionAsync(user.Id, refreshToken, deviceIp, userAgent);
 
-    _cookieSerivce.SetAuthCookie(response, tokens.RefreshToken, tokens.AuthToken);
+    _cookieSerivce.SetAuthCookie(response, refreshToken, authToken);
 
 
     return new AuthResult(
@@ -78,4 +84,52 @@ public class AuthService
     _cookieSerivce.ClearAuthCookie(response);
   }
 
+  public async Task<RefreshTokenResult> RefreshTokenAsync(string deviceIp, string userAgent, string? refreshToken)
+  {
+    if(string.IsNullOrEmpty(refreshToken))
+    {
+      return new RefreshTokenResult(
+        false,
+        Guid.Empty,
+        null,
+        DomainErrorCodes.AuthCodes.InvalidToken,
+        null,
+        null
+      );
+    }
+    
+    var result = await _refreshService.ValidateRefreshTokenAsync(refreshToken, deviceIp, userAgent);
+
+    if(!result.Success || result.session is null)
+      return result;
+
+    var newRefreshToken = _tokenService.GenerateRefreshToken();
+    await _sessionService.CreateSessionAsync(result.UserId, newRefreshToken, deviceIp, userAgent );
+
+    await _sessionService.RevokeSessionByIdAsync(result.UserId, result.session.SessionId);
+    var permissions = await _roleService.GetEffectivePermissions(result.UserId);
+    var authToken = _tokenService.GenerateAuthToken(result.UserId, permissions);
+
+
+    if(string.IsNullOrEmpty(authToken) || string.IsNullOrEmpty(newRefreshToken))
+    {
+      return new RefreshTokenResult(
+        false,
+        result.UserId,
+        null,
+        DomainErrorCodes.GeneralCodes.GenerationFailed,
+        null,
+        null
+      );
+    }
+    
+    return new RefreshTokenResult(
+      true,
+      result.UserId,
+      null,
+      DomainErrorCodes.AuthCodes.Authorized,
+      newRefreshToken,
+      authToken
+    );
+  }
 }
