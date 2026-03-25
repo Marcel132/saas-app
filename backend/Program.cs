@@ -130,6 +130,7 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AuthSessionService>();
+builder.Services.AddScoped<RefreshService>();
 builder.Services.AddScoped<UserAuthenticationService>();
 builder.Services.AddScoped<UserRegisterService>();
 
