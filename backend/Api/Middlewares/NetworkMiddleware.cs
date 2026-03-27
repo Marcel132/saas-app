@@ -1,6 +1,4 @@
 using System.Collections.Concurrent;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.RegularExpressions;
 
 public class NetworkMiddleware
 {
@@ -97,7 +95,6 @@ public class NetworkMiddleware
       HttpMethods.IsPut(context.Request.Method) ||
       HttpMethods.IsPatch(context.Request.Method);
   }
-
   private static readonly ConcurrentDictionary<string, RateLimitBucket> _buckets = new();
   private bool IsAllowed(string ip)
   {
