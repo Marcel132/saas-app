@@ -12,9 +12,9 @@ public class UserData
   public string? CompanyName { get; private set; }
   public string? CompanyNip { get; private set; }
 
-  public bool IsEmailVerified { get;  set; }
-  public bool IsTwoFactorEnabled { get; set; }
-  public bool IsProfileCompleted { get; set;} 
+  public bool IsEmailVerified { get;  private set; }
+  public bool IsTwoFactorEnabled { get; private set; }
+  public bool IsProfileCompleted { get; private set;} 
 
   private UserData() {} // EF
 

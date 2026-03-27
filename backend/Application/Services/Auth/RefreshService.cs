@@ -16,7 +16,6 @@ public class RefreshService
     var session = await _sessionService.GetSessionByRefreshTokenAsync(refreshToken);
 
     if(session == null)
-    {
       return new RefreshTokenResult(
         false,
         Guid.Empty,
@@ -25,11 +24,12 @@ public class RefreshService
         null, 
         null
       );
-    }
+    
+    
 
-    if(session.Revoked)
+    if(session.Revoked || session.Used)
     {
-      await _sessionService.RevokeAllSessionsAsync(session.UserId);
+      await _sessionService.RevokeAllSessionsAsync(session.UserId, null);
       return new RefreshTokenResult(
         false,
         session.UserId,
@@ -40,9 +40,9 @@ public class RefreshService
       );
     }
 
-    if(session.ExpiresAt < DateTime.UtcNow)
+    if(session.ExpiresAt <= DateTime.UtcNow)
     {
-      await _sessionService.RevokeSessionByIdAsync(session.UserId, session.SessionId);
+      await _sessionService.RevokeSessionByIdAsync(session.UserId, session.SessionId, null);
       return new RefreshTokenResult(
         false,
         session.UserId,

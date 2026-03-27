@@ -83,29 +83,7 @@ public class AuthController : ControllerBase
 
     var result = await _authService.RefreshTokenAsync(deviceIp, userAgent, refreshToken);
 
-    // if(string.IsNullOrEmpty(result.RefreshToken) || string.IsNullOrEmpty(result.AuthToken))
-    //   return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
-    //     HttpContext, 
-    //     HttpResponseState.Unauthorized, 
-    //     false,
-    //     "Invalid refresh token.", 
-    //     DomainErrorCodes.AuthCodes.InvalidToken
-    //   ));
-
-    if(result.AuthToken is null || result.RefreshToken is null)
-    {
-      return Unauthorized(HttpResponseFactory.CreateFailureResponse<object>(
-        HttpContext, 
-        HttpResponseState.Unauthorized, 
-        false,
-        "Invalid refresh token.", 
-        DomainErrorCodes.AuthCodes.InvalidToken
-      ));
-    }
-
     _cookieSerivce.SetAuthCookie(Response, result.RefreshToken, result.AuthToken);
-
-
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 

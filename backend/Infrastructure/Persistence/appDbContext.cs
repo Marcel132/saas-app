@@ -157,8 +157,6 @@ public class AppDbContext : DbContext
 
       entity.ToTable("sessions");
 
-      entity.HasKey(s => s.SessionId);
-
       entity.Property(s => s.SessionId)
         .HasColumnName("id");
 
@@ -182,6 +180,12 @@ public class AppDbContext : DbContext
 
       entity.Property(s => s.UserId)
         .HasColumnName("user_id");
+      
+      entity.Property(s => s.Used)
+        .HasColumnName("used");
+
+      entity.Property(s => s.ReplacedByTokenId)
+        .HasColumnName("replaced_by_token_id");
     });
 
     modelBuilder.Entity<Role>(entity =>

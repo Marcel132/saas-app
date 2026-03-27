@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 public class SessionRepository : ISessionRepository
 {
@@ -37,5 +38,18 @@ public class SessionRepository : ISessionRepository
     return await _context.Sessions
       .Where(s => s.RefreshTokenHash == shaToken)
       .FirstOrDefaultAsync();
+  }
+  public async Task<bool> TryUseAndUpdateRefreshTokenAsync(int sessionId)
+  {
+    var result =  await _context.Database
+      .ExecuteSqlInterpolatedAsync($@"
+        UPDATE sessions
+        SET used = true
+        WHERE id = {sessionId}
+          AND Used = false
+          AND Revoked = false
+        ");
+  
+    return result > 0;
   }
 }

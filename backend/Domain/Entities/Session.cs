@@ -6,9 +6,11 @@ public class Session
   public string RefreshTokenHash { get; private set; } = string.Empty;
   public DateTime CreatedAt { get; private set; }
   public DateTime ExpiresAt { get; private set; }
-  public string UserAgent { get; private set; } = string.Empty;
   public string Ip { get; private set; } = string.Empty;
+  public string UserAgent { get; private set; } = string.Empty;
   public bool Revoked { get; private set; } = false;
+  public bool Used { get; private set; } = false;
+  public int? ReplacedByTokenId { get; private set; }
 
   private Session() {} // EF
 
@@ -25,15 +27,23 @@ public class Session
       RefreshTokenHash = TokenHasher.HashToken(refreshToken),
       CreatedAt = DateTime.UtcNow,
       ExpiresAt = DateTime.UtcNow.AddDays(5),
-      UserAgent = userAgent,
       Ip = deviceIp,
+      UserAgent = userAgent,
     };
   }
-
-  public void RevokeSession()
+  public void RevokeSession(int? replacedByTokenId)
   {
     ExpiresAt = DateTime.UtcNow;
     Revoked = true;
+    Used = true;
+    if(replacedByTokenId != null)
+    {
+      ReplacedByTokenId = replacedByTokenId;
+    }
   }
 
+  public void MarkAsUsed()
+  {
+    Used = true;
+  }
 }

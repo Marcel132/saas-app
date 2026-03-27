@@ -32,8 +32,11 @@ public class AuthCookieService
 
     return cookieOptions;
   }
-  public void SetAuthCookie(HttpResponse response, string refreshToken, string authToken)
+  public void SetAuthCookie(HttpResponse response, string? refreshToken, string? authToken)
   {
+    if(string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(authToken))
+      throw new ArgumentException("Tokens cannot be null or empty.");
+
     response.Cookies.Append(AuthTokenName, authToken, CreateAuthCookieOptions(false, null, false));
 
     response.Cookies.Append(RefreshTokenName, refreshToken, CreateAuthCookieOptions(false, null, true));

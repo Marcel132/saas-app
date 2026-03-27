@@ -75,3 +75,8 @@ public sealed class SessionNotFoundAppException : AppException
 {
   public SessionNotFoundAppException() : base (DomainErrorCodes.AuthCodes.SessionNotFound) {}
 }
+
+public sealed class SuspiciousActivityAppException : AppException
+{
+  public SuspiciousActivityAppException() : base (DomainErrorCodes.FirewallCodes.SuspiciousActivityDetected) {}
+}

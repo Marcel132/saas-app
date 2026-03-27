@@ -1,3 +1,5 @@
+using System.Drawing;
+
 public class AuthService
 {
   private readonly UserAuthenticationService _authentication;
@@ -78,58 +80,75 @@ public class AuthService
     );
   }
 
+  // TODO: Logout user per ip and device instead of logging out from all sessions to prevent session hijacking
   public async Task LogoutAsync(Guid userId, HttpResponse response)
   {
-    await _sessionService.RevokeAllSessionsAsync(userId);
+    await _sessionService.RevokeAllSessionsAsync(userId, null);
     _cookieSerivce.ClearAuthCookie(response);
   }
 
+  // TODO: Add race condition handling and token reuse detection to prevent replay attacks
   public async Task<RefreshTokenResult> RefreshTokenAsync(string deviceIp, string userAgent, string? refreshToken)
   {
     if(string.IsNullOrEmpty(refreshToken))
-    {
       return new RefreshTokenResult(
         false,
         Guid.Empty,
         null,
         DomainErrorCodes.AuthCodes.InvalidToken,
-        null,
+        null, 
         null
       );
-    }
-    
-    var result = await _refreshService.ValidateRefreshTokenAsync(refreshToken, deviceIp, userAgent);
-
-    if(!result.Success || result.session is null)
-      return result;
-
-    var newRefreshToken = _tokenService.GenerateRefreshToken();
-    await _sessionService.CreateSessionAsync(result.UserId, newRefreshToken, deviceIp, userAgent );
-
-    await _sessionService.RevokeSessionByIdAsync(result.UserId, result.session.SessionId);
-    var permissions = await _roleService.GetEffectivePermissions(result.UserId);
-    var authToken = _tokenService.GenerateAuthToken(result.UserId, permissions);
-
-
-    if(string.IsNullOrEmpty(authToken) || string.IsNullOrEmpty(newRefreshToken))
-    {
+      
+    var result = await RotateRefreshTokenAsync(refreshToken, deviceIp, userAgent);
+    if(!result.Success)
       return new RefreshTokenResult(
         false,
         result.UserId,
         null,
-        DomainErrorCodes.GeneralCodes.GenerationFailed,
-        null,
+        result.DomainCode,
+        null, 
         null
-      );
-    }
+       );
+
+    return new RefreshTokenResult(
+      result.Success,
+      result.UserId,
+      result.session,
+      result.DomainCode,
+      result.RefreshToken, //New refresh token
+      result.AuthToken //New auth token
+    );
+  }
+
+  private async Task<RefreshTokenResult> RotateRefreshTokenAsync(string refreshToken, string deviceIp, string userAgent)
+  {
+    var validationResult = await _refreshService.ValidateRefreshTokenAsync(refreshToken, deviceIp, userAgent);
+    if(!validationResult.Success || validationResult.session is null)
+      throw new SessionNotFoundAppException();
     
+    var used = await _sessionService.TryUseRefreshTokenAsync(validationResult.session.SessionId);
+    if (!used)
+    {
+      await _sessionService.RevokeAllSessionsAsync(validationResult.UserId, validationResult.session.SessionId);
+      throw new SuspiciousActivityAppException();
+    }
+
+    var newRefreshToken = _tokenService.GenerateRefreshToken();
+    await _sessionService.CreateSessionAsync(validationResult.UserId, newRefreshToken, deviceIp, userAgent);
+
+    var permissions = await _roleService.GetEffectivePermissions(validationResult.UserId);
+    var authToken = _tokenService.GenerateAuthToken(validationResult.UserId, permissions)
+      ?? throw new InternalServerAppException();
+
     return new RefreshTokenResult(
       true,
-      result.UserId,
+      validationResult.UserId,
       null,
       DomainErrorCodes.AuthCodes.Authorized,
       newRefreshToken,
       authToken
     );
   }
+
 }

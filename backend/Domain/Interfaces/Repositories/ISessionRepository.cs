@@ -4,4 +4,5 @@ public interface ISessionRepository
   Task AddAsync(Session sess);
   Task UpdateAsync(Session sess);
   Task<Session?> GetSessionByRefreshTokenAsync(string refreshToken);
+  Task<bool> TryUseAndUpdateRefreshTokenAsync(int sessionId);
 }
