@@ -52,6 +52,7 @@ public class GlobalErrorHandlingMiddleware
       ValueOutOfRangeAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
       InternalServerAppException => (HttpStatusCode.InternalServerError, HttpResponseState.ServerError),
       SessionNotFoundAppException => (HttpStatusCode.Unauthorized, HttpResponseState.Unauthorized),
+      SuspiciousActivityAppException => (HttpStatusCode.Forbidden, HttpResponseState.Forbidden),
 
       _ => (HttpStatusCode.InternalServerError, HttpResponseState.ServerError)
     };
@@ -60,8 +61,8 @@ public class GlobalErrorHandlingMiddleware
       context,
       state,
       false,
-      null,
-      ex.ErrorCode
+      ex.Message,
+      ex.DomainError
     );
     
     context.Response.StatusCode = (int)status;
