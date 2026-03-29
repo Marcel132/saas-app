@@ -33,6 +33,7 @@ public static class DomainErrorCodes
     public const string Authorized = "AUTH-10/004_AUTHORIZED";
     public const string InvalidCredentials = "AUTH-20/002_INVALID_CREDENTIALS";
     public const string InvalidNameIdentifier = "AUTH-20/003_INVALID_NAME_IDENTIFIER";
+    public const string TokenNotFound = "AUTH-20/004_TOKEN_NOT_FOUND";
     public const string TokenExpired = "AUTH-30/001_TOKEN_EXPIRED";
     public const string Unauthorized = "AUTH-30/002_UNAUTHORIZED";
     public const string ForbiddenAccess = "AUTH-30/003_FORBIDDEN_ACCESS";

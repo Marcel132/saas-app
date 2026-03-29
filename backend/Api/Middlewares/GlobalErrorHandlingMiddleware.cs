@@ -45,6 +45,7 @@ public class GlobalErrorHandlingMiddleware
       NotFoundAppException => (HttpStatusCode.NotFound, HttpResponseState.NotFound),
       ConflictAppException => (HttpStatusCode.Conflict, HttpResponseState.Conflict),
       BadRequestAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
+      TokenNotFoundAppException => (HttpStatusCode.Unauthorized, HttpResponseState.Unauthorized),
       ForbiddenAppException => (HttpStatusCode.Forbidden, HttpResponseState.Forbidden),
       AccountBlockedAppException => (HttpStatusCode.Forbidden, HttpResponseState.Forbidden),
       MissingRequiredFieldAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
