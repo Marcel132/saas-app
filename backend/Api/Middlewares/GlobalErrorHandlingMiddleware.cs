@@ -54,6 +54,7 @@ public class GlobalErrorHandlingMiddleware
       InternalServerAppException => (HttpStatusCode.InternalServerError, HttpResponseState.ServerError),
       SessionNotFoundAppException => (HttpStatusCode.Unauthorized, HttpResponseState.Unauthorized),
       SuspiciousActivityAppException => (HttpStatusCode.Forbidden, HttpResponseState.Forbidden),
+      InvalidOperationAppException => (HttpStatusCode.BadRequest, HttpResponseState.BadRequest),
 
       _ => (HttpStatusCode.InternalServerError, HttpResponseState.ServerError)
     };

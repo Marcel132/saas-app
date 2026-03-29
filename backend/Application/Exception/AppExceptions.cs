@@ -71,6 +71,13 @@ public sealed class BadRequestAppException : AppException
     $"Bad request. {DomainErrorCodes.GeneralCodes.BadRequest.Split("_")[0]}"
   ) {}
 }
+public sealed class TokenNotFoundAppException : AppException
+{
+  public TokenNotFoundAppException() : base (
+    DomainErrorCodes.AuthCodes.TokenNotFound,
+    $"Token not found. {DomainErrorCodes.AuthCodes.TokenNotFound.Split("_")[0]}"
+  ) {}
+}
 public sealed class ForbiddenAppException : AppException
 {
   public ForbiddenAppException() : base (
@@ -127,5 +134,12 @@ public sealed class SuspiciousActivityAppException : AppException
   public SuspiciousActivityAppException() : base (
     DomainErrorCodes.FirewallCodes.SuspiciousActivityDetected,
     $"Suspicious activity detected. {DomainErrorCodes.FirewallCodes.SuspiciousActivityDetected.Split("_")[0]}"
+  ) {}
+}
+public sealed class InvalidOperationAppException : AppException
+{
+  public InvalidOperationAppException() : base (
+    DomainErrorCodes.GeneralCodes.BadRequest,
+    $"Invalid operation. {DomainErrorCodes.GeneralCodes.BadRequest.Split("_")[0]}"
   ) {}
 }
