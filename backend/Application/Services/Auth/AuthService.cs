@@ -87,18 +87,10 @@ public class AuthService
     _cookieSerivce.ClearAuthCookie(response);
   }
 
-  // TODO: Add race condition handling and token reuse detection to prevent replay attacks
   public async Task<RefreshTokenResult> RefreshTokenAsync(string deviceIp, string userAgent, string? refreshToken)
   {
     if(string.IsNullOrEmpty(refreshToken))
-      return new RefreshTokenResult(
-        false,
-        Guid.Empty,
-        null,
-        DomainErrorCodes.AuthCodes.InvalidToken,
-        null, 
-        null
-      );
+      throw new TokenNotFoundAppException();
       
     var result = await RotateRefreshTokenAsync(refreshToken, deviceIp, userAgent);
     if(!result.Success)
@@ -109,7 +101,7 @@ public class AuthService
         result.DomainCode,
         null, 
         null
-       );
+      );
 
     return new RefreshTokenResult(
       result.Success,
@@ -133,9 +125,11 @@ public class AuthService
       await _sessionService.RevokeAllSessionsAsync(validationResult.UserId, validationResult.session.SessionId);
       throw new SuspiciousActivityAppException();
     }
-
+    
     var newRefreshToken = _tokenService.GenerateRefreshToken();
-    await _sessionService.CreateSessionAsync(validationResult.UserId, newRefreshToken, deviceIp, userAgent);
+    var newSession =await _sessionService.CreateSessionAsync(validationResult.UserId, newRefreshToken, deviceIp, userAgent);
+
+    await _sessionService.SetReplacedByAndRevokedAsync(validationResult.session.SessionId, newSession.SessionId);
 
     var permissions = await _roleService.GetEffectivePermissions(validationResult.UserId);
     var authToken = _tokenService.GenerateAuthToken(validationResult.UserId, permissions)

@@ -9,7 +9,7 @@ public class AuthSessionService
   {
     _sessions = sessions;
   }
-  public async Task CreateSessionAsync(
+  public async Task<Session> CreateSessionAsync(
     Guid user_id,
     string refreshToken,
     string deviceIp,
@@ -24,6 +24,8 @@ public class AuthSessionService
     );
 
     await _sessions.AddAsync(session);
+
+    return session;
   }
 
   public async Task RevokeAllSessionsAsync(Guid userId, int? replacedByTokenId)
@@ -66,5 +68,10 @@ public class AuthSessionService
   {
     var result = await _sessions.TryUseAndUpdateRefreshTokenAsync(sessionId);
     return result;
+  }
+
+  public async Task SetReplacedByAndRevokedAsync(int oldSessionId, int newSessionId)
+  {
+    await _sessions.SetReplacedByAndRevokedAsync(oldSessionId, newSessionId);
   }
 }
