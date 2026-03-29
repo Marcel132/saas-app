@@ -26,7 +26,7 @@ public class Session
       UserId = userId,
       RefreshTokenHash = TokenHasher.HashToken(refreshToken),
       CreatedAt = DateTime.UtcNow,
-      ExpiresAt = DateTime.UtcNow.AddDays(5),
+      ExpiresAt = DateTime.UtcNow.AddDays(7),
       Ip = deviceIp,
       UserAgent = userAgent,
     };
@@ -36,14 +36,21 @@ public class Session
     ExpiresAt = DateTime.UtcNow;
     Revoked = true;
     Used = true;
-    if(replacedByTokenId != null)
+    if(replacedByTokenId.HasValue)
     {
-      ReplacedByTokenId = replacedByTokenId;
+      ReplacedByTokenId = replacedByTokenId.Value;
     }
   }
 
-  public void MarkAsUsed()
+
+  public void ReplaceByTokenId(int sessionId)
   {
-    Used = true;
+    if (sessionId <= 0)
+      throw new ValueOutOfRangeAppException();
+    
+    if(ReplaceByTokenId != null)
+      throw new InvalidOperationAppException();
+      
+    ReplacedByTokenId = sessionId;
   }
 }

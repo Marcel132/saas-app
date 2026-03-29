@@ -52,4 +52,16 @@ public class SessionRepository : ISessionRepository
   
     return result > 0;
   }
+
+  public async Task SetReplacedByAndRevokedAsync(int oldSessionId, int newSessionId)
+  {
+    await _context.Database
+      .ExecuteSqlInterpolatedAsync($@"
+        UPDATE sessions
+        SET replaced_by_token_id = {newSessionId},
+          revoked = true
+        WHERE id = {oldSessionId}
+          AND replaced_by_token_id IS NULL
+        ");
+  }
 }
