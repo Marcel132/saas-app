@@ -59,6 +59,8 @@ public class NetworkMiddleware
 
     }
 
+  // Rate limiting
+  // TODO: Implement a more robust rate limiting strategy, possibly using a distributed cache like Redis for better performance and scalability.
     if(!IsAllowed(ip))
     {
       context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
@@ -75,6 +77,23 @@ public class NetworkMiddleware
       return;
     }
 
+    // Set headers 
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Content-Security-Policy"] = 
+      "default-src 'self';" + 
+      "frame-ancestors 'none';" + 
+      "object-src 'none';" +
+      "base-uri 'self';" +
+
+      "script-src 'self';" +
+      "style-src 'self' 'unsafe-inline';" +
+      "img-src 'self' data:;" +
+      "connect-src 'self';" + 
+      "form-action 'self';";
+
+    context.Response.Headers["Referrer-Policy"] = "no-referrer";
+    context.Response.Headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=(), payment=()";
 
     await _next(context);
 
