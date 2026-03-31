@@ -47,7 +47,8 @@ public class UserRegisterService
     {
       foreach (var spec in request.SpecializationType)
         user.AddSpecialization(spec);
-    }
+    };
+
     await _users.AddAsync(user);
 
     await _roleSynch.SyncAsync(user);

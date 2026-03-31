@@ -21,7 +21,12 @@ public class UserCommandService
 
     // TODO: Check current password; if true, save new password; else 400;
     if (!string.IsNullOrWhiteSpace(request.NewPassword))
+    {
+      if (!User.IsValidPasswordFormat(request.NewPassword))
+        throw new InvalidFormatAppException();
+
       user.ChangePassword(_hasher.Hash(request.NewPassword));
+    }
 
     if (request.SpecializationType != null)
     {

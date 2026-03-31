@@ -32,10 +32,8 @@ public class AuthService
 
   public async Task<AuthResult> LoginAsync(LoginRequestDto request, string deviceIp, string userAgent, HttpResponse response)
   {
-    var lowerCaseEmail = request.Email.Trim().ToLowerInvariant();
-
     var user = await _authentication.AuthenticateAsync(
-      lowerCaseEmail,
+      request.Email,
       request.Password
     );
 
@@ -44,7 +42,8 @@ public class AuthService
     var authToken = _tokenService.GenerateAuthToken(user.Id, permissions);
     var refreshToken = _tokenService.GenerateRefreshToken();
 
-
+    // TODO: Instead of revoking all sessions, we should revoke only the session from the current device and ip to prevent session hijacking. This requires implementing device and ip tracking in sessions.
+    await _sessionService.RevokeAllSessionsAsync(user.Id, null);
     await _sessionService.CreateSessionAsync(user.Id, refreshToken, deviceIp, userAgent);
 
     _cookieSerivce.SetAuthCookie(response, refreshToken, authToken);
@@ -67,6 +66,8 @@ public class AuthService
     var authToken = _tokenService.GenerateAuthToken(user.Id, permissions);
     var refreshToken = _tokenService.GenerateRefreshToken();
 
+    // TODO: Instead of revoking all sessions, we should revoke only the session from the current device and ip to prevent session hijacking. This requires implementing device and ip tracking in sessions.
+    await _sessionService.RevokeAllSessionsAsync(user.Id, null);
     await _sessionService.CreateSessionAsync(user.Id, refreshToken, deviceIp, userAgent);
 
     _cookieSerivce.SetAuthCookie(response, refreshToken, authToken);

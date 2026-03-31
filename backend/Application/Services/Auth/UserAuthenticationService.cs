@@ -20,6 +20,7 @@ public class UserAuthenticationService
 
   public async Task<User> AuthenticateAsync(string email, string password)
   {
+    email = email.Trim().ToLowerInvariant();
     var user = await _users.GetByEmailAsync(email)
       ?? throw new InvalidCredentialsAppException();
 
@@ -29,6 +30,7 @@ public class UserAuthenticationService
     {
       user.RegisterFailedLoginAttempt(MaxAttempts, BlockDuration);
       await _users.UpdateAsync(user);
+      await Task.Delay(200);
       throw new InvalidCredentialsAppException();
     }
 

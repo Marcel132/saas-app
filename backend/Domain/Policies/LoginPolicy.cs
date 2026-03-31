@@ -2,13 +2,14 @@ public class LoginPolicy : ILoginPolicy
 {
   public void EnsureCanLogin(User? user)
   {
+    // * Note: To avoid user enumaration, every exception shoud be the same for non existing user and blocked/inactive accounts.
     if(user == null)
       throw new InvalidCredentialsAppException();
 
-    if(user.LoginBlockedUntil > DateTime.UtcNow)
-      throw new AccountBlockedAppException();
-
     if(!user.IsActive)
-      throw new ForbiddenAppException();
+      throw new InvalidCredentialsAppException();
+  
+    if(!user.CanLogin())
+      throw new InvalidCredentialsAppException();    
   }
 }

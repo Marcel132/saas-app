@@ -2,7 +2,6 @@ public class Session
 {
   public int SessionId { get; private set;}
   public Guid UserId { get; private set;}
-
   public string RefreshTokenHash { get; private set; } = string.Empty;
   public DateTime CreatedAt { get; private set; }
   public DateTime ExpiresAt { get; private set; }
@@ -10,7 +9,7 @@ public class Session
   public string UserAgent { get; private set; } = string.Empty;
   public bool Revoked { get; private set; } = false;
   public bool Used { get; private set; } = false;
-  public int? ReplacedByTokenId { get; private set; }
+  public int? ReplacedByTokenId { get; private set; } = null;
 
   private Session() {} // EF
 
@@ -31,6 +30,7 @@ public class Session
       UserAgent = userAgent,
     };
   }
+  
   public void RevokeSession(int? replacedByTokenId)
   {
     Revoked = true;
@@ -40,7 +40,6 @@ public class Session
       ReplacedByTokenId = replacedByTokenId.Value;
     }
   }
-
 
   public void ReplaceByTokenId(int sessionId)
   {
@@ -52,4 +51,6 @@ public class Session
       
     ReplacedByTokenId = sessionId;
   }
+
+  
 }

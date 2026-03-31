@@ -1,5 +1,17 @@
+using System.Text.RegularExpressions;
+
 public class User
 {
+  private static readonly Regex EmailRegex = new(
+    @"^(?=.{1,254}$)(?=.{1,64}@)([A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*)@([A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)(\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$",
+    RegexOptions.Compiled | RegexOptions.CultureInvariant);
+  private static readonly Regex PasswordRegex = new(
+    @"^(?=.{8,128}$)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])\S+$",
+    RegexOptions.Compiled | RegexOptions.CultureInvariant);
+  private static readonly Regex BcryptHashRegex = new(
+    @"^\$2[abxy]\$\d{2}\$[./A-Za-z0-9]{53}$",
+    RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
   private readonly List<UserSpecialization> _userSpecializations = new();
   private readonly List<UserRole> _userRole = new();
   public IReadOnlyCollection<UserSpecialization> UserSpecializations => _userSpecializations.AsReadOnly();
@@ -23,8 +35,9 @@ public class User
 
   public User(string email, string passwordHash, UserData userData)
   {
+
     Id = Guid.NewGuid();
-    Email = email;
+    Email = email.Trim().ToLowerInvariant();
     PasswordHash = passwordHash;
     IsActive = true;
     CreatedAt = DateTime.UtcNow;
@@ -37,6 +50,10 @@ public class User
 
   public bool CanLogin()
   {
+    if (LoginBlockedUntil != null && LoginBlockedUntil <= DateTime.UtcNow)
+    {
+      ResetFailedLoginAttempts();
+    }
     return LoginBlockedUntil == null
       || LoginBlockedUntil <= DateTime.UtcNow;
   }
@@ -54,6 +71,8 @@ public class User
     FailedLoginAttempts = 0;
     LoginBlockedUntil = null;
   }
+
+
   public void AddSpecialization(Specialization specialization)
   {
     if (_userSpecializations.Any(s => s.Specialization == specialization))
@@ -73,6 +92,8 @@ public class User
   {
     _userSpecializations.Clear();
   }
+
+
   public void SetUserData(UserData data)
   {
     UserData = data;
@@ -130,32 +151,58 @@ public class User
   }
   public void AnonymizeEmail()
   {
-    Email = "deleted_" + Id +"@local";
+    Email = $"deleted_{DateTime.UtcNow:yyyyMMddHHmmss}_{Id}@local";
   }
   
-  // TODO: Add validation for email and password hash
-  private bool IsValidEmail(string email)
+  // Validation 
+  public static bool IsValidPasswordFormat(string password)
   {
-    return !string.IsNullOrEmpty(email) && email.Contains("@");
+    return password.Length >= 8
+      && password.Length <= 128
+      && password.Any(char.IsUpper)
+      && password.Any(char.IsLower)
+      && password.Any(char.IsDigit)
+      && password.Any(c => !char.IsLetterOrDigit(c));
   }
-  private bool IsValidPassword(string hash)
+  public static bool IsValidEmailFormat(string email)
   {
-    return !string.IsNullOrEmpty(hash);
+    return IsValidEmail(email);
   }
 
-  // TODO: Change exceptions to result pattern
+  // Validation helpers
+  private static bool IsValidEmail(string email)
+  {
+    if (string.IsNullOrWhiteSpace(email))
+      return false;
+
+    if (email.Length > 254)
+      return false;
+
+    if (!string.Equals(email, email.Trim(), StringComparison.Ordinal))
+      return false;
+
+    return EmailRegex.IsMatch(email);
+  }
+  private static bool IsValidPasswordHash(string hash)
+  {
+    if (string.IsNullOrWhiteSpace(hash))
+      return false;
+
+    return BcryptHashRegex.IsMatch(hash);
+  }
+
   public void ChangeEmail(string email)
   {
     if (!IsValidEmail(email))
-      throw new ArgumentException("Invalid email address.", nameof(email));
+      throw new InvalidFormatAppException();
 
-    Email = email;
+    Email = email.Trim().ToLowerInvariant();
   }
   public void ChangePassword(string hash)
   {
-    if (!IsValidPassword(hash))
-      throw new ArgumentException("Invalid password hash.", nameof(hash));
-      
+    if (!IsValidPasswordHash(hash))
+      throw new InvalidFormatAppException();
+
     PasswordHash = hash;
   }
   public void DeleteAccount()
@@ -176,7 +223,6 @@ public class User
 
     _userRole.Add(new UserRole(Id, roleId));
   }
-
   public void RemoveRole(Guid roleId)
   {
     _userRole.RemoveAll(r => r.RoleId == roleId);

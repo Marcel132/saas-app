@@ -6,6 +6,16 @@ public class RegisterPolicy : IRegisterPolicy
     if(emailAlreadyExists)
       throw new BadRequestAppException();
 
+    if(string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
+      throw new InvalidFormatAppException();
+    
+    var email = request.Email.Trim().ToLowerInvariant();
+    if(!User.IsValidEmailFormat(email))
+      throw new InvalidFormatAppException();
+
+    if(!User.IsValidPasswordFormat(request.Password))
+      throw new InvalidFormatAppException();
+
     if(IsPasswordWeak(request))
       throw new InvalidFormatAppException();
 
