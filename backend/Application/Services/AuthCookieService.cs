@@ -21,21 +21,23 @@ public class AuthCookieService
     {
       HttpOnly = true,
       Secure = isHttps,
-      SameSite = SameSiteMode.Strict,
+      SameSite = SameSiteMode.Lax,
       Path = "/",
       Domain = domain,
-      Expires = DateTimeOffset.UtcNow.AddMinutes(15)
+      Expires = DateTimeOffset.UtcNow.AddMinutes(15),
+      MaxAge = TimeSpan.FromMinutes(15)
     };
 
     if (isPersistent)
-      cookieOptions.Expires = DateTimeOffset.UtcNow.AddDays(5);
+      cookieOptions.Expires = DateTimeOffset.UtcNow.AddDays(7);
+      cookieOptions.MaxAge = TimeSpan.FromDays(7);
 
     return cookieOptions;
   }
   public void SetAuthCookie(HttpResponse response, string? refreshToken, string? authToken)
   {
     if(string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(authToken))
-      throw new ArgumentException("Tokens cannot be null or empty.");
+      throw new TokenNotFoundAppException();
 
     response.Cookies.Append(AuthTokenName, authToken, CreateAuthCookieOptions(false, null, false));
 

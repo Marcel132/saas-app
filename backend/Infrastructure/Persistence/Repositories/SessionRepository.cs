@@ -13,12 +13,13 @@ public class SessionRepository : ISessionRepository
     _context = context;
   }
 
-  public async Task<IReadOnlyCollection<Session>> GetActiveByUserIdAsync(Guid userId)
+  public async Task<IReadOnlyCollection<Session>> GetActiveSessionByUserIdAsync(Guid userId)
   {
     return await _context.Sessions
       .Where(s =>
         s.UserId == userId &&
-        !s.Revoked
+        !s.Revoked &&
+        !s.Used
       )
       .ToListAsync();
   }

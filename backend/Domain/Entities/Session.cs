@@ -33,7 +33,6 @@ public class Session
   }
   public void RevokeSession(int? replacedByTokenId)
   {
-    ExpiresAt = DateTime.UtcNow;
     Revoked = true;
     Used = true;
     if(replacedByTokenId.HasValue)
