@@ -166,7 +166,7 @@ public class AppDbContext : DbContext
       entity.Property(s => s.ExpiresAt)
         .HasColumnName("expires_at");
 
-      entity.Property(s => s.Ip)
+      entity.Property(s => s.IpAddress)
         .HasColumnName("ip");
 
       entity.Property(s => s.UserAgent)

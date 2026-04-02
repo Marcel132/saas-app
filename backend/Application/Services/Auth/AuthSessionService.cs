@@ -32,7 +32,7 @@ public class AuthSessionService
 
   public async Task RevokeAllSessionsAsync(Guid userId, int? replacedByTokenId)
   {
-    var sessions = await _sessions.GetActiveSessionByUserIdAsync(userId);
+    var sessions = await _sessions.GetAllActiveSessionsAsync(userId);
 
     foreach (var session in sessions)
     {
@@ -47,17 +47,15 @@ public class AuthSessionService
   }
   public async Task RevokeSessionByIdAsync(Guid userId, int sessionId, int? replacedByTokenId)
   {
-    var sessions = await _sessions.GetActiveSessionByUserIdAsync(userId);
-    var session = sessions.FirstOrDefault(s => s.SessionId == sessionId)
+    var session = await _sessions.GetSessionByUserAndIdAsync(userId, sessionId)
       ?? throw new SessionNotFoundAppException();
 
     session.RevokeSession(replacedByTokenId);
     await _sessions.UpdateAsync(session);
   }
-  public async Task RevokeActiveSessionAsync(Guid userId, string refreshToken, int? replacedByTokenId)
+  public async Task RevokeActiveSessionAsync(string refreshToken, int? replacedByTokenId)
   {
-    var sessions = await _sessions.GetActiveSessionByUserIdAsync(userId);
-    var session = sessions.FirstOrDefault(s => BCrypt.Net.BCrypt.Verify(refreshToken, s.RefreshTokenHash));
+    var session = await _sessions.GetSessionByRefreshTokenAsync(refreshToken);
 
     if (session is null)
       return;
@@ -67,7 +65,7 @@ public class AuthSessionService
   }
   public async Task<bool> TryUseRefreshTokenAsync(int sessionId)
   {
-    var result = await _sessions.TryUseAndUpdateRefreshTokenAsync(sessionId);
+    var result = await _sessions.TryMarkSessionAsUsedAsync(sessionId);
     return result;
   }
 

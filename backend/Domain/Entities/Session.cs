@@ -5,7 +5,7 @@ public class Session
   public string RefreshTokenHash { get; private set; } = string.Empty;
   public DateTime CreatedAt { get; private set; }
   public DateTime ExpiresAt { get; private set; }
-  public string Ip { get; private set; } = string.Empty;
+  public string IpAddress { get; private set; } = string.Empty;
   public string UserAgent { get; private set; } = string.Empty;
   public bool Revoked { get; private set; } = false;
   public bool Used { get; private set; } = false;
@@ -17,7 +17,7 @@ public class Session
     Guid userId,
     string refreshToken,
     string userAgent,
-    string deviceIp
+    string ipAddress
   )
   {
     return new Session
@@ -26,7 +26,7 @@ public class Session
       RefreshTokenHash = TokenHasher.HashToken(refreshToken),
       CreatedAt = DateTime.UtcNow,
       ExpiresAt = DateTime.UtcNow.AddDays(7),
-      Ip = deviceIp,
+      IpAddress = ipAddress,
       UserAgent = userAgent,
     };
   }
