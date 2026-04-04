@@ -30,7 +30,7 @@ public class AuthService
     _refreshService = refreshService;
   }
 
-  public async Task<AuthResult> LoginAsync(LoginRequestDto request, string deviceIp, string userAgent, HttpResponse response)
+  public async Task<AuthResult> LoginAsync(LoginRequestDto request, string ipAddress, string userAgent, HttpResponse response)
   {
     var user = await _authentication.AuthenticateAsync(
       request.Email,
@@ -44,7 +44,7 @@ public class AuthService
 
     // TODO: Instead of revoking all sessions, we should revoke only the session from the current device and ip to prevent session hijacking. This requires implementing device and ip tracking in sessions.
     await _sessionService.RevokeAllSessionsAsync(user.Id, null);
-    await _sessionService.CreateSessionAsync(user.Id, refreshToken, deviceIp, userAgent);
+    await _sessionService.CreateSessionAsync(user.Id, refreshToken, ipAddress, userAgent);
 
     _cookieSerivce.SetAuthCookie(response, refreshToken, authToken);
 
@@ -56,7 +56,7 @@ public class AuthService
     );
   }
 
-  public async Task<AuthResult> RegisterAsync(RegisterRequestDto request, string deviceIp, string userAgent, HttpResponse response)
+  public async Task<AuthResult> RegisterAsync(RegisterRequestDto request, string ipAddress, string userAgent, HttpResponse response)
   {
     
     var user = await _registration.RegisterAsync(request);
@@ -68,7 +68,7 @@ public class AuthService
 
     // TODO: Instead of revoking all sessions, we should revoke only the session from the current device and ip to prevent session hijacking. This requires implementing device and ip tracking in sessions.
     await _sessionService.RevokeAllSessionsAsync(user.Id, null);
-    await _sessionService.CreateSessionAsync(user.Id, refreshToken, deviceIp, userAgent);
+    await _sessionService.CreateSessionAsync(user.Id, refreshToken, ipAddress, userAgent);
 
     _cookieSerivce.SetAuthCookie(response, refreshToken, authToken);
 
@@ -128,7 +128,7 @@ public class AuthService
     }
     
     var newRefreshToken = _tokenService.GenerateRefreshToken();
-    var newSession =await _sessionService.CreateSessionAsync(validationResult.UserId, newRefreshToken, deviceIp, userAgent);
+    var newSession = await _sessionService.CreateSessionAsync(validationResult.UserId, newRefreshToken, deviceIp, userAgent);
 
     await _sessionService.SetReplacedByAndRevokedAsync(validationResult.session.SessionId, newSession.SessionId);
 

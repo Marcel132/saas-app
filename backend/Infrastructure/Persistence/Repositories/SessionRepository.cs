@@ -78,6 +78,7 @@ public class SessionRepository : ISessionRepository
           AND Revoked = false
         ");
   
+    await _context.Entry(result).ReloadAsync();
     return result > 0;
   }
   public async Task SetReplacedByAndRevokedAsync(int oldSessionId, int newSessionId)

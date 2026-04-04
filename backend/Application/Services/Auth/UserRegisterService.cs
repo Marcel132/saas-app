@@ -26,8 +26,7 @@ public class UserRegisterService
     _policy.EnsureCanRegister(isExists, request);
 
     var passwordHash = _hasher.Hash(request.Password);
-
-
+    
     var userData = new UserData(        
       request.FirstName,
       request.LastName,

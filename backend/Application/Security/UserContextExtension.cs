@@ -13,13 +13,13 @@ public static class UserContextExtension
   public static string GetUserIp(this HttpContext httpContext)
   {
     return httpContext.Connection.RemoteIpAddress?.ToString()
-      ?? "Unknown device IP";
+      ?? "Unknown IP Address";
   }
 
+  // TODO: Implement X-Forwarded-For header parsing to get real client IP address when behind a proxy or load balancer
   public static string GetUserAgent(this HttpContext httpContext)
   {
-    var userAgent = httpContext.Request.Headers["User-Agent"].ToString();
-
-    return string.IsNullOrWhiteSpace(userAgent) ? "Unknow user-agent" : userAgent;
+    return httpContext.Request.Headers["User-Agent"].ToString()
+      ?? "Unknown user-agent";
   }
 }

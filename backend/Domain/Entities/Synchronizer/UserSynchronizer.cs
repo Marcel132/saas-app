@@ -10,20 +10,20 @@ public class UserRoleSynchronizer
   public async Task SyncAsync(User user)
   {
     var roles = await _roleRepo.GetByCodesAsync(
-      new[] {"USER", "DEVELOPER", "COMPANY", "ADMIN"}
+      new[] {Roles.USER.ToString(), Roles.DEVELOPER.ToString(), Roles.COMPANY.ToString() }
     );
 
-    EnsureRole(user, roles["USER"].RoleId);
+    EnsureRole(user, roles[Roles.USER.ToString()].RoleId);
 
     if (user.IsCompany)
     {
-      EnsureRole(user, roles["COMPANY"].RoleId);
-      RemoveRole(user, roles["DEVELOPER"].RoleId);
+      EnsureRole(user, roles[Roles.COMPANY.ToString()].RoleId);
+      RemoveRole(user, roles[Roles.DEVELOPER.ToString()].RoleId);
     }
     else
     {
-      EnsureRole(user, roles["DEVELOPER"].RoleId);
-      RemoveRole(user, roles["COMPANY"].RoleId);
+      EnsureRole(user, roles[Roles.DEVELOPER.ToString()].RoleId);
+      RemoveRole(user, roles[Roles.COMPANY.ToString()].RoleId);
     }
   }
 

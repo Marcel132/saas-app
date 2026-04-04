@@ -25,10 +25,10 @@ public class AuthController : ControllerBase
   [HttpPost("login")]
   public async Task<IActionResult> LoginUser([FromBody] LoginRequestDto request)
   {
-    var deviceIp = UserContextExtension.GetUserIp(HttpContext);
+    var ipAdress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    await _authService.LoginAsync(request, deviceIp, userAgent, Response);
+    await _authService.LoginAsync(request, ipAdress, userAgent, Response);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -43,10 +43,10 @@ public class AuthController : ControllerBase
   [HttpPost("register")]
   public async Task<IActionResult> RegisterUser([FromBody] RegisterRequestDto request)
   {
-    var deviceIp = UserContextExtension.GetUserIp(HttpContext);
+    var ipAdress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    var user = await _authService.RegisterAsync(request, deviceIp, userAgent, Response);
+    var user = await _authService.RegisterAsync(request, ipAdress, userAgent, Response);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -65,7 +65,7 @@ public class AuthController : ControllerBase
     var userId = UserContextExtension.GetUserId(User);
     // TODO: Log device info on logout for security auditing
     // TODO: Deleted session and tokens from database on user ip or user agent change to prevent session hijacking
-    // var deviceIp = UserContextExtension.GetUserIp(HttpContext);
+    // var ipAdress = UserContextExtension.GetUserIp(HttpContext);
     // var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
     await _authService.LogoutAsync(userId, Response);
@@ -77,11 +77,11 @@ public class AuthController : ControllerBase
   [HttpPost("refresh")]
   public async Task<IActionResult> RefreshToken()
   {
-    var deviceIp = UserContextExtension.GetUserIp(HttpContext);
+    var ipAdress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
     var refreshToken = _cookieSerivce.GetRefreshToken(Request);
 
-    var result = await _authService.RefreshTokenAsync(deviceIp, userAgent, refreshToken);
+    var result = await _authService.RefreshTokenAsync(ipAdress, userAgent, refreshToken);
 
     _cookieSerivce.SetAuthCookie(Response, result.RefreshToken, result.AuthToken);
 

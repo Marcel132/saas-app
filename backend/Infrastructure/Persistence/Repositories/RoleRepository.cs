@@ -2,21 +2,19 @@ using Microsoft.EntityFrameworkCore;
 
 public class RoleRepository : IRoleRepository
 {
-   private readonly AppDbContext _db;
+   private readonly AppDbContext _context;
 
-  public RoleRepository(AppDbContext db)
+  public RoleRepository(AppDbContext context)
   {
-    _db = db;
+    _context = context;
   }
 
   public async Task<Role> GetByCodeAsync(string code, CancellationToken ct = default)
   {
-    var role = await _db.Roles
+    var role = await _context.Roles
       .AsNoTracking()
-      .FirstOrDefaultAsync(r => r.Code == code && r.IsActive, ct);
-
-    if (role == null)
-      throw new InvalidOperationException($"Role '{code}' not found");
+      .FirstOrDefaultAsync(r => r.Code == code && r.IsActive, ct)
+      ?? throw new InvalidOperationException($"Role '{code}' not found");
 
     return role;
   }
@@ -27,7 +25,7 @@ public class RoleRepository : IRoleRepository
   {
     var codeSet = codes.Distinct().ToArray();
 
-    var roles = await _db.Roles
+    var roles = await _context.Roles
       .AsNoTracking()
       .Where(r => codeSet.Contains(r.Code) && r.IsActive)
       .ToListAsync(ct);
@@ -35,11 +33,12 @@ public class RoleRepository : IRoleRepository
     if (roles.Count != codeSet.Length)
     {
       var missing = codeSet.Except(roles.Select(r => r.Code));
-      throw new InvalidOperationException(
-        $"Missing roles: {string.Join(", ", missing)}"
-      );
+      throw new NotFoundAppException(); // * Create a custom exception for this case and include missing codes in the message for better debugging.
+      // throw new NotFoundAppException(
+      //   $"Missing roles: {string.Join(", ", missing)}"
+      // );
     }
 
-    return roles.ToDictionary(r => r.Code);
+    return roles.ToDictionary(r => r.Code, r => r, StringComparer.OrdinalIgnoreCase);
   }
 }

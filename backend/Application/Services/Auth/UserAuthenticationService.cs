@@ -29,13 +29,12 @@ public class UserAuthenticationService
     if (!_hasher.Verify(password, user.PasswordHash))
     {
       user.RegisterFailedLoginAttempt(MaxAttempts, BlockDuration);
-      await _users.UpdateAsync(user);
-      await Task.Delay(200);
+      await _users.SaveChangesAsync();
       throw new InvalidCredentialsAppException();
     }
 
     user.ResetFailedLoginAttempts();
-    await _users.UpdateAsync(user);
+    await _users.SaveChangesAsync();
 
     return user;
   }
