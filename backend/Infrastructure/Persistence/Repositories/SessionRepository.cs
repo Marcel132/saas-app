@@ -58,7 +58,7 @@ public class SessionRepository : ISessionRepository
       .Where(s => s.RefreshTokenHash == refreshTokenHash)
       .FirstOrDefaultAsync();
   }
-  public async Task<Session?> GetSessionByUserAndIdAsync(Guid userId, int sessionId)
+  public async Task<Session?> GetSessionByUserAndIdAsync(Guid userId, long sessionId)
   {
     return await _context.Sessions
       .Where(s => 
@@ -67,7 +67,7 @@ public class SessionRepository : ISessionRepository
       )
       .FirstOrDefaultAsync();
   }
-  public async Task<bool> TryMarkSessionAsUsedAsync(int sessionId)
+  public async Task<bool> TryMarkSessionAsUsedAsync(long sessionId)
   {
     var result =  await _context.Database
       .ExecuteSqlInterpolatedAsync($@"
@@ -81,7 +81,7 @@ public class SessionRepository : ISessionRepository
     await _context.Entry(result).ReloadAsync();
     return result > 0;
   }
-  public async Task SetReplacedByAndRevokedAsync(int oldSessionId, int newSessionId)
+  public async Task SetReplacedByAndRevokedAsync(long oldSessionId, long newSessionId)
   {
     await _context.Database
       .ExecuteSqlInterpolatedAsync($@"

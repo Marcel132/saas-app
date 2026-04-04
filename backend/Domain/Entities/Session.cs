@@ -1,6 +1,8 @@
+using System.Numerics;
+
 public class Session
 {
-  public int SessionId { get; private set;}
+  public long SessionId { get; private set;}
   public Guid UserId { get; private set;}
   public string RefreshTokenHash { get; private set; } = string.Empty;
   public DateTime CreatedAt { get; private set; }
@@ -9,7 +11,7 @@ public class Session
   public string UserAgent { get; private set; } = string.Empty;
   public bool Revoked { get; private set; } = false;
   public bool Used { get; private set; } = false;
-  public int? ReplacedByTokenId { get; private set; } = null;
+  public long? ReplacedByTokenId { get; private set; } = null;
 
   private Session() {} // EF
 
@@ -31,7 +33,7 @@ public class Session
     };
   }
   
-  public void RevokeSession(int? replacedByTokenId)
+  public void RevokeSession(long? replacedByTokenId)
   {
     Revoked = true;
     Used = true;
@@ -41,7 +43,7 @@ public class Session
     }
   }
 
-  public void ReplaceByTokenId(int sessionId)
+  public void ReplaceByTokenId(long sessionId)
   {
     if (sessionId <= 0)
       throw new ValueOutOfRangeAppException();

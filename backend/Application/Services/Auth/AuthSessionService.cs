@@ -30,7 +30,7 @@ public class AuthSessionService
 
 
 
-  public async Task RevokeAllSessionsAsync(Guid userId, int? replacedByTokenId)
+  public async Task RevokeAllSessionsAsync(Guid userId, long? replacedByTokenId)
   {
     var sessions = await _sessions.GetAllActiveSessionsAsync(userId);
 
@@ -45,7 +45,7 @@ public class AuthSessionService
   {
     return await _sessions.GetSessionByRefreshTokenAsync(refreshToken);
   }
-  public async Task RevokeSessionByIdAsync(Guid userId, int sessionId, int? replacedByTokenId)
+  public async Task RevokeSessionByIdAsync(Guid userId, long sessionId, long? replacedByTokenId)
   {
     var session = await _sessions.GetSessionByUserAndIdAsync(userId, sessionId)
       ?? throw new SessionNotFoundAppException();
@@ -53,7 +53,7 @@ public class AuthSessionService
     session.RevokeSession(replacedByTokenId);
     await _sessions.UpdateAsync(session);
   }
-  public async Task RevokeActiveSessionAsync(string refreshToken, int? replacedByTokenId)
+  public async Task RevokeActiveSessionAsync(string refreshToken, long? replacedByTokenId)
   {
     var session = await _sessions.GetSessionByRefreshTokenAsync(refreshToken);
 
@@ -63,13 +63,13 @@ public class AuthSessionService
     session.RevokeSession(replacedByTokenId);
     await _sessions.UpdateAsync(session);
   }
-  public async Task<bool> TryUseRefreshTokenAsync(int sessionId)
+  public async Task<bool> TryUseRefreshTokenAsync(long sessionId)
   {
     var result = await _sessions.TryMarkSessionAsUsedAsync(sessionId);
     return result;
   }
 
-  public async Task SetReplacedByAndRevokedAsync(int oldSessionId, int newSessionId)
+  public async Task SetReplacedByAndRevokedAsync(long oldSessionId, long newSessionId)
   {
     await _sessions.SetReplacedByAndRevokedAsync(oldSessionId, newSessionId);
   }
