@@ -11,7 +11,7 @@ public class RefreshService
 
   }
 
-  public async Task<RefreshTokenResult> ValidateRefreshTokenAsync(string refreshToken, string deviceIp, string userAgent)
+  public async Task<RefreshTokenResult> ValidateRefreshTokenAsync(string refreshToken, string ipAddress, string userAgent)
   {
     var session = await _sessionService.GetSessionByRefreshTokenAsync(refreshToken);
 
@@ -25,8 +25,6 @@ public class RefreshService
         null
       );
     
-    
-
     if(session.Revoked || session.Used)
     {
       await _sessionService.RevokeAllSessionsAsync(session.UserId, null);

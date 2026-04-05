@@ -88,12 +88,12 @@ public class AuthService
     _cookieSerivce.ClearAuthCookie(response);
   }
 
-  public async Task<RefreshTokenResult> RefreshTokenAsync(string deviceIp, string userAgent, string? refreshToken)
+  public async Task<RefreshTokenResult> RefreshTokenAsync(string ipAddress, string userAgent, string? refreshToken)
   {
     if(string.IsNullOrEmpty(refreshToken))
       throw new TokenNotFoundAppException();
       
-    var result = await RotateRefreshTokenAsync(refreshToken, deviceIp, userAgent);
+    var result = await RotateRefreshTokenAsync(refreshToken, ipAddress, userAgent);
     if(!result.Success)
       return new RefreshTokenResult(
         false,
@@ -114,9 +114,9 @@ public class AuthService
     );
   }
 
-  private async Task<RefreshTokenResult> RotateRefreshTokenAsync(string refreshToken, string deviceIp, string userAgent)
+  private async Task<RefreshTokenResult> RotateRefreshTokenAsync(string refreshToken, string ipAddress, string userAgent)
   {
-    var validationResult = await _refreshService.ValidateRefreshTokenAsync(refreshToken, deviceIp, userAgent);
+    var validationResult = await _refreshService.ValidateRefreshTokenAsync(refreshToken, ipAddress, userAgent);
     if(!validationResult.Success || validationResult.session is null)
       throw new SessionNotFoundAppException();
     
@@ -128,7 +128,7 @@ public class AuthService
     }
     
     var newRefreshToken = _tokenService.GenerateRefreshToken();
-    var newSession = await _sessionService.CreateSessionAsync(validationResult.UserId, newRefreshToken, deviceIp, userAgent);
+    var newSession = await _sessionService.CreateSessionAsync(validationResult.UserId, newRefreshToken, ipAddress, userAgent);
 
     await _sessionService.SetReplacedByAndRevokedAsync(validationResult.session.SessionId, newSession.SessionId);
 
