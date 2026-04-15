@@ -43,7 +43,7 @@ public class User
     CreatedAt = DateTime.UtcNow;
 
     UserData = userData
-      ?? throw new BadRequestAppException();
+      ?? throw new InvalidOperationException("UserData is required");
   }
 
   //  Domain behaviors

@@ -25,9 +25,9 @@ public class UsersController : ControllerBase
 
   [HasPermission(Permissions.Users.Read)]
   [HttpGet]
-  public async Task<IActionResult> GetUsers()
+  public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
   {
-    var users = await _queryService.GetAllAsync();
+    var users = await _queryService.GetAllAsync(page, pageSize, search);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -47,7 +47,11 @@ public class UsersController : ControllerBase
   [HttpGet("{userId}")]
   public async Task<IActionResult> GetUserById([FromRoute] Guid userId)
   {
-    var user = await _queryService.GetActiveUserByIdAsync(userId);
+    var currentUserId = UserContextExtension.GetUserId(User);
+    var canReadAll = User.HasClaim("permission", "users.read.all");
+
+    var user = await _queryService.GetUserByIdAsync(userId, currentUserId, canReadAll);
+
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
@@ -58,7 +62,6 @@ public class UsersController : ControllerBase
       user
     ));
   }
-
 
   [HasPermission(Permissions.Users.Update)]
   [HttpPut("{userId}")]

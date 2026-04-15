@@ -71,8 +71,12 @@ public class AppDbContext : DbContext
 
           ud.Property(ud => ud.IsProfileCompleted)
               .HasColumnName("is_profile_completed");
+
           ud.Property(ud => ud.IsTwoFactorEnabled)
             .HasColumnName("is_two_factor_enabled");
+
+          ud.Navigation(p => p)
+            .IsRequired();
         });
 
       entity.ToTable("users");
