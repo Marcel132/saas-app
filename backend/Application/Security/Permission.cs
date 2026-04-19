@@ -11,6 +11,7 @@ public static class Permissions
   {
     public const string Create = "users.create";
     public const string Read = "users.read";
+    public const string ReadAll = "users.read.all";
     public const string Update = "users.update";
     public const string Delete = "users.delete";
     

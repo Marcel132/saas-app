@@ -90,6 +90,7 @@ public class UserQueryService
   public async Task<UserResponseDto> GetCurrentUserByIdAsync(Guid userId)
   {
     return await _context.Users
+      .AsNoTracking()
       .Where(u => u.Id == userId && u.IsActive)
       .Select(u => new UserResponseDto
       {

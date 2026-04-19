@@ -23,7 +23,7 @@ public class UsersController : ControllerBase
   // path: /users         READ
   // -------------------------------
 
-  [HasPermission(Permissions.Users.Read)]
+  [HasPermission(Permissions.Users.ReadAll)]
   [HttpGet]
   public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
   {
@@ -63,29 +63,28 @@ public class UsersController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.Users.Update)]
-  [HttpPut("{userId}")]
-  public async Task<IActionResult> UpdateUserById([FromRoute] Guid userId, [FromBody] UpdateUserDto request)
-  {
-    await _commandService.UpdateUserAsync(userId, request);
+  //! [HasPermission(Permissions.Users.Update)]
+  //! [HttpPut("{userId}")]
+  //! public async Task<IActionResult> UpdateUserById([FromRoute] Guid userId, [FromBody] UpdateUserDto request)
+  // {
+  //   await _commandService.UpdateUserAsync(userId, request);
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext,
-      HttpResponseState.Success,
-      true,
-      "User updated successfully",
-      DomainErrorCodes.AuthCodes.Success
-    ));
-  }
+  //   return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+  //     HttpContext,
+  //     HttpResponseState.Success,
+  //     true,
+  //     "User updated successfully",
+  //     DomainErrorCodes.AuthCodes.Success
+  //   ));
+  // }
 
-  [HasPermission(Permissions.Users.Delete)]
-  [HttpDelete("{userId}")]
-  public async Task<IActionResult> DeleteUserById([FromRoute] Guid userId)
-  {
-    await _commandService.DeleteUserAsync(userId);
-    
-    return NoContent();
-  }
+  //! [HasPermission(Permissions.Users.Delete)]
+  //! [HttpDelete("{userId}")]
+  //! public async Task<IActionResult> DeleteUserById([FromRoute] Guid userId)
+  //! {
+  //!   await _commandService.DeleteUserAsync(userId);
+  //!   return NoContent();
+  //! }
 
   // -------------------------------
   // path: /users/me         READ, UPDATE, DELETE
