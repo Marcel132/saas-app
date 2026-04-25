@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -25,7 +26,8 @@ Console.WriteLine($"JWT AUDIENCE: {JwtAudience}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        o => o.MapEnum<ContractStatus>("contract_status")
     )
 );
 

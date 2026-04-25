@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 public class AppDbContext : DbContext
 {
@@ -9,18 +10,14 @@ public class AppDbContext : DbContext
   public DbSet<Role> Roles { get; set; }
   public DbSet<UserRole> UserRoles { get; set; }
 
-
-
-  public DbSet<ApiLogsModel> ApiLogs { get; set; }
-  public DbSet<OpinionsModel> Opinions { get; set; }
   public DbSet<ContractsModel> Contracts { get; set; }
-  public DbSet<ContractApplicationModel> ContractApplications { get; set; }
 
 
   // AUTH
   public DbSet<PermissionsModel> Permissions { get; set; }
   public DbSet<RolePermissionsModel> RolePermissions { get; set; }
   public DbSet<UserPermissionsModel> UserPermissions { get; set; }
+  public DbSet<ApiLogsModel> ApiLogs { get; set; }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
@@ -125,7 +122,6 @@ public class AppDbContext : DbContext
         .UsePropertyAccessMode(PropertyAccessMode.Field);
     });
 
-
     modelBuilder.Entity<UserSpecialization>(entity =>
     {
       entity.ToTable("user_specializations");
@@ -138,6 +134,7 @@ public class AppDbContext : DbContext
       entity.Property(x => x.Specialization)
         .HasColumnName("specialization");
     });
+    
     modelBuilder.Entity<UserRole>(entity =>
     {
       entity.ToTable("user_roles");
@@ -210,19 +207,45 @@ public class AppDbContext : DbContext
       entity.Property(r => r.IsActive)
         .HasColumnName("is_active");
     });
+    
+    modelBuilder.Entity<Contracts>(entity =>
+    {
+      entity.ToTable("contracts");
+      entity.HasKey(c => c.ContractId);
+
+      entity.Property(c => c.ContractId)
+        .HasColumnName("contract_id");
+      
+      entity.Property(c => c.AuthorId)
+        .HasColumnName("author_id");
+      
+      entity.Property(c => c.Title)
+        .HasColumnName("title");
+      
+      entity.Property(c => c.Description)
+        .HasColumnName("description");
+
+      entity.Property(c => c.ContractStatus)
+        .HasColumnName("contract_status");
+      
+      entity.Property(c => c.CreatedAt)
+        .HasColumnName("created_at");
+      
+      entity.Property(c => c.UpdatedAt)
+        .HasColumnName("updated_at");
+
+      entity.Property(c => c.Deadline)
+        .HasColumnName("deadline");
+
+    });
+    modelBuilder.HasPostgresEnum<ContractStatus>("contract_status");
+
+
     modelBuilder.Entity<ApiLogsModel>().ToTable("api_logs");
     modelBuilder.Entity<ContractsModel>().ToTable("contracts");
 
+
     modelBuilder.Entity<ApiLogsModel>()
-        .HasKey(u => u.Id);
-
-    modelBuilder.Entity<ContractApplicationModel>()
-        .HasKey(u => u.Id);
-
-    modelBuilder.Entity<ContractsModel>()
-        .HasKey(u => u.Id);
-
-    modelBuilder.Entity<OpinionsModel>()
         .HasKey(u => u.Id);
 
     modelBuilder.Entity<PermissionsModel>()
