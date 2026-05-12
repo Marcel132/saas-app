@@ -10,11 +10,11 @@ public class AuthController : ControllerBase
   private readonly AuthCookieService _cookieSerivce;
   public AuthController(
     AuthService authService,
-    AuthCookieService cookieSerivce
+    AuthCookieService cookieService
   )
   {
     _authService = authService;
-    _cookieSerivce = cookieSerivce;
+    _cookieSerivce = cookieService;
   }
 
   // -------------------------------
