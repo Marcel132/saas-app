@@ -1,4 +1,4 @@
-public class Contracts
+public class Contract
 {
   public long ContractId { get; private set; }
   public Guid AuthorId { get; private set; }
@@ -11,9 +11,9 @@ public class Contracts
   public DateTime? UpdatedAt { get; private set; }
   public DateTime Deadline { get; private set; } = DateTime.UtcNow.AddDays(30);
 
-  private Contracts() { } // EF
+  private Contract() { } // EF
 
-  public Contracts(Guid authorId, string title, string description, decimal price)
+  public Contract(Guid authorId, string title, string description, decimal price)
   {
     if(authorId == Guid.Empty)
       throw new BadRequestAppException();
@@ -35,49 +35,60 @@ public class Contracts
 
   }
 
-  public void UpdateContractDetails(string title, string description)
+  public void StartContract()
   {
-    if(!CanEditDetails())
+    if(IsExpired())
+      throw new InvalidOperationAppException();
+    if(IsFunded == false)
+      throw new InvalidOperationAppException();
+    ChangeStatus(ContractStatus.InProgress);
+    // Froze funds logic would go here
+  }
+  public void CancelContract()
+  {
+    ChangeStatus(ContractStatus.Cancelled);
+    // Release funds logic would go here
+  }
+  public void CompleteContract()
+  {
+    ChangeStatus(ContractStatus.Completed);
+    // Release funds logic would go here
+  }
+  
+  public void UpdateContractDetails(string? title, string? description)
+  {
+    if(!CanModifyDetails())
       throw new BadRequestAppException();
-    if(
-      string.IsNullOrWhiteSpace(title) || 
-      string.IsNullOrWhiteSpace(description) ||
-      title.Length > 255 || description.Length > 1500
-      )
+    if(string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(description))
+      throw new InvalidOperationAppException();
+    if(title?.Length > 255 || description?.Length > 1500)
       throw new BadRequestAppException();
-    
-    Title = title;
-    Description = description;
 
+    Title = string.IsNullOrWhiteSpace(title) ? Title : title;
+    Description = string.IsNullOrWhiteSpace(description) ? Description : description;
     UpdatedAt = DateTime.UtcNow;
   }
   public void UpdatePrice(decimal newPrice)
   {
-    if(!CanEditDetails())
+    if(!CanModifyDetails())
       throw new BadRequestAppException();
-
     if (newPrice <= 0)
       throw new ValueOutOfRangeAppException();
 
     Price = decimal.Round(newPrice, 2);
-
     UpdatedAt = DateTime.UtcNow;
   }
-  
-  // TODO: Divide into multiple methods for different status updates (e.g. StartContract, CompleteContract, CancelContract)
-  public void UpdateContractStatus(ContractStatus contractStatus)
+  public bool IsExpired()
   {
-    if(ContractStatus == contractStatus)
-      return;
-    if (!CanContractStatusBeUpdated(contractStatus))
-      throw new BadRequestAppException();
-
-    ContractStatus = contractStatus;
-    UpdatedAt = DateTime.UtcNow;
+    return Deadline <= DateTime.UtcNow;
+  }
+  public bool CanModifyDetails()
+  {
+    return ContractStatus == ContractStatus.Open && !IsExpired();
   }
   public void ExtendDeadline(DateTime newDeadline)
   {
-    if(!CanEditDetails())
+    if(!CanModifyDetails())
       throw new BadRequestAppException();
     if(newDeadline <= DateTime.UtcNow)
       throw new ValueOutOfRangeAppException();
@@ -87,26 +98,39 @@ public class Contracts
     Deadline = newDeadline;
     UpdatedAt = DateTime.UtcNow;
   }
-  private bool CanContractStatusBeUpdated(ContractStatus newStatus)
+  public void MarkAsFunded()
+  {
+    if(IsFunded)
+      throw new InvalidOperationAppException();
+
+    if(ContractStatus != ContractStatus.Open)
+      throw new InvalidOperationAppException();
+
+    if(IsExpired())
+      throw new InvalidOperationAppException();
+
+    IsFunded = true;
+    UpdatedAt = DateTime.UtcNow;
+  }
+
+  private void ChangeStatus(ContractStatus newStatus)
+  {
+    if(!CanModifyStatus(newStatus))
+      throw new BadRequestAppException();
+
+    ContractStatus = newStatus;
+    UpdatedAt = DateTime.UtcNow;
+  }
+  private bool CanModifyStatus(ContractStatus newStatus)
   {
     return ContractStatus switch
     {
       ContractStatus.Open => newStatus == ContractStatus.InProgress || newStatus == ContractStatus.Cancelled,
-      ContractStatus.InProgress => newStatus == ContractStatus.Completed || newStatus == ContractStatus.Cancelled,
+      ContractStatus.InProgress => newStatus == ContractStatus.Completed,
       ContractStatus.Completed => false,
       ContractStatus.Cancelled => false,
       _ => false
     };
-  }
-  
-  public bool CanEditDetails()
-  {
-    return ContractStatus == ContractStatus.Open && !IsExpired();
-  }
-  
-  public bool IsExpired()
-  {
-    return Deadline <= DateTime.UtcNow;
   }
 
 }

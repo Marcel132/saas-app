@@ -48,7 +48,7 @@ public class Session
     if (sessionId <= 0)
       throw new ValueOutOfRangeAppException();
     
-    if(ReplaceByTokenId != null)
+    if(ReplacedByTokenId != null)
       throw new InvalidOperationAppException();
       
     ReplacedByTokenId = sessionId;
