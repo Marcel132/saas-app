@@ -33,7 +33,6 @@ public class AuthController : ControllerBase
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 
-      true,
       "Login successful", 
       DomainErrorCodes.AuthCodes.Success
       ));
@@ -51,7 +50,6 @@ public class AuthController : ControllerBase
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 
-      true,
       "User registered successfully.", 
       DomainErrorCodes.AuthCodes.Success,  
       new { id = user.userId}
@@ -88,7 +86,6 @@ public class AuthController : ControllerBase
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 
-      true,
       "Token refreshed successfully.", 
       DomainErrorCodes.AuthCodes.Success
       ));

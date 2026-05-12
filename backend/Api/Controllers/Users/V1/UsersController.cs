@@ -32,7 +32,6 @@ public class UsersController : ControllerBase
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 
-      true,
       "Users retrieved successfully", 
       DomainErrorCodes.AuthCodes.Success,
       users
@@ -56,7 +55,6 @@ public class UsersController : ControllerBase
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
       HttpResponseState.Success,
-      true,
       "User retrieved successfully",
       DomainErrorCodes.AuthCodes.Success,
       user
@@ -100,7 +98,6 @@ public class UsersController : ControllerBase
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 
-      true, 
       "Current user retrieved successfully", 
       DomainErrorCodes.AuthCodes.Success,
       user
@@ -117,7 +114,6 @@ public class UsersController : ControllerBase
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 
-      true,
       "User updated successfully", 
       DomainErrorCodes.AuthCodes.Success
     ));

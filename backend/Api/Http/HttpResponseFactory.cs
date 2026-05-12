@@ -5,7 +5,7 @@ public static class HttpResponseFactory
     HttpResponseState state,
     bool success,
     string? message = null,
-    string? errorCode = null,
+    string? code = null,
     T? data = default
     ) => new()
     {
@@ -14,21 +14,20 @@ public static class HttpResponseFactory
       Data = data,
       Message = message,
       TraceId = context.TraceIdentifier,
-      ErrorCode = errorCode ?? DomainErrorCodes.GeneralCodes.ServerError,
+      Code = code,
       Timestamp = DateTime.UtcNow
     };
 
   public static HttpResponseModel<T> CreateFailureResponse<T>(
     HttpContext context,
     HttpResponseState state,
-    bool success,
     string? message = null,
     string? errorCode = null,
     T? data = default
     ) => CreateResponse<T>(
       context,
       state,
-      success,
+      false,
       message,
       errorCode,
       data
@@ -37,14 +36,13 @@ public static class HttpResponseFactory
   public static HttpResponseModel<T> CreateSuccessResponse<T>(
     HttpContext context,
     HttpResponseState state,
-    bool success,
     string? message = null,
     string? successCode = null,
     T? data = default
     ) => CreateResponse<T>(
       context,
       state,
-      success,
+      true,
       message,
       successCode,
       data

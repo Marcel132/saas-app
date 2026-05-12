@@ -42,7 +42,6 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
       HttpResponseFactory.CreateFailureResponse<object>(
         context.HttpContext,
         HttpResponseState.BadRequest,
-        false,
         "Invalid request data",
         DomainErrorCodes.ValidationCodes.InvalidModel
       )
@@ -148,7 +147,7 @@ builder.Services.AddScoped<UserQueryService>();
 
 builder.Services.AddScoped<AuthCookieService>();
 
-// builder.Services.AddScoped<ContractsService>();
+builder.Services.AddScoped<ContractService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<TokenService>();
 
@@ -164,6 +163,7 @@ builder.Services.AddScoped<IUserQueryRepository, UserQueryRepository>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IContractRepository, ContractRepository>();
 builder.Services.AddScoped<UserRoleSynchronizer>();
 
 var app = builder.Build();

@@ -62,7 +62,6 @@ public class GlobalErrorHandlingMiddleware
     var response = HttpResponseFactory.CreateFailureResponse<object>(
       context,
       state,
-      false,
       ex.Message,
       ex.DomainError
     );
@@ -92,7 +91,6 @@ public class GlobalErrorHandlingMiddleware
     var response = HttpResponseFactory.CreateFailureResponse<object>(
       context,
       HttpResponseState.ServerError,
-      false,
       null,
       DomainErrorCodes.GeneralCodes.ServerError
     );

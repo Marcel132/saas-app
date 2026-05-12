@@ -28,7 +28,6 @@ public class NetworkMiddleware
         var response = HttpResponseFactory.CreateFailureResponse<string>(
           context,
           HttpResponseState.UnsupportedMediaType,
-          false,
           "Unsupported Media Type. Request is missing Content-Type header.",
           DomainErrorCodes.GeneralCodes.UnsupportedMediaType
           );
@@ -47,7 +46,6 @@ public class NetworkMiddleware
         var response = HttpResponseFactory.CreateFailureResponse<string>(
           context,
           HttpResponseState.ContentTooLarge,
-          false,
           "Payload Too Large. Request body exceeds the maximum allowed size.",
           DomainErrorCodes.FirewallCodes.PayloadBlocked
           );
@@ -67,7 +65,6 @@ public class NetworkMiddleware
       var response = HttpResponseFactory.CreateFailureResponse<string>(
         context,
         HttpResponseState.TooManyRequests,
-        false,
         "Too Many Requests. You have exceeded the rate limit.",
         DomainErrorCodes.FirewallCodes.RateLimitExceeded
         );

@@ -37,7 +37,7 @@ public class AppDbContext : DbContext
           ud.WithOwner()
             .HasForeignKey("user_id");
 
-          ud.Property(p => p.FirstName)
+          ud.Property(ud => ud.FirstName)
             .HasColumnName("first_name");
 
           ud.Property(ud => ud.LastName)
@@ -75,9 +75,6 @@ public class AppDbContext : DbContext
 
           ud.Property(ud => ud.IsTwoFactorEnabled)
             .HasColumnName("is_two_factor_enabled");
-
-          ud.Navigation(p => p)
-            .IsRequired();
         });
 
       entity.ToTable("users");
@@ -228,6 +225,9 @@ public class AppDbContext : DbContext
       
       entity.Property(c => c.Description)
         .HasColumnName("description");
+      
+      entity.Property(c => c.Price)
+        .HasColumnName("price");
 
       entity.Property(c => c.ContractStatus)
         .HasColumnName("contract_status");

@@ -7,5 +7,5 @@ public class HttpResponseModel<T>
   public string? TraceId { get; set; }
   public DateTime Timestamp { get; set; } = DateTime.UtcNow;
   
-  public string? ErrorCode { get; set; }
+  public string? Code { get; set; }
 }
