@@ -7,7 +7,7 @@ public class AuthService
   private readonly AuthSessionService _sessionService;
   private readonly TokenService _tokenService;
   private readonly RoleService _roleService;
-  private readonly AuthCookieService _cookieSerivce;
+  private readonly AuthCookieService _cookieService;
   private readonly RefreshService _refreshService;
   public AuthService(
     AuthSessionService sessionService,
@@ -26,7 +26,7 @@ public class AuthService
 
     _tokenService = tokenService;
     _roleService = roleService;
-    _cookieSerivce = authCookieService;
+    _cookieService = authCookieService;
     _refreshService = refreshService;
   }
 
@@ -46,7 +46,7 @@ public class AuthService
     await _sessionService.RevokeAllSessionsAsync(user.Id, null);
     await _sessionService.CreateSessionAsync(user.Id, refreshToken, ipAddress, userAgent);
 
-    _cookieSerivce.SetAuthCookie(response, refreshToken, authToken);
+    _cookieService.SetAuthCookie(response, refreshToken, authToken);
 
     return new AuthResult(
       true,
@@ -70,7 +70,7 @@ public class AuthService
     await _sessionService.RevokeAllSessionsAsync(user.Id, null);
     await _sessionService.CreateSessionAsync(user.Id, refreshToken, ipAddress, userAgent);
 
-    _cookieSerivce.SetAuthCookie(response, refreshToken, authToken);
+    _cookieService.SetAuthCookie(response, refreshToken, authToken);
 
 
     return new AuthResult(
@@ -85,7 +85,7 @@ public class AuthService
   public async Task LogoutAsync(Guid userId, HttpResponse response)
   {
     await _sessionService.RevokeAllSessionsAsync(userId, null);
-    _cookieSerivce.ClearAuthCookie(response);
+    _cookieService.ClearAuthCookie(response);
   }
 
   public async Task<RefreshTokenResult> RefreshTokenAsync(string ipAddress, string userAgent, string? refreshToken)

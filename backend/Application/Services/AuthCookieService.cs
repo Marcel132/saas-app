@@ -29,8 +29,11 @@ public class AuthCookieService
     };
 
     if (isPersistent)
+    {
       cookieOptions.Expires = DateTimeOffset.UtcNow.AddDays(7);
       cookieOptions.MaxAge = TimeSpan.FromDays(7);
+    }
+      
 
     return cookieOptions;
   }

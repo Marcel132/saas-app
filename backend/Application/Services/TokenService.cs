@@ -7,9 +7,9 @@ using System.Security.Cryptography;
 public class TokenService
 {
 
-  public readonly string _jwtKey;
-  public readonly string _issuer;
-  public readonly string _audience;
+  private readonly string _jwtKey;
+  private readonly string _issuer;
+  private readonly string _audience;
   private readonly SymmetricSecurityKey _signingKey;
   private readonly TokenValidationParameters _validationParameters;
   private readonly JwtSecurityTokenHandler _tokenHandler = new();

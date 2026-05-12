@@ -10,17 +10,17 @@ public class AuthSessionService
     _sessions = sessions;
   }
   public async Task<Session> CreateSessionAsync(
-    Guid user_id,
+    Guid userId,
     string refreshToken,
     string deviceIp,
     string userAgent
   )
   {
     var session = Session.Create(
-      user_id,
+      userId,
       refreshToken,
-      deviceIp,
-      userAgent
+      userAgent,
+      deviceIp
     );
 
     await _sessions.AddAsync(session);
