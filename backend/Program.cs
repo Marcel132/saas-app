@@ -11,8 +11,8 @@ builder.Services.AddOpenApi("Backend");
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+      options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+      options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
 var JwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured in appsettings.json");
@@ -22,36 +22,39 @@ var JwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOper
 
 Console.WriteLine($"JWT KEY: {JwtKey}");
 Console.WriteLine($"JWT ISSUER: {JwtIssuer}");
-Console.WriteLine($"JWT AUDIENCE: {JwtAudience}");  
+Console.WriteLine($"JWT AUDIENCE: {JwtAudience}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        o => o.MapEnum<ContractStatus>("contract_status")
-    )
+  options.UseNpgsql(
+      builder.Configuration.GetConnectionString("DefaultConnection"),
+      o => o
+        .MapEnum<ContractStatus>("contract_status")
+        .MapEnum<ContractExecutionStatus>("contract_execution_status")
+        .MapEnum<ContractApplicationStatus>("contract_application_status")  
+  )
 );
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
-    options.InvalidModelStateResponseFactory = context =>
-    {
-        return new BadRequestObjectResult(
-            HttpResponseFactory.CreateFailureResponse<object>(
-                context.HttpContext,
-                HttpResponseState.BadRequest,
-                false,
-                "Invalid request data",
-                DomainErrorCodes.ValidationCodes.InvalidModel
-            )
-        );
-    };
+  options.InvalidModelStateResponseFactory = context =>
+  {
+    return new BadRequestObjectResult(
+      HttpResponseFactory.CreateFailureResponse<object>(
+        context.HttpContext,
+        HttpResponseState.BadRequest,
+        false,
+        "Invalid request data",
+        DomainErrorCodes.ValidationCodes.InvalidModel
+      )
+    );
+  };
 });
 
 builder.Services.AddApiVersioning(options =>
 {
-    options.DefaultApiVersion = new ApiVersion(1, 0);
-    options.AssumeDefaultVersionWhenUnspecified = true;
-    options.ReportApiVersions = true;
+  options.DefaultApiVersion = new ApiVersion(1, 0);
+  options.AssumeDefaultVersionWhenUnspecified = true;
+  options.ReportApiVersions = true;
 });
 
 builder.Services.AddAuthentication("CookieAuth")
@@ -63,70 +66,74 @@ builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHand
 
 builder.Services.AddAuthorization(options =>
 {
-    // -----------------
-    // PROFILE
-    // -----------------
+  // -----------------
+  // PROFILE
+  // -----------------
 
-    options.AddPolicy("profile.create",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("profile.create")
-        ));
-    options.AddPolicy("profile.read",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("profile.read")
-        ));
-    options.AddPolicy("profile.update",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("profile.update")
-        ));
-    options.AddPolicy("profile.delete",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("profile.delete")
-        ));
-
-
-    // -----------------
-    // USERS
-    // -----------------
-
-    options.AddPolicy("users.create",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("users.create")
-        ));
-    options.AddPolicy("users.read",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("users.read")
-        ));
-    options.AddPolicy("users.update",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("users.update")
-        ));
-    options.AddPolicy("users.delete",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("users.delete")
-        ));
+  options.AddPolicy("profile.create",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("profile.create")
+      ));
+  options.AddPolicy("profile.read",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("profile.read")
+      ));
+  options.AddPolicy("profile.update",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("profile.update")
+      ));
+  options.AddPolicy("profile.delete",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("profile.delete")
+      ));
 
 
-    // -----------------
-    // Contracts
-    // -----------------
-    
-    options.AddPolicy("contracts.create",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("contracts.create")
-        ));
-    options.AddPolicy("contracts.read",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("contracts.read")
-        ));
-    options.AddPolicy("contracts.update",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("contracts.update")
-        ));
-    options.AddPolicy("contracts.delete",
-        policy => policy.Requirements.Add(
-            new PermissionRequirement("contracts.delete")
-        ));
+  // -----------------
+  // USERS
+  // -----------------
+
+  options.AddPolicy("users.read.all",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("users.read.all")
+      ));
+  options.AddPolicy("users.create",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("users.create")
+      ));
+  options.AddPolicy("users.read",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("users.read")
+      ));
+  options.AddPolicy("users.update",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("users.update")
+      ));
+  options.AddPolicy("users.delete",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("users.delete")
+      ));
+
+
+  // -----------------
+  // Contracts
+  // -----------------
+
+  options.AddPolicy("contracts.create",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("contracts.create")
+      ));
+  options.AddPolicy("contracts.read",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("contracts.read")
+      ));
+  options.AddPolicy("contracts.update",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("contracts.update")
+      ));
+  options.AddPolicy("contracts.delete",
+      policy => policy.Requirements.Add(
+          new PermissionRequirement("contracts.delete")
+      ));
 });
 
 
@@ -149,10 +156,11 @@ builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddScoped<UserAuthenticationService>();
 
-builder.Services.AddScoped<ILoginPolicy, LoginPolicy>(); 
+builder.Services.AddScoped<ILoginPolicy, LoginPolicy>();
 builder.Services.AddScoped<IRegisterPolicy, RegisterPolicy>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserQueryRepository, UserQueryRepository>();
 builder.Services.AddScoped<ISessionRepository, SessionRepository>();
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
@@ -163,7 +171,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+  app.MapOpenApi();
 }
 
 app.UseMiddleware<GlobalErrorHandlingMiddleware>();

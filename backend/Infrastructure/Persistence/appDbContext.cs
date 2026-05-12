@@ -9,15 +9,19 @@ public class AppDbContext : DbContext
   public DbSet<Session> Sessions { get; set; }
   public DbSet<Role> Roles { get; set; }
   public DbSet<UserRole> UserRoles { get; set; }
+  public DbSet<Contract> Contracts { get; set; }
+  public DbSet<ContractApplication> ContractApplications { get; set; }
+  public DbSet<ContractAssignment> ContractAssignments { get; set; }
+  public DbSet<ContractExecution> ContractExecutions { get; set; }
+  public DbSet<Permission> Permissions { get; set; }
+  public DbSet<RolePermission> RolePermissions { get; set; }
+  public DbSet<UserPermission> UserPermissions { get; set; }
 
-  public DbSet<ContractsModel> Contracts { get; set; }
 
-
-  // AUTH
-  public DbSet<PermissionsModel> Permissions { get; set; }
-  public DbSet<RolePermissionsModel> RolePermissions { get; set; }
-  public DbSet<UserPermissionsModel> UserPermissions { get; set; }
-  public DbSet<ApiLogsModel> ApiLogs { get; set; }
+  // // AUTH
+  // public DbSet<RolePermissionsModel> RolePermissions { get; set; }
+  // public DbSet<UserPermissionsModel> UserPermissions { get; set; }
+  // public DbSet<ApiLogsModel> ApiLogs { get; set; }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
@@ -208,7 +212,7 @@ public class AppDbContext : DbContext
         .HasColumnName("is_active");
     });
     
-    modelBuilder.Entity<Contracts>(entity =>
+    modelBuilder.Entity<Contract>(entity =>
     {
       entity.ToTable("contracts");
       entity.HasKey(c => c.ContractId);
@@ -240,23 +244,139 @@ public class AppDbContext : DbContext
     });
     modelBuilder.HasPostgresEnum<ContractStatus>("contract_status");
 
+    modelBuilder.Entity<ContractApplication>(entity =>
+    {
+      entity.ToTable("contract_applications");
+      entity.HasKey(ca => ca.ApplicationId);
 
-    modelBuilder.Entity<ApiLogsModel>().ToTable("api_logs");
-    modelBuilder.Entity<ContractsModel>().ToTable("contracts");
+      entity.Property(ca => ca.ApplicationId)
+        .HasColumnName("application_id");
+      
+      entity.Property(ca => ca.ContractId)
+        .HasColumnName("contract_id");
+      
+      entity.Property(ca => ca.CandidateId)
+        .HasColumnName("candidate_id");
+      
+      entity.Property(ca => ca.Status)
+        .HasColumnName("applied_status");
+
+      entity.Property(ca => ca.AppliedAt)
+        .HasColumnName("applied_at");
+    });
+    modelBuilder.HasPostgresEnum<ContractApplicationStatus>("contract_application_status");
+
+    modelBuilder.Entity<ContractAssignment>(entity =>
+    {
+      entity.ToTable("contract_assignments");
+      entity.HasKey(ca => ca.AssignmentId);
+
+      entity.Property(ca => ca.AssignmentId)
+        .HasColumnName("assignment_id");
+      
+      entity.Property(ca => ca.ContractId)
+        .HasColumnName("contract_id");
+      
+      entity.Property(ca => ca.DeveloperId)
+        .HasColumnName("user_id");
+      
+      entity.Property(ca => ca.AssignedAt)
+        .HasColumnName("assigned_at");
+    });
+
+    modelBuilder.Entity<ContractExecution>(entity =>
+    {
+      entity.ToTable("contract_executions");
+      entity.HasKey(ce => ce.ExecutionId);
+
+      entity.Property(ce => ce.ExecutionId)
+        .HasColumnName("execution_id");
+      
+      entity.Property(ce => ce.ContractId)
+        .HasColumnName("contract_id");
+
+      entity.Property(ce => ce.StartedAt)
+        .HasColumnName("started_at");
+
+      entity.Property(ce => ce.CompletedAt)
+        .HasColumnName("completed_at");
+      
+      entity.Property(ce => ce.Status)
+        .HasColumnName("execution_status");
+        
+      entity.Property(ce => ce.ReportUrl)
+        .HasColumnName("report_url");
+    });
+    modelBuilder.HasPostgresEnum<ContractExecutionStatus>("contract_execution_status");
+
+    modelBuilder.Entity<Permission>(entity =>
+    {
+      entity.ToTable("permissions");
+      entity.HasKey(p => p.PermissionId);
+
+      entity.Property(p => p.PermissionId)
+        .HasColumnName("permission_id");
+      entity.Property(p => p.Action)
+        .HasColumnName("action");
+      entity.Property(p => p.Resource)
+        .HasColumnName("resource");
+      entity.Property(p => p.Code)
+        .HasColumnName("code");
+      entity.Property(p => p.Description)
+        .HasColumnName("description");
+      entity.Property(p => p.IsActive)
+        .HasColumnName("is_active");
+      entity.Property(p => p.CreatedAt)
+        .HasColumnName("created_at");
+      
+      entity.HasIndex(p => p.Code)
+        .IsUnique();
+    });
+    modelBuilder.Entity<RolePermission>(entity =>
+    {
+      entity.ToTable("role_permissions");
+      entity.HasKey(rp => new {rp.RoleId, rp.PermissionId});
+
+      entity.Property(rp => rp.RoleId)
+        .HasColumnName("role_id");
+      
+      entity.Property(rp => rp.PermissionId)
+        .HasColumnName("permission_id");
+    });
+    modelBuilder.Entity<UserPermission>(entity =>
+    {
+      entity.ToTable("user_permissions");
+      entity.HasKey(up => new {up.UserId, up.PermissionId});
+
+      entity.Property(up => up.UserId)
+        .HasColumnName("user_id");
+
+      entity.Property(up => up.PermissionId)
+        .HasColumnName("permission_id");
+
+      entity.Property(up => up.IsDenied)
+        .HasColumnName("is_denied");
+
+      entity.Property(up => up.AssignedAt)
+        .HasColumnName("granted_at");
+    });
+    
+    // modelBuilder.Entity<ApiLogsModel>().ToTable("api_logs");
 
 
-    modelBuilder.Entity<ApiLogsModel>()
-        .HasKey(u => u.Id);
 
-    modelBuilder.Entity<PermissionsModel>()
-        .HasKey(u => u.PermissionId);
+    // modelBuilder.Entity<ApiLogsModel>()
+    //     .HasKey(u => u.Id);
 
-    modelBuilder.Entity<RolePermissionsModel>()
-        .HasKey(u => new { u.PermissionId, u.RoleId });
+    // modelBuilder.Entity<PermissionsModel>()
+    //     .HasKey(u => u.PermissionId);
+
+    // modelBuilder.Entity<RolePermissionsModel>()
+    //     .HasKey(u => new { u.PermissionId, u.RoleId });
 
 
-    modelBuilder.Entity<UserPermissionsModel>()
-        .HasKey(u => new { u.UserId, u.PermissionId });
+    // modelBuilder.Entity<UserPermissionsModel>()
+    //     .HasKey(u => new { u.UserId, u.PermissionId });
   }
 
 
