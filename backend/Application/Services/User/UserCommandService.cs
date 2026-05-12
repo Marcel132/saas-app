@@ -48,7 +48,7 @@ public class UserCommandService
       request.CompanyNip
     );
 
-    await _users.UpdateAsync(user);
+    await _users.SaveChangesAsync();
   }
 
   public async Task DeleteUserAsync(Guid userId)
@@ -57,7 +57,6 @@ public class UserCommandService
       ?? throw new NotFoundAppException();
 
     user.DeleteAccount();
-
     await _users.SaveChangesAsync();
   }
 }
