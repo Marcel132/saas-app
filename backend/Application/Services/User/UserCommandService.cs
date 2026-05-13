@@ -60,4 +60,5 @@ public class UserCommandService
     user.DeleteAccount();
     await _users.SaveChangesAsync();
   }
+
 }

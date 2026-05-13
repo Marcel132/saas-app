@@ -36,7 +36,7 @@ public class UserQueryRepository : IUserQueryRepository
       .Take(pageSize)
       .Select(u => new UserResponsePublicDto
       {
-        Nickname = u.UserData.Nickname,
+        Nickname = u.UserData.Nickname ?? string.Empty,
         Skills = u.UserData.Skills,
         CompanyName = u.UserData.CompanyName ?? string.Empty,
         CreatedAt = u.CreatedAt,
@@ -62,7 +62,7 @@ public class UserQueryRepository : IUserQueryRepository
       .Where(u => u.Id == userId && u.IsActive)
       .Select(u => new UserResponsePublicDto
       {
-        Nickname = u.UserData.Nickname,
+        Nickname = u.UserData.Nickname ?? string.Empty,
         Skills = u.UserData.Skills,
         Specialization = u.UserSpecializations
           .Select(us => us.Specialization)
@@ -106,6 +106,7 @@ public class UserQueryRepository : IUserQueryRepository
           .ToList(),
         FirstName = u.UserData.FirstName,
         LastName = u.UserData.LastName,
+        Nickname = u.UserData.Nickname ?? string.Empty,
         Skills = u.UserData.Skills,
         CompanyName = u.UserData.CompanyName ?? string.Empty,
         CompanyNip = u.UserData.CompanyNip ?? string.Empty,
@@ -116,5 +117,32 @@ public class UserQueryRepository : IUserQueryRepository
       })
       .FirstOrDefaultAsync()
       ?? throw new NotFoundAppException();
+  }
+
+  public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status = null)
+  {
+    return await _context.ContractAssignments
+      .AsNoTracking()
+      .Where(ca => ca.DeveloperId == userId)
+      .Join(_context.Contracts,
+        ca => ca.ContractId,
+        c => c.ContractId,
+        (ca, c) => new { ca, c })
+      .Join(_context.Users,
+        cca => cca.c.AuthorId,
+        u => u.Id,
+        (cca, u) => new { cca.ca, cca.c, Author = u })
+      .Select(ca => new UserContractsDto
+      {
+        ContractId = ca.ca.ContractId,
+        AuthorNickname = ca.Author.UserData.Nickname ?? string.Empty,
+        CompanyName = ca.Author.UserData.CompanyName ?? string.Empty,
+        Title = ca.c.Title,
+        Description = ca.c.Description,
+        ContractStatus = ca.c.ContractStatus,
+        CreatedAt = ca.c.CreatedAt
+      })
+      .ToListAsync();
+
   }
 }

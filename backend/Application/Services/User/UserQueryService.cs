@@ -30,4 +30,9 @@ public class UserQueryService
   {
     return await _userQueryRepository.GetCurrentUserByIdAsync(userId);
   }
+
+  public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status = null)
+  {
+    return await _userQueryRepository.GetCurrentUserContractsAsync(userId, status);
+  }
 }

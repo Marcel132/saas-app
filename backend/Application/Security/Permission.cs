@@ -6,6 +6,8 @@ public static class Permissions
     public const string Read = "profile.read";
     public const string Update = "profile.update";
     public const string Delete = "profile.delete";
+
+      public const string ContractsRead = "profile.contracts.read";
   }
   public static class Users
   {

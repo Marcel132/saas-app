@@ -68,6 +68,7 @@ public class UsersController : ControllerBase
       ));
   }
 
+  // TODO: REFACTOR 
   [HasPermission(Permissions.Profile.Update)]
   [HttpPut("me")]
   public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateUserDto request)
@@ -91,6 +92,22 @@ public class UsersController : ControllerBase
     await _commandService.DeleteUserAsync(userId);
     
     return NoContent();
+  }
+
+  // [HasPermission(Permissions.Profile.ContractsRead)]
+  [HttpGet("me/contracts")]
+  public async Task<IActionResult> GetCurrentUserContracts()
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    var contracts = await _queryService.GetCurrentUserContractsAsync(userId, null);
+    
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      "User contracts retrieved successfully", 
+      DomainErrorCodes.AuthCodes.Success,
+      contracts
+    ));
   }
 
 
