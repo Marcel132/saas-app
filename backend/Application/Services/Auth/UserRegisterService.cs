@@ -30,6 +30,7 @@ public class UserRegisterService
     var userData = new UserData(        
       request.FirstName,
       request.LastName,
+      request.Nickname,
       request.PhoneNumber,
       request.Skills,
       request.City,

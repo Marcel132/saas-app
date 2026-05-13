@@ -21,6 +21,7 @@ public class RegisterPolicyTests
     {
       Email = "test@example.com",
       Password = "JohnTestPassword!123",
+      Nickname = "JohnDoe",
       FirstName = "John",
       LastName = "Doe",
       SpecializationType = [Specialization.Audit, Specialization.Pentester],
@@ -42,6 +43,7 @@ public class RegisterPolicyTests
     {
       Email = "test@example.com",
       Password = "StrongPassword!123",
+      Nickname = "JohnDoe",
       FirstName = "John",
       LastName = "Doe",
       SpecializationType = [],
@@ -65,6 +67,7 @@ public class RegisterPolicyTests
       Password = "StrongPassword!123",
       FirstName = "John",
       LastName = "Doe",
+      Nickname = "JohnDoe",
       SpecializationType = [Specialization.Pentester],
       CompanyName = "PorkAndCheese",
       CompanyNip = null
@@ -84,6 +87,7 @@ public class RegisterPolicyTests
       Password = "StrongPassword!123",
       FirstName = "John",
       LastName = "Doe",
+      Nickname = "JohnDoe",
       SpecializationType = [Specialization.Pentester],
       CompanyName = "PorkAndCheese",
       CompanyNip = "123-456-789"

@@ -12,22 +12,21 @@ public class UserQueryService
     _userQueryRepository = userQueryRepository;
   }
 
-  public async Task<PagedResponse<UserResponseDto>> GetAllAsync(int page, int pageSize, string? search = null)
+  public async Task<PagedResponse<UserResponsePublicDto>> GetAllAsync(int page, int pageSize, string? search = null)
   {
     return await _userQueryRepository.GetAllAsync(page, pageSize, search);
   }
 
-  public async Task<UserResponseDto> GetUserByIdAsync(Guid userId, Guid currentUserId, bool canReadAll)  
+  public async Task<UserResponsePublicDto> GetUserByIdAsync(Guid userId, Guid currentUserId)  
   {
     var user = await _userQueryRepository.GetUserByIdAsync(userId);
 
-    if (!canReadAll && userId != currentUserId)
-      throw new NotFoundAppException();
+    // TODO: Create log with userId and currentUserId (who requested the data) for auditing purposes
 
     return user;
   }
 
-  public async Task<UserResponseDto> GetCurrentUserByIdAsync(Guid userId)
+  public async Task<UserResponsePrivateDto> GetCurrentUserByIdAsync(Guid userId)
   {
     return await _userQueryRepository.GetCurrentUserByIdAsync(userId);
   }

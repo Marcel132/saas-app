@@ -2,6 +2,7 @@ public class UserData
 {
   public string FirstName { get; private set; } = string.Empty;
   public string LastName { get; private set; } = string.Empty;
+  public string Nickname { get; private set; } = string.Empty;
   public string PhoneNumber { get; private set; } = string.Empty;
   public string Skills { get; private set; } = string.Empty;
   public string City { get; private set; } = string.Empty;
@@ -21,6 +22,7 @@ public class UserData
   internal UserData(
     string firstName,
     string lastName,
+    string nickname,
     string phoneNumber,
     string skills,
     string city,
@@ -32,7 +34,7 @@ public class UserData
     )
   {
     Update(
-      firstName, lastName, phoneNumber, skills,
+      firstName, lastName, nickname, phoneNumber, skills,
       city, country, postalCode, street,
       companyName, companyNip
     );
@@ -41,6 +43,7 @@ public class UserData
   public void Update(
     string? firstName,
     string? lastName,
+    string? nickname,
     string? phoneNumber,
     string? skills,
     string? city,
@@ -52,6 +55,7 @@ public class UserData
   {
     if (firstName != null) FirstName = firstName;
     if (lastName != null) LastName = lastName;
+    if (nickname != null) Nickname = nickname;
     if (phoneNumber != null) PhoneNumber = phoneNumber;
     if (skills != null) Skills = skills;
     if (city != null) City = city;
@@ -70,6 +74,7 @@ public class UserData
   {
     FirstName = string.Empty;
     LastName = string.Empty;
+    Nickname = string.Empty;
     PhoneNumber = string.Empty;
     Skills = string.Empty;
     City = string.Empty;

@@ -20,7 +20,6 @@ public class ContractsController : ControllerBase
   // path: /contracts         READ
   // -------------------------------
 
-  [HasPermission(Permissions.Contracts.Read)]
   [HttpGet]
   public async Task<IActionResult> GetContracts([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
   {
@@ -34,4 +33,19 @@ public class ContractsController : ControllerBase
       contracts
     ));
   }
+  
+  [HttpGet("{contractId}")]
+  public async Task<IActionResult> GetContractById([FromRoute] long contractId)
+  {
+    var contract = await _contractService.GetContractByIdAsync(contractId);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      "Contract retrieved successfully", 
+      DomainErrorCodes.AuthCodes.Success,
+      contract
+    ));
+  }
+
 }

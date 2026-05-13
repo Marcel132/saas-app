@@ -101,6 +101,7 @@ public class User
   public void UpdateUserData(
     string? firstName,
     string? lastName,
+    string? nickname,
     string? phoneNumber,
     string? skills,
     string? city,
@@ -116,6 +117,7 @@ public class User
         UserData = new UserData(
           firstName ?? string.Empty,
           lastName ?? string.Empty,
+          nickname ?? string.Empty,
           phoneNumber ?? string.Empty,
           skills ?? string.Empty,
           city ?? string.Empty,
@@ -133,6 +135,7 @@ public class User
         UserData.Update(
         firstName,
         lastName,
+        nickname,
         phoneNumber,
         skills,
         city,

@@ -9,11 +9,22 @@ public class ContractService
   public async Task<PagedResponse<ContractResponseDto>> GetContractsAsync(int page, int pageSize, string? search)
   {
     if(page <= 0 || pageSize <= 0)
-      throw new ArgumentException("Page and pageSize must be greater than 0");
+      throw new ValueOutOfRangeAppException();
     if(!string.IsNullOrWhiteSpace(search) && search.Length > 100)
-      throw new ArgumentException("Search query is too long");
+      throw new BadRequestAppException();
 
     var contracts = await _contractRepository.GetContractsAsync(page, pageSize, search);
     return contracts;
+  }
+
+  public async Task<ContractResponseDto> GetContractByIdAsync(long contractId)
+  {
+    if(contractId <= 0)
+      throw new ValueOutOfRangeAppException();
+    
+    var contract = await _contractRepository.GetContractsByIdAsync(contractId)
+      ?? throw new NotFoundAppException();
+    
+    return contract;
   }
 }

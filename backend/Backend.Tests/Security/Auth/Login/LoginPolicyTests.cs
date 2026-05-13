@@ -18,7 +18,7 @@ public class LoginPolicyTests
     var policy = new LoginPolicy();
 
     var userData = new UserData(
-      "Adam", "Nowak", "123",
+      "Adam", "Nowak", "AdamNowak", "123",
       "Skills", "City", "Country",
       "00-000", "Street",
       null, null
@@ -42,7 +42,7 @@ public class LoginPolicyTests
     var policy = new LoginPolicy();
 
     var userData = new UserData(
-      "Adam", "Nowak", "123",
+      "Adam", "Nowak", "AdamNowak", "123",
       "Skills", "City", "Country",
       "00-000", "Street",
       null, null
@@ -67,7 +67,7 @@ public class LoginPolicyTests
     var policy = new LoginPolicy();
 
     var userData = new UserData(
-      "Adam", "Nowak", "123",
+      "Adam", "Nowak", "AdamNowak", "123",
       "Skills", "City", "Country",
       "00-000", "Street",
       null, null

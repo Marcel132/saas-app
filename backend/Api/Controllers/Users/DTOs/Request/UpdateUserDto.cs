@@ -26,6 +26,10 @@ public class UpdateUserDto
   [StringLength(128)]
   [RegularExpression(@"^[^%<>]*$")]
   public string? LastName { get; set; }
+
+  [StringLength(255)]
+  [RegularExpression(@"^[^%<>]*$")]
+  public string? Nickname { get; set; }
   
   [StringLength(32)]
   [Phone]

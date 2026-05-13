@@ -38,6 +38,7 @@ public class UserCommandService
     user.UpdateUserData(
       request.FirstName,
       request.LastName,
+      request.Nickname,
       request.PhoneNumber,
       request.Skills,
       request.City,

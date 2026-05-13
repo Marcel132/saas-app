@@ -11,7 +11,7 @@ public class UserQueryRepository : IUserQueryRepository
     _context = context;
   }
 
-  public async Task<PagedResponse<UserResponseDto>> GetAllAsync(int page, int pageSize, string? search = null)
+  public async Task<PagedResponse<UserResponsePublicDto>> GetAllAsync(int page, int pageSize, string? search = null)
   {
     page = Math.Max(page, 1);
     pageSize = Math.Clamp(pageSize, 1, 50);
@@ -34,22 +34,19 @@ public class UserQueryRepository : IUserQueryRepository
       .OrderByDescending(u => u.CreatedAt)
       .Skip((page - 1) * pageSize)
       .Take(pageSize)
-      .Select(u => new UserResponseDto
+      .Select(u => new UserResponsePublicDto
       {
-        Id = u.Id,
-        Email = u.Email,
+        Nickname = u.UserData.Nickname,
+        Skills = u.UserData.Skills,
+        CompanyName = u.UserData.CompanyName ?? string.Empty,
         CreatedAt = u.CreatedAt,
         Specialization = u.UserSpecializations
           .Select(us => us.Specialization)
           .ToList(),
-        FirstName = u.UserData.FirstName,
-        LastName = u.UserData.LastName,
-        Skills = u.UserData.Skills,
-        IsActive = u.IsActive
       })
       .ToListAsync();
 
-    return new PagedResponse<UserResponseDto>
+    return new PagedResponse<UserResponsePublicDto>
     {
       Page = page,
       PageSize = pageSize,
@@ -58,32 +55,49 @@ public class UserQueryRepository : IUserQueryRepository
       Items = users
     };
   }
-  public async Task<UserResponseDto> GetUserByIdAsync(Guid userId)
+  public async Task<UserResponsePublicDto> GetUserByIdAsync(Guid userId)
   {
     return await _context.Users
       .AsNoTracking()
       .Where(u => u.Id == userId && u.IsActive)
-      .Select(u => new UserResponseDto
+      .Select(u => new UserResponsePublicDto
       {
-        Id = u.Id,
-        Email = u.Email,
+        Nickname = u.UserData.Nickname,
+        Skills = u.UserData.Skills,
         Specialization = u.UserSpecializations
           .Select(us => us.Specialization)
           .ToList(),
-        FirstName = u.UserData.FirstName,
-        LastName = u.UserData.LastName,
-        IsActive = u.IsActive,
+        CompanyName = u.UserData.CompanyName ?? string.Empty,
         CreatedAt = u.CreatedAt
       })
       .FirstOrDefaultAsync()
       ?? throw new NotFoundAppException();
   }
-  public async Task<UserResponseDto> GetCurrentUserByIdAsync(Guid userId)
+
+  public async Task<UserResponsePrivateDto> GetCurrentUserByIdAsync(Guid userId)
   {
+    // users -> user_roles -> role.name
+
+    var userRole = await _context.UserRoles
+      .Where(ur => ur.UserId == userId)
+      .Join(_context.Roles,
+        ur => ur.RoleId,
+        r => r.RoleId,
+        (ur, r) => r.Name)
+      .ToListAsync();
+    
+    var userPermissions = await _context.UserPermissions
+      .Where(up => up.UserId == userId)
+      .Join(_context.Permissions,
+        up => up.PermissionId,
+        p => p.PermissionId,
+        (up, p) => p.Code)
+      .ToListAsync();
+    
     return await _context.Users
       .AsNoTracking()
       .Where(u => u.Id == userId && u.IsActive)
-      .Select(u => new UserResponseDto
+      .Select(u => new UserResponsePrivateDto
       {
         Id = u.Id,
         Email = u.Email,
@@ -92,8 +106,13 @@ public class UserQueryRepository : IUserQueryRepository
           .ToList(),
         FirstName = u.UserData.FirstName,
         LastName = u.UserData.LastName,
+        Skills = u.UserData.Skills,
+        CompanyName = u.UserData.CompanyName ?? string.Empty,
+        CompanyNip = u.UserData.CompanyNip ?? string.Empty,
         IsActive = u.IsActive,
-        CreatedAt = u.CreatedAt
+        CreatedAt = u.CreatedAt,
+        Roles = userRole.ToHashSet(),
+        Permissions = userPermissions.ToHashSet()
       })
       .FirstOrDefaultAsync()
       ?? throw new NotFoundAppException();

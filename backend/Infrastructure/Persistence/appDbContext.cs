@@ -42,6 +42,9 @@ public class AppDbContext : DbContext
 
           ud.Property(ud => ud.LastName)
             .HasColumnName("last_name");
+          
+          ud.Property(ud => ud.Nickname)
+            .HasColumnName("nickname");
 
           ud.Property(ud => ud.PhoneNumber)
             .HasColumnName("phone_number");

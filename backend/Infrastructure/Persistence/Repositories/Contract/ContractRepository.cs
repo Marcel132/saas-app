@@ -10,8 +10,6 @@ public class ContractRepository : IContractRepository
 
   public async Task<PagedResponse<ContractResponseDto>> GetContractsAsync(int page, int pageSize, string? search)
   {
-    page = Math.Max(page, 1);
-    pageSize = Math.Clamp(pageSize, 1, 50);
     var query = _context.Contracts
       .AsNoTracking()
       .Where(c => c.ContractStatus == ContractStatus.Open && c.Deadline > DateTime.UtcNow);
@@ -49,5 +47,31 @@ public class ContractRepository : IContractRepository
       TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
       Items = contracts
     };
+  }
+
+  public async Task<ContractResponseDto?> GetContractsByIdAsync(long contractId)
+  {
+    var contract = await _context.Contracts
+      .AsNoTracking()
+      .Where(c => 
+      c.ContractId == contractId &&
+      c.ContractStatus == ContractStatus.Open &&
+      c.Deadline > DateTime.UtcNow
+      )
+      .Select(c => new ContractResponseDto
+      {
+        ContractId = c.ContractId,
+        AuthorId = c.AuthorId,
+        Title = c.Title,
+        Description = c.Description,
+        Price = c.Price,
+        Deadline = c.Deadline,
+        CreatedAt = c.CreatedAt,
+        UpdatedAt = c.UpdatedAt,
+        ContractStatus = c.ContractStatus
+      })
+      .FirstOrDefaultAsync();
+
+    return contract;
   }
 }

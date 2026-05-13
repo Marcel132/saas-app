@@ -32,6 +32,11 @@ public class RegisterRequestDto
 
   [Required]
   [RegularExpression(@"^[^%<>]*$")]
+  [StringLength(64)]
+  public string Nickname { get; set; } = string.Empty;
+
+  [Required]
+  [RegularExpression(@"^[^%<>]*$")]
   [StringLength(32)]
   [Phone]
   public string PhoneNumber { get; set; } = string.Empty;
