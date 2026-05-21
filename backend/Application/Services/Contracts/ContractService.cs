@@ -1,8 +1,10 @@
 public class ContractService
 {
+  private readonly IContractQueryRepository _contractQueryRepository;
   private readonly IContractRepository _contractRepository;
-  public ContractService(IContractRepository contractRepository)
+  public ContractService(IContractQueryRepository contractQueryRepository, IContractRepository contractRepository)
   {
+    _contractQueryRepository = contractQueryRepository;
     _contractRepository = contractRepository;
   }
 
@@ -13,7 +15,7 @@ public class ContractService
     if(!string.IsNullOrWhiteSpace(search) && search.Length > 100)
       throw new BadRequestAppException();
 
-    var contracts = await _contractRepository.GetContractsAsync(page, pageSize, search);
+    var contracts = await _contractQueryRepository.GetContractsAsync(page, pageSize, search);
     return contracts;
   }
 
@@ -22,9 +24,44 @@ public class ContractService
     if(contractId <= 0)
       throw new ValueOutOfRangeAppException();
     
-    var contract = await _contractRepository.GetContractsByIdAsync(contractId)
+    var contract = await _contractQueryRepository.GetContractsByIdAsync(contractId)
       ?? throw new NotFoundAppException();
     
     return contract;
+  }
+  
+  public async Task<ContractResponseDto> CreateContractAsync(Guid authorId, ContractRequestDto request)
+  {
+   var contract = new Contract(authorId, request.Title, request.Description, request.Price, request.Deadline);
+
+   await _contractQueryRepository.AddContractAsync(contract);
+
+    return new ContractResponseDto
+    {
+      ContractId = contract.ContractId,
+      AuthorId = contract.AuthorId,
+      Title = contract.Title,
+      Description = contract.Description,
+      Price = contract.Price,
+      ContractStatus = contract.ContractStatus,
+      CreatedAt = contract.CreatedAt
+    };
+  }
+
+  public async Task CloseContractAsync(Guid userId, long contractId)
+  {
+    if(userId == Guid.Empty)
+      throw new BadRequestAppException();
+    if(contractId <= 0)
+      throw new ValueOutOfRangeAppException();
+
+    var contract = await _contractRepository.GetContractsByIdAsync(contractId)
+      ?? throw new NotFoundAppException();
+
+    if(contract.AuthorId != userId)
+      throw new UnauthorizedAppException();
+    
+    contract.CancelContract();
+    await _contractRepository.SaveChangesAsync();
   }
 }
