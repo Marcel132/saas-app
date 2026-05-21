@@ -13,7 +13,7 @@ public class Contract
 
   private Contract() { } // EF
 
-  public Contract(Guid authorId, string title, string description, decimal price)
+  public Contract(Guid authorId, string title, string description, decimal price, DateTime? deadline = null)
   {
     if(authorId == Guid.Empty)
       throw new BadRequestAppException();
@@ -32,6 +32,13 @@ public class Contract
     Description = description;
     Price = decimal.Round(price, 2);
     ContractStatus = ContractStatus.Open;
+
+    if(deadline != null)
+    {
+      if(deadline.Value <= DateTime.UtcNow)
+        throw new ValueOutOfRangeAppException();
+      Deadline = deadline.Value;
+    }
 
   }
 
@@ -112,7 +119,7 @@ public class Contract
     IsFunded = true;
     UpdatedAt = DateTime.UtcNow;
   }
-
+ 
   private void ChangeStatus(ContractStatus newStatus)
   {
     if(!CanModifyStatus(newStatus))
@@ -132,5 +139,7 @@ public class Contract
       _ => false
     };
   }
+
+
 
 }
