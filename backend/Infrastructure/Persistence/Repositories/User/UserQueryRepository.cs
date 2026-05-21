@@ -21,11 +21,15 @@ public class UserQueryRepository : IUserQueryRepository
 
     if (!string.IsNullOrEmpty(search))
     {
+
+      var escaped = search.Replace(@"\", @"\\").Replace("%", @"\%").Replace("_", @"\_");
       query = query
         .Where(u =>
-        EF.Functions.ILike(u.Email, $"%{search}%") ||
-        EF.Functions.ILike(u.UserData.FirstName, $"%{search}%") ||
-        EF.Functions.ILike(u.UserData.LastName, $"%{search}%"));
+        EF.Functions.ILike(u.Email, $"%{escaped}%", @"\") ||
+        EF.Functions.ILike(u.UserData.FirstName, $"%{escaped}%", @"\") ||
+        EF.Functions.ILike(u.UserData.LastName, $"%{escaped}%", @"\") ||
+        EF.Functions.ILike(u.UserData.Nickname ?? "", $"%{escaped}%", @"\")
+      );
     }
 
     var totalItems = await query.CountAsync();
@@ -85,7 +89,7 @@ public class UserQueryRepository : IUserQueryRepository
         r => r.RoleId,
         (ur, r) => r.Name)
       .ToListAsync();
-    
+
     var userPermissions = await _context.UserPermissions
       .Where(up => up.UserId == userId)
       .Join(_context.Permissions,
@@ -93,7 +97,7 @@ public class UserQueryRepository : IUserQueryRepository
         p => p.PermissionId,
         (up, p) => p.Code)
       .ToListAsync();
-    
+
     return await _context.Users
       .AsNoTracking()
       .Where(u => u.Id == userId && u.IsActive)
@@ -121,7 +125,7 @@ public class UserQueryRepository : IUserQueryRepository
 
   public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status = null)
   {
-    return await _context.ContractAssignments
+    var query = _context.ContractAssignments
       .AsNoTracking()
       .Where(ca => ca.DeveloperId == userId)
       .Join(_context.Contracts,
@@ -131,7 +135,13 @@ public class UserQueryRepository : IUserQueryRepository
       .Join(_context.Users,
         cca => cca.c.AuthorId,
         u => u.Id,
-        (cca, u) => new { cca.ca, cca.c, Author = u })
+        (cca, u) => new { cca.ca, cca.c, Author = u });
+
+    
+    if(status != null)
+      query = query.Where(q => q.c.ContractStatus == status);
+
+    return await query
       .Select(ca => new UserContractsDto
       {
         ContractId = ca.ca.ContractId,
@@ -143,6 +153,5 @@ public class UserQueryRepository : IUserQueryRepository
         CreatedAt = ca.c.CreatedAt
       })
       .ToListAsync();
-
   }
 }
