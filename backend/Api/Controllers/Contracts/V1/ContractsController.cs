@@ -15,10 +15,6 @@ public class ContractsController : ControllerBase
   {
     _contractService = contractService;
   }
-  
-  // -------------------------------
-  // path: /contracts         READ
-  // -------------------------------
 
   [HttpGet]
   public async Task<IActionResult> GetContracts([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
@@ -48,4 +44,33 @@ public class ContractsController : ControllerBase
     ));
   }
 
+  [HttpPost]
+  public async Task<IActionResult> CreateContract([FromBody] ContractRequestDto contractRequest)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    
+    var contract = await _contractService.CreateContractAsync(userId, contractRequest);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      "Contract created successfully", 
+      DomainErrorCodes.AuthCodes.Success,
+      contract
+    ));
+  }
+
+  [HttpPatch("{contractId}/close")]
+  public async Task<IActionResult> CloseContract([FromRoute] long contractId)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    await _contractService.CloseContractAsync(userId, contractId);
+    
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      "Contract closed successfully", 
+      DomainErrorCodes.AuthCodes.Success
+    ));
+  }
 }
