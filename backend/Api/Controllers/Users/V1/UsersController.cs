@@ -19,7 +19,8 @@ public class UsersController : ControllerBase
     _queryService = queryService;
   }
 
-  [HasPermission(Permissions.Users.ReadAll)]
+  // * DONE
+  // TODO: ADD PERMISSION 
   [HttpGet]
   public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
   {
@@ -34,7 +35,9 @@ public class UsersController : ControllerBase
       ));
   }
 
-  [HasPermission(Permissions.Users.Read)]
+  // * DONE 
+  // TODO: ADD PERMISSION 
+
   [HttpGet("{userId}")]
   public async Task<IActionResult> GetUserById([FromRoute] Guid userId)
   {
@@ -51,8 +54,9 @@ public class UsersController : ControllerBase
     ));
   }
 
+  // * DONE
+  // TODO: ADD PERMISSION 
 
-  [HasPermission(Permissions.Profile.Read)]
   [HttpGet("me")]
   public async Task<IActionResult> GetCurrentUser()
   {
@@ -68,9 +72,9 @@ public class UsersController : ControllerBase
       ));
   }
 
-  // TODO: REFACTOR 
-  [HasPermission(Permissions.Profile.Update)]
-  [HttpPut("me")]
+  // * DONE
+  // TODO: ADD PERMISSION
+  [HttpPatch("me")]
   public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateUserDto request)
   {
     var userId = UserContextExtension.GetUserId(User); 
@@ -84,7 +88,8 @@ public class UsersController : ControllerBase
     ));
   }
   
-  [HasPermission(Permissions.Profile.Delete)]
+  // * DONE
+  // TODO: ADD PERMISSION
   [HttpDelete("me")]
   public async Task<IActionResult> DeleteCurrentUser()
   {
@@ -96,10 +101,10 @@ public class UsersController : ControllerBase
 
   // [HasPermission(Permissions.Profile.ContractsRead)]
   [HttpGet("me/contracts")]
-  public async Task<IActionResult> GetCurrentUserContracts()
+  public async Task<IActionResult> GetCurrentUserContracts([FromQuery] ContractStatus? status = null)
   {
     var userId = UserContextExtension.GetUserId(User);
-    var contracts = await _queryService.GetCurrentUserContractsAsync(userId, null);
+    var contracts = await _queryService.GetCurrentUserContractsAsync(userId, status);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -109,30 +114,4 @@ public class UsersController : ControllerBase
       contracts
     ));
   }
-
-
-
-
-  //! [HasPermission(Permissions.Users.Update)]
-  //! [HttpPut("{userId}")]
-  //! public async Task<IActionResult> UpdateUserById([FromRoute] Guid userId, [FromBody] UpdateUserDto request)
-  // {
-  //   await _commandService.UpdateUserAsync(userId, request);
-
-  //   return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-  //     HttpContext,
-  //     HttpResponseState.Success,
-  //     true,
-  //     "User updated successfully",
-  //     DomainErrorCodes.AuthCodes.Success
-  //   ));
-  // }
-
-  //! [HasPermission(Permissions.Users.Delete)]
-  //! [HttpDelete("{userId}")]
-  //! public async Task<IActionResult> DeleteUserById([FromRoute] Guid userId)
-  //! {
-  //!   await _commandService.DeleteUserAsync(userId);
-  //!   return NoContent();
-  //! }
 }
