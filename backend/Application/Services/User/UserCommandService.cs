@@ -1,32 +1,20 @@
 public class UserCommandService
 {
-  private readonly IUserRepository _users;
+  private readonly IUserRepository _userCommandRepository;
   private readonly IPasswordHasher _hasher;
 
   public UserCommandService(
-    IUserRepository users,
+    IUserRepository userCommandRepository,
     IPasswordHasher hasher)
   {
-    _users = users;
+    _userCommandRepository = userCommandRepository;
     _hasher = hasher;
   }
 
   public async Task UpdateUserAsync(Guid userId, UpdateUserDto request)
   {
-    var user = await _users.GetByIdAsync(userId)
+    var user = await _userCommandRepository.GetByIdAsync(userId)
       ?? throw new NotFoundAppException();
-
-    // if (!string.IsNullOrWhiteSpace(request.Email))
-    //   user.ChangeEmail(request.Email);
-
-    // TODO: Check current password; if true, save new password; else 400;
-    if (!string.IsNullOrWhiteSpace(request.NewPassword))
-    {
-      if (!User.IsValidPasswordFormat(request.NewPassword))
-        throw new InvalidFormatAppException();
-
-      user.ChangePassword(_hasher.Hash(request.NewPassword));
-    }
 
     if (request.SpecializationType != null)
     {
@@ -49,16 +37,16 @@ public class UserCommandService
       request.CompanyNip
     );
 
-    await _users.SaveChangesAsync();
+    await _userCommandRepository.SaveChangesAsync();
   }
 
   public async Task DeleteUserAsync(Guid userId)
   {
-    var user = await _users.GetByIdAsync(userId)
+    var user = await _userCommandRepository.GetByIdAsync(userId)
       ?? throw new NotFoundAppException();
 
     user.DeleteAccount();
-    await _users.SaveChangesAsync();
+    await _userCommandRepository.SaveChangesAsync();
   }
 
 }
