@@ -2,16 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 public class UpdateUserDto
 {
-  [EmailAddress]
-  [StringLength(254)]
-  public string? Email { get; set; }
-
-  [StringLength((128), MinimumLength = 8)]
-  public string? CurrentPassword { get; set; }
-
-  [StringLength((128), MinimumLength = 8)]
-  public string? NewPassword { get; set; }
-  
   [NoHtmlChars]
   public List<Specialization>? SpecializationType { get; set; }
   
