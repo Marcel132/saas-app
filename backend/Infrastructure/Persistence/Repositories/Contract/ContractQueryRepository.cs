@@ -16,10 +16,11 @@ public class ContractQueryRepository : IContractQueryRepository
     
     if(!string.IsNullOrEmpty(search))
     {
+      var escaped = search.Replace(@"\", @"\\").Replace("%", @"\%").Replace("_", @"\_");
       query = query
         .Where(c =>
-        EF.Functions.ILike(c.Title, $"%{search}%") ||
-        EF.Functions.ILike(c.Description, $"%{search}%"));
+        EF.Functions.ILike(c.Title, $"%{escaped}%") ||
+        EF.Functions.ILike(c.Description, $"%{escaped}%"));
     }
     var totalItems = await query.CountAsync();
 
@@ -75,10 +76,27 @@ public class ContractQueryRepository : IContractQueryRepository
     return contract;
   }
 
-  public async Task AddContractAsync(Contract contract)
+  public async Task<List<ContractApplicationsDto>> GetContractApplicationsAsync(long contractId)
   {
-    _context.Contracts.Add(contract);
-    await _context.SaveChangesAsync();
+    return await _context.ContractApplications
+      .AsNoTracking()
+      .Where(ca => ca.ContractId == contractId)
+      .Join(
+        _context.Users, 
+        ca => ca.CandidateId, 
+        u => u.Id, 
+        (ca, u) => new ContractApplicationsDto
+        {
+          ApplicationId = ca.ApplicationId,
+          ContractId = contractId,
+          CandidateId = ca.CandidateId,
+          FirstName = u.UserData.FirstName,
+          LastName = u.UserData.LastName,
+          Nickname = u.UserData.Nickname ?? string.Empty,
+          Skills = u.UserData.Skills,
+          Status = ca.Status,
+          AppliedAt = ca.AppliedAt
+        })
+        .ToListAsync();
   }
-
 }
