@@ -34,7 +34,7 @@ public class ContractService
   {
    var contract = new Contract(authorId, request.Title, request.Description, request.Price, request.Deadline);
 
-   await _contractQueryRepository.AddContractAsync(contract);
+   await _contractRepository.AddContractAsync(contract);
 
     return new ContractResponseDto
     {
@@ -88,5 +88,43 @@ public class ContractService
       contract.ExtendDeadline(request.NewDeadline.Value);
 
     await _contractRepository.SaveChangesAsync();
+  }
+
+  public async Task<List<ContractApplicationsDto>> GetContractApplicationsAsync(Guid userId, long contractId)
+  {
+    if(userId == Guid.Empty)
+      throw new BadRequestAppException();
+    if(contractId <= 0)
+      throw new ValueOutOfRangeAppException();
+
+    var contract = await _contractRepository.GetContractsByIdAsync(contractId)
+      ?? throw new NotFoundAppException();
+
+    if(contract.AuthorId != userId)
+      throw new UnauthorizedAppException();
+
+    var applications = await _contractQueryRepository.GetContractApplicationsAsync(contractId);
+
+    return applications;
+  }
+
+  public async Task ApplyToContractAsync(Guid candidateId, long contractId)
+  {
+    if(candidateId == Guid.Empty)
+      throw new BadRequestAppException();
+    if(contractId <= 0)
+      throw new ValueOutOfRangeAppException();
+
+    var contract = await _contractRepository.GetContractsByIdAsync(contractId)
+      ?? throw new NotFoundAppException();
+
+    if(contract.IsExpired())
+      throw new InvalidOperationAppException();
+    
+    if(contract.ContractStatus != ContractStatus.Open)
+      throw new InvalidOperationAppException();
+
+    var application = new ContractApplication(contractId, candidateId);
+    await _contractRepository.AddApplicationAsync(application);
   }
 }

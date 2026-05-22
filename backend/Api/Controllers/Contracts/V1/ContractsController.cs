@@ -87,4 +87,35 @@ public class ContractsController : ControllerBase
       DomainErrorCodes.AuthCodes.Success
     ));
   }
+
+  // ! ONLY FOR COMPANYS
+  [HttpGet("{contractId}/applications")]
+  public async Task<IActionResult> GetContractApplications([FromRoute] long contractId)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    var contractApplications = await _contractService.GetContractApplicationsAsync(userId, contractId);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      "Contract applications retrieved successfully", 
+      DomainErrorCodes.AuthCodes.Success,
+      contractApplications
+    ));
+  }
+
+  // !ONLY FOR PENTESTERS
+  [HttpPost("{contractId}/applications")]
+  public async Task<IActionResult> ApplyToContract([FromRoute] long contractId)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    await _contractService.ApplyToContractAsync(userId, contractId);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      "Applied to contract successfully", 
+      DomainErrorCodes.AuthCodes.Success
+    ));
+  }
 }
