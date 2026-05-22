@@ -27,19 +27,7 @@ public class UserRegisterService
 
     var passwordHash = _hasher.Hash(request.Password);
     
-    var userData = new UserData(        
-      request.FirstName,
-      request.LastName,
-      request.Nickname,
-      request.PhoneNumber,
-      request.Skills,
-      request.City,
-      request.Country,
-      request.PostalCode,
-      request.Street,
-      request.CompanyName,
-      request.CompanyNip 
-    );
+    var userData = new UserData(request);
 
     var user = new User(email, passwordHash, userData);
 

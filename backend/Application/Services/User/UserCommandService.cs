@@ -23,19 +23,7 @@ public class UserCommandService
         user.AddSpecialization(spec);
     }
 
-    user.UpdateUserData(
-      request.FirstName,
-      request.LastName,
-      request.Nickname,
-      request.PhoneNumber,
-      request.Skills,
-      request.City,
-      request.Country,
-      request.PostalCode,
-      request.Street,
-      request.CompanyName,
-      request.CompanyNip
-    );
+    user.UpdateUserData(request);
 
     await _userCommandRepository.SaveChangesAsync();
   }
