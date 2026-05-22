@@ -64,4 +64,29 @@ public class ContractService
     contract.CancelContract();
     await _contractRepository.SaveChangesAsync();
   }
+
+  public async Task UpdateContractAsync(Guid userId, long contractId, UpdateContractDto request)
+  {
+    if(userId == Guid.Empty)
+      throw new BadRequestAppException();
+    if(contractId <= 0)
+      throw new ValueOutOfRangeAppException();
+
+    var contract = await _contractRepository.GetContractsByIdAsync(contractId)
+      ?? throw new NotFoundAppException();
+
+    if(contract.AuthorId != userId)
+      throw new UnauthorizedAppException();
+
+    if(!string.IsNullOrWhiteSpace(request.Title) || !string.IsNullOrWhiteSpace(request.Description))
+      contract.UpdateContractDetails(request.Title, request.Description);
+
+    if(request.Price.HasValue)
+      contract.UpdatePrice(request.Price.Value);     
+
+    if(request.NewDeadline.HasValue)
+      contract.ExtendDeadline(request.NewDeadline.Value);
+
+    await _contractRepository.SaveChangesAsync();
+  }
 }

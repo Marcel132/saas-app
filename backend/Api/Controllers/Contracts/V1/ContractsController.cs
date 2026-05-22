@@ -73,4 +73,18 @@ public class ContractsController : ControllerBase
       DomainErrorCodes.AuthCodes.Success
     ));
   }
+
+  [HttpPatch("{contractId}")]
+  public async Task<IActionResult> UpdateContractAsync([FromRoute] long contractId, [FromBody] UpdateContractDto request)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    await _contractService.UpdateContractAsync(userId, contractId, request);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      "Contract updated successfully", 
+      DomainErrorCodes.AuthCodes.Success
+    ));
+  }
 }
