@@ -19,54 +19,42 @@ public class UserData
 
   private UserData() {} // EF
 
-  internal UserData(
-    string firstName,
-    string lastName,
-    string nickname,
-    string phoneNumber,
-    string skills,
-    string city,
-    string country,
-    string postalCode,
-    string street,
-    string? companyName,
-    string? companyNip
-    )
+  internal UserData(RegisterRequestDto data)
   {
-    Update(
-      firstName, lastName, nickname, phoneNumber, skills,
-      city, country, postalCode, street,
-      companyName, companyNip
-    );
+    FirstName = data.FirstName;
+    LastName = data.LastName;
+    Nickname = data.Nickname;
+    PhoneNumber = data.PhoneNumber;
+    Skills = data.Skills;
+    City = data.City;
+    Country = data.Country;
+    PostalCode = data.PostalCode;
+    Street = data.Street;
+
+    CompanyName = data.CompanyName;
+    CompanyNip  = data.CompanyNip;
+
+    IsEmailVerified = false;
+    IsTwoFactorEnabled = false;
+    IsProfileCompleted = false;
   }
 
-  public void Update(
-    string? firstName,
-    string? lastName,
-    string? nickname,
-    string? phoneNumber,
-    string? skills,
-    string? city,
-    string? country,
-    string? postalCode,
-    string? street,
-    string? companyName,
-    string? companyNip)
+  public void Update(UpdateUserDto data)
   {
-    if (firstName != null) FirstName = firstName;
-    if (lastName != null) LastName = lastName;
-    if (nickname != null) Nickname = nickname;
-    if (phoneNumber != null) PhoneNumber = phoneNumber;
-    if (skills != null) Skills = skills;
-    if (city != null) City = city;
-    if (country != null) Country = country;
-    if (postalCode != null) PostalCode = postalCode;
-    if (street != null) Street = street;
+    if (data.FirstName != null) FirstName = data.FirstName;
+    if (data.LastName != null) LastName = data.LastName;
+    if (data.Nickname != null) Nickname = data.Nickname;
+    if (data.PhoneNumber != null) PhoneNumber = data.PhoneNumber;
+    if (data.Skills != null) Skills = data.Skills;
+    if (data.City != null) City = data.City;
+    if (data.Country != null) Country = data.Country;
+    if (data.PostalCode != null) PostalCode = data.PostalCode;
+    if (data.Street != null) Street = data.Street;
 
-    if(companyName != null && companyNip != null)
+    if(data.CompanyName != null && data.CompanyNip != null)
     {
-      CompanyName = companyName;
-      CompanyNip  = companyNip;
+      CompanyName = data.CompanyName;
+      CompanyNip  = data.CompanyNip;
     }
   }
 

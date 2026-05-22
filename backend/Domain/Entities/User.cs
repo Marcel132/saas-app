@@ -98,55 +98,10 @@ public class User
   {
     UserData = data;
   }
-  public void UpdateUserData(
-    string? firstName,
-    string? lastName,
-    string? nickname,
-    string? phoneNumber,
-    string? skills,
-    string? city,
-    string? country,
-    string? postalCode,
-    string? street,
-    string? companyName,
-    string? companyNip
-    )
-    {
-      if(UserData == null)
-      {
-        UserData = new UserData(
-          firstName ?? string.Empty,
-          lastName ?? string.Empty,
-          nickname ?? string.Empty,
-          phoneNumber ?? string.Empty,
-          skills ?? string.Empty,
-          city ?? string.Empty,
-          country ?? string.Empty,
-          postalCode ?? string.Empty,
-          street ?? string.Empty,
-          companyName,
-          companyNip
-        );
-
-        return;
-      }
-      else
-      {
-        UserData.Update(
-        firstName,
-        lastName,
-        nickname,
-        phoneNumber,
-        skills,
-        city,
-        country,
-        postalCode,
-        street,
-        companyName,
-        companyNip
-      );
-      }
-    }
+  public void UpdateUserData(UpdateUserDto data)
+  {
+    UserData.Update(data);;
+  }
 
   public void DeactivateAccount()
   {
