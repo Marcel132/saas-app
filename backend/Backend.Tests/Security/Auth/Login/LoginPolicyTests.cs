@@ -17,12 +17,22 @@ public class LoginPolicyTests
   {
     var policy = new LoginPolicy();
 
-    var userData = new UserData(
-      "Adam", "Nowak", "AdamNowak", "123",
-      "Skills", "City", "Country",
-      "00-000", "Street",
-      null, null
-    );
+    var data = new RegisterRequestDto()
+    {
+      Email = "test@testmail.com",
+      Password = "test123",
+      FirstName = "Adam",
+      LastName = "Nowak",
+      Nickname = "AdamNowak",
+      PhoneNumber = "123",
+      Skills = "Skills",
+      City = "City",
+      Country = "Country",
+      PostalCode = "00-000",
+      Street = "Street"
+    };
+
+    var userData = new UserData(data);
     var user = new User(
       "test@testmail.com",
       "test123",
@@ -41,12 +51,22 @@ public class LoginPolicyTests
   {
     var policy = new LoginPolicy();
 
-    var userData = new UserData(
-      "Adam", "Nowak", "AdamNowak", "123",
-      "Skills", "City", "Country",
-      "00-000", "Street",
-      null, null
-    );
+    var data = new RegisterRequestDto()
+    {
+      Email = "test@testmail.com",
+      Password = "test123",
+      FirstName = "Adam",
+      LastName = "Nowak",
+      Nickname = "AdamNowak",
+      PhoneNumber = "123",
+      Skills = "Skills",
+      City = "City",
+      Country = "Country",
+      PostalCode = "00-000",
+      Street = "Street"
+    };
+
+    var userData = new UserData(data);
 
     var user = new User(
       "test@testmail.com",
@@ -66,12 +86,22 @@ public class LoginPolicyTests
   {
     var policy = new LoginPolicy();
 
-    var userData = new UserData(
-      "Adam", "Nowak", "AdamNowak", "123",
-      "Skills", "City", "Country",
-      "00-000", "Street",
-      null, null
-    );
+    var data = new RegisterRequestDto()
+    {
+      Email = "test@testmail.com",
+      Password = "test123",
+      FirstName = "Adam",
+      LastName = "Nowak",
+      Nickname = "AdamNowak",
+      PhoneNumber = "123",
+      Skills = "Skills",
+      City = "City",
+      Country = "Country",
+      PostalCode = "00-000",
+      Street = "Street"
+    };
+
+    var userData = new UserData(data);
 
     var user = new User(
       "test@testmail.com",
