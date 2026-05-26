@@ -17,129 +17,129 @@ public abstract class AppException : Exception
 
 public sealed class UnauthorizedAppException : AppException
 {
-  public UnauthorizedAppException() : base (
+  public UnauthorizedAppException(string? message = null) : base (
     DomainErrorCodes.AuthCodes.Unauthorized,
-    $"Unauthorized access. {DomainErrorCodes.AuthCodes.Unauthorized.Split("_")[0]}"
+    message ?? $"Unauthorized access. {DomainErrorCodes.AuthCodes.Unauthorized.Split("_")[0]}"
   ) {}
 }
 public sealed class InvalidCredentialsAppException : AppException
 {
-  public InvalidCredentialsAppException() : base (
+  public InvalidCredentialsAppException(string? message = null) : base (
     DomainErrorCodes.AuthCodes.InvalidCredentials,
-    $"Invalid credentials. {DomainErrorCodes.AuthCodes.InvalidCredentials.Split("_")[0]}"
+    message ?? $"Invalid credentials. {DomainErrorCodes.AuthCodes.InvalidCredentials.Split("_")[0]}"
   ) {}
 }
 public sealed class InvalidNameIdentifierAppException : AppException
 {
-  public InvalidNameIdentifierAppException() : base (
+  public InvalidNameIdentifierAppException(string? message = null) : base (
     DomainErrorCodes.AuthCodes.InvalidNameIdentifier,
-    $"Invalid name identifier. {DomainErrorCodes.AuthCodes.InvalidNameIdentifier.Split("_")[0]}"
+    message ?? $"Invalid name identifier. {DomainErrorCodes.AuthCodes.InvalidNameIdentifier.Split("_")[0]}"
   ) {}
 }
 public sealed class TokenExpiredAppException : AppException
 {
-  public TokenExpiredAppException() : base (
+  public TokenExpiredAppException(string? message = null) : base (
     DomainErrorCodes.AuthCodes.TokenExpired,
-    $"Token expired. {DomainErrorCodes.AuthCodes.TokenExpired.Split("_")[0]}"
+    message ?? $"Token expired. {DomainErrorCodes.AuthCodes.TokenExpired.Split("_")[0]}"
   ) {}
 }
 public sealed class TokenTamperedAppException : AppException
 {
-  public TokenTamperedAppException() : base (
+  public TokenTamperedAppException(string? message = null) : base (
     DomainErrorCodes.AuthCodes.TokenTampered,
-    $"Token tampered. {DomainErrorCodes.AuthCodes.TokenTampered.Split("_")[0]}"
+    message ?? $"Token tampered. {DomainErrorCodes.AuthCodes.TokenTampered.Split("_")[0]}"
   ) {}
 }
 public sealed class NotFoundAppException : AppException
 {
-  public NotFoundAppException() : base (
+  public NotFoundAppException(string? message = null) : base (
     DomainErrorCodes.GeneralCodes.NotFound,
-    $"Resource not found. {DomainErrorCodes.GeneralCodes.NotFound.Split("_")[0]}"
+    message ?? $"Resource not found. {DomainErrorCodes.GeneralCodes.NotFound.Split("_")[0]}"
   ) {}
 }
 public sealed class ConflictAppException : AppException
 {
-  public ConflictAppException() : base (
+  public ConflictAppException(string? message = null) : base (
     DomainErrorCodes.GeneralCodes.Conflict,
-    $"Conflict detected. {DomainErrorCodes.GeneralCodes.Conflict.Split("_")[0]}"
+    message ?? $"Conflict detected. {DomainErrorCodes.GeneralCodes.Conflict.Split("_")[0]}"
   ) {}
 }
 public sealed class BadRequestAppException : AppException
 {
-  public BadRequestAppException() : base (
+  public BadRequestAppException(string? message = null) : base (
     DomainErrorCodes.GeneralCodes.BadRequest,
-    $"Bad request. {DomainErrorCodes.GeneralCodes.BadRequest.Split("_")[0]}"
+    message ?? $"Bad request. {DomainErrorCodes.GeneralCodes.BadRequest.Split("_")[0]}"
   ) {}
 }
 public sealed class TokenNotFoundAppException : AppException
 {
-  public TokenNotFoundAppException() : base (
+  public TokenNotFoundAppException(string? message = null) : base (
     DomainErrorCodes.AuthCodes.TokenNotFound,
-    $"Token not found. {DomainErrorCodes.AuthCodes.TokenNotFound.Split("_")[0]}"
+    message ?? $"Token not found. {DomainErrorCodes.AuthCodes.TokenNotFound.Split("_")[0]}"
   ) {}
 }
 public sealed class ForbiddenAppException : AppException
 {
-  public ForbiddenAppException() : base (
+  public ForbiddenAppException(string? message = null) : base (
     DomainErrorCodes.AuthCodes.ForbiddenAccess,
-    $"Forbidden access. {DomainErrorCodes.AuthCodes.ForbiddenAccess.Split("_")[0]}"
+    message ?? $"Forbidden access. {DomainErrorCodes.AuthCodes.ForbiddenAccess.Split("_")[0]}"
   ) {}
 }
 public sealed class AccountBlockedAppException : AppException
 {
-  public AccountBlockedAppException() : base (
+  public AccountBlockedAppException(string? message = null) : base (
     DomainErrorCodes.AuthCodes.AccountBlocked,
-    $"Account blocked. {DomainErrorCodes.AuthCodes.AccountBlocked.Split("_")[0]}"
+    message ?? $"Account blocked. {DomainErrorCodes.AuthCodes.AccountBlocked.Split("_")[0]}"
   ) {}
 }
 public sealed class MissingRequiredFieldAppException : AppException
 {
-  public MissingRequiredFieldAppException() : base (
+  public MissingRequiredFieldAppException(string? message = null) : base (
     DomainErrorCodes.ValidationCodes.MissingRequiredField,
-    $"Missing required field. {DomainErrorCodes.ValidationCodes.MissingRequiredField.Split("_")[0]}"
+    message ?? $"Missing required field. {DomainErrorCodes.ValidationCodes.MissingRequiredField.Split("_")[0]}"
   ) {}
 }
 public sealed class InternalServerAppException : AppException
 {
-  public InternalServerAppException() : base (
+  public InternalServerAppException(string? message = null) : base (
     DomainErrorCodes.GeneralCodes.ServerError,
-    $"Internal server error. {DomainErrorCodes.GeneralCodes.ServerError.Split("_")[0]}"
+    message ?? $"Internal server error. {DomainErrorCodes.GeneralCodes.ServerError.Split("_")[0]}"
   ) {}
 }
 public sealed class InvalidFormatAppException : AppException
 {
-  public InvalidFormatAppException() : base (
+  public InvalidFormatAppException(string? message = null) : base (
     DomainErrorCodes.ValidationCodes.InvalidFormat,
-    $"Invalid format. {DomainErrorCodes.ValidationCodes.InvalidFormat.Split("_")[0]}"
+    message ?? $"Invalid format. {DomainErrorCodes.ValidationCodes.InvalidFormat.Split("_")[0]}"
   ) {}
 }
 public sealed class ValueOutOfRangeAppException : AppException
 {
-  public ValueOutOfRangeAppException() : base (
+  public ValueOutOfRangeAppException(string? message = null) : base (
     DomainErrorCodes.ValidationCodes.ValueOutOfRange,
-    $"Value out of range. {DomainErrorCodes.ValidationCodes.ValueOutOfRange.Split("_")[0]}"
+    message ?? $"Value out of range. {DomainErrorCodes.ValidationCodes.ValueOutOfRange.Split("_")[0]}"
   ) {}
 }
 
 public sealed class SessionNotFoundAppException : AppException
 {
-  public SessionNotFoundAppException() : base (
+  public SessionNotFoundAppException(string? message = null) : base (
     DomainErrorCodes.AuthCodes.SessionNotFound,
-    $"Session not found. {DomainErrorCodes.AuthCodes.SessionNotFound.Split("_")[0]}"
+    message ?? $"Session not found. {DomainErrorCodes.AuthCodes.SessionNotFound.Split("_")[0]}"
   ) {}
 }
 
 public sealed class SuspiciousActivityAppException : AppException
 {
-  public SuspiciousActivityAppException() : base (
+  public SuspiciousActivityAppException(string? message = null) : base (
     DomainErrorCodes.FirewallCodes.SuspiciousActivityDetected,
-    $"Suspicious activity detected. {DomainErrorCodes.FirewallCodes.SuspiciousActivityDetected.Split("_")[0]}"
+    message ?? $"Suspicious activity detected. {DomainErrorCodes.FirewallCodes.SuspiciousActivityDetected.Split("_")[0]}"
   ) {}
 }
 public sealed class InvalidOperationAppException : AppException
 {
-  public InvalidOperationAppException() : base (
+  public InvalidOperationAppException(string? message = null) : base (
     DomainErrorCodes.GeneralCodes.BadRequest,
-    $"Invalid operation. {DomainErrorCodes.GeneralCodes.BadRequest.Split("_")[0]}"
+    message ?? $"Invalid operation. {DomainErrorCodes.GeneralCodes.BadRequest.Split("_")[0]}"
   ) {}
 }
