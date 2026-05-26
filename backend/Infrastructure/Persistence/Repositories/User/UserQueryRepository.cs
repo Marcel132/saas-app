@@ -154,4 +154,28 @@ public class UserQueryRepository : IUserQueryRepository
       })
       .ToListAsync();
   }
+    public async Task<List<UserApplicationsDto>> GetApplicationsAsync(Guid userId, ContractApplicationStatus? status)
+  {
+    var query = _context.ContractApplications
+      .AsNoTracking()
+      .Where(ca => ca.CandidateId == userId)
+      .Join(
+        _context.Contracts,
+        ca => ca.ContractId,
+        c => c.ContractId,
+        (ca, c) => new UserApplicationsDto
+        {
+          ApplicationId = ca.ApplicationId,
+          ContractId = ca.ContractId,
+          CompanyId = c.AuthorId,
+          Status = ca.Status,
+          AppliedAt = ca.AppliedAt
+        }
+      );
+
+    if(status.HasValue)
+      query = query.Where(ca => ca.Status == status.Value);
+    
+    return await query.ToListAsync();
+  } 
 }

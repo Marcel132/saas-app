@@ -35,4 +35,9 @@ public class UserQueryService
   {
     return await _userQueryRepository.GetCurrentUserContractsAsync(userId, status);
   }
+
+  public async Task<List<UserApplicationsDto>> GetCurrentUserApplicationsAsync(Guid userId, ContractApplicationStatus? status)
+  {
+    return await _userQueryRepository.GetApplicationsAsync(userId, status);
+  }
 }
