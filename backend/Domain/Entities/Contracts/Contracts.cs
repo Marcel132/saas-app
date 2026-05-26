@@ -46,10 +46,10 @@ public class Contract
   {
     if(IsExpired())
       throw new InvalidOperationAppException();
-    if(IsFunded == false)
-      throw new InvalidOperationAppException();
+    // TODO: Uncoment this when payments are implemented
+    // if(IsFunded == false)
+    //   throw new InvalidOperationAppException();
     ChangeStatus(ContractStatus.InProgress);
-    // Froze funds logic would go here
   }
   public void CancelContract()
   {
