@@ -1,0 +1,31 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize]
+public class ApplicationsController : ControllerBase
+{
+  private readonly ApplicationService _applicationService;
+  public ApplicationsController(ApplicationService applicationService)
+  {
+    _applicationService = applicationService;
+  } 
+
+  [HasPermission(Permissions.ContractsSelf.AuthorizeApplications)]
+  [HttpPatch("{applicationId}/accept")]
+  public async Task<IActionResult> AcceptApplication([FromRoute] long applicationId)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    await _applicationService.AcceptApplicationAsync(userId, applicationId);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      "Application accepted successfully.", 
+      DomainErrorCodes.GeneralCodes.Success
+      ));
+  }
+
+}
