@@ -72,7 +72,7 @@ public class AuthController : ControllerBase
   }
 
   [AllowAnonymous]
-  [HttpPost("refresh")]
+  [HttpPost("refresh-token")]
   public async Task<IActionResult> RefreshToken()
   {
     var ipAdress = UserContextExtension.GetUserIp(HttpContext);

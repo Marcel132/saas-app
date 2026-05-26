@@ -20,7 +20,7 @@ public class UsersController : ControllerBase
   }
 
   // * DONE
-  // TODO: ADD PERMISSION 
+  [HasPermission(Permissions.Users.ReadAll)]
   [HttpGet]
   public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
   {
@@ -36,8 +36,7 @@ public class UsersController : ControllerBase
   }
 
   // * DONE 
-  // TODO: ADD PERMISSION 
-
+  [HasPermission(Permissions.Users.Read)]
   [HttpGet("{userId}")]
   public async Task<IActionResult> GetUserById([FromRoute] Guid userId)
   {
@@ -55,8 +54,8 @@ public class UsersController : ControllerBase
   }
 
   // * DONE
-  // TODO: ADD PERMISSION 
 
+  [HasPermission(Permissions.Profile.Read)]
   [HttpGet("me")]
   public async Task<IActionResult> GetCurrentUser()
   {
@@ -73,7 +72,7 @@ public class UsersController : ControllerBase
   }
 
   // * DONE
-  // TODO: ADD PERMISSION
+  [HasPermission(Permissions.Profile.Update)]
   [HttpPatch("me")]
   public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateUserDto request)
   {
@@ -89,7 +88,7 @@ public class UsersController : ControllerBase
   }
   
   // * DONE
-  // TODO: ADD PERMISSION
+  [HasPermission(Permissions.Profile.Delete)]
   [HttpDelete("me")]
   public async Task<IActionResult> DeleteCurrentUser()
   {
@@ -99,7 +98,8 @@ public class UsersController : ControllerBase
     return NoContent();
   }
 
-  // [HasPermission(Permissions.Profile.ContractsRead)]
+  // * DONE
+  [HasPermission(Permissions.ProfileContracts.Read)]
   [HttpGet("me/contracts")]
   public async Task<IActionResult> GetCurrentUserContracts([FromQuery] ContractStatus? status = null)
   {
@@ -112,6 +112,23 @@ public class UsersController : ControllerBase
       "User contracts retrieved successfully", 
       DomainErrorCodes.AuthCodes.Success,
       contracts
+    ));
+  }
+
+  // * DONE
+  [HasPermission(Permissions.ProfileApplications.Read)]
+  [HttpGet("me/applications")]
+  public async Task<IActionResult> GetCurrentUserApplications([FromQuery] ContractApplicationStatus? status = null)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    var applications = await _queryService.GetCurrentUserApplicationsAsync(userId, status);
+    
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      "User applications retrieved successfully", 
+      DomainErrorCodes.AuthCodes.Success,
+      applications
     ));
   }
 }

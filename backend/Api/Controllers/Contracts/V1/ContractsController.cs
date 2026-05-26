@@ -44,6 +44,7 @@ public class ContractsController : ControllerBase
     ));
   }
 
+  [HasPermission(Permissions.Contracts.Create)]
   [HttpPost]
   public async Task<IActionResult> CreateContract([FromBody] ContractRequestDto contractRequest)
   {
@@ -60,6 +61,7 @@ public class ContractsController : ControllerBase
     ));
   }
 
+  [HasPermission(Permissions.ContractsSelf.Status)]
   [HttpPatch("{contractId}/close")]
   public async Task<IActionResult> CloseContract([FromRoute] long contractId)
   {
@@ -74,6 +76,7 @@ public class ContractsController : ControllerBase
     ));
   }
 
+  [HasPermission(Permissions.ContractsSelf.ModifyDetails)]
   [HttpPatch("{contractId}")]
   public async Task<IActionResult> UpdateContractAsync([FromRoute] long contractId, [FromBody] UpdateContractDto request)
   {
@@ -88,7 +91,7 @@ public class ContractsController : ControllerBase
     ));
   }
 
-  // ! ONLY FOR COMPANYS
+  [HasPermission(Permissions.ContractsSelf.Read)]
   [HttpGet("{contractId}/applications")]
   public async Task<IActionResult> GetContractApplications([FromRoute] long contractId)
   {
@@ -104,7 +107,7 @@ public class ContractsController : ControllerBase
     ));
   }
 
-  // !ONLY FOR PENTESTERS
+  [HasPermission(Permissions.ProfileApplications.Create)]
   [HttpPost("{contractId}/applications")]
   public async Task<IActionResult> ApplyToContract([FromRoute] long contractId)
   {
