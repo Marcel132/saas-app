@@ -11,6 +11,8 @@ public static class ServiceExtension
     services.AddScoped<UserCommandService>();
     services.AddScoped<UserQueryService>();
 
+    services.AddScoped<ApplicationService>();
+
     services.AddScoped<RefreshService>();
     services.AddScoped<AuthSessionService>();
     services.AddScoped<AuthCookieService>();
@@ -33,6 +35,8 @@ public static class ServiceExtension
     services.AddScoped<IRoleRepository, RoleRepository>();
     services.AddScoped<IContractRepository, ContractRepository>();
     services.AddScoped<IContractQueryRepository, ContractQueryRepository>();
+
+    services.AddScoped<IApplicationRepository, ApplicationRepository>();
 
     services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 

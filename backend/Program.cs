@@ -20,9 +20,9 @@ var JwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperatio
 var JwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience is not configured in appsettings.json");
 
 
-Console.WriteLine($"JWT KEY: {JwtKey}");
-Console.WriteLine($"JWT ISSUER: {JwtIssuer}");
-Console.WriteLine($"JWT AUDIENCE: {JwtAudience}");
+// Console.WriteLine($"JWT KEY: {JwtKey}");
+// Console.WriteLine($"JWT ISSUER: {JwtIssuer}");
+// Console.WriteLine($"JWT AUDIENCE: {JwtAudience}");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
   options.UseNpgsql(
