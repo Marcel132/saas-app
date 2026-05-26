@@ -60,112 +60,12 @@ builder.Services.AddAuthentication("CookieAuth")
     .AddScheme<AuthenticationSchemeOptions, CookieAuthHandler>(
         "CookieAuth", null);
 
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+builder.Services.AddAuthorization();
 
-
-builder.Services.AddAuthorization(options =>
-{
-  // -----------------
-  // PROFILE
-  // -----------------
-
-  options.AddPolicy("profile.create",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("profile.create")
-      ));
-  options.AddPolicy("profile.read",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("profile.read")
-      ));
-  options.AddPolicy("profile.update",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("profile.update")
-      ));
-  options.AddPolicy("profile.delete",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("profile.delete")
-      ));
-
-
-  // -----------------
-  // USERS
-  // -----------------
-
-  options.AddPolicy("users.read.all",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("users.read.all")
-      ));
-  options.AddPolicy("users.create",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("users.create")
-      ));
-  options.AddPolicy("users.read",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("users.read")
-      ));
-  options.AddPolicy("users.update",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("users.update")
-      ));
-  options.AddPolicy("users.delete",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("users.delete")
-      ));
-
-
-  // -----------------
-  // Contracts
-  // -----------------
-
-  options.AddPolicy("contracts.create",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("contracts.create")
-      ));
-  options.AddPolicy("contracts.read",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("contracts.read")
-      ));
-  options.AddPolicy("contracts.update",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("contracts.update")
-      ));
-  options.AddPolicy("contracts.delete",
-      policy => policy.Requirements.Add(
-          new PermissionRequirement("contracts.delete")
-      ));
-});
-
-
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<AuthSessionService>();
-builder.Services.AddScoped<RefreshService>();
-builder.Services.AddScoped<UserAuthenticationService>();
-builder.Services.AddScoped<UserRegisterService>();
-
-builder.Services.AddScoped<UserCommandService>();
-builder.Services.AddScoped<UserQueryService>();
-
-builder.Services.AddScoped<AuthCookieService>();
-
-builder.Services.AddScoped<ContractService>();
-builder.Services.AddScoped<RoleService>();
-builder.Services.AddScoped<TokenService>();
-
-
-
-builder.Services.AddScoped<UserAuthenticationService>();
-
-builder.Services.AddScoped<ILoginPolicy, LoginPolicy>();
-builder.Services.AddScoped<IRegisterPolicy, RegisterPolicy>();
-
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserQueryRepository, UserQueryRepository>();
-builder.Services.AddScoped<ISessionRepository, SessionRepository>();
-builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IContractQueryRepository, ContractQueryRepository>();
-builder.Services.AddScoped<IContractRepository, ContractRepository>();
-builder.Services.AddScoped<UserRoleSynchronizer>();
+builder.Services.AddApplicationService();
+builder.Services.AddInfrastructureService();
 
 var app = builder.Build();
 
