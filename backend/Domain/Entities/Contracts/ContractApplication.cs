@@ -7,6 +7,7 @@ public class ContractApplication
   public DateTime AppliedAt { get; private set; } = DateTime.UtcNow;
 
   private ContractApplication() { } // EF
+  public Contract Contract { get; private set; } = null!;
 
   public ContractApplication(long contractId, Guid candidateId)
   {

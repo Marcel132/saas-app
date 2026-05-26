@@ -126,5 +126,6 @@ public class ContractService
 
     var application = new ContractApplication(contractId, candidateId);
     await _contractRepository.AddApplicationAsync(application);
+    await _contractRepository.SaveChangesAsync();
   }
 }
