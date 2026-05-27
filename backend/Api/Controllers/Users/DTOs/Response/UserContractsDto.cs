@@ -1,8 +1,6 @@
 public class UserContractsDto
 {
   public long ContractId { get; set; }
-  public string AuthorNickname { get; set; } = string.Empty;
-  public string CompanyName { get; set; } = string.Empty;
   public string Title { get; set; } = string.Empty;
   public string Description { get; set; } = string.Empty;
   public decimal Price { get; set; }
