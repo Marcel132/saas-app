@@ -289,6 +289,9 @@ public class AppDbContext : DbContext
       
       entity.Property(ca => ca.AssignedAt)
         .HasColumnName("assigned_at");
+      
+      entity.Property(ca => ca.IsActive)
+        .HasColumnName("is_active");
     });
 
     modelBuilder.Entity<ContractExecution>(entity =>
