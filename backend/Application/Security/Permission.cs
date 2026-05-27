@@ -21,7 +21,6 @@ public static class Permissions
     public const string Read = "users.read";
     public const string ReadAll = "users.read-all";
   }
-
   public class Contracts
   {
     public const string Create = "contracts.create";
@@ -32,5 +31,10 @@ public static class Permissions
     public const string Status = "contracts-self.status";
     public const string Read = "contracts-self.read";
     public const string AuthorizeApplications = "contracts-self.authorize-applications";
+  }
+  public class AssignmentsSelf
+  {
+    public const string Read = "assignments-self.read";
+    public const string Status = "assignments-self.status";
   }
 }
