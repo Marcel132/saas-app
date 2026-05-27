@@ -80,25 +80,7 @@ public class UserQueryRepository : IUserQueryRepository
 
   public async Task<UserResponsePrivateDto> GetCurrentUserByIdAsync(Guid userId)
   {
-    // users -> user_roles -> role.name
-
-    var userRole = await _context.UserRoles
-      .Where(ur => ur.UserId == userId)
-      .Join(_context.Roles,
-        ur => ur.RoleId,
-        r => r.RoleId,
-        (ur, r) => r.Name)
-      .ToListAsync();
-
-    var userPermissions = await _context.UserPermissions
-      .Where(up => up.UserId == userId)
-      .Join(_context.Permissions,
-        up => up.PermissionId,
-        p => p.PermissionId,
-        (up, p) => p.Code)
-      .ToListAsync();
-
-    return await _context.Users
+    var query = _context.Users
       .AsNoTracking()
       .Where(u => u.Id == userId && u.IsActive)
       .Select(u => new UserResponsePrivateDto
@@ -112,49 +94,49 @@ public class UserQueryRepository : IUserQueryRepository
         LastName = u.UserData.LastName,
         Nickname = u.UserData.Nickname ?? string.Empty,
         Skills = u.UserData.Skills,
-        CompanyName = u.UserData.CompanyName ?? string.Empty,
-        CompanyNip = u.UserData.CompanyNip ?? string.Empty,
+        CompanyName = u.UserData.CompanyName,
+        CompanyNip = u.UserData.CompanyNip,
         IsActive = u.IsActive,
         CreatedAt = u.CreatedAt,
-        Roles = userRole.ToHashSet(),
-        Permissions = userPermissions.ToHashSet()
-      })
-      .FirstOrDefaultAsync()
-      ?? throw new NotFoundAppException();
+        Roles = u.UserRoles
+          .Join(_context.Roles, ur => ur.RoleId, r => r.RoleId, (ur, r) => r.Name)
+          .ToHashSet(),
+        Permissions = u.UserRoles
+          .Join(_context.Roles, ur => ur.RoleId, r => r.RoleId, (ur, r) => r)
+          .SelectMany(r => r.RolePermissions)
+          .Join(_context.Permissions, rp => rp.PermissionId, p => p.PermissionId, (rp, p) => p.Code)
+          .ToHashSet()
+      });
+
+      return await query.FirstOrDefaultAsync() ?? throw new NotFoundAppException();
   }
 
   public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status = null)
   {
-    var query = _context.ContractAssignments
+    var query = _context.Contracts
       .AsNoTracking()
-      .Where(ca => ca.DeveloperId == userId)
-      .Join(_context.Contracts,
-        ca => ca.ContractId,
-        c => c.ContractId,
-        (ca, c) => new { ca, c })
-      .Join(_context.Users,
-        cca => cca.c.AuthorId,
-        u => u.Id,
-        (cca, u) => new { cca.ca, cca.c, Author = u });
-
+      .Where(c => 
+      c.AuthorId == userId ||
+      _context.ContractAssignments.Any(ca => 
+      ca.ContractId == c.ContractId 
+      && ca.DeveloperId == userId
+      ));
     
-    if(status != null)
-      query = query.Where(q => q.c.ContractStatus == status);
-
+    if(status.HasValue)
+      query = query.Where(c => c.ContractStatus == status.Value);
+    
     return await query
-      .Select(ca => new UserContractsDto
+      .Select(c => new UserContractsDto
       {
-        ContractId = ca.ca.ContractId,
-        AuthorNickname = ca.Author.UserData.Nickname ?? string.Empty,
-        CompanyName = ca.Author.UserData.CompanyName ?? string.Empty,
-        Title = ca.c.Title,
-        Description = ca.c.Description,
-        ContractStatus = ca.c.ContractStatus,
-        CreatedAt = ca.c.CreatedAt
+        ContractId = c.ContractId,
+        Title = c.Title,
+        Description = c.Description,
+        ContractStatus = c.ContractStatus,
+        CreatedAt = c.CreatedAt
       })
       .ToListAsync();
   }
-    public async Task<List<UserApplicationsDto>> GetApplicationsAsync(Guid userId, ContractApplicationStatus? status)
+  public async Task<List<UserApplicationsDto>> GetApplicationsAsync(Guid userId, ContractApplicationStatus? status)
   {
     var query = _context.ContractApplications
       .AsNoTracking()

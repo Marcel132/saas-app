@@ -210,8 +210,12 @@ public class AppDbContext : DbContext
 
       entity.Property(r => r.IsActive)
         .HasColumnName("is_active");
+      entity
+        .HasMany(r => r.RolePermissions)
+        .WithOne(rp => rp.Role)
+        .HasForeignKey(rp => rp.RoleId);
     });
-    
+
     modelBuilder.Entity<Contract>(entity =>
     {
       entity.ToTable("contracts");
