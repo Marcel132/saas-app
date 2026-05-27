@@ -1,23 +1,21 @@
 public class ApplicationService
 {
   private readonly IApplicationRepository _applicationRepository;
-  public ApplicationService(IApplicationRepository applicationRepository)
+  private readonly AssignmentService _assignmentService;
+  public ApplicationService(IApplicationRepository applicationRepository, AssignmentService assignmentService)
   {
     _applicationRepository = applicationRepository;
+    _assignmentService = assignmentService;
   }
 
   public async Task AcceptApplicationAsync(Guid userId, long applicationId)
   {
-    var application =await _applicationRepository.GetApplicationAsync(applicationId)
+    var application = await _applicationRepository.GetApplicationAsync(applicationId)
       ?? throw new NotFoundAppException("Application not found with provided ID.");
 
-    if(application.Contract.AuthorId != userId)
-      throw new UnauthorizedAppException();
-
+    await _assignmentService.AssignCandidateToContractAsync(userId, application.ContractId, application.CandidateId);
     application.Accept();
-    application.Contract.StartContract();
 
-    // TODO: Add assignment of candidate to contract and other necessary logic for starting the contract
 
     var applicationsToReject = await _applicationRepository.GetApplicationsByContractIdAsync(application.ContractId, application.CandidateId);
 
@@ -26,6 +24,18 @@ public class ApplicationService
       app.Reject();
     }
 
+    await _applicationRepository.SaveChangesAsync();
+  }
+
+  public async Task RejectApplicationAsync(Guid userId, long applicationId)
+  {
+    var application = await _applicationRepository.GetApplicationAsync(applicationId)
+      ?? throw new NotFoundAppException("Application not found with provided ID.");
+
+    if(application.Contract.AuthorId != userId)
+      throw new UnauthorizedAppException();
+
+    application.Reject();
     await _applicationRepository.SaveChangesAsync();
   }
 }

@@ -27,5 +27,20 @@ public class ApplicationsController : ControllerBase
       DomainErrorCodes.GeneralCodes.Success
       ));
   }
+  [HasPermission(Permissions.ContractsSelf.AuthorizeApplications)]
+  [HttpPatch("{applicationId}/reject")]
+  public async Task<IActionResult> RejectApplication([FromRoute] long applicationId)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    await _applicationService.RejectApplicationAsync(userId, applicationId);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Success, 
+      "Application rejected successfully.", 
+      DomainErrorCodes.GeneralCodes.Success
+      ));
+  }
+  
 
 }
