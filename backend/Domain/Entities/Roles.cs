@@ -4,7 +4,9 @@ public class Role
   public string Code {get; private set;} = string.Empty;
   public string Name {get; private set;} = string.Empty;
   public bool IsActive {get; private set;}
-  private Role() {}
   
+  private readonly List<RolePermission> _rolePermissions = new();
+  public IReadOnlyCollection<RolePermission> RolePermissions => _rolePermissions.AsReadOnly();
+  private Role() {}
 }
 

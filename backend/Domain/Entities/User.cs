@@ -172,7 +172,10 @@ public class User
     _userRole.Clear();
   }
   public bool IsCompany =>
-    _userSpecializations.Any(s => s.Specialization == Specialization.Company);
+    _userSpecializations.Any(s => 
+    s.Specialization == Specialization.Company ||
+    s.Specialization == Specialization.SecurityCompany
+    );
 
   public void AddRole(Guid roleId)
   {
