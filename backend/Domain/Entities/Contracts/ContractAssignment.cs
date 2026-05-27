@@ -3,6 +3,7 @@ public class ContractAssignment
   public long AssignmentId { get; private set; }
   public long ContractId { get; private set; }
   public Guid DeveloperId { get; private set; }
+  public bool IsActive { get; private set; } = true;
   public DateTime AssignedAt { get; private set; } = DateTime.UtcNow;
 
   private ContractAssignment() { } // EF
@@ -15,5 +16,10 @@ public class ContractAssignment
 
     ContractId = contractId;
     DeveloperId = developerId;
+  }
+
+  public void Deactivate()
+  {
+    IsActive = false;
   }
 }
