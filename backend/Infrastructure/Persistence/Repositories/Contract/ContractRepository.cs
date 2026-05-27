@@ -7,7 +7,7 @@ public class ContractRepository : IContractRepository
     _context = context;
   }
 
-  public async Task<Contract?> GetContractsByIdAsync(long contractId)
+  public async Task<Contract?> GetContractByIdAsync(long contractId)
   {
     return await _context.Contracts
       .FirstOrDefaultAsync(c => c.ContractId == contractId);
