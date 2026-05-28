@@ -20,12 +20,16 @@ public enum ContractApplicationStatus
   [EnumMember(Value = "rejected")]
   Rejected
 }
-public enum ContractExecutionStatus
+public enum ContractReportStatus
 {
-  [EnumMember(Value = "completed")]
-  Completed,
-  [EnumMember(Value = "in_progress")]
-  InProgress,
-  [EnumMember(Value = "not_started")]
-  NotStarted
+  [EnumMember(Value = "draft")]
+  Draft,
+  [EnumMember(Value = "submitted")]
+  Submitted,
+  [EnumMember(Value = "changes_requested")]
+  ChangesRequested,
+  [EnumMember(Value = "approved")]
+  Approved,
+  [EnumMember(Value = "rejected")]
+  Rejected
 }

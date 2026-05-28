@@ -29,7 +29,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
       builder.Configuration.GetConnectionString("DefaultConnection"),
       o => o
         .MapEnum<ContractStatus>("contract_status")
-        .MapEnum<ContractExecutionStatus>("contract_execution_status")
+        .MapEnum<ContractReportStatus>("contract_report_status")
         .MapEnum<ContractApplicationStatus>("contract_application_status")  
   )
 );

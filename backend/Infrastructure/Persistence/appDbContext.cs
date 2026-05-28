@@ -12,7 +12,7 @@ public class AppDbContext : DbContext
   public DbSet<Contract> Contracts { get; set; }
   public DbSet<ContractApplication> ContractApplications { get; set; }
   public DbSet<ContractAssignment> ContractAssignments { get; set; }
-  public DbSet<ContractExecution> ContractExecutions { get; set; }
+  public DbSet<ContractReport> ContractReports { get; set; }
   public DbSet<Permission> Permissions { get; set; }
   public DbSet<RolePermission> RolePermissions { get; set; }
   public DbSet<UserPermission> UserPermissions { get; set; }
@@ -294,30 +294,42 @@ public class AppDbContext : DbContext
         .HasColumnName("is_active");
     });
 
-    modelBuilder.Entity<ContractExecution>(entity =>
+    modelBuilder.Entity<ContractReport>(entity =>
     {
-      entity.ToTable("contract_executions");
-      entity.HasKey(ce => ce.ExecutionId);
+      entity.ToTable("contract_reports");
+      entity.HasKey(ce => ce.ReportId);
 
-      entity.Property(ce => ce.ExecutionId)
-        .HasColumnName("execution_id");
+      entity.Property(ce => ce.ReportId)
+        .HasColumnName("report_id");
       
       entity.Property(ce => ce.ContractId)
         .HasColumnName("contract_id");
 
-      entity.Property(ce => ce.StartedAt)
-        .HasColumnName("started_at");
+      entity.Property(ce => ce.AssignmentId)
+        .HasColumnName("assignment_id");
 
-      entity.Property(ce => ce.CompletedAt)
-        .HasColumnName("completed_at");
+      entity.Property(ce => ce.CreatedAt)
+        .HasColumnName("created_at");
+
+      entity.Property(ce => ce.ReviewedAt)
+        .HasColumnName("reviewed_at");
+
+      entity.Property(ce => ce.SubmittedAt)
+        .HasColumnName("submitted_at");
+
+      entity.Property(ce => ce.UpdatedAt)
+        .HasColumnName("updated_at");
       
       entity.Property(ce => ce.Status)
-        .HasColumnName("execution_status");
+        .HasColumnName("report_status");
         
       entity.Property(ce => ce.ReportUrl)
         .HasColumnName("report_url");
+      
+      entity.Property(ce => ce.Feedback)
+        .HasColumnName("feedback");
     });
-    modelBuilder.HasPostgresEnum<ContractExecutionStatus>("contract_execution_status");
+    modelBuilder.HasPostgresEnum<ContractReportStatus>("contract_report_status");
 
     modelBuilder.Entity<Permission>(entity =>
     {
