@@ -16,15 +16,17 @@ public class ContractRepository : IContractRepository
   public async Task AddContractAsync(Contract contract)
   {
     _context.Contracts.Add(contract);
-    await _context.SaveChangesAsync();
   }
 
   public async Task AddApplicationAsync(ContractApplication application)
   {
     _context.ContractApplications.Add(application);
-    await _context.SaveChangesAsync();
   }
-
+  public async Task<bool> HasAlreadyAppliedAsync(long contractId, Guid candidateId)
+  {
+    return await _context.ContractApplications
+      .AnyAsync(a => a.ContractId == contractId && a.CandidateId == candidateId);
+  }
   public async Task SaveChangesAsync()
   {
     await _context.SaveChangesAsync();

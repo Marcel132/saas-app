@@ -35,6 +35,7 @@ public class ContractService
    var contract = new Contract(authorId, request.Title, request.Description, request.Price, request.Deadline);
 
    await _contractRepository.AddContractAsync(contract);
+   await _contractRepository.SaveChangesAsync();
 
     return new ContractResponseDto
     {
@@ -55,7 +56,7 @@ public class ContractService
     if(contractId <= 0)
       throw new ValueOutOfRangeAppException();
 
-    var contract = await _contractRepository.GetContractsByIdAsync(contractId)
+    var contract = await _contractRepository.GetContractByIdAsync(contractId)
       ?? throw new NotFoundAppException();
 
     if(contract.AuthorId != userId)
@@ -72,7 +73,7 @@ public class ContractService
     if(contractId <= 0)
       throw new ValueOutOfRangeAppException();
 
-    var contract = await _contractRepository.GetContractsByIdAsync(contractId)
+    var contract = await _contractRepository.GetContractByIdAsync(contractId)
       ?? throw new NotFoundAppException();
 
     if(contract.AuthorId != userId)
@@ -97,7 +98,7 @@ public class ContractService
     if(contractId <= 0)
       throw new ValueOutOfRangeAppException();
 
-    var contract = await _contractRepository.GetContractsByIdAsync(contractId)
+    var contract = await _contractRepository.GetContractByIdAsync(contractId)
       ?? throw new NotFoundAppException();
 
     if(contract.AuthorId != userId)
@@ -110,19 +111,24 @@ public class ContractService
 
   public async Task ApplyToContractAsync(Guid candidateId, long contractId)
   {
-    if(candidateId == Guid.Empty)
-      throw new BadRequestAppException();
-    if(contractId <= 0)
-      throw new ValueOutOfRangeAppException();
+    if(candidateId == Guid.Empty || contractId <= 0)
+      throw new BadRequestAppException("Invalid candidate ID or contract ID.");
 
-    var contract = await _contractRepository.GetContractsByIdAsync(contractId)
+    var hasApplied = await _contractRepository.HasAlreadyAppliedAsync(contractId, candidateId);
+    if(hasApplied)
+      throw new InvalidOperationAppException("You have already applied to this contract.");
+
+    var contract = await _contractRepository.GetContractByIdAsync(contractId)
       ?? throw new NotFoundAppException();
 
+    if(contract.AuthorId == candidateId)
+      throw new InvalidOperationAppException("You cannot apply to your own contract.");
+
     if(contract.IsExpired())
-      throw new InvalidOperationAppException();
+      throw new InvalidOperationAppException("Cannot apply to an expired contract.");
     
     if(contract.ContractStatus != ContractStatus.Open)
-      throw new InvalidOperationAppException();
+      throw new InvalidOperationAppException("Cannot apply to a non-open contract.");
 
     var application = new ContractApplication(contractId, candidateId);
     await _contractRepository.AddApplicationAsync(application);
