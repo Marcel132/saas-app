@@ -32,7 +32,10 @@ public static class ServiceExtension
 
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<IUserQueryRepository, UserQueryRepository>();
+
     services.AddScoped<ISessionRepository, SessionRepository>();
+    services.AddScoped<ISessionQueryRepository, SessionQueryRepository>();
+
     services.AddScoped<IRoleRepository, RoleRepository>();
     services.AddScoped<IContractRepository, ContractRepository>();
     services.AddScoped<IContractQueryRepository, ContractQueryRepository>();
@@ -40,6 +43,8 @@ public static class ServiceExtension
     services.AddScoped<IApplicationRepository, ApplicationRepository>();
     services.AddScoped<IAssignmentRepository, AssignmentRepository>();
 
+
+    services.AddScoped<IUnitOfWork, UnitOfWork>();
     services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
     return services;
