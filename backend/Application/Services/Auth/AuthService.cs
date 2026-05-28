@@ -1,5 +1,3 @@
-using System.Drawing;
-
 public class AuthService
 {
   private readonly UserAuthenticationService _authentication;

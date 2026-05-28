@@ -1,11 +1,9 @@
 public class AssignmentService
 {
   private readonly IAssignmentRepository _assignmentRepository;
-  private readonly IContractRepository _contractRepository;
-  public AssignmentService(IAssignmentRepository assignmentRepository, IContractRepository contractRepository)
+  public AssignmentService(IAssignmentRepository assignmentRepository)
   {
     _assignmentRepository = assignmentRepository;
-    _contractRepository = contractRepository;
   }
 
   public async Task AssignCandidateToContractAsync(Guid userId, long contractId, Guid developerId)
@@ -20,7 +18,5 @@ public class AssignmentService
 
     var assignment = new ContractAssignment(contractId, developerId);
     await _assignmentRepository.AddAssignmentAsync(assignment);
-
-    // ! REMEMBER TO CALL SaveChangesAsync() IN THE SERVICE METHOD THAT CALLS THIS METHOD, OTHERWISE CHANGES WON'T BE PERSISTED TO THE DATABASE
   }
 }

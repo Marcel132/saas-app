@@ -1,13 +1,19 @@
 public class AuthSessionService
 {
-  private readonly ISessionRepository _sessions;
+  private readonly ISessionRepository _sessionRepository;
+  private readonly ISessionQueryRepository _sessionQueryRepository;
+  private readonly IUnitOfWork _unitOfWork;
 
   public AuthSessionService
   (
-    ISessionRepository sessions
+    ISessionRepository sessionRepository,
+    ISessionQueryRepository sessionQueryRepository,
+    IUnitOfWork unitOfWork
   )
   {
-    _sessions = sessions;
+    _sessionRepository = sessionRepository;
+    _sessionQueryRepository = sessionQueryRepository;
+    _unitOfWork = unitOfWork;
   }
   public async Task<Session> CreateSessionAsync(
     Guid userId,
@@ -23,7 +29,8 @@ public class AuthSessionService
       deviceIp
     );
 
-    await _sessions.AddAsync(session);
+    await _sessionRepository.AddAsync(session);
+    await _unitOfWork.SaveChangesAsync();
 
     return session;
   }
@@ -32,45 +39,48 @@ public class AuthSessionService
 
   public async Task RevokeAllSessionsAsync(Guid userId, long? replacedByTokenId)
   {
-    var sessions = await _sessions.GetAllActiveSessionsAsync(userId);
+    var sessions = await _sessionQueryRepository.GetAllActiveSessionsAsync(userId);
 
     foreach (var session in sessions)
     {
       session.RevokeSession(replacedByTokenId);
-      await _sessions.UpdateAsync(session);
+      _sessionRepository.Update(session);
     }
+    await _unitOfWork.SaveChangesAsync();
   }
 
   public async Task<Session?> GetSessionByRefreshTokenAsync(string refreshToken)
   {
-    return await _sessions.GetSessionByRefreshTokenAsync(refreshToken);
+    return await _sessionQueryRepository.GetSessionByRefreshTokenAsync(refreshToken);
   }
   public async Task RevokeSessionByIdAsync(Guid userId, long sessionId, long? replacedByTokenId)
   {
-    var session = await _sessions.GetSessionByUserAndIdAsync(userId, sessionId)
+    var session = await _sessionQueryRepository.GetSessionByUserAndIdAsync(userId, sessionId)
       ?? throw new SessionNotFoundAppException();
 
     session.RevokeSession(replacedByTokenId);
-    await _sessions.UpdateAsync(session);
+    _sessionRepository.Update(session);
+    await _unitOfWork.SaveChangesAsync();
   }
   public async Task RevokeActiveSessionAsync(string refreshToken, long? replacedByTokenId)
   {
-    var session = await _sessions.GetSessionByRefreshTokenAsync(refreshToken);
+    var session = await _sessionQueryRepository.GetSessionByRefreshTokenAsync(refreshToken);
 
     if (session is null)
       return;
 
     session.RevokeSession(replacedByTokenId);
-    await _sessions.UpdateAsync(session);
+    _sessionRepository.Update(session);
+    await _unitOfWork.SaveChangesAsync();
   }
   public async Task<bool> TryUseRefreshTokenAsync(long sessionId)
   {
-    var result = await _sessions.TryMarkSessionAsUsedAsync(sessionId);
+    var result = await _sessionRepository.TryMarkSessionAsUsedAsync(sessionId);
     return result;
   }
 
   public async Task SetReplacedByAndRevokedAsync(long oldSessionId, long newSessionId)
   {
-    await _sessions.SetReplacedByAndRevokedAsync(oldSessionId, newSessionId);
+    await _sessionRepository.SetReplacedByAndRevokedAsync(oldSessionId, newSessionId);
   }
 }
