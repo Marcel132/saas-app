@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-
+// TODO: REFACTOR: Separate into query and command repositories to avoid confusion about when to call SaveChangesAsync
 public class SessionRepository : ISessionRepository
 {
   private readonly AppDbContext _context;
