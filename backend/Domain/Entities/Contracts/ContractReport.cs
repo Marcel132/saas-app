@@ -36,7 +36,7 @@ public class ContractReport
 
   public void RequestChanges(string feedback)
   {
-    if(feedback.Trim().Length <= 20|| feedback.Length > 2000)
+    if(string.IsNullOrWhiteSpace(feedback) || feedback.Trim().Length <= 20|| feedback.Length > 2000)
       throw new ValueOutOfRangeAppException("Feedback is invalid.");
 
     ChangeStatus(ContractReportStatus.ChangesRequested);
@@ -54,7 +54,7 @@ public class ContractReport
 
   public void Reject(string feedback)
   {
-    if(feedback.Trim().Length <= 20|| feedback.Length > 2000 )
+    if(string.IsNullOrWhiteSpace(feedback) || feedback.Trim().Length <= 20|| feedback.Length > 2000 )
       throw new ValueOutOfRangeAppException("Feedback is invalid.");
 
     ChangeStatus(ContractReportStatus.Rejected);
@@ -78,6 +78,8 @@ public class ContractReport
       ContractReportStatus.Draft => newStatus == ContractReportStatus.Submitted,
       ContractReportStatus.Submitted => newStatus == ContractReportStatus.Approved || newStatus == ContractReportStatus.Rejected || newStatus == ContractReportStatus.ChangesRequested,
       ContractReportStatus.ChangesRequested => newStatus == ContractReportStatus.Submitted,
+      ContractReportStatus.Rejected => newStatus == ContractReportStatus.Submitted,
+      ContractReportStatus.Approved => false,
       _ => false
     };
     
