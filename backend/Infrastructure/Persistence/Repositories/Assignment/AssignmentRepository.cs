@@ -17,8 +17,4 @@ public class AssignmentRepository : IAssignmentRepository
   {
     await _context.ContractAssignments.AddAsync(assignment);
   }
-  public async Task SaveChangesAsync()
-  {
-    await _context.SaveChangesAsync();
-  }
 }

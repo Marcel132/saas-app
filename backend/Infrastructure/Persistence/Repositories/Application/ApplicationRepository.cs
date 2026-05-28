@@ -29,9 +29,4 @@ public class ApplicationRepository : IApplicationRepository
 
     return await query.ToListAsync();
   }
-
-  public async Task SaveChangesAsync()
-  {
-    await _context.SaveChangesAsync();
-  }
 }

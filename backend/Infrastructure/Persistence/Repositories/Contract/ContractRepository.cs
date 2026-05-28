@@ -27,8 +27,4 @@ public class ContractRepository : IContractRepository
     return await _context.ContractApplications
       .AnyAsync(a => a.ContractId == contractId && a.CandidateId == candidateId);
   }
-  public async Task SaveChangesAsync()
-  {
-    await _context.SaveChangesAsync();
-  }
 }
