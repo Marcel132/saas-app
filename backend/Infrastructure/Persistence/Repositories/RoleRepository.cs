@@ -19,9 +19,7 @@ public class RoleRepository : IRoleRepository
     return role;
   }
 
-  public async Task<IReadOnlyDictionary<string, Role>> GetByCodesAsync(
-    IEnumerable<string> codes,
-    CancellationToken ct = default)
+  public async Task<IReadOnlyDictionary<string, Role>> GetByCodesAsync(IEnumerable<string> codes, CancellationToken ct = default)
   {
     var codeSet = codes.Distinct().ToArray();
 
