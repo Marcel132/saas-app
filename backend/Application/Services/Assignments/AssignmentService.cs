@@ -11,13 +11,7 @@ public class AssignmentService
   public async Task AssignCandidateToContractAsync(Guid userId, long contractId, Guid developerId)
   {
     if(Guid.Empty == userId || contractId <= 0 || developerId == Guid.Empty)
-      throw new ValueOutOfRangeAppException("Invalid input parameters. Please provide valid GUIDs and contract ID.");
-
-    var contract = await _contractRepository.GetContractByIdAsync(contractId)
-      ?? throw new NotFoundAppException("Contract not found with provided ID.");
-
-    if(contract.AuthorId != userId)
-      throw new ForbiddenAppException("You are not authorized to assign a candidate to this contract.");
+      throw new ValueOutOfRangeAppException("Invalid input parameters. Please provide valid GUIDs and contract ID.");;
 
     var activeAssignment = await _assignmentRepository.GetActiveAssignmentByContractIdAsync(contractId);
 
@@ -26,8 +20,6 @@ public class AssignmentService
 
     var assignment = new ContractAssignment(contractId, developerId);
     await _assignmentRepository.AddAssignmentAsync(assignment);
-    
-    contract.StartContract();
 
     // ! REMEMBER TO CALL SaveChangesAsync() IN THE SERVICE METHOD THAT CALLS THIS METHOD, OTHERWISE CHANGES WON'T BE PERSISTED TO THE DATABASE
   }
