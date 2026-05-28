@@ -8,7 +8,7 @@ public class Permission
   public bool IsActive { get; private set; }
   public DateTime CreatedAt { get; private set; }
 
-  Permission() {} //EF Core
+  private Permission() {} //EF Core
 
   public Permission(string action, string resource, string description)
   {
