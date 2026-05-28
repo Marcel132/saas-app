@@ -10,11 +10,17 @@ public class ApplicationService
 
   public async Task AcceptApplicationAsync(Guid userId, long applicationId)
   {
+    // TODO: Add transaction in UnitOfWork
     var application = await _applicationRepository.GetApplicationAsync(applicationId)
       ?? throw new NotFoundAppException("Application not found with provided ID.");
 
+    if(application.Contract.AuthorId != userId)
+      throw new UnauthorizedAppException("You are not authorized to accept this application.");   
+    
+
     await _assignmentService.AssignCandidateToContractAsync(userId, application.ContractId, application.CandidateId);
     application.Accept();
+    application.Contract.StartContract();
 
 
     var applicationsToReject = await _applicationRepository.GetApplicationsByContractIdAsync(application.ContractId, application.CandidateId);
@@ -23,6 +29,7 @@ public class ApplicationService
     {
       app.Reject();
     }
+
 
     await _applicationRepository.SaveChangesAsync();
   }
@@ -33,7 +40,7 @@ public class ApplicationService
       ?? throw new NotFoundAppException("Application not found with provided ID.");
 
     if(application.Contract.AuthorId != userId)
-      throw new UnauthorizedAppException();
+      throw new UnauthorizedAppException("You are not authorized to reject this application.");
 
     application.Reject();
     await _applicationRepository.SaveChangesAsync();

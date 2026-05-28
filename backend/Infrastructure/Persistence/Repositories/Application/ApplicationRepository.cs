@@ -16,7 +16,11 @@ public class ApplicationRepository : IApplicationRepository
 
   public async Task<List<ContractApplication>> GetApplicationsByContractIdAsync(long contractId, Guid? excludeCandidateId = null)
   {
-    var query = _context.ContractApplications.Where(ca => ca.ContractId == contractId);
+    var query = _context.ContractApplications
+    .Where(ca => 
+    ca.ContractId == contractId &&
+    ca.Status == ContractApplicationStatus.Pending
+    );
 
     if (excludeCandidateId.HasValue)
     {
