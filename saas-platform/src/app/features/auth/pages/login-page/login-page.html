@@ -1,0 +1,37 @@
+<form
+[formGroup]="form"
+class='login-container'
+(ngSubmit)='login()'
+>
+
+  <input
+  type="email"
+  formControlName="email"
+  >
+  <input
+   type="password"
+   formControlName="password"
+  >
+
+  <button type="submit">
+    Zaloguj się
+  </button>
+
+  @if(isLoading()) {
+    <div class="app-message loading">
+      Logowanie...
+    </div>
+  }
+
+  @if(error()){
+    <div class="app-message error">
+      {{error()}}
+    </div>
+  }
+
+  @if (success()) {
+    <div class="app-message success">
+      {{success()}}
+    </div>
+  }
+</form>
