@@ -17,7 +17,7 @@ public class SessionQueryRepository : ISessionQueryRepository
       )
       .FirstOrDefaultAsync();
   }
-    public async Task<IReadOnlyCollection<Session>> GetAllSessionsAsync(Guid userId)
+  public async Task<IReadOnlyCollection<Session>> GetAllSessionsAsync(Guid userId)
   {
     return await _context.Sessions
       .Where(s => s.UserId == userId)
