@@ -14,10 +14,17 @@ builder.Services.AddControllers()
       options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
       options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
-
-var JwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured in appsettings.json");
-var JwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer is not configured in appsettings.json");
-var JwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience is not configured in appsettings.json");
+builder.Services.AddCors(options =>
+{
+  options.AddPolicy("AngularPolicy", policy =>
+  {
+    policy
+      .WithOrigins("http://localhost:4200")
+      .AllowAnyHeader()
+      .AllowAnyMethod()
+      .AllowCredentials();
+  });
+});
 
 
 // Console.WriteLine($"JWT KEY: {JwtKey}");
@@ -69,6 +76,7 @@ builder.Services.AddInfrastructureService();
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -79,6 +87,7 @@ app.UseMiddleware<GlobalErrorHandlingMiddleware>();
 app.UseMiddleware<NetworkMiddleware>();
 
 app.UseHttpsRedirection();
+app.UseCors("AngularPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
