@@ -1,19 +1,28 @@
-<form
+<div class="wrapper">
+  <h3>Formularz Logowania</h3>
+  <form
 [formGroup]="form"
-class='login-container'
+class='app-card'
 (ngSubmit)='login()'
 >
 
   <input
   type="email"
   formControlName="email"
+  placeholder='Email'
+  class='app-input'
   >
   <input
    type="password"
    formControlName="password"
+   placeholder='Hasło'
+   class='app-input'
   >
 
-  <button type="submit">
+  <button
+  type="submit"
+  class='app-button'
+  >
     Zaloguj się
   </button>
 
@@ -35,3 +44,5 @@ class='login-container'
     </div>
   }
 </form>
+
+</div>
