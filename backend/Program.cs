@@ -49,7 +49,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
       HttpResponseFactory.CreateFailureResponse<object>(
         context.HttpContext,
         HttpResponseState.BadRequest,
-        "Invalid request data",
+        "Niepoprawne dane",
         DomainErrorCodes.ValidationCodes.InvalidModel
       )
     );

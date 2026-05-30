@@ -22,7 +22,7 @@ public class UserAuthenticationService
   {
     email = email.Trim().ToLowerInvariant();
     var user = await _users.GetByEmailAsync(email)
-      ?? throw new InvalidCredentialsAppException();
+      ?? throw new InvalidCredentialsAppException("Błędne dane");
 
     _policy.EnsureCanLogin(user);
 
@@ -30,7 +30,7 @@ public class UserAuthenticationService
     {
       user.RegisterFailedLoginAttempt(MaxAttempts, BlockDuration);
       await _users.SaveChangesAsync();
-      throw new InvalidCredentialsAppException();
+      throw new InvalidCredentialsAppException("Błędne dane");
     }
 
     user.ResetFailedLoginAttempts();

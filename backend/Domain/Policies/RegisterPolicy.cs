@@ -4,26 +4,26 @@ public class RegisterPolicy : IRegisterPolicy
   public void EnsureCanRegister(bool emailAlreadyExists, RegisterRequestDto request)
   {
     if(emailAlreadyExists)
-      throw new BadRequestAppException();
+      throw new BadRequestAppException("Podany adres email już istnieje");
 
     if(string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
-      throw new InvalidFormatAppException();
+      throw new InvalidFormatAppException("Imię i nazwisko są wymagane");
     
     var email = request.Email.Trim().ToLowerInvariant();
     if(!User.IsValidEmailFormat(email))
-      throw new InvalidFormatAppException();
+      throw new InvalidFormatAppException("Niepoprawny format adresu email");
 
     if(!User.IsValidPasswordFormat(request.Password))
-      throw new InvalidFormatAppException();
+      throw new InvalidFormatAppException("Hasło nie spełnia wymogów bezpieczeństwa");
 
     if(IsPasswordWeak(request))
-      throw new InvalidFormatAppException();
+      throw new InvalidFormatAppException("Hasło jest za słabe. Nie używaj poufnych danych");
 
     if(IsSpecializationInvalid(request))
-      throw new BadRequestAppException(); 
+      throw new BadRequestAppException("Wybierz co najmniej jedną specjalizacje"); 
 
     if(HasInvalidCompanyData(request))
-      throw new InvalidFormatAppException();
+      throw new InvalidFormatAppException("Podaj nazwę oraz NIP firmy");
 
   }
 
