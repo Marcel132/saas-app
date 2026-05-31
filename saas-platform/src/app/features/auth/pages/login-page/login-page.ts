@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { AuthStore } from '../../store/auth.store';
+import { LoginRequest } from '../../models/login-request';
 
 @Component({
   selector: 'app-login-page',
@@ -28,7 +29,7 @@ export class LoginPage {
 
   login()
   {
-    var request : LoginRequest =
+    const request : LoginRequest =
     {
       Email: this.form.controls.email.value,
       Password: this.form.controls.password.value

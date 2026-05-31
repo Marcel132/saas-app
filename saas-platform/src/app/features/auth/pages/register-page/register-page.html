@@ -1,1 +1,78 @@
-<p>register-page works!</p>
+<div class="wrapper">
+  <h3>Formularz rejestracji</h3>
+  <form [formGroup]='form' class="app-card" (ngSubmit)='register()'>
+    <h4> Dane logowania</h4>
+    <div class="box">
+      <input type="email" placeholder='Email' formControlName='email' class="app-input">
+      <input type="password" placeholder='Hasło' formControlName='password' class="app-input">
+    </div>
+    <h4>Typ konta</h4>
+    <div class="box">
+      <div>
+        <input type="radio" id='pentester' value="pentester" formControlName='accountType' class="app-input">
+        <label for="pentester">Pentester</label>
+      </div>
+      <div>
+        <input type="radio" id='company' value="company" formControlName='accountType' class="app-input">
+        <label for="company">Firma</label>
+      </div>
+    </div>
+    <h4>Dane Osobowe</h4>
+    <div class="box">
+      <input type="text" placeholder='Imię' formControlName='firstname' class="app-input">
+      <input type="text" placeholder='Nazwisko' formControlName='lastname' class="app-input">
+      <input type="text" placeholder='Opis' formControlName='description' class="app-input">
+      <input type="text" placeholder='Pseudonim (Nazwa Wyświetlana)' formControlName='nickname' class="app-input">
+      <input type="tel" pattern='\+[0-9]{2} [0-9]{3}-[0-9]{3}-[0-9]{3}' placeholder='Telefon' formControlName='phone'
+        class="app-input">
+      <input type="text" placeholder='Miasto' formControlName='city' class="app-input">
+      <input type="text" placeholder='Państwo' formControlName='country' class="app-input">
+      <input type="text" placeholder='Numer Pocztowy' formControlName='postalCode' class="app-input">
+      <input type="text" placeholder='Ulica' formControlName='street' class="app-input">
+    </div>
+    @if(accountType() === roleType.company){
+    <h4>Dane Firmy</h4>
+    <div class="box">
+      <input type="text" placeholder='Nazwa firmy' formControlName='companyName' class="app-input">
+      <input type="text" placeholder='Nip Firmy' formControlName='companyNip' class="app-input">
+    </div>
+    }
+    @if(accountType() === roleType.pentester){
+    <h4>Specjalizacje</h4>
+
+    <div class="box">
+      @for(spec of specializations; track spec.value){
+
+        <label>
+          <input
+            type="checkbox"
+            [checked]="form.controls.specializations.value.includes(spec.value)"
+            (change)="toggleSpecialization(spec.value, $event)">
+
+          {{ spec.label }}
+        </label>
+
+      }
+    </div>
+    }
+
+    <button type="submit" class="app-button">
+      Zarejestruj się
+    </button>
+    @if(isLoading()){
+      <div class="app-message loading">
+        <p>Rejestracja...</p>
+      </div>
+    }
+    @if(error()){
+      <div class="app-message error">
+        {{error()}}
+      </div>
+    }
+    @if(success()){
+      <div class="app-message success">
+        {{success()}}
+      </div>
+    }
+  </form>
+</div>
