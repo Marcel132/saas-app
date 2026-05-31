@@ -18,6 +18,14 @@ public class UserRepository : IUserRepository
       .AsNoTracking()
       .AnyAsync(u => u.Email == email);
   }
+  public async Task<bool> ExistsByNicknameAsync(string nickname)
+  {
+    nickname = nickname.Trim().ToLowerInvariant();
+
+    return await _context.Users
+      .AsNoTracking()
+      .AnyAsync(ud => ud.UserData.Nickname.Trim().ToLower() == nickname);
+  }
   public async Task<User?> GetByEmailAsync(string email)
   {
     return await _context.Users

@@ -4,7 +4,7 @@ public class UserData
   public string LastName { get; private set; } = string.Empty;
   public string? Nickname { get; private set; } = string.Empty;
   public string PhoneNumber { get; private set; } = string.Empty;
-  public string Skills { get; private set; } = string.Empty;
+  public string Description { get; private set; } = string.Empty;
   public string City { get; private set; } = string.Empty;
   public string Country { get; private set; } = string.Empty;
   public string PostalCode { get; private set; } = string.Empty;
@@ -25,7 +25,7 @@ public class UserData
     LastName = data.LastName;
     Nickname = data.Nickname;
     PhoneNumber = data.PhoneNumber;
-    Skills = data.Skills;
+    Description = data.Description;
     City = data.City;
     Country = data.Country;
     PostalCode = data.PostalCode;
@@ -45,7 +45,7 @@ public class UserData
     if (data.LastName != null) LastName = data.LastName;
     if (data.Nickname != null) Nickname = data.Nickname;
     if (data.PhoneNumber != null) PhoneNumber = data.PhoneNumber;
-    if (data.Skills != null) Skills = data.Skills;
+    if (data.Description != null) Description = data.Description;
     if (data.City != null) City = data.City;
     if (data.Country != null) Country = data.Country;
     if (data.PostalCode != null) PostalCode = data.PostalCode;
@@ -64,7 +64,7 @@ public class UserData
     LastName = string.Empty;
     Nickname = null;
     PhoneNumber = string.Empty;
-    Skills = string.Empty;
+    Description = string.Empty;
     City = string.Empty;
     Country = string.Empty;
     PostalCode = string.Empty;

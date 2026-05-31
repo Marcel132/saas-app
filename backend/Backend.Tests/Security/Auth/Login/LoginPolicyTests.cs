@@ -21,11 +21,12 @@ public class LoginPolicyTests
     {
       Email = "test@testmail.com",
       Password = "test123",
+      Role = RoleType.Pentester,
       FirstName = "Adam",
       LastName = "Nowak",
       Nickname = "AdamNowak",
       PhoneNumber = "123",
-      Skills = "Skills",
+      Description = "Skills",
       City = "City",
       Country = "Country",
       PostalCode = "00-000",
@@ -36,6 +37,7 @@ public class LoginPolicyTests
     var user = new User(
       "test@testmail.com",
       "test123",
+      data.Role,
       userData
     );
 
@@ -55,11 +57,12 @@ public class LoginPolicyTests
     {
       Email = "test@testmail.com",
       Password = "test123",
+      Role = RoleType.Pentester,
       FirstName = "Adam",
       LastName = "Nowak",
       Nickname = "AdamNowak",
       PhoneNumber = "123",
-      Skills = "Skills",
+      Description = "Skills",
       City = "City",
       Country = "Country",
       PostalCode = "00-000",
@@ -71,6 +74,7 @@ public class LoginPolicyTests
     var user = new User(
       "test@testmail.com",
       "test123",
+      data.Role,
       userData
     );
 
@@ -90,11 +94,12 @@ public class LoginPolicyTests
     {
       Email = "test@testmail.com",
       Password = "test123",
+      Role = RoleType.Pentester,
       FirstName = "Adam",
       LastName = "Nowak",
       Nickname = "AdamNowak",
       PhoneNumber = "123",
-      Skills = "Skills",
+      Description = "Skills",
       City = "City",
       Country = "Country",
       PostalCode = "00-000",
@@ -106,6 +111,7 @@ public class LoginPolicyTests
     var user = new User(
       "test@testmail.com",
       "test123",
+      data.Role,
       userData
     );
 

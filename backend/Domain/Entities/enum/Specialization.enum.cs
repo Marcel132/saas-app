@@ -1,8 +1,9 @@
 public enum Specialization
 {
-  Company     = 1,
-  Pentester   = 2,
-  Audit       = 3,
-  Freelancer  = 4,
-  SecurityCompany = 5
+    WebSecurity = 1,
+    ApiSecurity = 2,
+    MobileSecurity = 3,
+    CloudSecurity = 4,
+    InfrastructureSecurity = 5,
+    RedTeam = 6
 }

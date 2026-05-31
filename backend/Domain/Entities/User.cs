@@ -24,6 +24,7 @@ public class User
   public string Email { get; private set; } = string.Empty;
   public string PasswordHash { get; private set; } = string.Empty;
   public bool IsActive { get; private set; }
+  public RoleType RoleType {get; private set;}
   public DateTime CreatedAt { get; private set; }
 
   public int FailedLoginAttempts { get; private set; }
@@ -33,12 +34,13 @@ public class User
   public UserData UserData { get; private set; } = null!;
   private User() { } // EF
 
-  public User(string email, string passwordHash, UserData userData)
+  public User(string email, string passwordHash,RoleType role, UserData userData)
   {
 
     Id = Guid.NewGuid();
     Email = email.Trim().ToLowerInvariant();
     PasswordHash = passwordHash;
+    RoleType = role;
     IsActive = true;
     CreatedAt = DateTime.UtcNow;
 
@@ -171,11 +173,10 @@ public class User
     UserData.ClearPersonalData();
     _userRole.Clear();
   }
-  public bool IsCompany =>
-    _userSpecializations.Any(s => 
-    s.Specialization == Specialization.Company ||
-    s.Specialization == Specialization.SecurityCompany
-    );
+  public bool IsCompany()
+  {
+    return RoleType == RoleType.Company;
+  }
 
   public void AddRole(Guid roleId)
   {

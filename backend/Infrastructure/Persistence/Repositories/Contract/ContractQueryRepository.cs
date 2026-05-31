@@ -93,7 +93,7 @@ public class ContractQueryRepository : IContractQueryRepository
           FirstName = u.UserData.FirstName,
           LastName = u.UserData.LastName,
           Nickname = u.UserData.Nickname ?? string.Empty,
-          Skills = u.UserData.Skills,
+          Description = u.UserData.Description,
           Status = ca.Status,
           AppliedAt = ca.AppliedAt
         })

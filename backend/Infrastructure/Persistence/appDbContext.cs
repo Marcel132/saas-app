@@ -49,8 +49,8 @@ public class AppDbContext : DbContext
           ud.Property(ud => ud.PhoneNumber)
             .HasColumnName("phone_number");
 
-          ud.Property(ud => ud.Skills)
-            .HasColumnName("skills");
+          ud.Property(ud => ud.Description)
+            .HasColumnName("description");
 
           ud.Property(ud => ud.City)
             .HasColumnName("city");
@@ -95,6 +95,9 @@ public class AppDbContext : DbContext
       entity.Property(u => u.PasswordHash)
         .HasColumnName("password_hash");
 
+      entity.Property(u => u.RoleType)
+        .HasColumnName("role_type");
+
       entity.Property(u => u.CreatedAt)
         .HasColumnName("created_at");
         
@@ -125,6 +128,7 @@ public class AppDbContext : DbContext
         .HasField("_userRole")
         .UsePropertyAccessMode(PropertyAccessMode.Field);
     });
+    modelBuilder.HasPostgresEnum<RoleType>("role_type");
 
     modelBuilder.Entity<UserSpecialization>(entity =>
     {

@@ -12,13 +12,15 @@ public class RegisterRequestDto
   public string Password { get; set; } = string.Empty;
   
   [Required]
-  [NoHtmlChars]
+  public RoleType Role { get; set; }
+  
+  [Required]
   public List<Specialization> SpecializationType { get; set; } = [];
 
   [Required]
   [RegularExpression(@"^[^%<>]*$")]
   [StringLength(1028)]
-  public string Skills { get; set; } = string.Empty;
+  public string Description { get; set; } = string.Empty;
 
   [Required]
   [RegularExpression(@"^[^%<>]*$")]

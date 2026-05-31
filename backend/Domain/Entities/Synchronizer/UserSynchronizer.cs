@@ -15,7 +15,7 @@ public class UserRoleSynchronizer
 
     EnsureRole(user, roles[Roles.BASE_USER.ToString()].RoleId);
 
-    if (user.IsCompany)
+    if (user.IsCompany())
     {
       EnsureRole(user, roles[Roles.COMPANY.ToString()].RoleId);
       RemoveRole(user, roles[Roles.PENTESTER.ToString()].RoleId);

@@ -41,7 +41,7 @@ public class UserQueryRepository : IUserQueryRepository
       .Select(u => new UserResponsePublicDto
       {
         Nickname = u.UserData.Nickname ?? string.Empty,
-        Skills = u.UserData.Skills,
+        Skills = u.UserData.Description,
         CompanyName = u.UserData.CompanyName ?? string.Empty,
         CreatedAt = u.CreatedAt,
         Specialization = u.UserSpecializations
@@ -67,7 +67,7 @@ public class UserQueryRepository : IUserQueryRepository
       .Select(u => new UserResponsePublicDto
       {
         Nickname = u.UserData.Nickname ?? string.Empty,
-        Skills = u.UserData.Skills,
+        Skills = u.UserData.Description,
         Specialization = u.UserSpecializations
           .Select(us => us.Specialization)
           .ToList(),
@@ -87,13 +87,14 @@ public class UserQueryRepository : IUserQueryRepository
       {
         Id = u.Id,
         Email = u.Email,
+        Role = u.RoleType,
         Specialization = u.UserSpecializations
           .Select(us => us.Specialization)
           .ToList(),
         FirstName = u.UserData.FirstName,
         LastName = u.UserData.LastName,
         Nickname = u.UserData.Nickname ?? string.Empty,
-        Skills = u.UserData.Skills,
+        Skills = u.UserData.Description,
         CompanyName = u.UserData.CompanyName,
         CompanyNip = u.UserData.CompanyNip,
         IsActive = u.IsActive,

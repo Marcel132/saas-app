@@ -44,6 +44,10 @@ public class RegisterPolicy : IRegisterPolicy
 
   private static bool IsSpecializationInvalid(RegisterRequestDto req)
   {
+    if(req.Role == RoleType.Company)
+      return false; 
+
+    // TODO: DELETE IF 
     if(req.SpecializationType == null || !req.SpecializationType.Any())
       return true;
     

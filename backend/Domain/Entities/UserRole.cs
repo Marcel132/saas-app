@@ -4,7 +4,6 @@ public class UserRole
   public User User {get; private set;} = null!;
   public Guid RoleId {get; private set;}
   public Role Role {get; private set;} = null!;
-
   public DateTime AssignedAt {get; private set;}
 
   private UserRole() {} //EF

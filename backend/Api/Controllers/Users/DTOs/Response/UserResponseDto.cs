@@ -11,6 +11,7 @@ public class UserResponsePrivateDto
 {
   public Guid Id { get; set; }
   public string Email { get; set; } = string.Empty;
+  public RoleType Role {get; set; }
   public string FirstName { get; set; } = string.Empty;
   public string LastName { get; set; } = string.Empty;
   public string Nickname { get; set; } = string.Empty;

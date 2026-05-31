@@ -7,7 +7,7 @@ public class UpdateUserDto
   
   [RegularExpression(@"^[^%<>]*$")]
   [StringLength(1028)]
-  public string? Skills { get; set; }
+  public string? Description { get; set; }
   
   [RegularExpression(@"^[^%<>]*$")]
   [StringLength(64)]

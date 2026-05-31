@@ -21,15 +21,21 @@ public class UserRegisterService
 
   public async Task<User> RegisterAsync(RegisterRequestDto request)
   {
+    // TODO: refactor: create emailNormalizes and nicknameNormalized in DB
+    // TODO: Move nicknameExists to EnsureCanRegister
     var email = request.Email.Trim().ToLowerInvariant();
-    var isExists = await _users.ExistsByEmailAsync(email);
-    _policy.EnsureCanRegister(isExists, request);
+    var emailExists = await _users.ExistsByEmailAsync(email);
+    var nickname = request.Nickname.Trim().ToLowerInvariant();
+    var nicknameExists = await _users.ExistsByNicknameAsync(nickname);
+    if(nicknameExists)
+      throw new BadRequestAppException("Taka nazwa użytkownika już istnieje");
+    _policy.EnsureCanRegister(emailExists, request);
 
     var passwordHash = _hasher.Hash(request.Password);
     
     var userData = new UserData(request);
 
-    var user = new User(email, passwordHash, userData);
+    var user = new User(email, passwordHash, request.Role, userData);
 
     if (request.SpecializationType != null)
     {

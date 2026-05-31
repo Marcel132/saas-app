@@ -24,7 +24,7 @@ public class RegisterPolicyTests
       Nickname = "JohnDoe",
       FirstName = "John",
       LastName = "Doe",
-      SpecializationType = [Specialization.Audit, Specialization.Pentester],
+      SpecializationType = [Specialization.ApiSecurity, Specialization.CloudSecurity],
       CompanyName = null,
       CompanyNip = null
     };
@@ -68,7 +68,7 @@ public class RegisterPolicyTests
       FirstName = "John",
       LastName = "Doe",
       Nickname = "JohnDoe",
-      SpecializationType = [Specialization.Pentester],
+      SpecializationType = [Specialization.RedTeam],
       CompanyName = "PorkAndCheese",
       CompanyNip = null
     };
@@ -88,7 +88,7 @@ public class RegisterPolicyTests
       FirstName = "John",
       LastName = "Doe",
       Nickname = "JohnDoe",
-      SpecializationType = [Specialization.Pentester],
+      SpecializationType = [Specialization.WebSecurity],
       CompanyName = "PorkAndCheese",
       CompanyNip = "123-456-789"
     };
