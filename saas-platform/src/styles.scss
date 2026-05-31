@@ -115,6 +115,7 @@ a{
 
   background: var(--color-background);
   color: var(--color-text);
+  cursor: pointer;
 
   &:focus{
     outline: none;

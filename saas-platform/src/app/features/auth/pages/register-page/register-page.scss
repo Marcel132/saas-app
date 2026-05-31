@@ -1,0 +1,23 @@
+.wrapper{
+  width: 100%;
+  max-width: 420px;
+
+  margin: var(--space-xl) auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+
+  h3{
+    font-size: var(--font-size-xl);
+  }
+}
+
+.box{
+  display: grid;
+  grid-template-columns:  auto auto;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-lg)
+}
