@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { AuthStore } from '../../store/auth.store';
 import { LoginRequest } from '../../models/login-request';
@@ -14,9 +15,20 @@ import { LoginRequest } from '../../models/login-request';
 export class LoginPage {
 
   private readonly authStore = inject(AuthStore);
+  private readonly router = inject(Router);
   readonly isLoading = this.authStore.isLoading;
   readonly error = this.authStore.error;
   readonly success = this.authStore.success
+
+  constructor() {
+    effect(() => {
+      if (this.authStore.success()) {
+        setTimeout(() => {
+          this.router.navigate(['/'])
+        }, 1000)
+      }
+    })
+  }
 
   form = new FormGroup({
     email: new FormControl('', {
@@ -36,5 +48,6 @@ export class LoginPage {
     }
 
     this.authStore.login(request)
+
   }
 }
