@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { AuthStore } from '../../store/auth.store';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RoleType } from '../../models/role-types.enum';
+import { RoleType } from '../../models/role-type.enum';
 import { SpecializationType } from '../../models/specialization-type.enum';
 import { RegisterRequest } from '../../models/register-request';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register-page',
@@ -17,6 +18,7 @@ import { RegisterRequest } from '../../models/register-request';
 export class RegisterPage {
 
   private readonly authStore = inject(AuthStore);
+  private readonly router = inject(Router);
 
   readonly isLoading = this.authStore.isLoading;
   readonly error = this.authStore.error;
@@ -51,6 +53,15 @@ export class RegisterPage {
     label: 'Red Team'
   }
   ];
+
+  constructor() {
+    effect(() => {
+      if(this.authStore.success() !== null)
+        setTimeout(() => {
+          this.router.navigate(['/dashboard'])
+        }, 1000)
+    })
+  }
 
   form = new FormGroup({
     email: new FormControl('', { nonNullable: true }),

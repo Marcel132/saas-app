@@ -1,4 +1,4 @@
-import { RoleType } from "./role-types.enum";
+import { RoleType } from "./role-type.enum";
 import { SpecializationType } from "./specialization-type.enum";
 
 export interface RegisterRequest
