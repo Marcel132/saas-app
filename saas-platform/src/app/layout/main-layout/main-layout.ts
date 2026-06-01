@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterOutlet } from "@angular/router";
 
 @Component({
@@ -7,4 +7,11 @@ import { RouterOutlet } from "@angular/router";
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss',
 })
-export class MainLayout {}
+export class MainLayout {
+
+  readonly isSidebarCollapsed = signal(false);
+
+  toogleSidebar() {
+    this.isSidebarCollapsed.update(value => !value);
+  }
+}
