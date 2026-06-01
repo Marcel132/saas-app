@@ -1,1 +1,9 @@
-<p>dashboard-page works!</p>
+@if(currentUser(); as user){
+  @if(user.role === roleType.company){
+    <app-company-dashboard></app-company-dashboard>
+  }
+  @if (user.role === roleType.pentester) {
+    <app-pentester-dashboard></app-pentester-dashboard>
+  }
+
+}
