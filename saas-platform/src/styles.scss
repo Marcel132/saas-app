@@ -26,6 +26,8 @@
 :root[data-theme="light"]{
   --color-background: #f5f7fa;
   --color-surface: #ffffff;
+  --color-surface-secondary: #f1f5f9;
+  --color-surface-tertiary: #e2e8f0;
   --color-surface-hover: #f1f5f9;
 
   --color-text: #1e293b;
@@ -40,6 +42,8 @@
 :root[data-theme="dark"]{
   --color-background: #121212;
   --color-surface: #1e1e1e;
+  --color-surface-secondary: #252525;
+  --color-surface-tertiary: #252525;
   --color-surface-hover: #252525;
 
   --color-text: #efefef;
@@ -100,6 +104,8 @@ body {
 a{
   color: var(--color-text-sec);
   text-decoration: none;
+  cursor: pointer;
+
   &:hover{
     text-decoration: underline;
   }
