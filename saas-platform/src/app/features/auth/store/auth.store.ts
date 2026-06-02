@@ -2,15 +2,16 @@ import { inject, Injectable, signal } from "@angular/core";
 import { AuthApi } from "../../../core/services/auth-api";
 import { LoginRequest } from "../models/login-request";
 import { RegisterRequest } from "../models/register-request";
-import { CurrentUserDto } from "../../main/models/user-dto";
+import { CurrentUserDto } from "../models/user-dto";
 import { UserApi } from "../../../core/services/user-api";
-import { tap } from "rxjs/internal/operators/tap";
+import { catchError, finalize, switchMap, tap } from "rxjs/operators";
+import { throwError } from "rxjs";
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthStore
-{
+export class AuthStore {
+  // TODO: Change isLoading, error and success signal into status and message
   private readonly authApiService = inject(AuthApi)
   private readonly userApiService = inject(UserApi)
 
@@ -20,66 +21,64 @@ export class AuthStore
 
   readonly currentUser = signal<CurrentUserDto | null>(null);
 
-  // TODO: Change Subscribe into Observable
 
-  login(request : LoginRequest)
-  {
+  login(request: LoginRequest) {
     this.clearSignals();
     this.isLoading.set(true);
 
-    this.authApiService.login(request).subscribe({
-      next: response => {
-        this.isLoading.set(false);
-        this.success.set(response.message);
-
-        this.loadCurrentUser().subscribe();
-      },
-      error: error => {
-        this.isLoading.set(false);
-        this.error.set(error.error.message);
-      }
-    })
-  }
-
-  register(request: RegisterRequest)
-  {
-    this.clearSignals();
-    this.isLoading.set(true);
-
-    this.authApiService.register(request).subscribe({
-      next: response => {
-        this.isLoading.set(false);
-        this.success.set(response.message);
-        this.loadCurrentUser().subscribe();
-      },
-      error: error => {
-        this.isLoading.set(false);
-        this.error.set(error.error.message);
-      }
-    })
-  };
-
-    
-  loadCurrentUser(){
-    return this.userApiService.getCurrentUser().pipe(
-      tap(response => {
-        this.currentUser.set(response.data as CurrentUserDto);
+    return this.authApiService.login(request).pipe(
+      switchMap(response => this.loadCurrentUser().pipe(
+        tap(() => this.setSuccess(response.message))
+      )),
+      catchError(err => {
+        this.setError(err.error.message);
+        return throwError(() => err);
       })
     )
   }
 
-  logout(){
-    this.authApiService.logout().subscribe({
-      next: response => {
-        this.currentUser.set(null);
+  register(request: RegisterRequest) {
+    this.clearSignals();
+    this.isLoading.set(true);
 
-      }
-    })
+    return this.authApiService.register(request).pipe(
+      switchMap(response => this.loadCurrentUser().pipe(
+        tap(() => this.setSuccess(response.message))
+      )),
+      catchError(err => {
+        this.setError(err.error.message);
+        return throwError(() => err)
+      })
+    )
+  };
+
+
+  loadCurrentUser() {
+    return this.userApiService.getCurrentUser().pipe(
+      tap(response => {
+        this.currentUser.set(response.data);
+      })
+    )
   }
 
-  private clearSignals(){
+  logout() {
+    return this.authApiService.logout().pipe(
+      tap(() => this.currentUser.set(null))
+    )
+  }
+
+  private clearSignals() {
     this.isLoading.set(false);
     this.error.set(null);
     this.success.set(null)
+  }
+
+  private setSuccess(message: string | null){
+    this.isLoading.set(false)
+    this.success.set(message)
+  }
+  private setError(message: string | null){
+    this.isLoading.set(false)
+    this.error.set(message)
   }
 }

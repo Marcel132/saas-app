@@ -23,7 +23,6 @@ export class LoginPage {
   constructor() {
     effect(() => {
       if (this.authStore.success()) {
-        console.log("Zalogowano..." + " " + this.success())
         setTimeout(() => {
           this.router.navigate(['/app'])
         }, 1000)
@@ -48,7 +47,7 @@ export class LoginPage {
       Password: this.form.controls.password.value
     }
 
-    this.authStore.login(request)
+    this.authStore.login(request).subscribe()
 
   }
 }

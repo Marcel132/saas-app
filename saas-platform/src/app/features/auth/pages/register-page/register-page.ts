@@ -122,7 +122,7 @@ export class RegisterPage {
       CompanyNip: this.form.controls.companyNip.value,
     }
 
-    this.authStore.register(request)
+    this.authStore.register(request).subscribe()
   };
 
   toggleSpecialization(
@@ -146,7 +146,5 @@ export class RegisterPage {
 
     this.form.controls.specializations.setValue(current);
   }
-
-
 }
 

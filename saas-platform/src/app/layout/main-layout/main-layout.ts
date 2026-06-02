@@ -26,7 +26,7 @@ export class MainLayout {
     this.layoutStore.toggleSidebar();
   }
   logout() {
-    this.authStore.logout();
+    this.authStore.logout().subscribe();
   }
 
 }

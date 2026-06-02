@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-export const mainLayoutRoutes : Routes = [
+export const mainLayoutRoutes: Routes = [
   {
     path: '',
     redirectTo: 'dashboard',
@@ -10,30 +10,36 @@ export const mainLayoutRoutes : Routes = [
     path: 'dashboard',
     loadComponent: () =>
       import('./pages/dashboard-page/dashboard-page')
-      .then(m => m.DashboardPage)
+        .then(m => m.DashboardPage)
   },
   {
     path: 'orders',
     loadComponent: () =>
       import('./pages/orders-page/orders-page')
-      .then(o => o.OrdersPage)
+        .then(o => o.OrdersPage)
+  },
+  {
+    path: 'assignments',
+    loadComponent: () =>
+      import('./pages/assignments-page/assignments-page')
+        .then(a => a.AssignmentsPage)
   },
   {
     path: 'reports',
     loadComponent: () =>
       import('./pages/reports-page/reports-page')
-      .then(r => r.ReportsPage)
+        .then(r => r.ReportsPage)
   },
   {
     path: 'profile',
     loadComponent: () =>
       import("./pages/profile-page/profile-page")
-      .then(p => p.ProfilePage)
+        .then(p => p.ProfilePage)
   },
   {
     path: 'settings',
     loadComponent: () =>
       import('./pages/settings-page/settings-page')
-      .then(s => s.SettingsPage)
+        .then(s => s.SettingsPage)
   }
 ]

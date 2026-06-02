@@ -1,5 +1,5 @@
-import { SpecializationType } from "../../auth/models/specialization-type.enum";
-import { RoleType } from "../../auth/models/role-type.enum";
+import { SpecializationType } from "./specialization-type.enum";
+import { RoleType } from "./role-type.enum";
 
 
 export interface CurrentUserDto {
