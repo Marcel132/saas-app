@@ -37,9 +37,38 @@
 
   img{
     width: 25px;
+    height: 25px;
   }
 }
 
+.search {
+  display: flex;
+  align-items: center;
+
+  width: 300px;
+  padding: var(--space-xs) var(--space-md);
+
+  border-radius: var(--border-radius-m);
+  background: var(--color-surface);
+
+  gap: 8px;
+}
+
+.search input {
+  flex: 1;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+}
+
+.search img {
+  width: 20px;
+  height: 20px;
+
+  cursor: pointer;
+}
 .user-menu {
   max-width: 150px;
   display: flex;

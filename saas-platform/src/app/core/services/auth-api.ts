@@ -30,6 +30,14 @@ export class AuthApi {
     )
   }
 
+  refreshToken(){
+    return this.http.post(
+      ApiEndpoints.auth.refreshToken,
+      {},
+      {withCredentials: true}
+    )
+  }
+
   logout(){
     return this.http.post(
       ApiEndpoints.auth.logout,

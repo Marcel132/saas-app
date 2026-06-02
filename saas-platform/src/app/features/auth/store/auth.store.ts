@@ -20,6 +20,7 @@ export class AuthStore
 
   readonly currentUser = signal<CurrentUserDto | null>(null);
 
+  // TODO: Change Subscribe into Observable
 
   login(request : LoginRequest)
   {
@@ -58,6 +59,7 @@ export class AuthStore
     })
   };
 
+    
   loadCurrentUser(){
     return this.userApiService.getCurrentUser().pipe(
       tap(response => {
@@ -70,6 +72,7 @@ export class AuthStore
     this.authApiService.logout().subscribe({
       next: response => {
         this.currentUser.set(null);
+
       }
     })
   }

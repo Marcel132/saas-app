@@ -15,13 +15,4 @@ export class UserApi {
       {withCredentials: true}
     )
   }
-
-  logoutUser(){
-    return this.http.post(
-      ApiEndpoints.auth.logout,
-      {},
-      {withCredentials: true}
-    )
-  }
-
 }
