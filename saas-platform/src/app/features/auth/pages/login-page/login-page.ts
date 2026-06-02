@@ -23,8 +23,9 @@ export class LoginPage {
   constructor() {
     effect(() => {
       if (this.authStore.success()) {
+        console.log("Zalogowano..." + " " + this.success())
         setTimeout(() => {
-          this.router.navigate(['/'])
+          this.router.navigate(['/app'])
         }, 1000)
       }
     })

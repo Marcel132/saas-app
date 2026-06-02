@@ -7,6 +7,7 @@ export const ApiEndpoints = {
   auth: {
     login: `${domain}/${version}/auth/login`,
     register: `${domain}/${version}/auth/register`,
+    logout: `${domain}/${version}/auth/logout`
   },
   users: {
     currentUser: `${domain}/${version}/users/me`

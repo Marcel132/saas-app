@@ -30,4 +30,11 @@ export class AuthApi {
     )
   }
 
+  logout(){
+    return this.http.post(
+      ApiEndpoints.auth.logout,
+      {},
+      {withCredentials: true}
+    )
+  }
 }

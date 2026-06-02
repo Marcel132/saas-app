@@ -16,4 +16,12 @@ export class UserApi {
     )
   }
 
+  logoutUser(){
+    return this.http.post(
+      ApiEndpoints.auth.logout,
+      {},
+      {withCredentials: true}
+    )
+  }
+
 }

@@ -58,7 +58,7 @@ export class RegisterPage {
     effect(() => {
       if(this.authStore.success() !== null)
         setTimeout(() => {
-          this.router.navigate(['/dashboard'])
+          this.router.navigate(['/app'])
         }, 1000)
     })
   }
