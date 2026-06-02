@@ -1,0 +1,30 @@
+<div class="wrapper" [class.collapsed]='isSidebarCollapsed()'>
+  <nav class="side-bar">
+    <img src="/icons/menu.svg" alt="Logo" class="logo" (click)='toogleSidebar()'>
+    @if(!isSidebarCollapsed()){
+      <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">Strona główna</a>
+      <a class="nav-link" routerLink="/" routerLinkActive="active">Oferty</a>
+      <a class="nav-link" routerLink="/" routerLinkActive="active">O nas</a>
+      <a class="nav-link" routerLink="/" routerLinkActive="active">Kontakt</a>
+    }
+  </nav>
+  <div class="content">
+    <nav class="top-bar">
+      <div class="search">
+        <input type="text" placeholder="Szukaj...">
+        <button><img src="/icons/magnify.svg" alt="Search"></button>
+      </div>
+      <div class="user-menu">
+          <img src="/icons/account-key.svg" alt="Login / Register">
+          <span>
+            <a class="nav-link" routerLink='/auth/login'>Zaloguj się</a> /
+            <a class="nav-link" routerLink='/auth/register'>Zarejestruj się</a>
+          </span>
+      </div>
+    </nav>
+    <router-outlet></router-outlet>
+    <footer class="footer">
+        footer
+    </footer>
+  </div>
+</div>

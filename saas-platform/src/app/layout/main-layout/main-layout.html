@@ -7,11 +7,19 @@
       <a class="nav-link" routerLink="/" routerLinkActive="active">Raporty</a>
       <a class="nav-link" routerLink="/" routerLinkActive="active">Profil</a>
       <a class="nav-link" routerLink="/" routerLinkActive="active">Ustawienia</a>
+      <a class="nav-link" routerLink="/" routerLinkActive="active" (click)="logout()">Wyloguj się</a>
     }
   </nav>
   <div class="content">
     <nav class="top-bar">
-      Topbar
+      <div class="search">
+        <input type="text" placeholder="Szukaj...">
+        <button><img src="/icons/magnify.svg" alt="Search"></button>
+      </div>
+      <div class="user-menu">
+          <img src="/icons/account.svg" alt="Account">
+          <span>{{currentUser()?.nickname}}, Witamy</span>
+      </div>
     </nav>
     <router-outlet></router-outlet>
     <footer class="footer">

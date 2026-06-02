@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { MainStore } from '../store/main.store';
-import { RoleType } from '../../../auth/models/role-type.enum';
 import { PentesterDashboard } from '../../components/pentester-dashboard/pentester-dashboard';
 import { CompanyDashboard } from '../../components/company-dashboard/company-dashboard';
+import { RoleType } from '../../../auth/models/role-type.enum';
+import { AuthStore } from '../../../auth/store/auth.store';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -15,12 +15,9 @@ import { CompanyDashboard } from '../../components/company-dashboard/company-das
 })
 export class DashboardPage {
 
-  private readonly mainStore = inject(MainStore);
-
-  readonly currentUser = this.mainStore.currentUser;
+  private readonly authStore = inject(AuthStore);
   readonly roleType = RoleType;
 
-  ngOnInit() {
-    this.mainStore.loadCurrentUser()
-  }
+  readonly currentUser = this.authStore.currentUser;
+
 }
