@@ -1,45 +1,97 @@
 import { Routes } from '@angular/router';
 
+import { companyGuard } from '../../core/guards/roles/company-guard';
+import { pentesterGuard } from '../../core/guards/roles/pentester-guard';
+
 export const mainLayoutRoutes: Routes = [
   {
-    path: '',
-    redirectTo: 'dashboard',
-    pathMatch: "full"
+    path: 'company',
+    canActivate: [companyGuard],
+    loadComponent: () =>
+      import('./pages/company-layout/company-layout')
+        .then(c => c.CompanyLayout),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./pages/company-layout/dashboard-page/dashboard-page')
+            .then(x => x.DashboardPage)
+      },
+      {
+        path: 'assignments',
+        loadComponent: () =>
+          import('./pages/company-layout/assignments-page/assignments-page')
+            .then(x => x.AssignmentsPage)
+      },
+      {
+        path: 'orders',
+        loadComponent: () =>
+          import('./pages/company-layout/orders-page/orders-page')
+            .then(x => x.OrdersPage)
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./pages/company-layout/profile-page/profile-page')
+            .then(x => x.ProfilePage)
+      },
+      {
+        path: 'reports',
+        loadComponent: () =>
+          import('./pages/company-layout/reports-page/reports-page')
+            .then(x => x.ReportsPage)
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./pages/company-layout/settings-page/settings-page')
+            .then(x => x.SettingsPage)
+      }
+    ]
   },
   {
-    path: 'dashboard',
+    path: 'pentester',
+    canActivate: [pentesterGuard],
     loadComponent: () =>
-      import('./pages/dashboard-page/dashboard-page')
-        .then(m => m.DashboardPage)
-  },
-  {
-    path: 'orders',
-    loadComponent: () =>
-      import('./pages/orders-page/orders-page')
-        .then(o => o.OrdersPage)
-  },
-  {
-    path: 'assignments',
-    loadComponent: () =>
-      import('./pages/assignments-page/assignments-page')
-        .then(a => a.AssignmentsPage)
-  },
-  {
-    path: 'reports',
-    loadComponent: () =>
-      import('./pages/reports-page/reports-page')
-        .then(r => r.ReportsPage)
-  },
-  {
-    path: 'profile',
-    loadComponent: () =>
-      import("./pages/profile-page/profile-page")
-        .then(p => p.ProfilePage)
-  },
-  {
-    path: 'settings',
-    loadComponent: () =>
-      import('./pages/settings-page/settings-page')
-        .then(s => s.SettingsPage)
+      import('./pages/pentester-layout/pentester-layout')
+        .then(p => p.PentesterLayout),
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./pages/pentester-layout/dashboard-page/dashboard-page')
+            .then(x => x.DashboardPage)
+      },
+      {
+        path: 'assignments',
+        loadComponent: () =>
+          import('./pages/pentester-layout/assignments-page/assignments-page')
+            .then(x => x.AssignmentsPage)
+      },
+      {
+        path: 'orders',
+        loadComponent: () =>
+          import('./pages/pentester-layout/orders-page/orders-page')
+            .then(x => x.OrdersPage)
+      },
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./pages/pentester-layout/profile-page/profile-page')
+            .then(x => x.ProfilePage)
+      },
+      {
+        path: 'reports',
+        loadComponent: () =>
+          import('./pages/pentester-layout/reports-page/reports-page')
+            .then(x => x.ReportsPage)
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./pages/pentester-layout/settings-page/settings-page')
+            .then(x => x.SettingsPage)
+      }
+    ]
   }
 ]

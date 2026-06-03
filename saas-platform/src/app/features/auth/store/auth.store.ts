@@ -1,11 +1,11 @@
 import { inject, Injectable, signal } from "@angular/core";
+import { catchError, switchMap, tap, throwError } from "rxjs";
+
 import { AuthApi } from "../../../core/services/auth-api";
 import { LoginRequest } from "../models/login-request";
 import { RegisterRequest } from "../models/register-request";
 import { CurrentUserDto } from "../models/user-dto";
 import { UserApi } from "../../../core/services/user-api";
-import { catchError, finalize, switchMap, tap } from "rxjs/operators";
-import { throwError } from "rxjs";
 
 @Injectable({
   providedIn: 'root'
