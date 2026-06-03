@@ -71,6 +71,19 @@ public class UsersController : ControllerBase
       ));
   }
 
+  [HasPermission(Permissions.Profile.Read)]
+  [HttpGet("me/summary")]
+  public async Task<IActionResult> GetCurrentUserSummary()
+  {
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext,
+      HttpResponseState.Success,
+      "Pobrano dane użytkownika",
+      DomainErrorCodes.GeneralCodes.Success,
+      null
+    ));
+  }
+
   // * DONE
   [HasPermission(Permissions.Profile.Update)]
   [HttpPatch("me")]
