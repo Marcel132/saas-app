@@ -13,5 +13,9 @@ export const ApiEndpoints = {
   users: {
     currentUser: `${domain}/${version}/users/me`,
     summary: `${domain}/${version}/users/me/summary`
+  },
+  contracts: {
+    contracts: `${domain}/${version}/contracts`,
+    // contractId: `${domain}/${version}/contracts/{id}`
   }
 }

@@ -1,4 +1,4 @@
-interface ApiResponseModel<T>
+export interface ApiResponseModel<T>
 {
   success: boolean,
   state: string,
