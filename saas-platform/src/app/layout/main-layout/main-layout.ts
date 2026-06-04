@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
 
 import { RoleType } from '../../features/auth/models/role-type.enum';
@@ -20,9 +20,11 @@ export class MainLayout {
   private readonly layoutStore = inject(LayoutStore);
 
 
-  readonly currentUser = this.authStore.currentUser;
-  readonly isSidebarCollapsed = this.layoutStore.isSidebarCollapsed;
+  readonly currentUser = this.authStore.currentUser.asReadonly();
+  readonly isSidebarCollapsed = this.layoutStore.isSidebarCollapsed.asReadonly();
+  
   readonly roleType = RoleType;
+  readonly isMobile = signal(window.innerWidth <= 740);
 
   protected readonly baseRoute = computed(() => {
     return this.authStore.currentUser()?.role === this.roleType.company
@@ -30,11 +32,16 @@ export class MainLayout {
     : 'pentester';
   })
 
+  constructor() {
+  window.addEventListener('resize', () => {
+    this.isMobile.set(window.innerWidth <= 740);
+  });
+}
+
   toogleSidebar() {
     this.layoutStore.toggleSidebar();
   }
   logout() {
     this.authStore.logout().subscribe();
   }
-
 }

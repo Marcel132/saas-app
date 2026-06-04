@@ -1,10 +1,12 @@
 :root{
   // font-size
+  --font-size-xs: 0.5rem;
   --font-size-sm: 0.75rem;
   --font-size-md: 0.875rem;
   --font-size-lg: 1rem;
-  --font-size-xl: 1.5rem;
-  --font-size-2xl: 2rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
 
   // space
   --space-xs: .25rem;
@@ -12,6 +14,8 @@
   --space-md: 1rem;
   --space-lg: 1.5rem;
   --space-xl: 2rem;
+  --space-2xl: 2.5rem;
+  --space-3xl: 3rem;
 
   // border-radius
   --border-radius-m: 8px;

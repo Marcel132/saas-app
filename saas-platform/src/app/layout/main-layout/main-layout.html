@@ -1,30 +1,99 @@
-<div class="wrapper" [class.collapsed]='isSidebarCollapsed()'>
+@if(isMobile()) {
+  <button class="mobile-menu-btn" (click)="toogleSidebar()">
+    <img src="/icons/menu.svg" alt="Menu">
+  </button>
+}
+
+@if(isMobile() && !isSidebarCollapsed()) {
+  <div class="backdrop" (click)="toogleSidebar()"></div>
+}
+
+<div class="wrapper" [class.collapsed]="isSidebarCollapsed()">
+
   <nav class="side-bar">
-    <img src="/icons/menu.svg" alt="Logo" class="logo" (click)='toogleSidebar()'>
-    @if(!isSidebarCollapsed()){
-      <a class="nav-link" [routerLink]="[baseRoute(), 'dashboard']" routerLinkActive="active">Dashboard</a>
-      <a class="nav-link" [routerLink]="[baseRoute(), 'orders']" routerLinkActive="active">Oferty</a>
-      <a class="nav-link" [routerLink]="[baseRoute(), 'assignments']" routerLinkActive="active">Zlecenia</a>
-      <a class="nav-link" [routerLink]="[baseRoute(), 'reports']" routerLinkActive="active">Raporty</a>
-      <a class="nav-link" [routerLink]="[baseRoute(), 'profile']" routerLinkActive="active">Profil</a>
-      <a class="nav-link" [routerLink]="[baseRoute(), 'settings']" routerLinkActive="active">Ustawienia</a>
-      <a class="nav-link" routerLink="/" routerLinkActive="active" (click)="logout()">Wyloguj się</a>
-    }
+
+    <a class="nav-link"
+       [routerLink]="[baseRoute(), 'dashboard']"
+       routerLinkActive="active">
+      Dashboard
+    </a>
+
+    <a class="nav-link"
+       [routerLink]="[baseRoute(), 'offers']"
+       routerLinkActive="active">
+      Oferty
+    </a>
+
+    <a class="nav-link"
+       [routerLink]="[baseRoute(), 'assignments']"
+       routerLinkActive="active">
+      Zlecenia
+    </a>
+
+    <a class="nav-link"
+       [routerLink]="[baseRoute(), 'reports']"
+       routerLinkActive="active">
+      Raporty
+    </a>
+
+    <a class="nav-link"
+       [routerLink]="[baseRoute(), 'profile']"
+       routerLinkActive="active">
+      Profil
+    </a>
+
+    <a class="nav-link"
+       [routerLink]="[baseRoute(), 'settings']"
+       routerLinkActive="active">
+      Ustawienia
+    </a>
+
+    <a class="nav-link"
+       routerLink="/"
+       (click)="logout()">
+      Wyloguj się
+    </a>
+
   </nav>
+
   <div class="content">
+
     <nav class="top-bar">
-    <div class="search">
-      <input type="text" placeholder="Szukaj...">
-      <img src="/icons/magnify.svg" alt="Search">
-    </div>
+      @if(!isMobile()){
+      <button class="button" (click)="toogleSidebar()">
+        <img src="/icons/menu.svg" alt="Menu">
+      </button>
+      }
+      @if(!isMobile()) {
+        <div class="search">
+          <input type="text" placeholder="Szukaj...">
+          <img src="/icons/magnify.svg" alt="Search">
+        </div>
+      }
+      @else {
+        <div></div>
+      }
+
       <div class="user-menu">
+        @if(isMobile()) {
           <img src="/icons/account.svg" alt="Account">
-          <span>{{currentUser()?.nickname}}, Witamy</span>
+        }
+        @else {
+          <img src="/icons/account.svg" alt="Account">
+          <span>{{ currentUser()?.nickname }}, Witamy</span>
+        }
       </div>
+
     </nav>
-    <router-outlet></router-outlet>
+
+    <main class="page-content">
+      <router-outlet></router-outlet>
+    </main>
+
     <footer class="footer">
-        footer
+      footer
     </footer>
+
   </div>
+
 </div>
