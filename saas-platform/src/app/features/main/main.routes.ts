@@ -69,10 +69,16 @@ export const mainLayoutRoutes: Routes = [
             .then(x => x.AssignmentsPage)
       },
       {
-        path: 'orders',
+        path: 'offers',
         loadComponent: () =>
-          import('./pages/pentester-layout/orders-page/orders-page')
-            .then(x => x.OrdersPage)
+          import('./pages/pentester-layout/offers-page/offers-page')
+            .then(x => x.OffersPage)
+      },
+      {
+        path: 'offers/:id',
+        loadComponent: () =>
+          import('./pages/pentester-layout/offers-details-page/offers-details-page')
+            .then(x => x.OffersDetailsPage)
       },
       {
         path: 'profile',
