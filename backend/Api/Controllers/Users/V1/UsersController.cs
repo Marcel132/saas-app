@@ -75,12 +75,16 @@ public class UsersController : ControllerBase
   [HttpGet("me/summary")]
   public async Task<IActionResult> GetCurrentUserSummary()
   {
+    var userId = UserContextExtension.GetUserId(User);
+
+    var summary = await _queryService.GetCurrentUserSummary(userId);
+
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
       HttpResponseState.Success,
       "Pobrano dane użytkownika",
       DomainErrorCodes.GeneralCodes.Success,
-      null
+      summary
     ));
   }
 

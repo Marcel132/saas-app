@@ -40,4 +40,9 @@ public class UserQueryService
   {
     return await _userQueryRepository.GetApplicationsAsync(userId, status);
   }
+
+  public async Task<UserSummaryDto> GetCurrentUserSummary(Guid userId)
+  {
+    return await _userQueryRepository.GetSummary(userId);
+  }
 }

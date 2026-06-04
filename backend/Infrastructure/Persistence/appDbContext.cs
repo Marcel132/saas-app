@@ -297,6 +297,10 @@ public class AppDbContext : DbContext
       entity.Property(ca => ca.IsActive)
         .HasColumnName("is_active");
     });
+    modelBuilder.Entity<ContractAssignment>()
+      .HasOne(a => a.Contract)
+      .WithMany(c => c.Assignments)
+      .HasForeignKey(a => a.ContractId);
 
     modelBuilder.Entity<ContractReport>(entity =>
     {
@@ -333,7 +337,11 @@ public class AppDbContext : DbContext
       entity.Property(ce => ce.Feedback)
         .HasColumnName("feedback");
     });
-    modelBuilder.HasPostgresEnum<ContractReportStatus>("contract_report_status");
+    modelBuilder.HasPostgresEnum<ContractReportStatus>("report_status");
+    modelBuilder.Entity<ContractReport>()
+      .HasOne(r => r.Assignment)
+      .WithMany(a => a.Reports)
+      .HasForeignKey(r => r.AssignmentId);
 
     modelBuilder.Entity<Permission>(entity =>
     {

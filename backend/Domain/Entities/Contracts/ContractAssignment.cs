@@ -7,6 +7,9 @@ public class ContractAssignment
   public DateTime AssignedAt { get; private set; } = DateTime.UtcNow;
 
   private ContractAssignment() { } // EF
+  public Contract Contract { get; private set; } = null!;
+  public ICollection<ContractReport> Reports { get; set;} = [];
+
   public ContractAssignment(long contractId, Guid developerId)
   {
     if (contractId <= 0)

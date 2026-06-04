@@ -12,6 +12,7 @@ public class ContractReport
   public string? Feedback { get; private set; }
 
   private ContractReport() { } // EF
+  public ContractAssignment Assignment { get; private set; } = null!;
 
   public ContractReport(long contractId, long assignmentId)
   {

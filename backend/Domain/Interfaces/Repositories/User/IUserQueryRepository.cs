@@ -5,5 +5,6 @@ public interface IUserQueryRepository
   public Task<UserResponsePrivateDto> GetCurrentUserByIdAsync(Guid userId);
   public Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status = null);
   public Task<List<UserApplicationsDto>> GetApplicationsAsync(Guid userId, ContractApplicationStatus? status);
+  public Task<UserSummaryDto> GetSummary(Guid userid);
 
 }

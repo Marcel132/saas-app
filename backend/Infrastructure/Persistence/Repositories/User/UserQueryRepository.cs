@@ -77,7 +77,6 @@ public class UserQueryRepository : IUserQueryRepository
       .FirstOrDefaultAsync()
       ?? throw new NotFoundAppException();
   }
-
   public async Task<UserResponsePrivateDto> GetCurrentUserByIdAsync(Guid userId)
   {
     var query = _context.Users
@@ -111,7 +110,6 @@ public class UserQueryRepository : IUserQueryRepository
 
       return await query.FirstOrDefaultAsync() ?? throw new NotFoundAppException();
   }
-
   public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status = null)
   {
     var query = _context.Contracts
@@ -161,4 +159,47 @@ public class UserQueryRepository : IUserQueryRepository
     
     return await query.ToListAsync();
   } 
+  public async Task<UserSummaryDto> GetSummary(Guid userId)
+  {
+    var activeTask = await _context.ContractAssignments
+      .AsNoTracking()
+      .CountAsync(ca => 
+      ca.DeveloperId == userId &&
+      ca.Contract.ContractStatus == ContractStatus.InProgress
+      );
+
+    var activeOrders = await _context.Contracts
+      .AsNoTracking()
+      .CountAsync(c => 
+      c.AuthorId == userId &&
+      (
+        c.ContractStatus == ContractStatus.Open ||
+        c.ContractStatus == ContractStatus.InProgress
+      )
+      );
+    
+    var completedReports = await _context.ContractReports
+      .AsNoTracking()
+      .CountAsync(cr => 
+      (cr.Status == ContractReportStatus.Approved && 
+      cr.Assignment.DeveloperId == userId) ||
+      (cr.Status == ContractReportStatus.Approved && 
+      cr.Assignment.Contract.AuthorId == userId)
+      );
+    
+    var totalReports = await _context.ContractReports
+      .AsNoTracking()
+      .CountAsync(cr => 
+      cr.Assignment.DeveloperId == userId || 
+      cr.Assignment.Contract.AuthorId == userId);
+
+    return new UserSummaryDto()
+    {
+      ActiveTasks = activeTask,
+      ActiveOrders = activeOrders,
+      CompletedReports = completedReports,
+      TotalReports = totalReports
+    };
+  }
+
 }

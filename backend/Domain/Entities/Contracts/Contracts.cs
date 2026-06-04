@@ -12,6 +12,7 @@ public class Contract
   public DateTime Deadline { get; private set; } = DateTime.UtcNow.AddDays(30);
 
   private Contract() { } // EF
+  public ICollection<ContractAssignment> Assignments { get; private set; } = [];
 
   public Contract(Guid authorId, string title, string description, decimal price, DateTime? deadline = null)
   {
