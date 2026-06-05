@@ -57,4 +57,10 @@ export class MainStore{
     )).subscribe()
   }
 
+  sendApplication(id: number){
+    return this.contractApi.createApplication(id).pipe(
+      tap(() => console.log("Created application"))
+    )
+  }
+
 }

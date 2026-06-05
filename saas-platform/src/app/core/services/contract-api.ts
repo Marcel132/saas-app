@@ -26,4 +26,15 @@ export class ContractApi {
       {withCredentials: true}
     )
   }
+
+  createApplication(id: number){
+    console.log("Creating...")
+    return this.http.post<ApiResponseModel<object>>(
+      `${ApiEndpoints.contracts.contracts}/${id}/applications`,
+      {},
+      {
+        withCredentials: true,
+      }
+    )
+  }
 }
