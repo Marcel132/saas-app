@@ -37,7 +37,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
       o => o
         .MapEnum<ContractStatus>("contract_status")
         .MapEnum<ContractReportStatus>("report_status")
-        .MapEnum<ContractApplicationStatus>("contract_application_status")  
+        .MapEnum<ContractApplicationStatus>("application_status")  
         .MapEnum<RoleType>("role_type")
   )
 );

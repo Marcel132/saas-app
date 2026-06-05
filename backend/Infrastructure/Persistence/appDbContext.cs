@@ -239,6 +239,9 @@ public class AppDbContext : DbContext
       
       entity.Property(c => c.Price)
         .HasColumnName("price");
+      
+      entity.Property(c => c.IsFunded)
+        .HasColumnName("is_funded");
 
       entity.Property(c => c.ContractStatus)
         .HasColumnName("contract_status");

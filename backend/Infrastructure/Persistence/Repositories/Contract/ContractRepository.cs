@@ -15,12 +15,12 @@ public class ContractRepository : IContractRepository
 
   public async Task AddContractAsync(Contract contract)
   {
-    _context.Contracts.Add(contract);
+    await _context.Contracts.AddAsync(contract);
   }
 
   public async Task AddApplicationAsync(ContractApplication application)
   {
-    _context.ContractApplications.Add(application);
+    await _context.ContractApplications.AddAsync(application);
   }
   public async Task<bool> HasAlreadyAppliedAsync(long contractId, Guid candidateId)
   {
