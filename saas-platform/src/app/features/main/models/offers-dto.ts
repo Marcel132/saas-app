@@ -8,4 +8,5 @@ export interface OffersDto {
   price: number;
   title: string;
   updatedAt: string | null;
+  hasApplied: boolean
 }

@@ -16,4 +16,5 @@ export class OfferCard {
   description = input.required<string>();
   price = input.required<number>()
   route = input.required<string>()
+  hasApplied = input.required<boolean>()
 }

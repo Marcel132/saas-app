@@ -1,5 +1,10 @@
-<div class="card" [routerLink]="route()">
-  <span class='title'>{{ title() }}</span>
+<div class="card" [class.applied]="hasApplied()" [routerLink]="route()">
+  <div class="header">
+    <span class='title'>{{ title() }}</span>
+    @if(hasApplied()){
+      <span class='status'>✓ Zaaplikowano</span>
+    }
+  </div>
   <span class='description'>{{ description() }}</span>
   <span class="price">{{ price() | plnCurrency}}</span>
 </div>

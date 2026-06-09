@@ -40,11 +40,14 @@ export class MainStore{
 
         this.offers.set(res.data?.items)
       })
-    ).subscribe()
+    ).subscribe({
+      next: res => this.offers.set(res.data!.items),
+      error: err => console.log(err)
+    })
   }
 
   loadOfferById(id: number){
-    this.contractApi.getContractById(id).pipe(
+    return this.contractApi.getContractById(id).pipe(
       tap(res => {
         console.log(res)
 
@@ -54,12 +57,16 @@ export class MainStore{
 
         this.selectedOffer.set(res.data)
       }
-    )).subscribe()
+    ))
   }
 
   sendApplication(id: number){
     return this.contractApi.createApplication(id).pipe(
-      tap(() => console.log("Created application"))
+      switchMap(() => this.contractApi.getContractById(id)),
+      tap(res => {
+        if(res.data)
+          this.selectedOffer.set(res.data)
+      })
     )
   }
 

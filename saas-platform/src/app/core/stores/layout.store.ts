@@ -4,7 +4,7 @@ import { Injectable, signal } from "@angular/core";
   providedIn: 'root'
 })
 export class LayoutStore {
-  readonly isSidebarCollapsed = signal(false);
+  readonly isSidebarCollapsed = signal(true);
 
   toggleSidebar() {
     this.isSidebarCollapsed.update(value => !value);

@@ -6,6 +6,7 @@ import { LoginRequest } from "../models/login-request";
 import { RegisterRequest } from "../models/register-request";
 import { CurrentUserDto } from "../models/user-dto";
 import { UserApi } from "../../../core/services/user-api";
+import { RequestState } from "../../../core/models/request-state";
 
 @Injectable({
   providedIn: 'root'
@@ -15,38 +16,53 @@ export class AuthStore {
   private readonly authApiService = inject(AuthApi)
   private readonly userApiService = inject(UserApi)
 
-  readonly error = signal<string | null>(null);
-  readonly success = signal<string | null>(null);
-  readonly isLoading = signal<boolean>(false);
+  readonly request = signal<RequestState>({
+    state: 'idle',
+    message: ''
+  })
 
   readonly currentUser = signal<CurrentUserDto | null>(null);
 
 
   login(request: LoginRequest) {
-    this.clearSignals();
-    this.isLoading.set(true);
-
+    this.request.set({
+      state: 'loading',
+      message: 'Logowanie...'
+    })
     return this.authApiService.login(request).pipe(
       switchMap(response => this.loadCurrentUser().pipe(
-        tap(() => this.setSuccess(response.message))
+        tap(() => this.request.set({
+          state: "success",
+          message: response.message ?? "Zalogowano"
+        }))
       )),
       catchError(err => {
-        this.setError(err.error.message);
+        this.request.set({
+          state: "error",
+          message: err.error.message
+        });
         return throwError(() => err);
       })
     )
   }
 
   register(request: RegisterRequest) {
-    this.clearSignals();
-    this.isLoading.set(true);
-
+    this.request.set({
+      state: 'loading',
+      message: 'Rejestracja...'
+    })
     return this.authApiService.register(request).pipe(
       switchMap(response => this.loadCurrentUser().pipe(
-        tap(() => this.setSuccess(response.message))
+        tap(() => this.request.set({
+          state: 'success',
+          message: response.message ?? "Zarejestrowano"
+        }))
       )),
       catchError(err => {
-        this.setError(err.error.message);
+        this.request.set({
+          state: 'error',
+          message: err.error.message
+        })
         return throwError(() => err)
       })
     )
@@ -65,20 +81,5 @@ export class AuthStore {
     return this.authApiService.logout().pipe(
       tap(() => this.currentUser.set(null))
     )
-  }
-
-  private clearSignals() {
-    this.isLoading.set(false);
-    this.error.set(null);
-    this.success.set(null)
-  }
-
-  private setSuccess(message: string | null){
-    this.isLoading.set(false)
-    this.success.set(message)
-  }
-  private setError(message: string | null){
-    this.isLoading.set(false)
-    this.error.set(message)
   }
 }
