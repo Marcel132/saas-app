@@ -42,6 +42,9 @@
   --color-success: #16a34a;
   --color-error: #dc2626;
   --color-warning: #d97706;
+
+  --color-background-badge: #e8f5e9;
+  --color-text-badge: #2e7d32;
 }
 :root[data-theme="dark"]{
   --color-background: #121212;
@@ -58,6 +61,9 @@
   --color-success: #22c55e;
   --color-error: #ef4444;
   --color-warning: #f59e0b;
+
+  --color-background-badge: #1b3a24;
+  --color-text-badge: #7ee787;
 }
 
 *
