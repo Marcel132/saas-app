@@ -4,6 +4,8 @@ import { switchMap, tap } from "rxjs";
 import { UserSummaryDto } from "../models/user-summary-dto";
 import { OffersDto } from "../models/offers-dto";
 import { ContractApi } from "../../../core/services/contract-api";
+import { ApplicationDto } from "../models/application-dto";
+import { MeApi } from "../../../core/services/me-api";
 
 @Injectable({
   providedIn: 'root'
@@ -11,11 +13,16 @@ import { ContractApi } from "../../../core/services/contract-api";
 export class MainStore{
   private readonly userApi = inject(UserApi)
   private readonly contractApi = inject(ContractApi)
+  private readonly meApi = inject(MeApi)
 
   readonly summary = signal<UserSummaryDto | null>(null);
   readonly offers = signal<OffersDto[]>([]);
   readonly selectedOffer = signal<OffersDto | null>(null)
+  readonly applications = signal<ApplicationDto[]>([])
 
+  // -----------
+  // DASHBOARD PAGE
+  // -----------
 
   loadSummary(){
     if(this.summary())
@@ -27,6 +34,10 @@ export class MainStore{
       }),
     ).subscribe()
   }
+
+  // -----------
+  // OFFERS PAGE
+  // -----------
 
   loadOffers(){
     if(this.offers().length > 0)
@@ -45,7 +56,6 @@ export class MainStore{
       error: err => console.log(err)
     })
   }
-
   loadOfferById(id: number){
     return this.contractApi.getContractById(id).pipe(
       tap(res => {
@@ -59,7 +69,6 @@ export class MainStore{
       }
     ))
   }
-
   sendApplication(id: number){
     return this.contractApi.createApplication(id).pipe(
       switchMap(() => this.contractApi.getContractById(id)),
@@ -70,4 +79,19 @@ export class MainStore{
     )
   }
 
+  // -----------
+  // ASSIGNMENTS PAGE
+  // -----------
+
+  loadApplications(){
+    return this.meApi.getApplications().pipe(
+      tap(res => {
+        console.log(res)
+
+        if(res.data)
+            this.applications.set(res.data)
+      }),
+
+    )
+  }
 }

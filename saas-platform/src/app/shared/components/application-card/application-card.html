@@ -1,0 +1,28 @@
+
+<div class="card">
+  <div class="header">
+    <span class="title">
+      {{ title() }}
+    </span>
+
+    <span class="badge"
+      [class.pending]='status()==="Pending"'
+      [class.accepted]='status()==="Accepted"'
+      [class.rejected]='status()==="Rejected"'
+    >
+      {{ status() }}
+    </span>
+  </div>
+
+  <div class="content">
+    <span>
+      Cena:
+      {{ price() | plnCurrency }}
+    </span>
+
+    <span>
+      Aplikowano:
+      {{ appliedAt() | date: 'yyyy/MM/dd' }}
+    </span>
+  </div>
+</div>
