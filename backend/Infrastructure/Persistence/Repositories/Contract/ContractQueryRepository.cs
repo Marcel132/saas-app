@@ -8,7 +8,7 @@ public class ContractQueryRepository : IContractQueryRepository
     _context = context;
   }
 
-  public async Task<PagedResponse<ContractResponseDto>> GetContractsAsync(int page, int pageSize, string? search)
+  public async Task<PagedResponse<ContractResponseDto>> GetContractsAsync(Guid userId, int page, int pageSize, string? search)
   {
     var query = _context.Contracts
       .AsNoTracking()
@@ -37,6 +37,9 @@ public class ContractQueryRepository : IContractQueryRepository
         Description = c.Description,
         Deadline = c.Deadline,
         CreatedAt = c.CreatedAt,
+        HasApplied = _context.ContractApplications.Any(ca => 
+        ca.ContractId == c.ContractId &&
+        ca.CandidateId == userId)
       })
       .ToListAsync();
 
@@ -50,7 +53,7 @@ public class ContractQueryRepository : IContractQueryRepository
     };
   }
 
-  public async Task<ContractResponseDto?> GetContractsByIdAsync(long contractId)
+  public async Task<ContractResponseDto?> GetContractsByIdAsync(long contractId, Guid userId)
   {
     var contract = await _context.Contracts
       .AsNoTracking()
@@ -59,7 +62,7 @@ public class ContractQueryRepository : IContractQueryRepository
       c.ContractStatus == ContractStatus.Open &&
       c.Deadline > DateTime.UtcNow
       )
-      .Select(c => new ContractResponseDto
+      .Select (c => new ContractResponseDto
       {
         ContractId = c.ContractId,
         AuthorId = c.AuthorId,
@@ -69,7 +72,11 @@ public class ContractQueryRepository : IContractQueryRepository
         Deadline = c.Deadline,
         CreatedAt = c.CreatedAt,
         UpdatedAt = c.UpdatedAt,
-        ContractStatus = c.ContractStatus
+        ContractStatus = c.ContractStatus,
+        HasApplied = _context.ContractApplications.Any(ca => 
+          ca.ContractId == c.ContractId && 
+          ca.CandidateId == userId
+        )
       })
       .FirstOrDefaultAsync();
 

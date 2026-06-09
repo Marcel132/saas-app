@@ -14,24 +14,28 @@ public class ContractService
     _unitOfWork = unitOfWork;
   }
 
-  public async Task<PagedResponse<ContractResponseDto>> GetContractsAsync(int page, int pageSize, string? search)
+  public async Task<PagedResponse<ContractResponseDto>> GetContractsAsync(Guid userId, int page, int pageSize, string? search)
   {
     if (page <= 0 || pageSize <= 0)
       throw new ValueOutOfRangeAppException();
     if (!string.IsNullOrWhiteSpace(search) && search.Length > 100)
       throw new BadRequestAppException();
 
-    var contracts = await _contractQueryRepository.GetContractsAsync(page, pageSize, search);
+    var contracts = await _contractQueryRepository.GetContractsAsync(userId, page, pageSize, search);
     return contracts;
   }
 
-  public async Task<ContractResponseDto> GetContractByIdAsync(long contractId)
+  public async Task<ContractResponseDto> GetContractByIdAsync(long contractId, Guid userId)
   {
     if (contractId <= 0)
       throw new ValueOutOfRangeAppException();
 
-    var contract = await _contractQueryRepository.GetContractsByIdAsync(contractId)
+    var contract = await _contractQueryRepository.GetContractsByIdAsync(contractId, userId)
       ?? throw new NotFoundAppException();
+
+    var hasApplied = await _contractRepository.HasAlreadyAppliedAsync(contractId, userId);
+
+    contract.HasApplied = hasApplied;
 
     return contract;
   }

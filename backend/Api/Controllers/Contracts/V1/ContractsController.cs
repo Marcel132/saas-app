@@ -19,7 +19,8 @@ public class ContractsController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> GetContracts([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
   {
-    var contracts = await _contractService.GetContractsAsync(page, pageSize, search);
+    var userId = UserContextExtension.GetUserId(User);
+    var contracts = await _contractService.GetContractsAsync(userId, page, pageSize, search);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -33,7 +34,8 @@ public class ContractsController : ControllerBase
   [HttpGet("{contractId}")]
   public async Task<IActionResult> GetContractById([FromRoute] long contractId)
   {
-    var contract = await _contractService.GetContractByIdAsync(contractId);
+    var userId = UserContextExtension.GetUserId(User);
+    var contract = await _contractService.GetContractByIdAsync(contractId, userId);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 

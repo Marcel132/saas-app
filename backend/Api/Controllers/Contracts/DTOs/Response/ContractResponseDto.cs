@@ -9,4 +9,5 @@ public class ContractResponseDto
   public DateTime CreatedAt { get; set; }
   public DateTime? UpdatedAt { get; set; }
   public DateTime Deadline { get; set; }
+  public bool HasApplied { get; set; }
 }
