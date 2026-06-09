@@ -59,20 +59,20 @@ public class NetworkMiddleware
 
   // Rate limiting
   // TODO: Implement a more robust rate limiting strategy, possibly using a distributed cache like Redis for better performance and scalability.
-    if(!IsAllowed(ip))
-    {
-      context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-      var response = HttpResponseFactory.CreateFailureResponse<string>(
-        context,
-        HttpResponseState.TooManyRequests,
-        "Too Many Requests. You have exceeded the rate limit.",
-        DomainErrorCodes.FirewallCodes.RateLimitExceeded
-        );
+    // if(!IsAllowed(ip))
+    // {
+    //   context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+    //   var response = HttpResponseFactory.CreateFailureResponse<string>(
+    //     context,
+    //     HttpResponseState.TooManyRequests,
+    //     "Too Many Requests. You have exceeded the rate limit.",
+    //     DomainErrorCodes.FirewallCodes.RateLimitExceeded
+    //     );
 
-      context.Response.ContentType = "application/json";
-      await context.Response.WriteAsJsonAsync(response);
-      return;
-    }
+    //   context.Response.ContentType = "application/json";
+    //   await context.Response.WriteAsJsonAsync(response);
+    //   return;
+    // }
 
     // Set headers 
     context.Response.Headers["X-Content-Type-Options"] = "nosniff";
