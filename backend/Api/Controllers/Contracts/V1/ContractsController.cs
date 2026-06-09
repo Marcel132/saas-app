@@ -56,7 +56,7 @@ public class ContractsController : ControllerBase
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
-      HttpResponseState.Success, 
+      HttpResponseState.Created, 
       "Contract created successfully", 
       DomainErrorCodes.AuthCodes.Success,
       contract
@@ -118,9 +118,10 @@ public class ContractsController : ControllerBase
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
-      HttpResponseState.Success, 
+      HttpResponseState.Created, 
       "Applied to contract successfully", 
-      DomainErrorCodes.AuthCodes.Success
+      DomainErrorCodes.GeneralCodes.Success
     ));
   }
 }
+

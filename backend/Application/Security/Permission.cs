@@ -16,6 +16,10 @@ public static class Permissions
     public const string Create = "profile-applications.create";
     public const string Cancel = "profile-applications.cancel";
   }
+  public class ProfileAssignments
+  {
+    public const string Read = "profile-assignments.read";
+  }
   public class Users
   {
     public const string Read = "users.read";
