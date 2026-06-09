@@ -26,21 +26,21 @@ class='app-card'
     Zaloguj się
   </button>
 
-  @if(isLoading()) {
+  @if(request().state === 'loading') {
     <div class="app-message loading">
-      Logowanie...
+      {{request().message}}
     </div>
   }
 
-  @if(error()){
+  @if(request().state === 'error'){
     <div class="app-message error">
-      {{error()}}
+      {{request().message}}
     </div>
   }
 
-  @if (success()) {
+  @if (request().state === 'success') {
     <div class="app-message success">
-      {{success()}}
+      {{request().message}}
     </div>
   }
 </form>

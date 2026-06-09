@@ -16,13 +16,11 @@ export class LoginPage {
 
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
-  readonly isLoading = this.authStore.isLoading;
-  readonly error = this.authStore.error;
-  readonly success = this.authStore.success
+  readonly request = this.authStore.request
 
   constructor() {
     effect(() => {
-      if (this.authStore.success()) {
+      if (this.request().state == 'success') {
         setTimeout(() => {
           this.router.navigate(['/app'])
         }, 1000)
