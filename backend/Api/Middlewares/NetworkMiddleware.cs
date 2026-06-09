@@ -120,7 +120,7 @@ public class NetworkMiddleware
     {
       bucket = new RateLimitBucket
       {
-        Token = 10, // Initial token count
+        Token = 1000, // Initial token count
         LastRefill = now
       };
       _buckets[ip] = bucket;
