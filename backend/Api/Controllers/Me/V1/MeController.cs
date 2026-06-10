@@ -31,6 +31,22 @@ public class MeController : ControllerBase
     ));
   }
   
+
+  [HasPermission(Permissions.ContractsSelf.Read)]
+  [HttpGet("contracts")]
+  public async Task<IActionResult> GetContracts([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    var contracts = await _meService.GetContracts(userId, page, pageSize, search);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext,
+      HttpResponseState.Success,
+      "Pobrano kontrakty",
+      DomainErrorCodes.GeneralCodes.Success,
+      contracts
+    ));
+  }
   // [HasPermission(Permissions.ProfileAssignments.Read)]
   // [HttpGet("/me/assignments")]
   // public async Task<IActionResult> GetSelfAssignmentsData()

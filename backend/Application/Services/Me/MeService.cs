@@ -16,6 +16,11 @@ public class MeService
 
   public async Task<List<ApplicationDto>> GetApplications(Guid userId)
   {
-    return await _meQueryRepository.GetApplications(userId);
+    return await _meQueryRepository.GetApplicationsAsync(userId);
+  }
+
+  public async Task<PagedResponse<ContractResponseDto>> GetContracts(Guid userId, int page, int pageSize, string? search)
+  {
+    return await _meQueryRepository.GetContractsAsync(userId, page, pageSize, search);
   }
 }

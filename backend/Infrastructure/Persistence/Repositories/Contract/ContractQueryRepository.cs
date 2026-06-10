@@ -12,7 +12,7 @@ public class ContractQueryRepository : IContractQueryRepository
   {
     var query = _context.Contracts
       .AsNoTracking()
-      .Where(c => c.ContractStatus == ContractStatus.Open && c.Deadline > DateTime.UtcNow);
+      .Where(c => c.ContractStatus == ContractStatus.Open && c.Deadline > DateTime.UtcNow && c.AuthorId != userId);
     
     if(!string.IsNullOrEmpty(search))
     {
@@ -52,7 +52,6 @@ public class ContractQueryRepository : IContractQueryRepository
       Items = contracts
     };
   }
-
   public async Task<ContractResponseDto?> GetContractsByIdAsync(long contractId, Guid userId)
   {
     var contract = await _context.Contracts
@@ -82,7 +81,6 @@ public class ContractQueryRepository : IContractQueryRepository
 
     return contract;
   }
-
   public async Task<List<ContractApplicationsDto>> GetContractApplicationsAsync(long contractId)
   {
     return await _context.ContractApplications
