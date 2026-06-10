@@ -11,14 +11,17 @@ import { MeApi } from "../../../core/services/me-api";
   providedIn: 'root'
 })
 export class MainStore{
+
+  // DI
   private readonly userApi = inject(UserApi)
   private readonly contractApi = inject(ContractApi)
   private readonly meApi = inject(MeApi)
 
+  // STATES
   readonly summary = signal<UserSummaryDto | null>(null);
   readonly offers = signal<OffersDto[]>([]);
   readonly selectedOffer = signal<OffersDto | null>(null)
-  readonly applications = signal<ApplicationDto[]>([])
+  readonly userApplications = signal<ApplicationDto[]>([])
 
   // -----------
   // DASHBOARD PAGE
@@ -85,7 +88,7 @@ export class MainStore{
         console.log(res)
 
         if(res.data)
-            this.applications.set(res.data)
+            this.userApplications.set(res.data)
       }),
 
     )
