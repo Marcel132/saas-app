@@ -7,14 +7,14 @@ using Microsoft.AspNetCore.Mvc;
 public class AuthController : ControllerBase
 {
   private readonly AuthService _authService;
-  private readonly AuthCookieService _cookieSerivce;
+  private readonly AuthCookieService _cookieService;
   public AuthController(
     AuthService authService,
     AuthCookieService cookieService
   )
   {
     _authService = authService;
-    _cookieSerivce = cookieService;
+    _cookieService = cookieService;
   }
 
   // -------------------------------
@@ -25,10 +25,10 @@ public class AuthController : ControllerBase
   [HttpPost("login")]
   public async Task<IActionResult> LoginUser([FromBody] LoginRequestDto request)
   {
-    var ipAdress = UserContextExtension.GetUserIp(HttpContext);
+    var ipAddress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    await _authService.LoginAsync(request, ipAdress, userAgent, Response);
+    await _authService.LoginAsync(request, ipAddress, userAgent, Response);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -42,10 +42,10 @@ public class AuthController : ControllerBase
   [HttpPost("register")]
   public async Task<IActionResult> RegisterUser([FromBody] RegisterRequestDto request)
   {
-    var ipAdress = UserContextExtension.GetUserIp(HttpContext);
+    var ipAddress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    var user = await _authService.RegisterAsync(request, ipAdress, userAgent, Response);
+    var user = await _authService.RegisterAsync(request, ipAddress, userAgent, Response);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -63,8 +63,6 @@ public class AuthController : ControllerBase
     var userId = UserContextExtension.GetUserId(User);
     // TODO: Log device info on logout for security auditing
     // TODO: Deleted session and tokens from database on user ip or user agent change to prevent session hijacking
-    // var ipAdress = UserContextExtension.GetUserIp(HttpContext);
-    // var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
     await _authService.LogoutAsync(userId, Response);
 
@@ -75,13 +73,13 @@ public class AuthController : ControllerBase
   [HttpPost("refresh-token")]
   public async Task<IActionResult> RefreshToken()
   {
-    var ipAdress = UserContextExtension.GetUserIp(HttpContext);
+    var ipAddress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
-    var refreshToken = _cookieSerivce.GetRefreshToken(Request);
+    var refreshToken = _cookieService.GetRefreshToken(Request);
 
-    var result = await _authService.RefreshTokenAsync(ipAdress, userAgent, refreshToken);
+    var result = await _authService.RefreshTokenAsync(ipAddress, userAgent, refreshToken);
 
-    _cookieSerivce.SetAuthCookie(Response, result.RefreshToken, result.AuthToken);
+    _cookieService.SetAuthCookie(Response, result.RefreshToken, result.AuthToken);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 

@@ -43,19 +43,14 @@ export class MainStore{
     if(this.offers().length > 0)
       return
 
-    this.contractApi.getContracts().pipe(
-      tap(res => {
-        console.log(res)
-        if(!res.data)
-          return;
-
-        this.offers.set(res.data?.items)
+    this.contractApi.getContracts()
+      .pipe()
+      .subscribe({
+        next: res => this.offers.set(res.data!.items),
+        error: err => console.log(err)
       })
-    ).subscribe({
-      next: res => this.offers.set(res.data!.items),
-      error: err => console.log(err)
-    })
   }
+
   loadOfferById(id: number){
     return this.contractApi.getContractById(id).pipe(
       tap(res => {
@@ -69,6 +64,7 @@ export class MainStore{
       }
     ))
   }
+
   sendApplication(id: number){
     return this.contractApi.createApplication(id).pipe(
       switchMap(() => this.contractApi.getContractById(id)),

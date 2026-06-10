@@ -16,7 +16,7 @@ public static class ServiceExtension
     services.AddScoped<ApplicationService>();
     services.AddScoped<AssignmentService>();
 
-    services.AddScoped<RefreshService>();
+    // !services.AddScoped<RefreshService>();
     services.AddScoped<AuthSessionService>();
     services.AddScoped<AuthCookieService>();
     services.AddScoped<TokenService>();

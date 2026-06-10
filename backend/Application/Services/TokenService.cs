@@ -14,7 +14,7 @@ public class TokenService
   private readonly TokenValidationParameters _validationParameters;
   private readonly JwtSecurityTokenHandler _tokenHandler = new();
 
-  public TokenService(IConfiguration configuration, AppDbContext context)
+  public TokenService(IConfiguration configuration)
   {
     _jwtKey = configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured in appsettings.json");
     _issuer = configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer is not configured in appsettings.json");
@@ -46,8 +46,7 @@ public class TokenService
     foreach (var permission in permissions)
       claims.Add(new Claim("permission", permission));
 
-    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
-    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    var creds = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
 
     var token = new JwtSecurityToken(
       issuer: _issuer,

@@ -1,22 +1,23 @@
-using NUnit.Framework;
-
 public class UserRegisterService
 {
   private readonly IUserRepository _users;
   private readonly IPasswordHasher _hasher;
   private readonly IRegisterPolicy _policy;
   private readonly UserRoleSynchronizer _roleSynch;
+  private readonly IUnitOfWork _unitOfWork;
   public UserRegisterService(
     IUserRepository userRepository,
     IRegisterPolicy registerPolicy,
     IPasswordHasher passwordHasher,
-    UserRoleSynchronizer roleSynchronizer
+    UserRoleSynchronizer roleSynchronizer,
+    IUnitOfWork unitOfWork
   )
   {
     _users = userRepository;
     _policy = registerPolicy;
     _hasher = passwordHasher;
     _roleSynch = roleSynchronizer;
+    _unitOfWork = unitOfWork;
   }
 
   public async Task<User> RegisterAsync(RegisterRequestDto request)
@@ -47,7 +48,7 @@ public class UserRegisterService
 
     await _roleSynch.SyncAsync(user);
     
-    await _users.SaveChangesAsync();
+    await _unitOfWork.SaveChangesAsync();
 
     return user;
   }

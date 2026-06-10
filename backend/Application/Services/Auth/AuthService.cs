@@ -6,7 +6,6 @@ public class AuthService
   private readonly TokenService _tokenService;
   private readonly RoleService _roleService;
   private readonly AuthCookieService _cookieService;
-  private readonly RefreshService _refreshService;
   public AuthService(
     AuthSessionService sessionService,
     UserAuthenticationService authenticationService,
@@ -14,8 +13,7 @@ public class AuthService
 
     TokenService tokenService,
     RoleService roleService,
-    AuthCookieService authCookieService,
-    RefreshService refreshService
+    AuthCookieService authCookieService
   )
   {
     _sessionService = sessionService;
@@ -25,7 +23,6 @@ public class AuthService
     _tokenService = tokenService;
     _roleService = roleService;
     _cookieService = authCookieService;
-    _refreshService = refreshService;
   }
 
   public async Task<AuthResult> LoginAsync(LoginRequestDto request, string ipAddress, string userAgent, HttpResponse response)
@@ -114,7 +111,7 @@ public class AuthService
 
   private async Task<RefreshTokenResult> RotateRefreshTokenAsync(string refreshToken, string ipAddress, string userAgent)
   {
-    var validationResult = await _refreshService.ValidateRefreshTokenAsync(refreshToken, ipAddress, userAgent);
+    var validationResult = await ValidateRefreshTokenAsync(refreshToken, ipAddress, userAgent);
     if(!validationResult.Success || validationResult.session is null)
       throw new SessionNotFoundAppException();
     
@@ -141,6 +138,57 @@ public class AuthService
       DomainErrorCodes.AuthCodes.Authorized,
       newRefreshToken,
       authToken
+    );
+  }
+
+  private async Task<RefreshTokenResult> ValidateRefreshTokenAsync(string refreshToken, string ipAddress, string userAgent)
+  {
+    var session = await _sessionService.GetSessionByRefreshTokenAsync(refreshToken);
+
+    if(session == null)
+      return new RefreshTokenResult(
+        false,
+        Guid.Empty,
+        null,
+        DomainErrorCodes.AuthCodes.SessionNotFound,
+        null, 
+        null
+      );
+    
+    if(session.Revoked || session.Used)
+    {
+      await _sessionService.RevokeAllSessionsAsync(session.UserId, null);
+      return new RefreshTokenResult(
+        false,
+        session.UserId,
+        null,
+        DomainErrorCodes.FirewallCodes.SuspiciousActivityDetected,
+        null,
+        null
+      );
+    }
+
+    if(session.ExpiresAt <= DateTime.UtcNow)
+    {
+      await _sessionService.RevokeSessionByIdAsync(session.UserId, session.SessionId, null);
+      return new RefreshTokenResult(
+        false,
+        session.UserId,
+        null,
+        DomainErrorCodes.AuthCodes.TokenExpired,
+        null,
+        null
+      );
+    }
+
+
+    return new RefreshTokenResult(
+      true,
+      session.UserId,
+      session,
+      DomainErrorCodes.AuthCodes.ValidToken,
+      null,
+      null
     );
   }
 

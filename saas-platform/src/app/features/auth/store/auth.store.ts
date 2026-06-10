@@ -12,7 +12,6 @@ import { RequestState } from "../../../core/models/request-state";
   providedIn: 'root'
 })
 export class AuthStore {
-  // TODO: Change isLoading, error and success signal into status and message
   private readonly authApiService = inject(AuthApi)
   private readonly userApiService = inject(UserApi)
 

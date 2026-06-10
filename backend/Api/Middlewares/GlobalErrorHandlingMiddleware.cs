@@ -19,14 +19,6 @@ public class GlobalErrorHandlingMiddleware
     }
     catch (Exception ex)
     {
-      // ! Delete in production, only for debugging purposes
-      _logger.LogError(ex, ex.Message);
-      if (ex is AppException appEx)
-      {
-        await HandleAppExceptionAsync(context, appEx);
-        return;
-      }
-
       await HandleExceptionAsync(context, ex);
     }
   }
