@@ -2,13 +2,17 @@ public class UserCommandService
 {
   private readonly IUserRepository _userCommandRepository;
   private readonly IPasswordHasher _hasher;
+  private readonly IUnitOfWork _unitOfWork;
 
   public UserCommandService(
     IUserRepository userCommandRepository,
-    IPasswordHasher hasher)
+    IPasswordHasher hasher,
+    IUnitOfWork unitOfWork
+    )
   {
     _userCommandRepository = userCommandRepository;
     _hasher = hasher;
+    _unitOfWork = unitOfWork;
   }
 
   public async Task UpdateUserAsync(Guid userId, UpdateUserDto request)
@@ -25,7 +29,7 @@ public class UserCommandService
 
     user.UpdateUserData(request);
 
-    await _userCommandRepository.SaveChangesAsync();
+    await _unitOfWork.SaveChangesAsync();
   }
 
   public async Task DeleteUserAsync(Guid userId)
@@ -34,7 +38,7 @@ public class UserCommandService
       ?? throw new NotFoundAppException();
 
     user.DeleteAccount();
-    await _userCommandRepository.SaveChangesAsync();
+    await _unitOfWork.SaveChangesAsync();
   }
 
 }
