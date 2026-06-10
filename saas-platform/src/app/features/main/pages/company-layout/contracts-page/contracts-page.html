@@ -1,1 +1,25 @@
-<p>contracts-page works!</p>
+<div class="wrapper">
+  <div class="header">
+    <h4>Moje Kontrakty ({{contracts().length}})</h4>
+    <button class="app-button">
+      Stwórz
+    </button>
+  </div>
+  <div class="cards">
+    @if(contracts().length <= 0){
+      <h5>Nie masz tutaj żadnych kontraków <br> Dodaj swój pierwszy kontrakt</h5>
+    } @else {
+      @for(contract of contracts(); track contract.contractId){
+      <app-contract-card
+        [title]='contract.title'
+        [description]='contract.description'
+        [price]='contract.price'
+        [deadline]='contract.deadline'
+        [route]='"app/company/contracts/" + contract.contractId'
+        [status]='contract.contractStatus',
+      >
+      </app-contract-card>
+      }
+    }
+  </div>
+</div>

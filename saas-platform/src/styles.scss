@@ -45,6 +45,22 @@
 
   --color-background-badge: #e8f5e9;
   --color-text-badge: #2e7d32;
+
+  --color-button-edit-bg: #dbeafe;
+  --color-button-edit-text: #1d4ed8;
+
+  --color-status-open-bg: #e8f5e9;
+  --color-status-open-text: #2e7d32;
+
+  --color-status-progress-bg: #e3f2fd;
+  --color-status-progress-text: #1565c0;
+
+  --color-status-closed-bg: #eceff1;
+  --color-status-closed-text: #546e7a;
+
+  --color-status-cancelled-bg: #ffebee;
+  --color-status-cancelled-text: #c62828;
+
 }
 :root[data-theme="dark"]{
   --color-background: #121212;
@@ -64,6 +80,21 @@
 
   --color-background-badge: #1b3a24;
   --color-text-badge: #7ee787;
+
+  --color-button-edit-bg: #1e3a5f;
+  --color-button-edit-text: #93c5fd;
+
+  --color-status-open-bg: #1b3a24;
+  --color-status-open-text: #7ee787;
+
+  --color-status-progress-bg: #102a43;
+  --color-status-progress-text: #64b5f6;
+
+  --color-status-closed-bg: #2d333b;
+  --color-status-closed-text: #9da7b3;
+
+  --color-status-cancelled-bg: #4a1d1d;
+  --color-status-cancelled-text: #ff7b72;
 }
 
 *
@@ -153,6 +184,13 @@ a{
   &:hover{
     opacity: .9;
   }
+}
+
+.btn-edit {
+  width: auto;
+  min-width: 100px;
+  background: var(--color-button-edit-bg);
+  color: var(--color-button-edit-text);
 }
 .app-card{
   width: 100%;

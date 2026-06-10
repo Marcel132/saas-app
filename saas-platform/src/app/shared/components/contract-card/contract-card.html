@@ -1,1 +1,21 @@
-<p>contract-card works!</p>
+<div class="card" [routerLink]="route()">
+  <div class="header">
+    <span class='title'>{{ title() }}</span>
+    <div class="actions">
+      <span class='status-badge'
+        [class]="
+          'status-badge ' +
+          status()
+        "
+      >{{ status() }}</span>
+      <button class="app-button btn-edit">
+        Edytuj
+      </button>
+    </div>
+  </div>
+  <span class='description'>{{ description() }}</span>
+  <span class="price">{{ price() | plnCurrency}}</span>
+  <span class='application'>Aplikacje </span>
+  <span class='deadline'>Data wygaśnięcia ogłoszenia: {{deadline() | date: 'yyyy/MM/dd'}}</span>
+
+</div>
