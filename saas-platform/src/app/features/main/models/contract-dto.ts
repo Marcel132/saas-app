@@ -1,4 +1,4 @@
-export interface OffersDto {
+export interface ContractDto {
   authorId: string;
   contractId: number;
   contractStatus: string;

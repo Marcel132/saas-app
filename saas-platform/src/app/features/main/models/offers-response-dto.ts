@@ -1,5 +1,5 @@
-import { OffersDto } from "./offers-dto";
+import { ContractDto } from "./contract-dto";
 
 export interface OffersResponseDto{
-  items: OffersDto[]
+  items: ContractDto[]
 }
