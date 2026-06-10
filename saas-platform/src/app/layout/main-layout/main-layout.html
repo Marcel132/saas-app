@@ -12,7 +12,16 @@
 
   <nav class="side-bar">
 
-    <a class="nav-link"
+    @for(item of navItems(); track item.route){
+      <a class="nav-link"
+        [routerLink]='[baseRoute(), item.route]'
+        routerLinkActive='active'
+      >
+        {{item.label}}
+      </a>
+    }
+
+    <!-- <a class="nav-link"
        [routerLink]="[baseRoute(), 'dashboard']"
        routerLinkActive="active">
       Dashboard
@@ -46,7 +55,7 @@
        [routerLink]="[baseRoute(), 'settings']"
        routerLinkActive="active">
       Ustawienia
-    </a>
+    </a> -->
 
     <a class="nav-link"
        routerLink="/"

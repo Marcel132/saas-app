@@ -22,7 +22,7 @@ export class MainLayout {
 
   readonly currentUser = this.authStore.currentUser.asReadonly();
   readonly isSidebarCollapsed = this.layoutStore.isSidebarCollapsed.asReadonly();
-  
+
   readonly roleType = RoleType;
   readonly isMobile = signal(window.innerWidth <= 740);
 
@@ -30,6 +30,31 @@ export class MainLayout {
     return this.authStore.currentUser()?.role === this.roleType.company
     ? 'company'
     : 'pentester';
+  })
+
+  protected readonly navItems = computed(() => {
+    const role = this.authStore.currentUser()?.role;
+
+    if(role == this.roleType.company){
+      return [
+        { label: 'Dashboard', route: 'dashboard'},
+        { label: 'Kontrakty', route: 'contracts'},
+        { label: 'Raporty', route: 'reports'},
+        { label: 'Profil', route: 'profile'},
+        { label: 'Ustawienia', route: 'settings'}
+      ]
+    } else if(role == this.roleType.pentester){
+      return [
+        { label: 'Dashboard', route: 'dashboard'},
+        { label: 'Oferty', route: 'offers'},
+        { label: 'Zlecenia', route: 'assignments'},
+        { label: 'Raporty', route: 'reports'},
+        { label: 'Profil', route: 'profile'},
+        { label: 'Ustawienia', route: 'settings'}
+      ]
+    } else {
+      return
+    }
   })
 
   constructor() {

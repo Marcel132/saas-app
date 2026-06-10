@@ -24,10 +24,10 @@ export const mainLayoutRoutes: Routes = [
             .then(x => x.AssignmentsPage)
       },
       {
-        path: 'orders',
+        path: 'contracts',
         loadComponent: () =>
-          import('./pages/company-layout/orders-page/orders-page')
-            .then(x => x.OrdersPage)
+          import('./pages/company-layout/contracts-page/contracts-page')
+            .then(x => x.ContractsPage)
       },
       {
         path: 'profile',
