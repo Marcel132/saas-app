@@ -18,6 +18,7 @@ export const ApiEndpoints = {
     contracts: `${domain}/${version}/contracts`,
   },
   me: {
-    applications: `${domain}/${version}/me/applications`
+    applications: `${domain}/${version}/me/applications`,
+    contracts: `${domain}/${version}/me/contracts`
   }
 }
