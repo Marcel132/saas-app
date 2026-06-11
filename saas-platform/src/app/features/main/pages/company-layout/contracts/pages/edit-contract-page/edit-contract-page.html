@@ -1,0 +1,40 @@
+<div class="wrapper">
+  @if(contract()) {
+
+    <h4>Edytuj kontrakt</h4>
+
+    <form [formGroup]="form" class="card">
+
+      <label>Tytuł</label>
+      <input
+        class="app-input"
+        formControlName="title">
+
+      <label>Opis</label>
+      <textarea
+        class="app-input"
+        formControlName="description">
+      </textarea>
+
+      <label>Cena</label>
+      <input
+        class="app-input"
+        type="number"
+        formControlName="price">
+
+      <button
+        class="app-button"
+        (click)="save()">
+        Zapisz zmiany
+      </button>
+
+    </form>
+
+  } @else {
+
+    <div class="app-message error">
+      Nie znaleziono kontraktu.
+    </div>
+
+  }
+</div>
