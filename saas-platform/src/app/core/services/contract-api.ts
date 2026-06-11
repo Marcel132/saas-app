@@ -5,6 +5,7 @@ import { ApiResponseModel } from '../models/api-response-model';
 import { ApiEndpoints } from '../constants/api-endpoints';
 import { OffersResponseDto } from '../../features/main/models/offers-response-dto';
 import { ContractDto } from '../../features/main/models/contract-dto';
+import { EditContractDto } from '../../features/main/pages/company-layout/contracts/models/edit-contract-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -35,6 +36,14 @@ export class ContractApi {
       {
         withCredentials: true,
       }
+    )
+  }
+
+  updateContract(id: number, request: EditContractDto){
+    return this.http.patch<ApiResponseModel<object>>(
+      `${ApiEndpoints.contracts.contracts}/${id}`,
+      request,
+      {withCredentials: true}
     )
   }
 }
