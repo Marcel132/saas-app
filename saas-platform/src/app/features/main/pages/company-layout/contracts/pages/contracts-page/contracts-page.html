@@ -1,8 +1,8 @@
 <div class="wrapper">
   <div class="header">
-    <h4>Moje Kontrakty ({{contracts().length}})</h4>
-    <button class="app-button">
-      Stwórz
+    <h4>Moje Kontrakty:  Open ({{counter().open}}) | InProgress ({{counter().inProgress}}) | Completed ({{counter().completed}}) | Cancelled ({{counter().cancelled}}) </h4>
+    <button class="app-button" routerLink="add">
+      + Nowy Kontrakt
     </button>
   </div>
   <div class="cards">
@@ -11,12 +11,14 @@
     } @else {
       @for(contract of contracts(); track contract.contractId){
       <app-contract-card
+        [contractId]='contract.contractId'
         [title]='contract.title'
         [description]='contract.description'
         [price]='contract.price'
         [deadline]='contract.deadline'
         [route]='"app/company/contracts/" + contract.contractId'
         [status]='contract.contractStatus',
+        (editClicked)="openEditPage($event)"
       >
       </app-contract-card>
       }

@@ -1,0 +1,22 @@
+<div class="card">
+  <div class="header">
+    <span class='title'>{{ title() }}</span>
+    <div class="actions">
+      <span class='status-badge'
+        [class]="
+          'status-badge ' +
+          status()
+        "
+      >{{ status() }}</span>
+      <button class="app-button btn-edit" (click)="onEdit($event)">
+        Edytuj
+      </button>
+    </div>
+  </div>
+  <div class="content"  [routerLink]="route()">
+    <span class='description'>{{ description() }}</span>
+    <span class="price">{{ price() | plnCurrency}}</span>
+    <span class='application'>Aplikacje </span>
+    <span class='deadline'>Data wygaśnięcia ogłoszenia: {{deadline() | date: 'yyyy/MM/dd'}}</span>
+  </div>
+</div>
