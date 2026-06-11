@@ -1,1 +1,62 @@
-<p>add-contract-page works!</p>
+<div class="wrapper">
+
+  <h4>Dodaj Kontrakt</h4>
+  <form
+    [formGroup]='form'
+    class="card"
+    (ngSubmit)="addContract()"
+  >
+
+    <label for="Title">Tytuł</label>
+    <input
+      type="text"
+      id="Title"
+      class="app-input title"
+      formControlName='title'
+    >
+
+    <label for="description">Opis</label>
+    <textarea
+      class='app-input description'
+      id="description"
+      formControlName='description'
+    ></textarea>
+
+    <label for="price">Cena</label>
+    <input
+      type="number"
+      id="price"
+      class="app-input price"
+      formControlName='price'
+    >
+
+    <label for="deadline">Deadline</label>
+    <input
+      type="string"
+      class='app-input deadline'
+      id="deadline"
+      formControlName='deadline'
+      [placeholder]="actualDate | date: 'yyyy-MM-dd'"
+    >
+
+    <button class='app-button save'>
+      Dodaj Kontrakt
+    </button>
+  </form>
+
+  @if(request().state === 'loading'){
+    <span class="app-message loading">
+      {{request().message }}
+    </span>
+  }
+  @if(request().state === 'success'){
+    <span class="app-message success">
+      {{request().message }}
+    </span>
+  }
+  @if(request().state === 'error'){
+    <span class="app-message error">
+      {{request().message }}
+    </span>
+  }
+</div>

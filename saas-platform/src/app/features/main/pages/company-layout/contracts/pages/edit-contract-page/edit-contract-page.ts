@@ -60,7 +60,7 @@ export class EditContractPage {
     this.companyStore.getContractById(id)
   }
 
-  save(){
+  update(){
 
     if(!this.form.dirty){
       this.request.set({
@@ -76,7 +76,7 @@ export class EditContractPage {
       message: 'Zapisywanie...'
     })
 
-    this.companyStore.saveContract(this.id, this.form.getRawValue())
+    this.companyStore.updateContract(this.id, this.form.getRawValue())
     .subscribe({
       next: res => {
         this.request.set({

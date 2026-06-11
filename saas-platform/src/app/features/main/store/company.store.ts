@@ -4,6 +4,7 @@ import { MeApi } from "../../../core/services/me-api";
 import { ContractApi } from "../../../core/services/contract-api";
 import { EditContractDto } from "../pages/company-layout/contracts/models/edit-contract-dto";
 import { tap } from "rxjs";
+import { AddContractDto } from "../pages/company-layout/contracts/models/add-contract-dto";
 
 @Injectable({
   providedIn: 'root'
@@ -52,9 +53,13 @@ export class CompanyStore{
     })
   }
 
-  saveContract(id: number, form: EditContractDto){
+  updateContract(id: number, form: EditContractDto){
     return this.contractApi.updateContract(id, form).pipe(
       tap( res => console.log(res.message))
     )
+  }
+
+  addContract(form: AddContractDto){
+    return this.contractApi.craeteContract(form).pipe()
   }
 }
