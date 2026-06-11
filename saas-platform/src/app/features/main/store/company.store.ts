@@ -1,6 +1,9 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { ContractDto } from "../models/contract-dto";
 import { MeApi } from "../../../core/services/me-api";
+import { ContractApi } from "../../../core/services/contract-api";
+import { EditContractDto } from "../pages/company-layout/contracts/models/edit-contract-dto";
+import { tap } from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +12,7 @@ import { MeApi } from "../../../core/services/me-api";
 export class CompanyStore{
   // DI
   private readonly meApi = inject(MeApi);
+  private readonly contractApi = inject(ContractApi)
 
   // SIGNALS
   readonly contracts = signal<ContractDto[]>([])
@@ -25,5 +29,18 @@ export class CompanyStore{
       },
       error: err => console.log(err)
     })
+  }
+
+  getContractById(id: number){
+    this.contractApi.getContractById(id).subscribe({
+      next: res => {this.selectedContract.set(res.data), console.log(res.data)},
+      error: err => console.log(err)
+    })
+  }
+
+  saveContract(id: number, form: EditContractDto){
+    return this.contractApi.updateContract(id, form).pipe(
+      tap( res => console.log(res.message))
+    )
   }
 }
