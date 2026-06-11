@@ -36,9 +36,13 @@ public class Contract
 
     if(deadline != null)
     {
-      if(deadline.Value <= DateTime.UtcNow)
+      if(deadline.Value.Date <= DateTime.UtcNow.Date)
         throw new ValueOutOfRangeAppException();
-      Deadline = deadline.Value;
+
+      Deadline = DateTime.SpecifyKind(
+        deadline.Value,
+        DateTimeKind.Utc
+      );
     }
 
   }
