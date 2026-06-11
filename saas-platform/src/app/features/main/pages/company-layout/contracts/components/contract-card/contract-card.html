@@ -8,15 +8,22 @@
           status()
         "
       >{{ status() }}</span>
+      @if(status() == "Open"){
       <button class="app-button btn-edit" (click)="onEdit($event)">
         Edytuj
       </button>
+      }
     </div>
   </div>
-  <div class="content"  [routerLink]="route()">
-    <span class='description'>{{ description() }}</span>
+  <div class="content">
+    <button class='app-button toggle-details' (click)="toggleDetails()">
+      {{ isExpended() ? "Ukryj ▲" : "Pokaż ▼"}}
+    </button>
+    @if(isExpended()){
+      <span class='description'>{{ description() }}</span>
+    }
     <span class="price">{{ price() | plnCurrency}}</span>
-    <span class='application'>Aplikacje </span>
+    <button class='app-button application'   [routerLink]="route()">Aplikacje </button>
     <span class='deadline'>Data wygaśnięcia ogłoszenia: {{deadline() | date: 'yyyy/MM/dd'}}</span>
   </div>
 </div>

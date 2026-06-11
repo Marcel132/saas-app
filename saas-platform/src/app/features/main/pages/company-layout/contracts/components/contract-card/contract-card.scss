@@ -3,14 +3,16 @@
   padding: var(--space-md);
   border-radius: var(--border-radius-l);
   background-color: var(--color-surface-tertiary);
-  cursor: pointer;
 
   display: flex;
   flex-direction: column;
+  transition: 0.2s;
 
   &:hover{
     opacity: .9;
-    box-shadow: 4px 4px 16px var(--color-surface)
+    border-color: var(--color-text);
+    box-shadow: 4px 4px 16px var(--color-text);
+    transform: translateY(-2px);
   }
 }
 
@@ -22,7 +24,8 @@
   margin-bottom: var(--space-sm);
   gap: var(--space-sm);
 
-  border-bottom: 2px dashed var(--color-surface)
+  border-bottom: 2px dashed var(--color-surface);
+  cursor: default;
 }
 
 .title {
@@ -38,6 +41,10 @@
 .btn-edit {
   width: auto;
   min-width: 100px;
+
+  &:hover {
+    opacity: .9;
+  }
 }
 
 .status-badge {
@@ -72,9 +79,28 @@
   flex-direction: column;
   gap: var(--space-md);
 }
+
+.toggle-details {
+  max-width: 80px;
+  padding: var(--space-xs);
+  background-color: inherit;
+  color: var(--color-text);
+  opacity: .9;
+  text-decoration: underline;
+}
+.description {
+  white-space: pre-line;
+  max-height: 200px;
+  overflow-y: auto;
+}
 .price {
   font-weight: 400;
   font-style: italic;
+}
+.application {
+  max-width: 100px;
+  background-color: var(--color-primary);
+  cursor: pointer;
 }
 .deadline {
   text-align: right;

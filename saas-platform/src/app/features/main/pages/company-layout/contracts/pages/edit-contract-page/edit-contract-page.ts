@@ -1,7 +1,8 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { CompanyStore } from '../../../../../store/company.store';
 import { ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { RequestState } from '../../../../../../../core/models/request-state';
 
 @Component({
   selector: 'app-edit-contract-page',
@@ -16,6 +17,11 @@ export class EditContractPage {
   private readonly companyStore = inject(CompanyStore)
   private readonly route = inject(ActivatedRoute)
 
+  readonly isLoading = this.companyStore.isLoading
+  request = signal<RequestState>({
+    state: 'idle',
+    message: ''
+  })
   readonly contract = this.companyStore.selectedContract
   private id!: number
 
@@ -23,7 +29,7 @@ export class EditContractPage {
     title: new FormControl("", {nonNullable: true}),
     description: new FormControl("", {nonNullable: true}),
     price: new FormControl(),
-    deadline: new FormControl()
+    newDeadline: new FormControl()
   })
 
   constructor(){
@@ -37,8 +43,9 @@ export class EditContractPage {
       title: contract.title,
       description: contract.description,
       price: contract.price,
-      deadline: contract.deadline
+      newDeadline: contract.deadline.split('T')[0]
     })
+    this.form.markAsPristine();
     })
   }
 
@@ -54,6 +61,73 @@ export class EditContractPage {
   }
 
   save(){
-    this.companyStore.saveContract(this.id, this.form.getRawValue()).subscribe()
+
+    if(!this.form.dirty){
+      this.request.set({
+        state:'error',
+        message: 'Nie wprowadzono zmian'
+      })
+
+      return;
+    }
+
+    this.request.set({
+      state: 'loading',
+      message: 'Zapisywanie...'
+    })
+
+    this.companyStore.saveContract(this.id, this.form.getRawValue())
+    .subscribe({
+      next: res => {
+        this.request.set({
+          state: 'success',
+          message: res.message ?? "Zapisano"
+        })
+      },
+      error: err => {
+        this.request.set({
+          state: 'error',
+          message: err.error.message ?? "Błąd zapisu"
+        })
+      }
+    })
+  }
+
+  onEnter(event: Event) {
+  const textarea = event.target as HTMLTextAreaElement;
+
+  const start = textarea.selectionStart;
+  const value = textarea.value;
+
+  const beforeCursor = value.substring(0, start);
+  const lines = beforeCursor.split('\n');
+  const currentLine = lines[lines.length - 1];
+
+  const match = currentLine.match(/^(\d+)\.\s/);
+
+  if (!match) {
+    return;
+  }
+
+  event.preventDefault();
+
+  const nextNumber = Number(match[1]) + 1;
+
+  const insertText = `\n${nextNumber}. `;
+
+  const newValue =
+    value.substring(0, start) +
+    insertText +
+    value.substring(start);
+
+  this.form.patchValue({
+    description: newValue
+  });
+
+  setTimeout(() => {
+    textarea.selectionStart =
+      textarea.selectionEnd =
+      start + insertText.length;
+  });
   }
 }

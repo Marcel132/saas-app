@@ -1,39 +1,74 @@
 <div class="wrapper">
-  @if(contract()) {
+  @if(isLoading()){
+    <div class="app-message loading">
+      Ładowanie...
+    </div>
+  }
+  @else if(contract()) {
 
     <h4>Edytuj kontrakt</h4>
 
-    <form [formGroup]="form" class="card">
+    <form [formGroup]="form" class="card" (ngSubmit)="save()">
 
-      <label>Tytuł</label>
+      <label for='title'>Tytuł</label>
       <input
-        class="app-input"
-        formControlName="title">
+        class="app-input title"
+        formControlName="title"
+        id='title'
+      >
 
-      <label>Opis</label>
+      <label for='description'>Opis</label>
       <textarea
-        class="app-input"
-        formControlName="description">
+        class="app-input description"
+        formControlName="description"
+        id='description'
+        (keydown.enter)="onEnter($event)"
+        >
       </textarea>
 
-      <label>Cena</label>
+      <label for='price'>Cena</label>
       <input
-        class="app-input"
+        class="app-input price"
         type="number"
-        formControlName="price">
+        formControlName="price"
+        id='price'
+      >
 
+      <label for='deadline'>Deadline</label>
+      <input
+        class='app-input deadline'
+        type="string"
+        id="deadline"
+        formControlName='newDeadline'
+      >
       <button
-        class="app-button"
-        (click)="save()">
+      type='submit'
+        class="app-button save">
         Zapisz zmiany
       </button>
 
+
     </form>
+    @if(request().state == 'success'){
+      <span class="app-message success">
+        {{request().message}}
+      </span>
+    }
+    @if(request().state == 'loading'){
+      <span class="app-message loading">
+        {{request().message}}
+      </span>
+    }
+    @if(request().state == 'error'){
+      <span class="app-message error">
+        {{request().message}}
+      </span>
+    }
 
   } @else {
 
     <div class="app-message error">
-      Nie znaleziono kontraktu.
+      Nie znaleziono kontraktu. <br> Spróbuj ponownie lub skontaktuj się z administratorem
     </div>
 
   }

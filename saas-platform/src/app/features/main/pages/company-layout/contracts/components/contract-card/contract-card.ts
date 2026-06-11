@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe } from '../../../../../../../shared/pipes/currency-pipe';
 import { DatePipe } from '@angular/common';
@@ -14,6 +14,8 @@ import { DatePipe } from '@angular/common';
   styleUrl: './contract-card.scss',
 })
 export class ContractCard {
+  readonly isExpended = signal(false)
+
   contractId = input.required<number>();
   readonly editClicked = output<number>()
 
@@ -28,5 +30,9 @@ export class ContractCard {
   onEdit(event: Event){
     event.stopPropagation();
     this.editClicked.emit(this.contractId());
+  }
+
+  toggleDetails() {
+    this.isExpended.update(x => !x);
   }
 }
