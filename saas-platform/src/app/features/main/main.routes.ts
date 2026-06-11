@@ -26,8 +26,26 @@ export const mainLayoutRoutes: Routes = [
       {
         path: 'contracts',
         loadComponent: () =>
-          import('./pages/company-layout/contracts-page/contracts-page')
-            .then(x => x.ContractsPage)
+          import('./pages/company-layout/contracts/pages/contracts-page/contracts-page')
+            .then(x => x.ContractsPage),
+      },
+      {
+        path: 'contracts/:id/edit',
+        loadComponent: () =>
+          import('./pages/company-layout/contracts/pages/edit-contract-page/edit-contract-page')
+            .then(x => x.EditContractPage)
+      },
+      {
+        path: 'contracts/:id/edit',
+        loadComponent: () =>
+          import('./pages/company-layout/contracts/pages/edit-contract-page/edit-contract-page')
+            .then(x => x.EditContractPage)
+      },
+      {
+        path: 'contracts/add',
+        loadComponent: () =>
+          import('./pages/company-layout/contracts/pages/add-contract-page/add-contract-page')
+            .then(x => x.AddContractPage)
       },
       {
         path: 'profile',
