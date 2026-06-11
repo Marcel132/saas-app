@@ -98,9 +98,13 @@ public class Contract
   {
     if(!CanModifyDetails())
       throw new BadRequestAppException();
-    if(newDeadline <= DateTime.UtcNow)
-      throw new ValueOutOfRangeAppException();
-    if (newDeadline <= Deadline)
+
+    newDeadline = DateTime.SpecifyKind(
+      newDeadline,
+      DateTimeKind.Utc
+    );
+
+    if(newDeadline.Date <= DateTime.UtcNow.Date)
       throw new ValueOutOfRangeAppException();
 
     Deadline = newDeadline;
