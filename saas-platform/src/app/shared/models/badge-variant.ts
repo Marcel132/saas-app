@@ -1,4 +1,5 @@
 export type BadgeVariant =
+| 'accepted'
 | 'cancelled'
 | 'completed'
 | 'draft'
