@@ -54,4 +54,12 @@ export class ContractApi {
       {withCredentials: true}
     )
   }
+
+  deleteContract(id: number){
+    return this.http.patch<ApiResponseModel<object>>(
+      `${ApiEndpoints.contracts.contracts}/${id}/close`,
+      {},
+      {withCredentials: true}
+    )
+  }
 }

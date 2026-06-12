@@ -1,7 +1,9 @@
+import { ContractStatus } from "../../../shared/models/contract-status";
+
 export interface ContractDto {
   authorId: string;
   contractId: number;
-  contractStatus: string;
+  contractStatus: ContractStatus;
   createdAt: string;
   deadline: string;
   description: string;

@@ -12,6 +12,11 @@ export const mainLayoutRoutes: Routes = [
         .then(c => c.CompanyLayout),
     children: [
       {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
+      {
         path: 'dashboard',
         loadComponent: () =>
           import('./pages/company-layout/dashboard-page/dashboard-page')
@@ -74,6 +79,11 @@ export const mainLayoutRoutes: Routes = [
       import('./pages/pentester-layout/pentester-layout')
         .then(p => p.PentesterLayout),
     children: [
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      },
       {
         path: 'dashboard',
         loadComponent: () =>

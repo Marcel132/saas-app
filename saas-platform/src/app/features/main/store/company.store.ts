@@ -21,13 +21,24 @@ export class CompanyStore{
   readonly selectedContract = signal<ContractDto | null>(null)
 
   getContracts(){
+
+    const statusOrder = {
+      InProgress: 0,
+      Open: 1,
+      Completed: 2,
+      Cancelled: 3,
+    }
     this.isLoading.set(true)
     this.meApi.getContracts()
     .pipe()
     .subscribe({
       next: res =>  {
-        if(res.data)
+        if(res.data){
+          res.data.items.sort(
+            (a,b) => statusOrder[a.contractStatus] - statusOrder[b.contractStatus]
+          )
           this.contracts.set(res.data.items);
+        }
 
         this.isLoading.set(false)
         console.log(res)
@@ -61,5 +72,24 @@ export class CompanyStore{
 
   addContract(form: AddContractDto){
     return this.contractApi.craeteContract(form).pipe()
+  }
+
+  deleteContract(id: number){
+    this.contractApi.deleteContract(id).pipe(
+      tap(res => {
+        console.log(res)
+
+        this.contracts.update(contracts =>
+          contracts.map(contract =>
+            contract.contractId === id
+            ? {
+              ...contract,
+              contractStatus: 'Cancelled'
+              }
+            : contract
+          )
+        )
+      })
+    ).subscribe()
   }
 }
