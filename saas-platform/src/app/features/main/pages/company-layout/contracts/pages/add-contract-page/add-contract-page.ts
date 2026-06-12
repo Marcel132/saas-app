@@ -4,12 +4,14 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RequestState } from '../../../../../../../core/models/request-state';
 import { CompanyStore } from '../../../../../store/company.store';
 import { AddContractDto } from '../../models/add-contract-dto';
+import { Message } from '../../../../../../../shared/ui/message/message';
 
 @Component({
   selector: 'app-add-contract-page',
   imports: [
     ReactiveFormsModule,
-    DatePipe
+    DatePipe,
+    Message
   ],
   templateUrl: './add-contract-page.html',
   styleUrl: './add-contract-page.scss',
@@ -32,7 +34,19 @@ export class AddContractPage {
   })
 
   addContract(){
-    const request: AddContractDto = this.form.getRawValue()
+    let deadline = this.form.controls.deadline.value;
+
+    if (!deadline) {
+      const date = new Date();
+      date.setDate(date.getDate() + 30);
+
+      deadline = date.toISOString();
+    }
+    
+    const request: AddContractDto = {
+      ...this.form.getRawValue(),
+      deadline
+    }
 
     this.request.set({
       state: 'loading',

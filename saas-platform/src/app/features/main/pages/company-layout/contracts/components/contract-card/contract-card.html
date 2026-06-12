@@ -2,22 +2,20 @@
   <div class="header">
     <span class='title'>{{ title() }}</span>
     <div class="actions">
-      <span class='status-badge'
-        [class]="
-          'status-badge ' +
-          status()
-        "
-      >{{ status() }}</span>
+      <app-badge [variant]="variant()" [text]="status()"></app-badge>
       @if(status() == "Open"){
       <button class="app-button btn-edit" (click)="onEdit($event)">
         Edytuj
+      </button>
+      <button class="app-button btn-delete" (click)="onDelete($event)">
+        Anuluj
       </button>
       }
     </div>
   </div>
   <div class="content">
     <button class='app-button toggle-details' (click)="toggleDetails()">
-      {{ isExpended() ? "Ukryj ▲" : "Pokaż ▼"}}
+      {{ isExpended() ? "Ukryj szczegóły ▲" : "Rozwiń szczegóły ▼"}}
     </button>
     @if(isExpended()){
       <span class='description'>{{ description() }}</span>

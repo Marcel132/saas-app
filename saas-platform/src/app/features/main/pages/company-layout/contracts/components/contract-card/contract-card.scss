@@ -36,7 +36,7 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  gap: var(--space-md);
 }
 .btn-edit {
   width: auto;
@@ -47,33 +47,6 @@
   }
 }
 
-.status-badge {
-  padding: .4rem .8rem;
-  border-radius: 999px;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-}
-
-.status-badge.Open {
-  background: var(--color-status-open-bg);
-  color: var(--color-status-open-text);
-}
-
-.status-badge.InProgress {
-  background: var(--color-status-progress-bg);
-  color: var(--color-status-progress-text);
-}
-
-.status-badge.Completed {
-  background: var(--color-status-closed-bg);
-  color: var(--color-status-closed-text);
-}
-
-.status-badge.Cancelled {
-  background: var(--color-status-cancelled-bg);
-  color: var(--color-status-cancelled-text);
-}
-
 .content {
   display: flex;
   flex-direction: column;
@@ -81,7 +54,7 @@
 }
 
 .toggle-details {
-  max-width: 80px;
+  max-width: 150px;
   padding: var(--space-xs);
   background-color: inherit;
   color: var(--color-text);
@@ -109,9 +82,15 @@
   color: var(--color-text-sec);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 740px) {
   .title {
     font-size: var(--font-size-md);
   }
+  .actions {
+    display: flex;
+    flex-direction: column;
+  }
 }
+
+
 

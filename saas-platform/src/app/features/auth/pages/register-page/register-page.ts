@@ -6,12 +6,14 @@ import { RoleType } from '../../models/role-type.enum';
 import { SpecializationType } from '../../models/specialization-type.enum';
 import { RegisterRequest } from '../../models/register-request';
 import { Router } from '@angular/router';
+import { Message } from "../../../../shared/ui/message/message";
 
 @Component({
   selector: 'app-register-page',
   imports: [
-    ReactiveFormsModule
-  ],
+    ReactiveFormsModule,
+    Message
+],
   templateUrl: './register-page.html',
   styleUrl: './register-page.scss',
 })
@@ -56,7 +58,7 @@ export class RegisterPage {
     effect(() => {
       if(this.request().state == 'success')
         setTimeout(() => {
-          this.router.navigate(['/app'])
+          this.router.navigate([`/app/${this.authStore.currentUser()?.role.toLowerCase()}`])
         }, 1000)
     })
   }

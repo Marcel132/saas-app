@@ -59,22 +59,8 @@
     <button type="submit" class="app-button">
       Zarejestruj się
     </button>
-    @if(request().state === 'loading') {
-      <div class="app-message loading">
-        {{request().message}}
-      </div>
-    }
-
-    @if(request().state === 'error'){
-      <div class="app-message error">
-        {{request().message}}
-      </div>
-    }
-
-    @if (request().state === 'success') {
-      <div class="app-message success">
-        {{request().message}}
-      </div>
-    }
   </form>
+
+  <app-message [request]="request()"></app-message>
+
 </div>

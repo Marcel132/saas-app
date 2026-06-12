@@ -49,21 +49,8 @@
 
 
     </form>
-    @if(request().state == 'success'){
-      <span class="app-message success">
-        {{request().message}}
-      </span>
-    }
-    @if(request().state == 'loading'){
-      <span class="app-message loading">
-        {{request().message}}
-      </span>
-    }
-    @if(request().state == 'error'){
-      <span class="app-message error">
-        {{request().message}}
-      </span>
-    }
+
+    <app-message [request]="request()"></app-message>
 
   } @else {
 

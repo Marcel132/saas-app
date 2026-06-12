@@ -3,12 +3,14 @@ import { CompanyStore } from '../../../../../store/company.store';
 import { ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { RequestState } from '../../../../../../../core/models/request-state';
+import { Message } from "../../../../../../../shared/ui/message/message";
 
 @Component({
   selector: 'app-edit-contract-page',
   imports: [
-    ReactiveFormsModule
-  ],
+    ReactiveFormsModule,
+    Message
+],
   templateUrl: './edit-contract-page.html',
   styleUrl: './edit-contract-page.scss',
 })

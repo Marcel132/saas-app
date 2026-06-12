@@ -2,32 +2,56 @@
   width: 100%;
   // max-width: 1400px;
   padding: var(--space-xl);
+}
+.header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
 
-  .header{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-md);
+.left-header {
+  display: flex;
+  justify-content: start;
+  gap: var(--space-xs);
 
-    h4 {
-      text-align: left;
-    }
-
-    button {
-      max-width: 100px;
-    }
+  h4 {
+    display: block;
+    align-self: center;
   }
 
-  .cards {
+}
+.badges {
+  display: flex;
+  gap: var(--space-md)
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+}
+@media screen and (max-width: 922px){
+  .badges {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    justify-content: center;
+    align-items: center;
     gap: var(--space-lg);
   }
 }
-
 @media screen and (max-width: 740px) {
   .wrapper {
     padding: var(--space-lg);
   }
+  .badges{
+    display: none;
+  }
 }
-
+@media screen and (max-width: 500px){
+  .header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+}

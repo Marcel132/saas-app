@@ -3,12 +3,14 @@ import { Router } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { AuthStore } from '../../store/auth.store';
 import { LoginRequest } from '../../models/login-request';
+import { Message } from "../../../../shared/ui/message/message";
 
 @Component({
   selector: 'app-login-page',
   imports: [
     ReactiveFormsModule,
-  ],
+    Message
+],
   templateUrl: './login-page.html',
   styleUrl: './login-page.scss',
 })
@@ -22,7 +24,7 @@ export class LoginPage {
     effect(() => {
       if (this.request().state == 'success') {
         setTimeout(() => {
-          this.router.navigate(['/app'])
+          this.router.navigate([`app/${this.authStore.currentUser()?.role.toLowerCase()}`])
         }, 1000)
       }
     })

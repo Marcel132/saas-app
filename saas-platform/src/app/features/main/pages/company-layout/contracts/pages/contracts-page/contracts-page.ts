@@ -2,12 +2,14 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CompanyStore } from '../../../../../store/company.store';
 import { ContractCard } from '../../components/contract-card/contract-card';
 import { Router, RouterLink } from '@angular/router';
+import { Badge } from "../../../../../../../shared/ui/badge/badge";
 
 @Component({
   selector: 'app-contracts-page',
   imports: [
     ContractCard,
-    RouterLink
+    RouterLink,
+    Badge
 ],
   templateUrl: './contracts-page.html',
   styleUrl: './contracts-page.scss',
@@ -32,10 +34,14 @@ export class ContractsPage {
   }
 
   openEditPage(contractId: number) {
-  this.router.navigate([
-    '/app/company/contracts',
-    contractId,
-    'edit'
-  ]);
-}
+    this.router.navigate([
+      '/app/company/contracts',
+      contractId,
+      'edit'
+    ]);
+  }
+
+  deleteMethod(contractId: number){
+    this.companyStore.deleteContract(contractId)
+  }
 }

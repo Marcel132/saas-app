@@ -1,48 +1,32 @@
 <div class="wrapper">
   <h3>Formularz Logowania</h3>
   <form
-[formGroup]="form"
-class='app-card'
-(ngSubmit)='login()'
->
-
-  <input
-  type="email"
-  formControlName="email"
-  placeholder='Email'
-  class='app-input'
-  >
-  <input
-   type="password"
-   formControlName="password"
-   placeholder='Hasło'
-   class='app-input'
+  [formGroup]="form"
+  class='app-card'
+  (ngSubmit)='login()'
   >
 
-  <button
-  type="submit"
-  class='app-button'
-  >
-    Zaloguj się
-  </button>
+    <input
+    type="email"
+    formControlName="email"
+    placeholder='Email'
+    class='app-input'
+    >
+    <input
+    type="password"
+    formControlName="password"
+    placeholder='Hasło'
+    class='app-input'
+    >
 
-  @if(request().state === 'loading') {
-    <div class="app-message loading">
-      {{request().message}}
-    </div>
-  }
+    <button
+    type="submit"
+    class='app-button'
+    >
+      Zaloguj się
+    </button>
+  </form>
 
-  @if(request().state === 'error'){
-    <div class="app-message error">
-      {{request().message}}
-    </div>
-  }
-
-  @if (request().state === 'success') {
-    <div class="app-message success">
-      {{request().message}}
-    </div>
-  }
-</form>
+  <app-message [request]="request()"></app-message>
 
 </div>

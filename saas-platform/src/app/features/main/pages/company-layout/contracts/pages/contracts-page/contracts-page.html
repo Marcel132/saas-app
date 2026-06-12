@@ -1,7 +1,15 @@
 <div class="wrapper">
   <div class="header">
-    <h4>Moje Kontrakty:  Open ({{counter().open}}) | InProgress ({{counter().inProgress}}) | Completed ({{counter().completed}}) | Cancelled ({{counter().cancelled}}) </h4>
-    <button class="app-button" routerLink="add">
+    <div class="left-header">
+      <h4>Moje Kontrakty:</h4>
+      <div class="badges">
+        <app-badge variant='open' text="Open ({{counter().open.toString()}})"></app-badge>
+        <app-badge variant='in-progress' text="In Progress ({{counter().inProgress.toString()}})"></app-badge>
+        <app-badge variant='completed' text="Completed ({{counter().completed.toString()}})"></app-badge>
+        <app-badge variant='cancelled' text="Cancelled ({{counter().cancelled.toString()}})"></app-badge>
+      </div>
+    </div>
+    <button class="app-button btn-add" routerLink="add">
       + Nowy Kontrakt
     </button>
   </div>
@@ -10,7 +18,7 @@
       <h5>Nie masz tutaj żadnych kontraków <br> Dodaj swój pierwszy kontrakt</h5>
     } @else {
       @for(contract of contracts(); track contract.contractId){
-      <app-contract-card
+        <app-contract-card
         [contractId]='contract.contractId'
         [title]='contract.title'
         [description]='contract.description'
@@ -19,6 +27,7 @@
         [route]='"app/company/contracts/" + contract.contractId.toString()'
         [status]='contract.contractStatus',
         (editClicked)="openEditPage($event)"
+        (deleteClicked)="deleteMethod($event)"
       >
       </app-contract-card>
       }
