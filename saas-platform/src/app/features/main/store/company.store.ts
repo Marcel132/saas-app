@@ -5,6 +5,8 @@ import { ContractApi } from "../../../core/services/contract-api";
 import { EditContractDto } from "../pages/company-layout/contracts/models/edit-contract-dto";
 import { tap } from "rxjs";
 import { AddContractDto } from "../pages/company-layout/contracts/models/add-contract-dto";
+import { CompanyApplicationsDto } from "../models/company-applications-dto";
+import { ApplicationApi } from "../../../core/services/application-api";
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +15,15 @@ import { AddContractDto } from "../pages/company-layout/contracts/models/add-con
 export class CompanyStore{
   // DI
   private readonly meApi = inject(MeApi);
-  private readonly contractApi = inject(ContractApi)
+  private readonly contractApi = inject(ContractApi);
+  private readonly applicationApi = inject(ApplicationApi);
 
   // SIGNALS
   readonly isLoading = signal<boolean>(false)
   readonly contracts = signal<ContractDto[]>([])
   readonly selectedContract = signal<ContractDto | null>(null)
+
+  readonly applications = signal<CompanyApplicationsDto[]>([])
 
   getContracts(){
 
@@ -49,7 +54,6 @@ export class CompanyStore{
       }
     })
   }
-
   getContractById(id: number){
     this.isLoading.set(true)
     this.contractApi.getContractById(id).subscribe({
@@ -63,7 +67,6 @@ export class CompanyStore{
       }
     })
   }
-
   updateContract(id: number, form: EditContractDto){
     return this.contractApi.updateContract(id, form).pipe(
       tap( res => console.log(res.message))
@@ -91,5 +94,49 @@ export class CompanyStore{
         )
       })
     ).subscribe()
+  }
+
+  getContractApplications(id: number) {
+    const statusOrder = {
+      Accepted: 0,
+      Pending: 1,
+      Rejected: 2
+    }
+    this.contractApi.getContractApplications(id)
+    .pipe()
+    .subscribe({
+      next: res => {
+        if(res.data){
+          res.data.sort(
+            (a,b) => statusOrder[a.status] - statusOrder[b.status]
+          )
+          this.applications.set(res.data)
+        }
+      }
+    })
+  }
+
+  acceptApplication(applicationId: number, contractId: number){
+    this.applicationApi.acceptApplication(applicationId)
+    .pipe()
+    .subscribe({
+      next: res => {
+        if(res.success){
+          this.getContractApplications(contractId)
+        }
+      }
+    })
+  }
+
+  rejectApplication(applicationId: number, contractId: number){
+    this.applicationApi.rejectApplication(applicationId)
+    .pipe()
+    .subscribe({
+      next: res => {
+        if(res.success){
+          this.getContractApplications(contractId)
+        }
+      }
+    })
   }
 }
