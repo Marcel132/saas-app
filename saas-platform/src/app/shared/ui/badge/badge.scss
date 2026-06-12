@@ -1,0 +1,64 @@
+.badge {
+  display: block;
+  padding: .5rem .8rem;
+  border-radius: 999px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  text-align: center;
+  min-width: 80px;
+
+  &.cancelled{
+    background: var(--cancelled-bg);
+    color: var(--cancelled-txt);
+  }
+  &.completed{
+    background: var(--completed-bg);
+    color: var(--completed-txt);
+  }
+  &.draft {
+    background: var(--draft-bg);
+    color: var(--draft-txt);
+  }
+  &.error{
+    background: var(--error-bg);
+    color: var(--error-txt);
+  }
+  &.idle{
+    background: var(--idle-bg);
+    color: var(--idle-txt);
+  }
+  &.info{
+    background: var(--info-bg);
+    color: var(--info-txt);
+  }
+  &.in-progress{
+    background: var(--in-progress-bg);
+    color: var(--in-progress-txt);
+  }
+  &.open{
+    background: var(--open-bg);
+    color: var(--open-txt);
+  }
+
+  &.pending{
+    background: var(--pending-bg);
+    color: var(--pending-txt);
+  }
+  &.primary{
+    background: var(--primary-bg);
+    color: var(--primary-txt);
+  }
+  &.rejected{
+    background: var(--rejected-bg);
+    color: var(--rejected-txt);
+  }
+  &.success{
+    background: var(--success-bg);
+    color: var(--success-txt);
+  }
+  &.warning{
+    background: var(--warning-bg);
+    color: var(--warning-txt);
+  }
+}

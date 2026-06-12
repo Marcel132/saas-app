@@ -1,0 +1,15 @@
+@if(request().state == 'success'){
+  <div class="app-message success">
+    <span>{{request().message}}</span>
+  </div>
+}
+@else if(request().state == 'loading'){
+  <div class="app-message loading">
+    <span>{{request().message}}</span>
+  </div>
+}
+@else if(request().state == 'error'){
+  <div class="app-message error">
+    <span>{{request().message}}</span>
+  </div>
+}
