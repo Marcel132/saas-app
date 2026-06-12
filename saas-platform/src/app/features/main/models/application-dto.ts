@@ -1,4 +1,4 @@
-export interface ApplicationDto{
+export interface UserApplicationDto{
   applicationId: number,
   contractId: number,
   price: number,

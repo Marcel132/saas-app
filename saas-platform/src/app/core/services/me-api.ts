@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { ApiResponseModel } from '../models/api-response-model';
-import { ApplicationDto } from '../../features/main/models/application-dto';
+import { UserApplicationDto } from '../../features/main/models/application-dto';
 import { ApiEndpoints } from '../constants/api-endpoints';
-import { ContractDto } from '../../features/main/models/contract-dto';
 import { OffersResponseDto } from '../../features/main/models/offers-response-dto';
 
 @Injectable({
@@ -13,7 +12,7 @@ export class MeApi {
   private readonly http = inject(HttpClient)
 
   getApplications(){
-    return this.http.get<ApiResponseModel<ApplicationDto[]>>(
+    return this.http.get<ApiResponseModel<UserApplicationDto[]>>(
       ApiEndpoints.me.applications,
       {withCredentials: true}
     )

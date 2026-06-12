@@ -106,6 +106,24 @@ a.active {
   font-weight: 600;
 }
 
+
+.card {
+  width: 100%;
+  padding: var(--space-md);
+  border-radius: var(--border-radius-l);
+  background-color: var(--color-surface-tertiary);
+
+  display: flex;
+  flex-direction: column;
+  transition: 0.2s;
+
+  &:hover{
+    opacity: .9;
+    border-color: var(--color-text);
+    box-shadow: 4px 4px 16px var(--color-text);
+    transform: translateY(-2px);
+  }
+}
 .app-input{
   width: 100%;
   padding: var(--space-sm) var(--space-md);
@@ -144,7 +162,6 @@ a.active {
   min-width: 100px;
   max-width: 150px;
 }
-
 .btn-edit {
   width: auto;
   min-width: 100px;
@@ -152,13 +169,13 @@ a.active {
   background: var(--color-button-edit-bg);
   color: var(--color-button-edit-text);
 }
-
 .btn-delete {
   min-width: 100px;
   max-width: 150px;
   background-color: var(--color-button-delete-bg);
   color: var(--color-button-delete-text)
 }
+
 .app-card{
   width: 100%;
   padding: var(--space-md);

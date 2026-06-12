@@ -7,6 +7,7 @@ import { OffersResponseDto } from '../../features/main/models/offers-response-dt
 import { ContractDto } from '../../features/main/models/contract-dto';
 import { EditContractDto } from '../../features/main/pages/company-layout/contracts/models/edit-contract-dto';
 import { AddContractDto } from '../../features/main/pages/company-layout/contracts/models/add-contract-dto';
+import { CompanyApplicationsDto } from '../../features/main/models/company-applications-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -59,6 +60,13 @@ export class ContractApi {
     return this.http.patch<ApiResponseModel<object>>(
       `${ApiEndpoints.contracts.contracts}/${id}/close`,
       {},
+      {withCredentials: true}
+    )
+  }
+
+  getContractApplications(id: number){
+    return this.http.get<ApiResponseModel<CompanyApplicationsDto[]>>(
+      `${ApiEndpoints.contracts.contracts}/${id}/applications`,
       {withCredentials: true}
     )
   }
