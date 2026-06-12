@@ -1,0 +1,70 @@
+.wrapper {
+  width: 100%;
+  padding: var(--space-lg)
+}
+.header{
+  margin-bottom: var(--space-md);
+}
+.cards{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.no-contract{
+  letter-spacing: .1rem;
+}
+
+.card {
+  gap: var(--space-md);
+  max-width: 650px;
+}
+.card.accepted{
+  border: 2px solid var(--success-txt);
+}
+.card.pending {
+  border-left: 3px solid var(--pending-txt);
+}
+.card.rejected {
+  border-left: 3px solid var(--rejected-txt)
+}
+
+.name {
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+.nickname {
+  position: relative;
+  font-style: italic;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  font-size: var(--font-size-md);
+  opacity: .9;
+}
+
+.actions{
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  justify-content: end;
+}
+
+
+@media screen and (max-width: 450px) {
+  .actions {
+    flex-direction: column;
+    margin-top: var(--space-lg);
+    gap: var(--space-lg);
+    justify-content: center;
+    align-items: center;
+
+    button{
+      min-width: 120px;
+    }
+  }
+}

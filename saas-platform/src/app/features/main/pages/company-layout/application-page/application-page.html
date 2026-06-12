@@ -1,0 +1,44 @@
+<div class="wrapper">
+  <div class="header">
+    <h4>Aplikacje do kontraktu</h4>
+  </div>
+  <div class="cards">
+    @if(applications().length <= 0){
+      <span class='no-contract'>Ten kontrakt nie ma żadnych aplikacji</span>
+    } @else {
+      @for(a of applications(); track a.applicationId){
+        <div class="card" [class]='a.status.toLowerCase()'>
+          <div class="name">
+            <div class="user">
+              <span>{{a.firstName}} {{a.lastName}}</span>
+              <span class="nickname">
+                @{{a.nickname}}
+              </span>
+            </div>
+            <app-badge
+              [variant]="getVariant(a.status)"
+              [text]="a.status"
+              >
+            </app-badge>
+            <div class="details">
+              <span class="applied">Aplikowano: {{a.appliedAt | date: 'yyyy/MM/dd'}}</span>
+            </div>
+          </div>
+
+          @if(a.status == 'Pending'){
+            <div class="actions">
+              <button
+              class="app-button btn-add"
+              (click)="accept(a.applicationId, a.contractId)"
+              >Akceptuj</button>
+              <button
+              class="app-button btn-delete"
+              (click)="reject(a.applicationId, a.contractId)"
+              >Odrzuć</button>
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+</div>

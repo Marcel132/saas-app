@@ -21,7 +21,9 @@
       <span class='description'>{{ description() }}</span>
     }
     <span class="price">{{ price() | plnCurrency}}</span>
-    <button class='app-button application'   [routerLink]="route()">Aplikacje </button>
+    @if(status() == "Open"){
+      <button class='app-button application' [routerLink]="route()">Aplikacje </button>
+    }
     <span class='deadline'>Data wygaśnięcia ogłoszenia: {{deadline() | date: 'yyyy/MM/dd'}}</span>
   </div>
 </div>

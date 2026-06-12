@@ -24,7 +24,7 @@
         [description]='contract.description'
         [price]='contract.price'
         [deadline]='contract.deadline'
-        [route]='"app/company/contracts/" + contract.contractId.toString()'
+        [route]='`${contract.contractId}/applications`'
         [status]='contract.contractStatus',
         (editClicked)="openEditPage($event)"
         (deleteClicked)="deleteMethod($event)"
