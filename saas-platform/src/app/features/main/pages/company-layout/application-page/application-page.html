@@ -33,12 +33,16 @@
               >Akceptuj</button>
               <button
               class="app-button btn-delete"
-              (click)="reject(a.applicationId, a.contractId)"
+              (click)="reject(a.applicationId)"
               >Odrzuć</button>
             </div>
           }
         </div>
       }
+
+      <app-message
+        [request]='request()'
+      ></app-message>
     }
   </div>
 </div>
