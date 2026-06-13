@@ -19,11 +19,8 @@ export class EditContractPage {
   private readonly companyStore = inject(CompanyStore)
   private readonly route = inject(ActivatedRoute)
 
-  readonly isLoading = this.companyStore.isLoading
-  request = signal<RequestState>({
-    state: 'idle',
-    message: ''
-  })
+  request = this.companyStore.request
+
   readonly contract = this.companyStore.selectedContract
   private id!: number
 
@@ -52,6 +49,10 @@ export class EditContractPage {
   }
 
   ngOnInit(): void {
+    this.request.set({
+      state: 'idle',
+      message: ''
+    })
     const id = Number(
       this.route.snapshot.paramMap.get('id')
     )
@@ -60,9 +61,11 @@ export class EditContractPage {
 
     this.id = id;
     this.companyStore.getContractById(id)
+      .subscribe()
   }
 
   update(){
+    console.log(this.form.dirty);
 
     if(!this.form.dirty){
       this.request.set({
@@ -73,63 +76,45 @@ export class EditContractPage {
       return;
     }
 
-    this.request.set({
-      state: 'loading',
-      message: 'Zapisywanie...'
-    })
-
     this.companyStore.updateContract(this.id, this.form.getRawValue())
-    .subscribe({
-      next: res => {
-        this.request.set({
-          state: 'success',
-          message: res.message ?? "Zapisano"
-        })
-      },
-      error: err => {
-        this.request.set({
-          state: 'error',
-          message: err.error.message ?? "Błąd zapisu"
-        })
-      }
-    })
+    .subscribe()
   }
 
   onEnter(event: Event) {
-  const textarea = event.target as HTMLTextAreaElement;
+    const textarea = event.target as HTMLTextAreaElement;
 
-  const start = textarea.selectionStart;
-  const value = textarea.value;
+    const start = textarea.selectionStart;
+    const value = textarea.value;
 
-  const beforeCursor = value.substring(0, start);
-  const lines = beforeCursor.split('\n');
-  const currentLine = lines[lines.length - 1];
+    const beforeCursor = value.substring(0, start);
+    const lines = beforeCursor.split('\n');
+    const currentLine = lines[lines.length - 1];
 
-  const match = currentLine.match(/^(\d+)\.\s/);
+    const match = currentLine.match(/^(\d+)\.\s/);
 
-  if (!match) {
-    return;
-  }
+    if (!match) {
+      return;
+    }
 
-  event.preventDefault();
+    event.preventDefault();
 
-  const nextNumber = Number(match[1]) + 1;
+    const nextNumber = Number(match[1]) + 1;
 
-  const insertText = `\n${nextNumber}. `;
+    const insertText = `\n${nextNumber}. `;
 
-  const newValue =
-    value.substring(0, start) +
-    insertText +
-    value.substring(start);
+    const newValue =
+      value.substring(0, start) +
+      insertText +
+      value.substring(start);
 
-  this.form.patchValue({
-    description: newValue
-  });
+    this.form.patchValue({
+      description: newValue
+    });
 
-  setTimeout(() => {
-    textarea.selectionStart =
-      textarea.selectionEnd =
-      start + insertText.length;
-  });
+    setTimeout(() => {
+      textarea.selectionStart =
+        textarea.selectionEnd =
+        start + insertText.length;
+    });
   }
 }

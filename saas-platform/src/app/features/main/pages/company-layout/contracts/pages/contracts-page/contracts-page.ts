@@ -31,6 +31,7 @@ export class ContractsPage {
 
   ngOnInit(): void {
     this.companyStore.getContracts()
+      .subscribe()
   }
 
   openEditPage(contractId: number) {
@@ -43,5 +44,6 @@ export class ContractsPage {
 
   deleteMethod(contractId: number){
     this.companyStore.deleteContract(contractId)
+      .subscribe()
   }
 }

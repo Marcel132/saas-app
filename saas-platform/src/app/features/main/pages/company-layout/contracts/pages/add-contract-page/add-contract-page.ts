@@ -21,10 +21,7 @@ export class AddContractPage {
   readonly companyStore = inject(CompanyStore)
 
   actualDate = Date.now();
-  request = signal<RequestState>({
-    state: 'idle',
-    message: ''
-  })
+  request = this.companyStore.request
 
   form = new FormGroup({
     title: new FormControl("", {nonNullable: true}),
@@ -32,6 +29,13 @@ export class AddContractPage {
     price: new FormControl(0, {nonNullable: true}),
     deadline: new FormControl("", {nonNullable: true})
   })
+
+  ngOnInit(): void {
+    this.request.set({
+      state: 'idle',
+      message: ''
+    })
+  }
 
   addContract(){
     let deadline = this.form.controls.deadline.value;
@@ -42,25 +46,12 @@ export class AddContractPage {
 
       deadline = date.toISOString();
     }
-    
+
     const request: AddContractDto = {
       ...this.form.getRawValue(),
       deadline
     }
-
-    this.request.set({
-      state: 'loading',
-      message: "Dodawanie..."
-    })
-    this.companyStore.addContract(request).subscribe({
-      next: res => this.request.set({
-        state: 'success',
-        message: res.message ?? "Dodano Kontrakt"
-      }),
-      error: err => this.request.set({
-        state: 'error',
-        message: err.error.message
-      })
-    })
+    this.companyStore.addContract(request)
+    .subscribe()
   }
 }
