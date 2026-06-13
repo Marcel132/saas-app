@@ -56,18 +56,18 @@
 }
 
 .badge.pending {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--pending-bg);
+  color: var(--pending-txt);
 }
 
 .badge.accepted {
-  background: var(--color-background-badge);
-  color: var(--color-text-badge);
+  background: var(--success-bg);
+  color: var(--success-txt);
 }
 
 .badge.rejected {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--rejected-bg);
+  color: var(--rejected-txt);
 }
 
 @media (max-width: 768px) {

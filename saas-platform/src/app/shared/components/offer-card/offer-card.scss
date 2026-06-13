@@ -50,8 +50,8 @@
   font-size: var(--font-size-sm);
   font-weight: 600;
 
-  background: var(--color-background-badge);
-  color:  var(--color-text-badge);
+  background: var(--success-bg);
+  color:  var(--success-txt);
 }
 
 @media (max-width: 768px) {
