@@ -2,21 +2,21 @@ public static class ServiceExtension
 {
   public static IServiceCollection AddApplicationService(this IServiceCollection services)
   {
-    services.AddScoped<AuthService>();
+    services.AddScoped<IAuthService, AuthService>();
+    services.AddScoped<IContractService, ContractService>();
+    services.AddScoped<IUserService, UserService>();
+
+    
     services.AddScoped<UserAuthenticationService>();
     services.AddScoped<UserRegisterService>();
 
     services.AddScoped<MeService>();
 
-    services.AddScoped<ContractService>();
 
-    services.AddScoped<UserCommandService>();
-    services.AddScoped<UserQueryService>();
 
     services.AddScoped<ApplicationService>();
     services.AddScoped<AssignmentService>();
 
-    // !services.AddScoped<RefreshService>();
     services.AddScoped<AuthSessionService>();
     services.AddScoped<AuthCookieService>();
     services.AddScoped<TokenService>();

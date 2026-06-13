@@ -1,4 +1,4 @@
-public class AuthService
+public class AuthService : IAuthService
 {
   private readonly UserAuthenticationService _authentication;
   private readonly UserRegisterService _registration;

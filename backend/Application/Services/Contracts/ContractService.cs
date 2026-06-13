@@ -1,4 +1,4 @@
-public class ContractService
+public class ContractService : IContractService
 {
   private readonly IContractQueryRepository _contractQueryRepository;
   private readonly IContractRepository _contractRepository;

@@ -7,16 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 public class UsersController : ControllerBase
 {
-  private readonly UserCommandService _commandService;
-  private readonly UserQueryService _queryService;
+  private readonly IUserService _userService;
 
   public UsersController(
-    UserCommandService commandService, 
-    UserQueryService queryService
+    IUserService userService
   )
   {
-    _commandService = commandService;
-    _queryService = queryService;
+    _userService = userService;
   }
 
   // * DONE
@@ -24,7 +21,7 @@ public class UsersController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
   {
-    var users = await _queryService.GetAllAsync(page, pageSize, search);
+    var users = await _userService.GetAllAsync(page, pageSize, search);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -42,7 +39,7 @@ public class UsersController : ControllerBase
   {
     var currentUserId = UserContextExtension.GetUserId(User);
 
-    var user = await _queryService.GetUserByIdAsync(userId, currentUserId);
+    var user = await _userService.GetUserByIdAsync(userId, currentUserId);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
@@ -60,7 +57,7 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> GetCurrentUser()
   {
     var userId = UserContextExtension.GetUserId(User);
-    var user = await _queryService.GetCurrentUserByIdAsync(userId);
+    var user = await _userService.GetCurrentUserAsync(userId);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -77,7 +74,7 @@ public class UsersController : ControllerBase
   {
     var userId = UserContextExtension.GetUserId(User);
 
-    var summary = await _queryService.GetCurrentUserSummary(userId);
+    var summary = await _userService.GetCurrentUserSummaryAsync(userId);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
@@ -94,7 +91,7 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateUserDto request)
   {
     var userId = UserContextExtension.GetUserId(User); 
-    await _commandService.UpdateUserAsync(userId, request);
+    await _userService.UpdateUserAsync(userId, request);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -110,7 +107,7 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> DeleteCurrentUser()
   {
     var userId = UserContextExtension.GetUserId(User);
-    await _commandService.DeleteUserAsync(userId);
+    await _userService.DeleteUserAsync(userId);
     
     return NoContent();
   }
@@ -121,7 +118,7 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> GetCurrentUserContracts([FromQuery] ContractStatus? status = null)
   {
     var userId = UserContextExtension.GetUserId(User);
-    var contracts = await _queryService.GetCurrentUserContractsAsync(userId, status);
+    var contracts = await _userService.GetCurrentUserContractsAsync(userId, status);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -138,7 +135,7 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> GetCurrentUserApplications([FromQuery] ContractApplicationStatus? status = null)
   {
     var userId = UserContextExtension.GetUserId(User);
-    var applications = await _queryService.GetCurrentUserApplicationsAsync(userId, status);
+    var applications = await _userService.GetCurrentUserApplicationsAsync(userId, status);
     
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 

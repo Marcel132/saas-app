@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 public class ContractsController : ControllerBase
 {
-  private readonly ContractService _contractService;
+  private readonly IContractService _contractService;
 
   public ContractsController(
-    ContractService contractService
+    IContractService contractService
   )
   {
     _contractService = contractService;

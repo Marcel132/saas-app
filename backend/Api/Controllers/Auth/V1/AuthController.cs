@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class AuthController : ControllerBase
 {
-  private readonly AuthService _authService;
+  private readonly IAuthService _authService;
   private readonly AuthCookieService _cookieService;
   public AuthController(
-    AuthService authService,
+    IAuthService authService,
     AuthCookieService cookieService
   )
   {
