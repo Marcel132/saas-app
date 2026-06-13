@@ -16,14 +16,12 @@ export class UserApi {
   getCurrentUser(){
     return this.http.get<ApiResponseModel<CurrentUserDto>>(
       ApiEndpoints.users.currentUser,
-      {withCredentials: true}
     )
   }
 
   getCurrentUserSummary(){
     return this.http.get<ApiResponseModel<UserSummaryDto>>(
       ApiEndpoints.users.summary,
-      {withCredentials: true}
     )
   }
 }

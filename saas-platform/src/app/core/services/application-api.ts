@@ -9,19 +9,17 @@ import { ApiEndpoints } from '../constants/api-endpoints';
 export class ApplicationApi {
   private readonly http = inject(HttpClient)
 
-  acceptApplication(id: number){
-    return this.http.patch<ApiResponseModel<object>>(
-      `${ApiEndpoints.applications.applications}/${id}/accept`,
+  acceptApplication(applicationId: number){
+    return this.http.patch<ApiResponseModel<null>>(
+      `${ApiEndpoints.applications.applications}/${applicationId}/accept`,
       {},
-      {withCredentials: true}
     )
   }
 
-  rejectApplication(id: number){
-    return this.http.patch<ApiResponseModel<object>>(
-      `${ApiEndpoints.applications.applications}/${id}/reject`,
+  rejectApplication(applicationId: number){
+    return this.http.patch<ApiResponseModel<null>>(
+      `${ApiEndpoints.applications.applications}/${applicationId}/reject`,
       {},
-      {withCredentials: true}
     )
   }
 }

@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+
 import { LoginRequest } from '../../features/auth/models/login-request';
 import { RegisterRequest } from '../../features/auth/models/register-request';
 import { ApiEndpoints } from '../constants/api-endpoints';
@@ -11,37 +12,31 @@ import { ApiResponseModel } from '../models/api-response-model';
 export class AuthApi {
   private readonly http = inject(HttpClient)
 
-  login(request: LoginRequest)
-  {
-    return this.http.post<ApiResponseModel<object>>(
+  login(request: LoginRequest) {
+    return this.http.post<ApiResponseModel<null>>(
       ApiEndpoints.auth.login,
       request,
-      {withCredentials: true}
     )
   }
 
-  register(request: RegisterRequest)
-  {
-    return this.http.post<ApiResponseModel<object>>(
+  register(request: RegisterRequest) {
+    return this.http.post<ApiResponseModel<null>>(
       ApiEndpoints.auth.register,
       request,
-      {withCredentials: true}
     )
   }
 
-  refreshToken(){
-    return this.http.post(
+  refreshToken() {
+    return this.http.post<ApiResponseModel<null>>(
       ApiEndpoints.auth.refreshToken,
       {},
-      {withCredentials: true}
     )
   }
 
-  logout(){
-    return this.http.post(
+  logout() {
+    return this.http.post<ApiResponseModel<null>>(
       ApiEndpoints.auth.logout,
       {},
-      {withCredentials: true}
     )
   }
 }

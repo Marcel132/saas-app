@@ -14,14 +14,12 @@ export class MeApi {
   getApplications(){
     return this.http.get<ApiResponseModel<UserApplicationDto[]>>(
       ApiEndpoints.me.applications,
-      {withCredentials: true}
     )
   }
 
   getContracts(){
     return this.http.get<ApiResponseModel<OffersResponseDto>>(
       ApiEndpoints.me.contracts,
-      {withCredentials: true}
     )
   }
 }

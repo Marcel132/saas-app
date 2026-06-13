@@ -16,58 +16,43 @@ export class ContractApi {
 
   private readonly http = inject(HttpClient)
 
-  getContracts(){
+  createContract(request: AddContractDto){
+    return this.http.post<ApiResponseModel<null>>(
+      ApiEndpoints.contracts.contracts,
+      request,
+    )
+  }
+  getAllContracts(){
     return this.http.get<ApiResponseModel<OffersResponseDto>>(
       ApiEndpoints.contracts.contracts,
-      {withCredentials: true}
     )
   }
-
-  getContractById(id: number){
+  getContractById(contractId: number){
     return this.http.get<ApiResponseModel<ContractDto>>(
-      `${ApiEndpoints.contracts.contracts}/${id}`,
-      {withCredentials: true}
+      `${ApiEndpoints.contracts.contracts}/${contractId}`,
     )
   }
-
-  createApplication(id: number){
-    console.log("Creating...")
-    return this.http.post<ApiResponseModel<object>>(
-      `${ApiEndpoints.contracts.contracts}/${id}/applications`,
-      {},
-      {
-        withCredentials: true,
-      }
-    )
-  }
-
-  updateContract(id: number, request: EditContractDto){
-    return this.http.patch<ApiResponseModel<object>>(
-      `${ApiEndpoints.contracts.contracts}/${id}`,
+  updateContract(contractId: number, request: EditContractDto){
+    return this.http.patch<ApiResponseModel<null>>(
+      `${ApiEndpoints.contracts.contracts}/${contractId}`,
       request,
-      {withCredentials: true}
     )
   }
-  craeteContract(request: AddContractDto){
-    return this.http.post<ApiResponseModel<object>>(
-      ApiEndpoints.contracts.contracts,
-      request,
-      {withCredentials: true}
-    )
-  }
-
-  deleteContract(id: number){
-    return this.http.patch<ApiResponseModel<object>>(
-      `${ApiEndpoints.contracts.contracts}/${id}/close`,
+  deleteContractSoft(contractId: number){
+    return this.http.patch<ApiResponseModel<null>>(
+      `${ApiEndpoints.contracts.contracts}/${contractId}/close`,
       {},
-      {withCredentials: true}
     )
   }
-
-  getContractApplications(id: number){
+  createApplication(contractId: number){
+    return this.http.post<ApiResponseModel<null>>(
+      `${ApiEndpoints.contracts.contracts}/${contractId}/applications`,
+      {},
+    )
+  }
+  getContractApplications(contractId: number){
     return this.http.get<ApiResponseModel<CompanyApplicationsDto[]>>(
-      `${ApiEndpoints.contracts.contracts}/${id}/applications`,
-      {withCredentials: true}
+      `${ApiEndpoints.contracts.contracts}/${contractId}/applications`,
     )
   }
 }
