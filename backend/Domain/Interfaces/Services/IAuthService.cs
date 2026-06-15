@@ -1,11 +1,10 @@
 public interface IAuthService
 {
-  // TODO: delete HttpResponse
-  public Task<AuthResult> LoginAsync(LoginRequestDto request, string ipAddress, string userAgent, HttpResponse response);
+  public Task<CredentialsDto> LoginAsync(LoginRequestDto request, string ipAddress, string userAgent);
 
-  public Task<AuthResult> RegisterAsync(RegisterRequestDto request, string ipAddress, string userAgent, HttpResponse response);
+  public Task<CredentialsDto> RegisterAsync(RegisterRequestDto request, string ipAddress, string userAgent);
 
-  public Task LogoutAsync(Guid userId, HttpResponse response);
+  public Task LogoutAsync(Guid userId);
 
-  public Task<RefreshTokenResult> RefreshTokenAsync(string ipAddress, string userAgent, string? refreshToken);
+  public Task<CredentialsDto> RefreshTokenAsync(string ipAddress, string userAgent, string? refreshToken);
 }
