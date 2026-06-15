@@ -7,14 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 public class AuthController : ControllerBase
 {
   private readonly IAuthService _authService;
-  private readonly AuthCookieService _cookieService;
   public AuthController(
-    IAuthService authService,
-    AuthCookieService cookieService
+    IAuthService authService
   )
   {
     _authService = authService;
-    _cookieService = cookieService;
   }
 
   // -------------------------------
@@ -28,7 +25,9 @@ public class AuthController : ControllerBase
     var ipAddress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    await _authService.LoginAsync(request, ipAddress, userAgent, Response);
+    var credentials = await _authService.LoginAsync(request, ipAddress, userAgent);
+
+    AuthCookies.SetAuthCookie(Response, credentials.RefreshToken, credentials.AuthToken);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
@@ -45,14 +44,15 @@ public class AuthController : ControllerBase
     var ipAddress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    var user = await _authService.RegisterAsync(request, ipAddress, userAgent, Response);
+    var credentials = await _authService.RegisterAsync(request, ipAddress, userAgent);
+
+    AuthCookies.SetAuthCookie(Response, credentials.RefreshToken, credentials.AuthToken);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
       HttpResponseState.Success, 
       "Zarejestrowano", 
-      DomainErrorCodes.AuthCodes.Success,  
-      new { id = user.userId}
+      DomainErrorCodes.AuthCodes.Success
       ));
   }
 
@@ -64,7 +64,8 @@ public class AuthController : ControllerBase
     // TODO: Log device info on logout for security auditing
     // TODO: Deleted session and tokens from database on user ip or user agent change to prevent session hijacking
 
-    await _authService.LogoutAsync(userId, Response);
+    await _authService.LogoutAsync(userId);
+    AuthCookies.ClearAuthCookie(Response);
 
     return NoContent();
   }
@@ -75,11 +76,11 @@ public class AuthController : ControllerBase
   {
     var ipAddress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
-    var refreshToken = _cookieService.GetRefreshToken(Request);
+    var refreshToken = AuthCookies.GetRefreshToken(Request);
 
     var result = await _authService.RefreshTokenAsync(ipAddress, userAgent, refreshToken);
 
-    _cookieService.SetAuthCookie(Response, result.RefreshToken, result.AuthToken);
+    AuthCookies.SetAuthCookie(Response, result.RefreshToken, result.AuthToken);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext, 
