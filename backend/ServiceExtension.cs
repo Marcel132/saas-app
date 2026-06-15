@@ -5,6 +5,7 @@ public static class ServiceExtension
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IContractService, ContractService>();
     services.AddScoped<IUserService, UserService>();
+    services.AddScoped<ICredentialsService, CredentialsService>();
 
     
     services.AddScoped<UserAuthenticationService>();
@@ -18,7 +19,6 @@ public static class ServiceExtension
     services.AddScoped<AssignmentService>();
 
     services.AddScoped<AuthSessionService>();
-    services.AddScoped<AuthCookieService>();
     services.AddScoped<TokenService>();
     services.AddScoped<RoleService>();
 

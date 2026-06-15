@@ -1,4 +1,3 @@
-using System.IO.Compression;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -27,10 +26,6 @@ builder.Services.AddCors(options =>
 });
 
 
-// Console.WriteLine($"JWT KEY: {JwtKey}");
-// Console.WriteLine($"JWT ISSUER: {JwtIssuer}");
-// Console.WriteLine($"JWT AUDIENCE: {JwtAudience}");
-
 builder.Services.AddDbContext<AppDbContext>(options =>
   options.UseNpgsql(
       builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -56,6 +51,12 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     );
   };
 });
+
+builder.Services.Configure<AuthCookiesOptions>(
+    builder.Configuration.GetSection("AuthCookies"));
+builder.Services.Configure<JwtOptions>(
+    builder.Configuration.GetSection("Jwt"));
+
 
 builder.Services.AddApiVersioning(options =>
 {
