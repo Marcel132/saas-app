@@ -2,7 +2,7 @@ public class UserData
 {
   public string FirstName { get; private set; } = string.Empty;
   public string LastName { get; private set; } = string.Empty;
-  public string? Nickname { get; private set; } = string.Empty;
+  public string Nickname { get; private set; } = string.Empty;
   public string PhoneNumber { get; private set; } = string.Empty;
   public string Description { get; private set; } = string.Empty;
   public string City { get; private set; } = string.Empty;
@@ -62,7 +62,7 @@ public class UserData
   {
     FirstName = string.Empty;
     LastName = string.Empty;
-    Nickname = null;
+    Nickname = string.Empty;
     PhoneNumber = string.Empty;
     Description = string.Empty;
     City = string.Empty;
