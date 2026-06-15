@@ -75,8 +75,7 @@ public class AuthSessionService
   }
   public async Task<bool> TryUseRefreshTokenAsync(long sessionId)
   {
-    var result = await _sessionRepository.TryMarkSessionAsUsedAsync(sessionId);
-    return result;
+    return await _sessionRepository.TryMarkSessionAsUsedAsync(sessionId);
   }
 
   public async Task SetReplacedByAndRevokedAsync(long oldSessionId, long newSessionId)
