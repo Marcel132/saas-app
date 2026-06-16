@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
 import { ApiResponseModel } from '../models/api-response-model';
@@ -8,6 +8,8 @@ import { ContractDto } from '../../features/main/models/contract-dto';
 import { EditContractDto } from '../../features/main/pages/company-layout/contracts/models/edit-contract-dto';
 import { AddContractDto } from '../../features/main/pages/company-layout/contracts/models/add-contract-dto';
 import { CompanyApplicationsDto } from '../../features/main/models/company-applications-dto';
+import { PagedRequestModel } from '../models/paged-request-model';
+import { PagedResponseModel } from '../models/paged-response-model';
 
 @Injectable({
   providedIn: 'root',
@@ -22,9 +24,18 @@ export class ContractApi {
       request,
     )
   }
-  getAllContracts(){
-    return this.http.get<ApiResponseModel<OffersResponseDto>>(
-      ApiEndpoints.contracts.contracts,
+  getAllContracts(request: PagedRequestModel){
+    let params = new HttpParams()
+      .set('page', request.page)
+      .set('pageSize', request.pageSize)
+
+    if(request.search?.trim()){
+      params = params.set('search', request.search)
+    }
+
+    return this.http.get<ApiResponseModel<PagedResponseModel<ContractDto>>>(
+      `${ApiEndpoints.contracts.contracts}`,
+      { params }
     )
   }
   getContractById(contractId: number){
