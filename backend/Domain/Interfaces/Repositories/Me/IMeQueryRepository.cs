@@ -1,3 +1,9 @@
+using backend.Api.Controllers;
+using backend.Api.Controllers.Contracts.DTOs;
+using backend.Api.Controllers.Me.DTOs;
+
+namespace backend.Domain.Interfaces.Repositories;
+
 public interface IMeQueryRepository
 {
   public Task<List<ApplicationDto>> GetApplicationsAsync(Guid userId);

@@ -1,6 +1,8 @@
+namespace backend.Api.Http;
+
 public static class HttpResponseFactory
 {
-  private static HttpResponseModel<T> CreateResponse<T> (
+  private static HttpResponseModel<T> CreateResponse<T>(
     HttpContext context,
     HttpResponseState state,
     bool success,

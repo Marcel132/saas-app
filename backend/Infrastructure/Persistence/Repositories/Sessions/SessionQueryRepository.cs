@@ -1,4 +1,10 @@
+using backend.Domain.Entities;
+using backend.Domain.Interfaces.Repositories;
+using backend.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
+
+namespace backend.Infrastructure.Persistence.Repositories;
+
 public class SessionQueryRepository : ISessionQueryRepository
 {
   private readonly AppDbContext _context;
@@ -10,7 +16,7 @@ public class SessionQueryRepository : ISessionQueryRepository
   public async Task<Session?> GetActiveSessionAsync(Guid userId)
   {
     return await _context.Sessions
-      .Where(s => 
+      .Where(s =>
         s.UserId == userId &&
         !s.Revoked &&
         !s.Used
@@ -26,7 +32,7 @@ public class SessionQueryRepository : ISessionQueryRepository
   public async Task<IReadOnlyCollection<Session>> GetAllActiveSessionsAsync(Guid userId)
   {
     return await _context.Sessions
-      .Where(s => 
+      .Where(s =>
         s.UserId == userId &&
         !s.Revoked &&
         !s.Used
@@ -44,7 +50,7 @@ public class SessionQueryRepository : ISessionQueryRepository
   public async Task<Session?> GetSessionByUserAndIdAsync(Guid userId, long sessionId)
   {
     return await _context.Sessions
-      .Where(s => 
+      .Where(s =>
         s.UserId == userId &&
         s.SessionId == sessionId
       )

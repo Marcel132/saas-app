@@ -1,3 +1,7 @@
+using backend.Domain.Entities.Enum;
+
+namespace backend.Domain.Entities;
+
 public class ContractApplication
 {
   public long ApplicationId { get; private set; }
@@ -32,7 +36,7 @@ public class ContractApplication
   }
   private void ChangeStatus(ContractApplicationStatus newStatus)
   {
-    if(!CanModifyStatus(newStatus))
+    if (!CanModifyStatus(newStatus))
       throw new BadRequestAppException();
     Status = newStatus;
   }

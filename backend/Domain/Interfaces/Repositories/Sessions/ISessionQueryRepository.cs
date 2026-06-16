@@ -1,3 +1,7 @@
+using backend.Domain.Entities;
+
+namespace backend.Domain.Interfaces.Repositories;
+
 public interface ISessionQueryRepository
 {
   Task<Session?> GetActiveSessionAsync(Guid userId);

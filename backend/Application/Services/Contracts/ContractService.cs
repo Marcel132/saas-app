@@ -1,3 +1,13 @@
+using backend.Api.Controllers;
+using backend.Api.Controllers.Contracts.DTOs;
+using backend.Domain.Entities;
+using backend.Domain.Entities.Enum;
+using backend.Domain.Interfaces;
+using backend.Domain.Interfaces.Repositories;
+using backend.Domain.Interfaces.Services;
+
+namespace backend.Application.Services;
+
 public class ContractService : IContractService
 {
   private readonly IContractQueryRepository _contractQueryRepository;

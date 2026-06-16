@@ -1,10 +1,16 @@
+using backend.Application.Services;
+using backend.Domain.Interfaces;
+using backend.Domain.Interfaces.Repositories;
+
+namespace backend.Application.Services;
+
 public class ApplicationService
 {
   private readonly IApplicationRepository _applicationRepository;
   private readonly AssignmentService _assignmentService;
   private readonly IUnitOfWork _unitOfWork;
   public ApplicationService(
-    IApplicationRepository applicationRepository, 
+    IApplicationRepository applicationRepository,
     AssignmentService assignmentService,
     IUnitOfWork unitOfWork
     )
@@ -20,19 +26,19 @@ public class ApplicationService
     var application = await _applicationRepository.GetApplicationAsync(applicationId)
       ?? throw new NotFoundAppException("Application not found with provided ID.");
 
-    if(application.Contract.AuthorId != userId)
-      throw new UnauthorizedAppException("You are not authorized to accept this application.");   
-    
+    if (application.Contract.AuthorId != userId)
+      throw new UnauthorizedAppException("You are not authorized to accept this application.");
+
     await using var transaction = await _unitOfWork.BeginTransactionAsync();
     try
     {
       await _assignmentService.AssignCandidateToContractAsync(userId, application.ContractId, application.CandidateId);
       application.Accept();
       application.Contract.StartContract();
-        
+
       var applicationsToReject = await _applicationRepository.GetApplicationsByContractIdAsync(application.ContractId, application.CandidateId);
-      
-      foreach(var app in applicationsToReject)
+
+      foreach (var app in applicationsToReject)
       {
         app.Reject();
       }
@@ -51,7 +57,7 @@ public class ApplicationService
     var application = await _applicationRepository.GetApplicationAsync(applicationId)
       ?? throw new NotFoundAppException("Application not found with provided ID.");
 
-    if(application.Contract.AuthorId != userId)
+    if (application.Contract.AuthorId != userId)
       throw new UnauthorizedAppException("You are not authorized to reject this application.");
 
     application.Reject();

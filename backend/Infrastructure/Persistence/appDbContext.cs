@@ -1,5 +1,8 @@
+using backend.Domain.Entities;
+using backend.Domain.Entities.Enum;
 using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
+
+namespace backend.Infrastructure.Persistence;
 
 public class AppDbContext : DbContext
 {
@@ -17,12 +20,6 @@ public class AppDbContext : DbContext
   public DbSet<RolePermission> RolePermissions { get; set; }
   public DbSet<UserPermission> UserPermissions { get; set; }
 
-
-  // // AUTH
-  // public DbSet<RolePermissionsModel> RolePermissions { get; set; }
-  // public DbSet<UserPermissionsModel> UserPermissions { get; set; }
-  // public DbSet<ApiLogsModel> ApiLogs { get; set; }
-
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     base.OnModelCreating(modelBuilder);
@@ -33,7 +30,7 @@ public class AppDbContext : DbContext
       entity.OwnsOne(u => u.UserData, ud =>
         {
           ud.ToTable("user_data");
-          
+
           ud.WithOwner()
             .HasForeignKey("user_id");
 
@@ -42,7 +39,7 @@ public class AppDbContext : DbContext
 
           ud.Property(ud => ud.LastName)
             .HasColumnName("last_name");
-          
+
           ud.Property(ud => ud.Nickname)
             .HasColumnName("nickname");
 
@@ -100,7 +97,7 @@ public class AppDbContext : DbContext
 
       entity.Property(u => u.CreatedAt)
         .HasColumnName("created_at");
-        
+
       entity.Property(u => u.FailedLoginAttempts)
         .HasColumnName("failed_login_attempts");
 
@@ -142,22 +139,22 @@ public class AppDbContext : DbContext
       entity.Property(x => x.Specialization)
         .HasColumnName("specialization");
     });
-    
+
     modelBuilder.Entity<UserRole>(entity =>
     {
       entity.ToTable("user_roles");
 
-      entity.HasKey(x => new {x.UserId, x.RoleId});
+      entity.HasKey(x => new { x.UserId, x.RoleId });
 
       entity.Property(x => x.UserId)
         .HasColumnName("user_id");
-      
+
       entity.Property(x => x.RoleId)
         .HasColumnName("role_id");
-      
+
       entity.Property(x => x.AssignedAt)
         .HasColumnName("assigned_at");
-      
+
     });
 
     modelBuilder.Entity<Session>(entity =>
@@ -189,7 +186,7 @@ public class AppDbContext : DbContext
 
       entity.Property(s => s.UserId)
         .HasColumnName("user_id");
-      
+
       entity.Property(s => s.Used)
         .HasColumnName("used");
 
@@ -227,28 +224,28 @@ public class AppDbContext : DbContext
 
       entity.Property(c => c.ContractId)
         .HasColumnName("contract_id");
-      
+
       entity.Property(c => c.AuthorId)
         .HasColumnName("author_id");
-      
+
       entity.Property(c => c.Title)
         .HasColumnName("title");
-      
+
       entity.Property(c => c.Description)
         .HasColumnName("description");
-      
+
       entity.Property(c => c.Price)
         .HasColumnName("price");
-      
+
       entity.Property(c => c.IsFunded)
         .HasColumnName("is_funded");
 
       entity.Property(c => c.ContractStatus)
         .HasColumnName("contract_status");
-      
+
       entity.Property(c => c.CreatedAt)
         .HasColumnName("created_at");
-      
+
       entity.Property(c => c.UpdatedAt)
         .HasColumnName("updated_at");
 
@@ -265,13 +262,13 @@ public class AppDbContext : DbContext
 
       entity.Property(ca => ca.ApplicationId)
         .HasColumnName("application_id");
-      
+
       entity.Property(ca => ca.ContractId)
         .HasColumnName("contract_id");
-      
+
       entity.Property(ca => ca.CandidateId)
         .HasColumnName("candidate_id");
-      
+
       entity.Property(ca => ca.Status)
         .HasColumnName("applied_status");
 
@@ -287,16 +284,16 @@ public class AppDbContext : DbContext
 
       entity.Property(ca => ca.AssignmentId)
         .HasColumnName("assignment_id");
-      
+
       entity.Property(ca => ca.ContractId)
         .HasColumnName("contract_id");
-      
+
       entity.Property(ca => ca.DeveloperId)
         .HasColumnName("user_id");
-      
+
       entity.Property(ca => ca.AssignedAt)
         .HasColumnName("assigned_at");
-      
+
       entity.Property(ca => ca.IsActive)
         .HasColumnName("is_active");
     });
@@ -312,7 +309,7 @@ public class AppDbContext : DbContext
 
       entity.Property(ce => ce.ReportId)
         .HasColumnName("report_id");
-      
+
       entity.Property(ce => ce.ContractId)
         .HasColumnName("contract_id");
 
@@ -330,13 +327,13 @@ public class AppDbContext : DbContext
 
       entity.Property(ce => ce.UpdatedAt)
         .HasColumnName("updated_at");
-      
+
       entity.Property(ce => ce.Status)
         .HasColumnName("report_status");
-        
+
       entity.Property(ce => ce.ReportUrl)
         .HasColumnName("report_url");
-      
+
       entity.Property(ce => ce.Feedback)
         .HasColumnName("feedback");
     });
@@ -365,25 +362,25 @@ public class AppDbContext : DbContext
         .HasColumnName("is_active");
       entity.Property(p => p.CreatedAt)
         .HasColumnName("created_at");
-      
+
       entity.HasIndex(p => p.Code)
         .IsUnique();
     });
     modelBuilder.Entity<RolePermission>(entity =>
     {
       entity.ToTable("role_permissions");
-      entity.HasKey(rp => new {rp.RoleId, rp.PermissionId});
+      entity.HasKey(rp => new { rp.RoleId, rp.PermissionId });
 
       entity.Property(rp => rp.RoleId)
         .HasColumnName("role_id");
-      
+
       entity.Property(rp => rp.PermissionId)
         .HasColumnName("permission_id");
     });
     modelBuilder.Entity<UserPermission>(entity =>
     {
       entity.ToTable("user_permissions");
-      entity.HasKey(up => new {up.UserId, up.PermissionId});
+      entity.HasKey(up => new { up.UserId, up.PermissionId });
 
       entity.Property(up => up.UserId)
         .HasColumnName("user_id");
@@ -397,23 +394,6 @@ public class AppDbContext : DbContext
       entity.Property(up => up.AssignedAt)
         .HasColumnName("granted_at");
     });
-    
-    // modelBuilder.Entity<ApiLogsModel>().ToTable("api_logs");
-
-
-
-    // modelBuilder.Entity<ApiLogsModel>()
-    //     .HasKey(u => u.Id);
-
-    // modelBuilder.Entity<PermissionsModel>()
-    //     .HasKey(u => u.PermissionId);
-
-    // modelBuilder.Entity<RolePermissionsModel>()
-    //     .HasKey(u => new { u.PermissionId, u.RoleId });
-
-
-    // modelBuilder.Entity<UserPermissionsModel>()
-    //     .HasKey(u => new { u.UserId, u.PermissionId });
   }
 
 

@@ -1,5 +1,12 @@
+using backend.Api.Controllers.Auth.DTOs;
+using backend.Api.Http;
+using backend.Application.Security;
+using backend.Application.Services;
+using backend.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace backend.Api.Controllers.Auth.V1;
 
 [ApiController]
 [ApiVersion("1.0")]
@@ -30,9 +37,9 @@ public class AuthController : ControllerBase
     AuthCookies.SetAuthCookie(Response, credentials.RefreshToken, credentials.AuthToken);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Zalogowano", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Zalogowano",
       DomainErrorCodes.AuthCodes.Success
       ));
   }
@@ -49,9 +56,9 @@ public class AuthController : ControllerBase
     AuthCookies.SetAuthCookie(Response, credentials.RefreshToken, credentials.AuthToken);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Zarejestrowano", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Zarejestrowano",
       DomainErrorCodes.AuthCodes.Success
       ));
   }
@@ -83,9 +90,9 @@ public class AuthController : ControllerBase
     AuthCookies.SetAuthCookie(Response, result.RefreshToken, result.AuthToken);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Odświeżono token", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Odświeżono token",
       DomainErrorCodes.AuthCodes.Success
       ));
   }

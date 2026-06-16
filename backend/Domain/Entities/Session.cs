@@ -1,9 +1,11 @@
-using System.Numerics;
+using backend.Infrastructure.Security;
+
+namespace backend.Domain.Entities;
 
 public class Session
 {
-  public long SessionId { get; private set;}
-  public Guid UserId { get; private set;}
+  public long SessionId { get; private set; }
+  public Guid UserId { get; private set; }
   public string RefreshTokenHash { get; private set; } = string.Empty;
   public DateTime CreatedAt { get; private set; }
   public DateTime ExpiresAt { get; private set; }
@@ -13,7 +15,7 @@ public class Session
   public bool Used { get; private set; } = false;
   public long? ReplacedByTokenId { get; private set; } = null;
 
-  private Session() {} // EF
+  private Session() { } // EF
 
   public static Session Create(
     Guid userId,
@@ -32,12 +34,12 @@ public class Session
       UserAgent = userAgent,
     };
   }
-  
+
   public void RevokeSession(long? replacedByTokenId)
   {
     Revoked = true;
     Used = true;
-    if(replacedByTokenId.HasValue)
+    if (replacedByTokenId.HasValue)
     {
       ReplacedByTokenId = replacedByTokenId.Value;
     }
@@ -47,12 +49,12 @@ public class Session
   {
     if (sessionId <= 0)
       throw new ValueOutOfRangeAppException();
-    
-    if(ReplacedByTokenId != null)
+
+    if (ReplacedByTokenId != null)
       throw new InvalidOperationAppException();
-      
+
     ReplacedByTokenId = sessionId;
   }
 
-  
+
 }

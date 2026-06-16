@@ -1,8 +1,12 @@
+using backend.Domain.Interfaces;
+
+namespace backend.Infrastructure.Security;
+
 public class BCryptPasswordHasher : IPasswordHasher
 {
   public string Hash(string password)
-    => BCrypt.Net.BCrypt.HashPassword(password, 12);  
+    => BCrypt.Net.BCrypt.HashPassword(password, 12);
 
   public bool Verify(string password, string hash)
-    => BCrypt.Net.BCrypt.Verify(password, hash); 
+    => BCrypt.Net.BCrypt.Verify(password, hash);
 }

@@ -1,4 +1,10 @@
+using backend.Api.Controllers;
+using backend.Api.Controllers.Contracts.DTOs;
+using backend.Domain.Entities.Enum;
+using backend.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
+
+namespace backend.Infrastructure.Persistence.Repositories;
 
 public class ContractQueryRepository : IContractQueryRepository
 {
@@ -13,8 +19,8 @@ public class ContractQueryRepository : IContractQueryRepository
     var query = _context.Contracts
       .AsNoTracking()
       .Where(c => c.ContractStatus == ContractStatus.Open && c.Deadline > DateTime.UtcNow && c.AuthorId != userId);
-    
-    if(!string.IsNullOrEmpty(search))
+
+    if (!string.IsNullOrEmpty(search))
     {
       var escaped = search.Replace(@"\", @"\\").Replace("%", @"\%").Replace("_", @"\_");
       query = query
@@ -37,7 +43,7 @@ public class ContractQueryRepository : IContractQueryRepository
         Description = c.Description,
         Deadline = c.Deadline,
         CreatedAt = c.CreatedAt,
-        HasApplied = _context.ContractApplications.Any(ca => 
+        HasApplied = _context.ContractApplications.Any(ca =>
         ca.ContractId == c.ContractId &&
         ca.CandidateId == userId)
       })
@@ -56,12 +62,12 @@ public class ContractQueryRepository : IContractQueryRepository
   {
     var contract = await _context.Contracts
       .AsNoTracking()
-      .Where(c => 
+      .Where(c =>
       c.ContractId == contractId &&
       c.ContractStatus == ContractStatus.Open &&
       c.Deadline > DateTime.UtcNow
       )
-      .Select (c => new ContractResponseDto
+      .Select(c => new ContractResponseDto
       {
         ContractId = c.ContractId,
         AuthorId = c.AuthorId,
@@ -72,8 +78,8 @@ public class ContractQueryRepository : IContractQueryRepository
         CreatedAt = c.CreatedAt,
         UpdatedAt = c.UpdatedAt,
         ContractStatus = c.ContractStatus,
-        HasApplied = _context.ContractApplications.Any(ca => 
-          ca.ContractId == c.ContractId && 
+        HasApplied = _context.ContractApplications.Any(ca =>
+          ca.ContractId == c.ContractId &&
           ca.CandidateId == userId
         )
       })
@@ -87,9 +93,9 @@ public class ContractQueryRepository : IContractQueryRepository
       .AsNoTracking()
       .Where(ca => ca.ContractId == contractId)
       .Join(
-        _context.Users, 
-        ca => ca.CandidateId, 
-        u => u.Id, 
+        _context.Users,
+        ca => ca.CandidateId,
+        u => u.Id,
         (ca, u) => new ContractApplicationsDto
         {
           ApplicationId = ca.ApplicationId,

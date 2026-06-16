@@ -1,3 +1,9 @@
+using backend.Domain.Entities;
+using backend.Domain.Interfaces;
+using backend.Domain.Interfaces.Repositories;
+
+namespace backend.Application.Services;
+
 public class AuthSessionService
 {
   private readonly ISessionRepository _sessionRepository;

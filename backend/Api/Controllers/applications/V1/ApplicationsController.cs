@@ -1,5 +1,11 @@
+using backend.Api.Auth;
+using backend.Api.Http;
+using backend.Application.Security;
+using backend.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace backend.Api.Controllers.Applications.V1;
 
 [ApiController]
 [ApiVersion("1.0")]
@@ -11,7 +17,7 @@ public class ApplicationsController : ControllerBase
   public ApplicationsController(ApplicationService applicationService)
   {
     _applicationService = applicationService;
-  } 
+  }
 
   [HasPermission(Permissions.ContractsSelf.AuthorizeApplications)]
   [HttpPatch("{applicationId}/accept")]
@@ -21,9 +27,9 @@ public class ApplicationsController : ControllerBase
     await _applicationService.AcceptApplicationAsync(userId, applicationId);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Application accepted successfully.", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Application accepted successfully.",
       DomainErrorCodes.GeneralCodes.Success
       ));
   }
@@ -35,12 +41,12 @@ public class ApplicationsController : ControllerBase
     await _applicationService.RejectApplicationAsync(userId, applicationId);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Application rejected successfully.", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Application rejected successfully.",
       DomainErrorCodes.GeneralCodes.Success
       ));
   }
-  
+
 
 }

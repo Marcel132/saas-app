@@ -1,9 +1,14 @@
+using backend.Domain.Entities;
+using backend.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
+
+namespace backend.Infrastructure.Persistence.Repositories;
+
 public class SessionRepository : ISessionRepository
 {
   private readonly AppDbContext _context;
 
-  public SessionRepository 
+  public SessionRepository
   (
     AppDbContext context
   )
@@ -22,7 +27,7 @@ public class SessionRepository : ISessionRepository
 
   public async Task<bool> TryMarkSessionAsUsedAsync(long sessionId)
   {
-    var result =  await _context.Database
+    var result = await _context.Database
       .ExecuteSqlInterpolatedAsync($@"
         UPDATE sessions
         SET used = true
@@ -30,7 +35,7 @@ public class SessionRepository : ISessionRepository
           AND used = false
           AND revoked = false
         ");
-  
+
     return result > 0;
   }
   public async Task SetReplacedByAndRevokedAsync(long oldSessionId, long newSessionId)

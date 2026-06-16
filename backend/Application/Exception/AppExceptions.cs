@@ -1,4 +1,4 @@
-using System.Net;
+using backend.Api.Http;
 
 // TODO: Change message and error code to be more specific for each exception, currently they are very generic and not informative enough. Maybe add more properties to the exceptions if needed (e.g. for validation errors, include the name of the field that caused the error, etc.)
 public abstract class AppException : Exception

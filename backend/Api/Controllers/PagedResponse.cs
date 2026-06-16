@@ -1,3 +1,5 @@
+namespace backend.Api.Controllers;
+
 public class PagedResponse<T>
 {
   public int Page { get; set; }

@@ -1,5 +1,7 @@
 using System.Security.Claims;
 
+namespace backend.Application.Security;
+
 public static class UserContextExtension
 {
   public static Guid GetUserId(this ClaimsPrincipal user)

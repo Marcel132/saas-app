@@ -1,3 +1,12 @@
+using backend.Api.Controllers;
+using backend.Api.Controllers.Users.DTOs;
+using backend.Domain.Entities.Enum;
+using backend.Domain.Interfaces;
+using backend.Domain.Interfaces.Repositories;
+using backend.Domain.Interfaces.Services;
+
+namespace backend.Application.Services;
+
 public class UserService : IUserService
 {
   private readonly IUnitOfWork _unitOfWork;
@@ -20,9 +29,9 @@ public class UserService : IUserService
     return await _userQueryRepo.GetAllAsync(page, pageSize, search);
   }
 
-  public async Task<UserResponsePublicDto> GetUserByIdAsync(Guid userId, Guid currentUserId)  
+  public async Task<UserResponsePublicDto> GetUserByIdAsync(Guid userId, Guid currentUserId)
   {
-    if(userId == Guid.Empty)
+    if (userId == Guid.Empty)
     {
       throw new BadRequestAppException();
     }

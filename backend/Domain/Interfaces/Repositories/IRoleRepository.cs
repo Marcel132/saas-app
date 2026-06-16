@@ -1,3 +1,7 @@
+using backend.Domain.Entities;
+
+namespace backend.Domain.Interfaces.Repositories;
+
 public interface IRoleRepository
 {
   Task<Role> GetByCodeAsync(string code, CancellationToken ct = default);

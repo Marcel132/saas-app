@@ -1,5 +1,13 @@
+using backend.Api.Auth;
+using backend.Api.Controllers.Users.DTOs;
+using backend.Api.Http;
+using backend.Application.Security;
+using backend.Domain.Entities.Enum;
+using backend.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace backend.Api.Controllers.Users.V1;
 
 [ApiController]
 [ApiVersion("1.0")]
@@ -22,11 +30,11 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
   {
     var users = await _userService.GetAllAsync(page, pageSize, search);
-    
+
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Users retrieved successfully", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Users retrieved successfully",
       DomainErrorCodes.AuthCodes.Success,
       users
       ));
@@ -58,11 +66,11 @@ public class UsersController : ControllerBase
   {
     var userId = UserContextExtension.GetUserId(User);
     var user = await _userService.GetCurrentUserAsync(userId);
-    
+
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Current user retrieved successfully", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Current user retrieved successfully",
       DomainErrorCodes.AuthCodes.Success,
       user
       ));
@@ -90,17 +98,17 @@ public class UsersController : ControllerBase
   [HttpPatch("me")]
   public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateUserDto request)
   {
-    var userId = UserContextExtension.GetUserId(User); 
+    var userId = UserContextExtension.GetUserId(User);
     await _userService.UpdateUserAsync(userId, request);
-    
+
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "User updated successfully", 
+      HttpContext,
+      HttpResponseState.Success,
+      "User updated successfully",
       DomainErrorCodes.AuthCodes.Success
     ));
   }
-  
+
   // * DONE
   [HasPermission(Permissions.Profile.Delete)]
   [HttpDelete("me")]
@@ -108,7 +116,7 @@ public class UsersController : ControllerBase
   {
     var userId = UserContextExtension.GetUserId(User);
     await _userService.DeleteUserAsync(userId);
-    
+
     return NoContent();
   }
 
@@ -119,11 +127,11 @@ public class UsersController : ControllerBase
   {
     var userId = UserContextExtension.GetUserId(User);
     var contracts = await _userService.GetCurrentUserContractsAsync(userId, status);
-    
+
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "User contracts retrieved successfully", 
+      HttpContext,
+      HttpResponseState.Success,
+      "User contracts retrieved successfully",
       DomainErrorCodes.AuthCodes.Success,
       contracts
     ));
@@ -136,11 +144,11 @@ public class UsersController : ControllerBase
   {
     var userId = UserContextExtension.GetUserId(User);
     var applications = await _userService.GetCurrentUserApplicationsAsync(userId, status);
-    
+
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "User applications retrieved successfully", 
+      HttpContext,
+      HttpResponseState.Success,
+      "User applications retrieved successfully",
       DomainErrorCodes.AuthCodes.Success,
       applications
     ));

@@ -1,4 +1,10 @@
+using backend.Api.Controllers.Auth.DTOs;
+using backend.Domain.Entities;
+using backend.Domain.Entities.Enum;
+using backend.Domain.Policies;
 using NUnit.Framework;
+
+namespace backend.Backend.Tests.Security.Auth;
 
 public class LoginPolicyTests
 {
@@ -7,7 +13,7 @@ public class LoginPolicyTests
   {
     var policy = new LoginPolicy();
 
-    Assert.Throws<InvalidCredentialsAppException>(() => 
+    Assert.Throws<InvalidCredentialsAppException>(() =>
       policy.EnsureCanLogin(null)
     );
   }
@@ -80,7 +86,7 @@ public class LoginPolicyTests
 
     user.DeactivateAccount();
 
-    Assert.Throws<ForbiddenAppException>(() => 
+    Assert.Throws<ForbiddenAppException>(() =>
       policy.EnsureCanLogin(user)
     );
   }
@@ -115,7 +121,8 @@ public class LoginPolicyTests
       userData
     );
 
-    Assert.DoesNotThrow(() => {
+    Assert.DoesNotThrow(() =>
+    {
       policy.EnsureCanLogin(user);
     });
   }

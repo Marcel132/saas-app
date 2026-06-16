@@ -1,9 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using System.Text;
+using backend.Api.Controllers.Auth.DTOs;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+
+namespace backend.Application.Services;
 
 public class TokenService
 {
@@ -18,7 +21,7 @@ public class TokenService
   {
     _jwtOptions = options.Value;
 
-    if(string.IsNullOrWhiteSpace(_jwtOptions.Key) || string.IsNullOrWhiteSpace(_jwtOptions.Audience) || string.IsNullOrWhiteSpace(_jwtOptions.Issuer))
+    if (string.IsNullOrWhiteSpace(_jwtOptions.Key) || string.IsNullOrWhiteSpace(_jwtOptions.Audience) || string.IsNullOrWhiteSpace(_jwtOptions.Issuer))
       throw new InvalidOperationAppException("JWT options not configured");
 
 

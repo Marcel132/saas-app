@@ -1,3 +1,8 @@
+using backend.Domain.Entities.Enum;
+using backend.Domain.Interfaces.Repositories;
+
+namespace backend.Domain.Entities.Synchronizer;
+
 public class UserRoleSynchronizer
 {
   private readonly IRoleRepository _roleRepo;
@@ -10,7 +15,7 @@ public class UserRoleSynchronizer
   public async Task SyncAsync(User user)
   {
     var roles = await _roleRepo.GetByCodesAsync(
-      new[] {Roles.BASE_USER.ToString(), Roles.PENTESTER.ToString(), Roles.COMPANY.ToString() }
+      new[] { Roles.BASE_USER.ToString(), Roles.PENTESTER.ToString(), Roles.COMPANY.ToString() }
     );
 
     EnsureRole(user, roles[Roles.BASE_USER.ToString()].RoleId);

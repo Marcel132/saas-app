@@ -1,3 +1,7 @@
+using backend.Domain.Entities.Enum;
+
+namespace backend.Api.Controllers.Me.DTOs;
+
 public class ApplicationDto
 {
   public long ApplicationId { get; set; }

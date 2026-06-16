@@ -1,3 +1,8 @@
+using backend.Api.Controllers.Auth.DTOs;
+using backend.Application.Services.Auth.DTOs;
+
+namespace backend.Domain.Interfaces.Services;
+
 public interface IAuthService
 {
   public Task<CredentialsDto> LoginAsync(LoginRequestDto request, string ipAddress, string userAgent);

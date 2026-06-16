@@ -1,4 +1,10 @@
 using System.Text.Json.Serialization;
+using backend.Api.Auth;
+using backend.Api.Controllers.Auth.DTOs;
+using backend.Api.Http;
+using backend.Api.Middlewares;
+using backend.Domain.Entities.Enum;
+using backend.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

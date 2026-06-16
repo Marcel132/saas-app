@@ -1,3 +1,7 @@
+using backend.Domain.Entities.Enum;
+
+namespace backend.Domain.Entities;
+
 public class Contract
 {
   public long ContractId { get; private set; }
@@ -16,10 +20,10 @@ public class Contract
 
   public Contract(Guid authorId, string title, string description, decimal price, DateTime? deadline = null)
   {
-    if(authorId == Guid.Empty)
+    if (authorId == Guid.Empty)
       throw new BadRequestAppException();
-    if(
-      string.IsNullOrWhiteSpace(title) || 
+    if (
+      string.IsNullOrWhiteSpace(title) ||
       string.IsNullOrWhiteSpace(description) ||
       title.Length > 255 || description.Length > 1500
       )
@@ -27,16 +31,16 @@ public class Contract
     if (price <= 0)
       throw new ValueOutOfRangeAppException();
 
-  
+
     AuthorId = authorId;
     Title = title;
     Description = description;
     Price = decimal.Round(price, 2);
     ContractStatus = ContractStatus.Open;
 
-    if(deadline != null)
+    if (deadline != null)
     {
-      if(deadline.Value.Date <= DateTime.UtcNow.Date)
+      if (deadline.Value.Date <= DateTime.UtcNow.Date)
         throw new ValueOutOfRangeAppException();
 
       Deadline = DateTime.SpecifyKind(
@@ -49,7 +53,7 @@ public class Contract
 
   public void StartContract()
   {
-    if(IsExpired())
+    if (IsExpired())
       throw new InvalidOperationAppException();
     // TODO: Uncoment this when payments are implemented
     // if(IsFunded == false)
@@ -66,14 +70,14 @@ public class Contract
     ChangeStatus(ContractStatus.Completed);
     // Release funds logic would go here
   }
-  
+
   public void UpdateContractDetails(string? title, string? description)
   {
-    if(!CanModifyDetails())
+    if (!CanModifyDetails())
       throw new BadRequestAppException();
-    if(string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(description))
+    if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(description))
       throw new InvalidOperationAppException();
-    if(title?.Length > 255 || description?.Length > 1500)
+    if (title?.Length > 255 || description?.Length > 1500)
       throw new BadRequestAppException();
 
     Title = string.IsNullOrWhiteSpace(title) ? Title : title;
@@ -82,7 +86,7 @@ public class Contract
   }
   public void UpdatePrice(decimal newPrice)
   {
-    if(!CanModifyDetails())
+    if (!CanModifyDetails())
       throw new BadRequestAppException();
     if (newPrice <= 0)
       throw new ValueOutOfRangeAppException();
@@ -100,7 +104,7 @@ public class Contract
   }
   public void ExtendDeadline(DateTime newDeadline)
   {
-    if(!CanModifyDetails())
+    if (!CanModifyDetails())
       throw new BadRequestAppException();
 
     newDeadline = DateTime.SpecifyKind(
@@ -108,7 +112,7 @@ public class Contract
       DateTimeKind.Utc
     );
 
-    if(newDeadline.Date <= DateTime.UtcNow.Date)
+    if (newDeadline.Date <= DateTime.UtcNow.Date)
       throw new ValueOutOfRangeAppException();
 
     Deadline = newDeadline;
@@ -116,22 +120,22 @@ public class Contract
   }
   public void MarkAsFunded()
   {
-    if(IsFunded)
+    if (IsFunded)
       throw new InvalidOperationAppException();
 
-    if(ContractStatus != ContractStatus.Open)
+    if (ContractStatus != ContractStatus.Open)
       throw new InvalidOperationAppException();
 
-    if(IsExpired())
+    if (IsExpired())
       throw new InvalidOperationAppException();
 
     IsFunded = true;
     UpdatedAt = DateTime.UtcNow;
   }
- 
+
   private void ChangeStatus(ContractStatus newStatus)
   {
-    if(!CanModifyStatus(newStatus))
+    if (!CanModifyStatus(newStatus))
       throw new BadRequestAppException();
 
     ContractStatus = newStatus;

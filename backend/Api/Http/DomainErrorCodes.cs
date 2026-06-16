@@ -7,7 +7,7 @@
 // Error Types: 10 - Success; 20 - Soft warning / hint (fe. deprecated, fallback); 30 - Client / business error; 40 - Security / system / critical
 // Specific error codes 
 
-using Microsoft.EntityFrameworkCore.Diagnostics;
+namespace backend.Api.Http;
 
 public static class DomainErrorCodes
 {
@@ -69,7 +69,7 @@ public static class DomainErrorCodes
     public const string UserDeletionFailed = "USER-30/003_USER_DELETION_FAILED";
     public const string UserNotFound = "USER-30/004_USER_NOT_FOUND";
     public const string UserAlreadyExists = "USER-30/005_USER_ALREADY_EXISTS";
-  } 
+  }
   public static class FirewallCodes
   {
     public const string IpBlocked = "FIRE-30/001_IP_BLOCKED";

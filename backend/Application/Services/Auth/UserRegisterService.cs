@@ -1,3 +1,11 @@
+using backend.Api.Controllers.Auth.DTOs;
+using backend.Domain.Entities;
+using backend.Domain.Entities.Synchronizer;
+using backend.Domain.Interfaces;
+using backend.Domain.Interfaces.Repositories;
+
+namespace backend.Application.Services;
+
 public class UserRegisterService
 {
   private readonly IUserRepository _users;
@@ -28,12 +36,12 @@ public class UserRegisterService
     var emailExists = await _users.ExistsByEmailAsync(email);
     var nickname = request.Nickname.Trim().ToLowerInvariant();
     var nicknameExists = await _users.ExistsByNicknameAsync(nickname);
-    if(nicknameExists)
+    if (nicknameExists)
       throw new BadRequestAppException("Taka nazwa użytkownika już istnieje");
     _policy.EnsureCanRegister(emailExists, request);
 
     var passwordHash = _hasher.Hash(request.Password);
-    
+
     var userData = new UserData(request);
 
     var user = new User(email, passwordHash, request.Role, userData);
@@ -42,12 +50,13 @@ public class UserRegisterService
     {
       foreach (var spec in request.SpecializationType)
         user.AddSpecialization(spec);
-    };
+    }
+    ;
 
     await _users.AddAsync(user);
 
     await _roleSynch.SyncAsync(user);
-    
+
     await _unitOfWork.SaveChangesAsync();
 
     return user;

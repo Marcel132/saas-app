@@ -1,3 +1,7 @@
+using backend.Domain.Entities.Enum;
+
+namespace backend.Api.Controllers.Users.DTOs;
+
 public class UserContractsDto
 {
   public long ContractId { get; set; }

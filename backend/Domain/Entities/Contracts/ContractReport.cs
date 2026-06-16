@@ -1,3 +1,7 @@
+using backend.Domain.Entities.Enum;
+
+namespace backend.Domain.Entities;
+
 public class ContractReport
 {
   public long ReportId { get; private set; }
@@ -25,11 +29,11 @@ public class ContractReport
 
   public void Submit(string reportUrl)
   {
-    if(string.IsNullOrWhiteSpace(reportUrl) || reportUrl.Length > 1000)
+    if (string.IsNullOrWhiteSpace(reportUrl) || reportUrl.Length > 1000)
       throw new ValueOutOfRangeAppException("Report URL is invalid.");
 
     ChangeStatus(ContractReportStatus.Submitted);
-   
+
     ReportUrl = reportUrl;
     Feedback = null;
     SubmittedAt = DateTime.UtcNow;
@@ -37,7 +41,7 @@ public class ContractReport
 
   public void RequestChanges(string feedback)
   {
-    if(string.IsNullOrWhiteSpace(feedback) || feedback.Trim().Length <= 20|| feedback.Length > 2000)
+    if (string.IsNullOrWhiteSpace(feedback) || feedback.Trim().Length <= 20 || feedback.Length > 2000)
       throw new ValueOutOfRangeAppException("Feedback is invalid.");
 
     ChangeStatus(ContractReportStatus.ChangesRequested);
@@ -55,18 +59,18 @@ public class ContractReport
 
   public void Reject(string feedback)
   {
-    if(string.IsNullOrWhiteSpace(feedback) || feedback.Trim().Length <= 20|| feedback.Length > 2000 )
+    if (string.IsNullOrWhiteSpace(feedback) || feedback.Trim().Length <= 20 || feedback.Length > 2000)
       throw new ValueOutOfRangeAppException("Feedback is invalid.");
 
     ChangeStatus(ContractReportStatus.Rejected);
-    
+
     Feedback = feedback;
     ReviewedAt = DateTime.UtcNow;
   }
 
   private void ChangeStatus(ContractReportStatus newStatus)
   {
-    if(!CanModifyStatus(newStatus))
+    if (!CanModifyStatus(newStatus))
       throw new InvalidOperationAppException($"Cannot change report status from {Status} to {newStatus}.");
 
     Status = newStatus;
@@ -83,6 +87,6 @@ public class ContractReport
       ContractReportStatus.Approved => false,
       _ => false
     };
-    
+
   }
 }

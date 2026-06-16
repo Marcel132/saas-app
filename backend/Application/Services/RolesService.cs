@@ -1,3 +1,6 @@
+using backend.Domain.Interfaces.Repositories;
+
+namespace backend.Application.Services;
 
 public class RoleService
 {

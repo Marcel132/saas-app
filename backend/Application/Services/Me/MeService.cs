@@ -1,3 +1,11 @@
+using backend.Api.Controllers;
+using backend.Api.Controllers.Contracts.DTOs;
+using backend.Api.Controllers.Me.DTOs;
+using backend.Domain.Interfaces;
+using backend.Domain.Interfaces.Repositories;
+
+namespace backend.Application.Services;
+
 public class MeService
 {
   private readonly IMeQueryRepository _meQueryRepository;

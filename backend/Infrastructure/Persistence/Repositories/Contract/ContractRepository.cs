@@ -1,4 +1,9 @@
+using backend.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
+using backend.Domain.Entities;
+
+namespace backend.Infrastructure.Persistence.Repositories;
+
 public class ContractRepository : IContractRepository
 {
   private readonly AppDbContext _context;

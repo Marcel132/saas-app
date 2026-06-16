@@ -1,5 +1,12 @@
+using backend.Api.Auth;
+using backend.Api.Controllers.Contracts.DTOs;
+using backend.Api.Http;
+using backend.Application.Security;
+using backend.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace backend.Api.Controllers.Contracts.V1;
 
 [ApiController]
 [ApiVersion("1.0")]
@@ -23,14 +30,14 @@ public class ContractsController : ControllerBase
     var contracts = await _contractService.GetContractsAsync(userId, page, pageSize, search);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Contracts retrieved successfully", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Contracts retrieved successfully",
       DomainErrorCodes.AuthCodes.Success,
       contracts
     ));
   }
-  
+
   [HttpGet("{contractId}")]
   public async Task<IActionResult> GetContractById([FromRoute] long contractId)
   {
@@ -38,9 +45,9 @@ public class ContractsController : ControllerBase
     var contract = await _contractService.GetContractByIdAsync(contractId, userId);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Contract retrieved successfully", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Contract retrieved successfully",
       DomainErrorCodes.AuthCodes.Success,
       contract
     ));
@@ -51,13 +58,13 @@ public class ContractsController : ControllerBase
   public async Task<IActionResult> CreateContract([FromBody] ContractRequestDto contractRequest)
   {
     var userId = UserContextExtension.GetUserId(User);
-    
+
     var contract = await _contractService.CreateContractAsync(userId, contractRequest);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Created, 
-      "Contract created successfully", 
+      HttpContext,
+      HttpResponseState.Created,
+      "Contract created successfully",
       DomainErrorCodes.AuthCodes.Success,
       contract
     ));
@@ -69,11 +76,11 @@ public class ContractsController : ControllerBase
   {
     var userId = UserContextExtension.GetUserId(User);
     await _contractService.CloseContractAsync(userId, contractId);
-    
+
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Contract closed successfully", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Contract closed successfully",
       DomainErrorCodes.AuthCodes.Success
     ));
   }
@@ -86,9 +93,9 @@ public class ContractsController : ControllerBase
     await _contractService.UpdateContractAsync(userId, contractId, request);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Contract updated successfully", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Contract updated successfully",
       DomainErrorCodes.AuthCodes.Success
     ));
   }
@@ -101,9 +108,9 @@ public class ContractsController : ControllerBase
     var contractApplications = await _contractService.GetContractApplicationsAsync(userId, contractId);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Success, 
-      "Contract applications retrieved successfully", 
+      HttpContext,
+      HttpResponseState.Success,
+      "Contract applications retrieved successfully",
       DomainErrorCodes.AuthCodes.Success,
       contractApplications
     ));
@@ -117,9 +124,9 @@ public class ContractsController : ControllerBase
     await _contractService.ApplyToContractAsync(userId, contractId);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext, 
-      HttpResponseState.Created, 
-      "Applied to contract successfully", 
+      HttpContext,
+      HttpResponseState.Created,
+      "Applied to contract successfully",
       DomainErrorCodes.GeneralCodes.Success
     ));
   }

@@ -1,4 +1,9 @@
+using backend.Api.Controllers.Auth.DTOs;
+using backend.Domain.Entities.Enum;
+using backend.Domain.Policies;
 using NUnit.Framework;
+
+namespace backend.Backend.Tests.Security.Auth;
 
 public class RegisterPolicyTests
 {
@@ -7,7 +12,7 @@ public class RegisterPolicyTests
   {
     var policy = new RegisterPolicy();
 
-    Assert.Throws<BadRequestAppException>(() => 
+    Assert.Throws<BadRequestAppException>(() =>
       policy.EnsureCanRegister(true, new RegisterRequestDto())
     );
   }

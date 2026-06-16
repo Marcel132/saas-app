@@ -1,4 +1,9 @@
+using backend.Domain.Entities;
+using backend.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
+
+namespace backend.Infrastructure.Persistence.Repositories;
+
 public class AssignmentRepository : IAssignmentRepository
 {
   private readonly AppDbContext _context;

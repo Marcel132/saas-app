@@ -1,4 +1,7 @@
 using System.Net;
+using backend.Api.Http;
+
+namespace backend.Api.Middlewares;
 
 public class GlobalErrorHandlingMiddleware
 {
@@ -57,7 +60,7 @@ public class GlobalErrorHandlingMiddleware
       ex.Message,
       ex.DomainError
     );
-    
+
     context.Response.StatusCode = (int)status;
     context.Response.ContentType = "application/json";
 
@@ -65,7 +68,7 @@ public class GlobalErrorHandlingMiddleware
   }
 
   private async Task HandleExceptionAsync(HttpContext context, Exception ex)
-{
+  {
     _logger.LogError(ex,
       "Unhandled exception at {Path} {Method}",
       context.Request.Path,
@@ -88,6 +91,6 @@ public class GlobalErrorHandlingMiddleware
     );
 
     await context.Response.WriteAsJsonAsync(response);
-}
+  }
 }
 

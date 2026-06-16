@@ -1,9 +1,13 @@
+using backend.Domain.Interfaces.Repositories;
+
+namespace backend.Infrastructure.Persistence.Repositories;
+
 public class MeRepository : IMeRepository
 {
-  private readonly AppDbContext _appDbContext;
+  private readonly AppDbContext _context;
 
   public MeRepository(AppDbContext appDbContext)
   {
-    _appDbContext = appDbContext;
+    _context = appDbContext;
   }
 }

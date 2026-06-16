@@ -1,3 +1,5 @@
+namespace backend.Application.Services;
+
 public static class AuthCookies
 {
   private const string AuthTokenName = "AuthToken";
@@ -11,7 +13,7 @@ public static class AuthCookies
 
   public static CookieOptions CreateAuthCookieOptions(
     bool isHttps,
-    string? domain = null, 
+    string? domain = null,
     bool isPersistent = false
     )
   {
@@ -31,13 +33,13 @@ public static class AuthCookies
       cookieOptions.Expires = DateTimeOffset.UtcNow.AddDays(_refreshTokenExpires);
       cookieOptions.MaxAge = TimeSpan.FromDays(_refreshTokenExpires);
     }
-      
+
 
     return cookieOptions;
   }
   public static void SetAuthCookie(HttpResponse response, string? refreshToken, string? authToken)
   {
-    if(string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(authToken))
+    if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(authToken))
       throw new TokenNotFoundAppException();
 
     response.Cookies.Append(AuthTokenName, authToken, CreateAuthCookieOptions(false, null, false));

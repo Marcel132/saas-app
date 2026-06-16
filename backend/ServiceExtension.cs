@@ -1,3 +1,15 @@
+
+
+using backend.Application.Services;
+using backend.Domain.Entities.Synchronizer;
+using backend.Domain.Interfaces;
+using backend.Domain.Interfaces.Repositories;
+using backend.Domain.Interfaces.Services;
+using backend.Domain.Policies;
+using backend.Infrastructure;
+using backend.Infrastructure.Persistence.Repositories;
+using backend.Infrastructure.Security;
+
 public static class ServiceExtension
 {
   public static IServiceCollection AddApplicationService(this IServiceCollection services)
@@ -49,8 +61,8 @@ public static class ServiceExtension
     services.AddScoped<IAssignmentRepository, AssignmentRepository>();
 
 
-    services.AddScoped<IUnitOfWork, UnitOfWork>();
     services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+    services.AddScoped<IUnitOfWork, UnitOfWork>();
 
     return services;
 

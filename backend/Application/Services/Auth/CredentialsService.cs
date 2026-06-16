@@ -1,3 +1,8 @@
+using backend.Application.Services.Auth.DTOs;
+using backend.Domain.Interfaces.Services;
+
+namespace backend.Application.Services;
+
 public class CredentialsService : ICredentialsService
 {
   private readonly TokenService _tokenService;
@@ -18,11 +23,10 @@ public class CredentialsService : ICredentialsService
     var authToken = _tokenService.GenerateAuthToken(userId, permissions);
     var refreshToken = _tokenService.GenerateRefreshToken();
 
-    return new CredentialsDto
-    {
-      AuthToken = authToken,
-      RefreshToken = refreshToken
-    };
+    return new CredentialsDto(
+      authToken,
+      refreshToken
+    );
   }
 
 }

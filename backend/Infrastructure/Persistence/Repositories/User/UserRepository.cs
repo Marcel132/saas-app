@@ -1,4 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using backend.Domain.Entities;
+using backend.Domain.Interfaces.Repositories;
+
+namespace backend.Infrastructure.Persistence.Repositories;
 
 public class UserRepository : IUserRepository
 {

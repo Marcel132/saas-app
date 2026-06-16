@@ -1,3 +1,7 @@
+using backend.Domain.Entities.Enum;
+
+namespace backend.Domain.Entities;
+
 public class UserSpecialization
 {
   public Guid UserId { get; private set; }

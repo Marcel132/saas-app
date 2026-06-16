@@ -1,3 +1,5 @@
+namespace backend.Api.Http;
+
 public static class HttpMethodsAllowed
 {
   public static readonly string[] Methods = new[]

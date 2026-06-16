@@ -1,7 +1,9 @@
 using System.Text.Encodings.Web;
+using backend.Application.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
+
+namespace backend.Api.Auth;
 
 public class CookieAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
@@ -17,11 +19,11 @@ public class CookieAuthHandler : AuthenticationHandler<AuthenticationSchemeOptio
 
   protected override Task<AuthenticateResult> HandleAuthenticateAsync()
   {
-    if(!Request.Cookies.TryGetValue("AuthToken", out var authToken))
+    if (!Request.Cookies.TryGetValue("AuthToken", out var authToken))
       return Task.FromResult(AuthenticateResult.NoResult());
 
     var principal = _tokenService.ValidateAuthToken(authToken);
-    if(principal is null)
+    if (principal is null)
       return Task.FromResult(AuthenticateResult.Fail("Invalid Auth Token"));
 
     var ticket = new AuthenticationTicket(principal, Scheme.Name);

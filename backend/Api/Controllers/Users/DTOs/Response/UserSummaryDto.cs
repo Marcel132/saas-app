@@ -1,3 +1,4 @@
+namespace backend.Api.Controllers.Users.DTOs;
 public class UserSummaryDto
 {
   public int ActiveTasks { get; set; }

@@ -1,28 +1,35 @@
+using backend.Api.Controllers.Auth.DTOs;
+using backend.Domain.Entities;
+using backend.Domain.Entities.Enum;
+using backend.Domain.Interfaces;
+
+namespace backend.Domain.Policies;
+
 public class RegisterPolicy : IRegisterPolicy
 {
 
   public void EnsureCanRegister(bool emailAlreadyExists, RegisterRequestDto request)
   {
-    if(emailAlreadyExists)
+    if (emailAlreadyExists)
       throw new BadRequestAppException("Podany adres email już istnieje");
 
-    if(string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
+    if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
       throw new InvalidFormatAppException("Imię i nazwisko są wymagane");
-    
+
     var email = request.Email.Trim().ToLowerInvariant();
-    if(!User.IsValidEmailFormat(email))
+    if (!User.IsValidEmailFormat(email))
       throw new InvalidFormatAppException("Niepoprawny format adresu email");
 
-    if(!User.IsValidPasswordFormat(request.Password))
+    if (!User.IsValidPasswordFormat(request.Password))
       throw new InvalidFormatAppException("Hasło nie spełnia wymogów bezpieczeństwa");
 
-    if(IsPasswordWeak(request))
+    if (IsPasswordWeak(request))
       throw new InvalidFormatAppException("Hasło jest za słabe. Nie używaj poufnych danych");
 
-    if(IsSpecializationInvalid(request))
-      throw new BadRequestAppException("Wybierz co najmniej jedną specjalizacje"); 
+    if (IsSpecializationInvalid(request))
+      throw new BadRequestAppException("Wybierz co najmniej jedną specjalizacje");
 
-    if(HasInvalidCompanyData(request))
+    if (HasInvalidCompanyData(request))
       throw new InvalidFormatAppException("Podaj nazwę oraz NIP firmy");
 
   }
@@ -37,20 +44,20 @@ public class RegisterPolicy : IRegisterPolicy
   private static bool HasInvalidCompanyData(RegisterRequestDto req)
   {
     var hasName = !string.IsNullOrEmpty(req.CompanyName);
-    var hasNip  = !string.IsNullOrEmpty(req.CompanyNip);
+    var hasNip = !string.IsNullOrEmpty(req.CompanyNip);
 
-    return hasName ^ hasNip; 
+    return hasName ^ hasNip;
   }
 
   private static bool IsSpecializationInvalid(RegisterRequestDto req)
   {
-    if(req.Role == RoleType.Company)
-      return false; 
+    if (req.Role == RoleType.Company)
+      return false;
 
     // TODO: DELETE IF 
-    if(req.SpecializationType == null || !req.SpecializationType.Any())
+    if (req.SpecializationType == null || !req.SpecializationType.Any())
       return true;
-    
+
     foreach (var spec in req.SpecializationType)
     {
       if (!Enum.IsDefined(typeof(Specialization), spec))

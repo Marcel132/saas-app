@@ -1,3 +1,8 @@
+using backend.Api.Controllers.Auth.DTOs;
+using backend.Api.Controllers.Users.DTOs;
+
+namespace backend.Domain.Entities;
+
 public class UserData
 {
   public string FirstName { get; private set; } = string.Empty;
@@ -13,11 +18,11 @@ public class UserData
   public string? CompanyName { get; private set; }
   public string? CompanyNip { get; private set; }
 
-  public bool IsEmailVerified { get;  private set; }
+  public bool IsEmailVerified { get; private set; }
   public bool IsTwoFactorEnabled { get; private set; }
-  public bool IsProfileCompleted { get; private set;} 
+  public bool IsProfileCompleted { get; private set; }
 
-  private UserData() {} // EF
+  private UserData() { } // EF
 
   internal UserData(RegisterRequestDto data)
   {
@@ -32,7 +37,7 @@ public class UserData
     Street = data.Street;
 
     CompanyName = data.CompanyName;
-    CompanyNip  = data.CompanyNip;
+    CompanyNip = data.CompanyNip;
 
     IsEmailVerified = false;
     IsTwoFactorEnabled = false;
@@ -51,10 +56,10 @@ public class UserData
     if (data.PostalCode != null) PostalCode = data.PostalCode;
     if (data.Street != null) Street = data.Street;
 
-    if(data.CompanyName != null && data.CompanyNip != null)
+    if (data.CompanyName != null && data.CompanyNip != null)
     {
       CompanyName = data.CompanyName;
-      CompanyNip  = data.CompanyNip;
+      CompanyNip = data.CompanyNip;
     }
   }
 

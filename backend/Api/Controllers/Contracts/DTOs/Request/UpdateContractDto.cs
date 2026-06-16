@@ -1,4 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+namespace backend.Api.Controllers.Contracts.DTOs;
+
 public class UpdateContractDto
 {
   public string? Title { get; set; }

@@ -1,4 +1,10 @@
+using backend.Domain.Entities;
+using backend.Domain.Entities.Enum;
+using backend.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
+
+namespace backend.Infrastructure.Persistence.Repositories;
+
 public class ApplicationRepository : IApplicationRepository
 {
   private readonly AppDbContext _context;
@@ -17,7 +23,7 @@ public class ApplicationRepository : IApplicationRepository
   public async Task<List<ContractApplication>> GetApplicationsByContractIdAsync(long contractId, Guid? excludeCandidateId = null)
   {
     var query = _context.ContractApplications
-    .Where(ca => 
+    .Where(ca =>
     ca.ContractId == contractId &&
     ca.Status == ContractApplicationStatus.Pending
     );

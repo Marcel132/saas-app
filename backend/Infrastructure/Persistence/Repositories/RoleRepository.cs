@@ -1,8 +1,12 @@
+using backend.Domain.Entities;
+using backend.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
+
+namespace backend.Infrastructure.Persistence.Repositories;
 
 public class RoleRepository : IRoleRepository
 {
-   private readonly AppDbContext _context;
+  private readonly AppDbContext _context;
 
   public RoleRepository(AppDbContext context)
   {
@@ -31,10 +35,7 @@ public class RoleRepository : IRoleRepository
     if (roles.Count != codeSet.Length)
     {
       var missing = codeSet.Except(roles.Select(r => r.Code));
-      throw new NotFoundAppException(); // * Create a custom exception for this case and include missing codes in the message for better debugging.
-      // throw new NotFoundAppException(
-      //   $"Missing roles: {string.Join(", ", missing)}"
-      // );
+      throw new NotFoundAppException(); // TODO: Create a custom exception for this case and include missing codes in the message for better debugging.
     }
 
     return roles.ToDictionary(r => r.Code, r => r, StringComparer.OrdinalIgnoreCase);
@@ -52,7 +53,7 @@ public class RoleRepository : IRoleRepository
       .Join(_context.Permissions,
         rp => rp,
         p => p.PermissionId,
-        (rp, p) => new {p.Code, p.IsActive})
+        (rp, p) => new { p.Code, p.IsActive })
       .Where(p => p.IsActive)
       .Select(p => p.Code)
       .AsNoTracking()
@@ -70,11 +71,11 @@ public class RoleRepository : IRoleRepository
       .AsNoTracking()
       .ToListAsync();
 
-    foreach(var up in userPermissions)
+    foreach (var up in userPermissions)
     {
-      if(up.IsDenied)
+      if (up.IsDenied)
         effectivePermissions.Remove(up.Code);
-      else 
+      else
         effectivePermissions.Add(up.Code);
     }
 

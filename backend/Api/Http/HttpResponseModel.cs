@@ -1,3 +1,5 @@
+namespace backend.Api.Http;
+
 public class HttpResponseModel<T>
 {
   public bool Success { get; set; }
@@ -6,6 +8,6 @@ public class HttpResponseModel<T>
   public string? Message { get; set; }
   public string? TraceId { get; set; }
   public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-  
+
   public string? Code { get; set; }
 }

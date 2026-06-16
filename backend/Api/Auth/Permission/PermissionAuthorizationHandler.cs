@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 
+namespace backend.Api.Auth;
+
 public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
 {
   protected override Task HandleRequirementAsync(
-    AuthorizationHandlerContext context, 
+    AuthorizationHandlerContext context,
     PermissionRequirement requirement
     )
   {
-    if(context.User.HasClaim("permission", requirement.Permission))
+    if (context.User.HasClaim("permission", requirement.Permission))
       context.Succeed(requirement);
 
     return Task.CompletedTask;

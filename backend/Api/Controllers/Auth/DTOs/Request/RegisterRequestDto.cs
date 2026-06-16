@@ -1,4 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using backend.Domain.Entities.Enum;
+
+namespace backend.Api.Controllers.Auth.DTOs;
 
 public class RegisterRequestDto
 {
@@ -10,10 +13,10 @@ public class RegisterRequestDto
   [Required]
   [StringLength(128, MinimumLength = 8)]
   public string Password { get; set; } = string.Empty;
-  
+
   [Required]
   public RoleType Role { get; set; }
-  
+
   [Required]
   public List<Specialization> SpecializationType { get; set; } = [];
 
@@ -26,7 +29,7 @@ public class RegisterRequestDto
   [RegularExpression(@"^[^%<>]*$")]
   [StringLength(64)]
   public string FirstName { get; set; } = string.Empty;
-  
+
   [Required]
   [RegularExpression(@"^[^%<>]*$")]
   [StringLength(64)]
@@ -42,31 +45,31 @@ public class RegisterRequestDto
   [StringLength(32)]
   [Phone]
   public string PhoneNumber { get; set; } = string.Empty;
-  
+
   [Required]
   [RegularExpression(@"^[^%<>]*$")]
   [StringLength(128)]
   public string City { get; set; } = string.Empty;
-  
+
   [Required]
   [RegularExpression(@"^[^%<>]*$")]
   [StringLength(64)]
   public string Country { get; set; } = string.Empty;
-  
+
   [Required]
   [RegularExpression(@"^[^%<>]*$")]
   [StringLength(32)]
   public string PostalCode { get; set; } = string.Empty;
- 
+
   [Required]
   [RegularExpression(@"^[^%<>]*$")]
   [StringLength(128)]
   public string Street { get; set; } = string.Empty;
-  
+
   [StringLength(256)]
   [RegularExpression(@"^[^%<>]*$")]
   public string? CompanyName { get; set; }
-  
+
   [StringLength(128)]
   [RegularExpression(@"^[^%<>]*$")]
   public string? CompanyNip { get; set; }

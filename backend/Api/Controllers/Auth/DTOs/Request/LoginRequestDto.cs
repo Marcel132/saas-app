@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace backend.Api.Controllers.Auth.DTOs;
+
 public class LoginRequestDto
 {
   [Required]

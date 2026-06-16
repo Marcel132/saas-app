@@ -1,3 +1,5 @@
+namespace backend.Api.Controllers.Auth.DTOs;
+
 public class AuthCookiesOptions
 {
   public int AuthTokenLifetimeInMinutes { get; set; } = 15;

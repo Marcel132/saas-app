@@ -1,4 +1,10 @@
+using backend.Api.Controllers;
+using backend.Api.Controllers.Users.DTOs;
+using backend.Domain.Entities.Enum;
+using backend.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
+
+namespace backend.Infrastructure.Persistence.Repositories;
 
 public class UserQueryRepository : IUserQueryRepository
 {
@@ -108,22 +114,22 @@ public class UserQueryRepository : IUserQueryRepository
           .ToHashSet()
       });
 
-      return await query.FirstOrDefaultAsync() ?? throw new NotFoundAppException();
+    return await query.FirstOrDefaultAsync() ?? throw new NotFoundAppException();
   }
   public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status = null)
   {
     var query = _context.Contracts
       .AsNoTracking()
-      .Where(c => 
+      .Where(c =>
       c.AuthorId == userId ||
-      _context.ContractAssignments.Any(ca => 
-      ca.ContractId == c.ContractId 
+      _context.ContractAssignments.Any(ca =>
+      ca.ContractId == c.ContractId
       && ca.DeveloperId == userId
       ));
-    
-    if(status.HasValue)
+
+    if (status.HasValue)
       query = query.Where(c => c.ContractStatus == status.Value);
-    
+
     return await query
       .Select(c => new UserContractsDto
       {
@@ -154,43 +160,43 @@ public class UserQueryRepository : IUserQueryRepository
         }
       );
 
-    if(status.HasValue)
+    if (status.HasValue)
       query = query.Where(ca => ca.Status == status.Value);
-    
+
     return await query.ToListAsync();
-  } 
+  }
   public async Task<UserSummaryDto> GetSummary(Guid userId)
   {
     var activeTask = await _context.ContractAssignments
       .AsNoTracking()
-      .CountAsync(ca => 
+      .CountAsync(ca =>
       ca.DeveloperId == userId &&
       ca.Contract.ContractStatus == ContractStatus.InProgress
       );
 
     var activeOrders = await _context.Contracts
       .AsNoTracking()
-      .CountAsync(c => 
+      .CountAsync(c =>
       c.AuthorId == userId &&
       (
         c.ContractStatus == ContractStatus.Open ||
         c.ContractStatus == ContractStatus.InProgress
       )
       );
-    
+
     var completedReports = await _context.ContractReports
       .AsNoTracking()
-      .CountAsync(cr => 
-      (cr.Status == ContractReportStatus.Approved && 
+      .CountAsync(cr =>
+      (cr.Status == ContractReportStatus.Approved &&
       cr.Assignment.DeveloperId == userId) ||
-      (cr.Status == ContractReportStatus.Approved && 
+      (cr.Status == ContractReportStatus.Approved &&
       cr.Assignment.Contract.AuthorId == userId)
       );
-    
+
     var totalReports = await _context.ContractReports
       .AsNoTracking()
-      .CountAsync(cr => 
-      cr.Assignment.DeveloperId == userId || 
+      .CountAsync(cr =>
+      cr.Assignment.DeveloperId == userId ||
       cr.Assignment.Contract.AuthorId == userId);
 
     return new UserSummaryDto()

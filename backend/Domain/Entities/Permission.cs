@@ -1,3 +1,5 @@
+namespace backend.Domain.Entities;
+
 public class Permission
 {
   public Guid PermissionId { get; private set; }
@@ -8,7 +10,7 @@ public class Permission
   public bool IsActive { get; private set; }
   public DateTime CreatedAt { get; private set; }
 
-  private Permission() {} //EF Core
+  private Permission() { } //EF Core
 
   public Permission(string action, string resource, string description)
   {
@@ -36,11 +38,11 @@ public class Permission
 
   private static void ValidateRequiredFields(string action, string resource, string description)
   {
-    if(string.IsNullOrWhiteSpace(action))
+    if (string.IsNullOrWhiteSpace(action))
       throw new ArgumentException("Action is invalid.");
-    if(string.IsNullOrWhiteSpace(resource))
+    if (string.IsNullOrWhiteSpace(resource))
       throw new ArgumentException("Resource is invalid.");
-    if(string.IsNullOrWhiteSpace(description))
+    if (string.IsNullOrWhiteSpace(description))
       throw new ArgumentException("Description is invalid.");
   }
 
@@ -54,15 +56,15 @@ public class Permission
       description.Trim()
     );
   }
-  
+
   private static void ValidatePermission(string action, string resource, string description)
   {
-    if(action.Length > 50 || resource.Length > 50 || description.Length > 200)
+    if (action.Length > 50 || resource.Length > 50 || description.Length > 200)
     {
       throw new ArgumentException("One or more parameters exceed maximum length.");
     }
 
-    if(!IsValidIdentifier(action) || !IsValidIdentifier(resource))
+    if (!IsValidIdentifier(action) || !IsValidIdentifier(resource))
     {
       throw new ArgumentException("One or more parameters are invalid.");
     }

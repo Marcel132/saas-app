@@ -1,3 +1,9 @@
+using backend.Api.Controllers;
+using backend.Api.Controllers.Users.DTOs;
+using backend.Domain.Entities.Enum;
+
+namespace backend.Domain.Interfaces.Services;
+
 public interface IUserService
 {
   public Task<PagedResponse<UserResponsePublicDto>> GetAllAsync(int page, int pageSize, string? search = null);

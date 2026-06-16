@@ -1,5 +1,7 @@
 using System.Runtime.Serialization;
 
+namespace backend.Domain.Entities.Enum;
+
 public enum ContractStatus
 {
   [EnumMember(Value = "open")]

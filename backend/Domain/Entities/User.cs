@@ -1,4 +1,8 @@
 using System.Text.RegularExpressions;
+using backend.Api.Controllers.Users.DTOs;
+using backend.Domain.Entities.Enum;
+
+namespace backend.Domain.Entities;
 
 public class User
 {
@@ -19,12 +23,12 @@ public class User
 
   public IReadOnlyCollection<Specialization> Specializations
     => _userSpecializations.Select(s => s.Specialization).ToList();
-    
+
   public Guid Id { get; private set; }
   public string Email { get; private set; } = string.Empty;
   public string PasswordHash { get; private set; } = string.Empty;
   public bool IsActive { get; private set; }
-  public RoleType RoleType {get; private set;}
+  public RoleType RoleType { get; private set; }
   public DateTime CreatedAt { get; private set; }
 
   public int FailedLoginAttempts { get; private set; }
@@ -34,7 +38,7 @@ public class User
   public UserData UserData { get; private set; } = null!;
   private User() { } // EF
 
-  public User(string email, string passwordHash,RoleType role, UserData userData)
+  public User(string email, string passwordHash, RoleType role, UserData userData)
   {
 
     Id = Guid.NewGuid();
@@ -102,7 +106,7 @@ public class User
   }
   public void UpdateUserData(UpdateUserDto data)
   {
-    UserData.Update(data);;
+    UserData.Update(data); ;
   }
 
   public void DeactivateAccount()
@@ -113,7 +117,7 @@ public class User
   {
     Email = $"deleted_{DateTime.UtcNow:yyyyMMddHHmmss}_{Id}@local";
   }
-  
+
   // Validation 
   public static bool IsValidPasswordFormat(string password)
   {

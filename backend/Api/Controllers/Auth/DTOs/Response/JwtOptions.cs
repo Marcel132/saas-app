@@ -1,3 +1,5 @@
+namespace backend.Api.Controllers.Auth.DTOs;
+
 public class JwtOptions
 {
   public string Key { get; set; } = "";

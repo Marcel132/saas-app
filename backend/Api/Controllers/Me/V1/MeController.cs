@@ -1,5 +1,11 @@
+using backend.Api.Auth;
+using backend.Api.Http;
+using backend.Application.Security;
+using backend.Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+namespace backend.Api.Controllers.Me.V1;
 
 [ApiController]
 [ApiVersion("1.0")]
@@ -8,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 public class MeController : ControllerBase
 {
   private readonly MeService _meService;
-  
+
   public MeController(MeService meService)
   {
     _meService = meService;
@@ -30,7 +36,7 @@ public class MeController : ControllerBase
       applications
     ));
   }
-  
+
 
   [HasPermission(Permissions.ContractsSelf.Read)]
   [HttpGet("contracts")]

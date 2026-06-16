@@ -1,10 +1,14 @@
 using System.Collections.Concurrent;
+using backend.Api.Http;
+using backend.Api.Middlewares.Helpers;
+
+namespace backend.Api.Middlewares;
 
 public class NetworkMiddleware
 {
   private readonly ILogger _logger;
   private readonly RequestDelegate _next;
-  
+
 
   public NetworkMiddleware(RequestDelegate next, ILogger<NetworkMiddleware> logger)
   {
@@ -17,9 +21,9 @@ public class NetworkMiddleware
     var currentDateTime = DateTime.UtcNow;
     var ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-    if(HasBody(context))
+    if (HasBody(context))
     {
-      if(
+      if (
         string.IsNullOrEmpty(context.Request.ContentType) ||
         !context.Request.ContentType.StartsWith("application/json", StringComparison.OrdinalIgnoreCase)
       )
@@ -36,8 +40,8 @@ public class NetworkMiddleware
         await context.Response.WriteAsJsonAsync(response);
         return;
       }
-    
-      if(
+
+      if (
         context.Request.ContentLength.HasValue
         && context.Request.ContentLength > 1024 * 1024 // 1 MB limit
       )
@@ -57,8 +61,8 @@ public class NetworkMiddleware
 
     }
 
-  // Rate limiting
-  // TODO: Implement a more robust rate limiting strategy, possibly using a distributed cache like Redis for better performance and scalability.
+    // Rate limiting
+    // TODO: Implement a more robust rate limiting strategy, possibly using a distributed cache like Redis for better performance and scalability.
     // if(!IsAllowed(ip))
     // {
     //   context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
@@ -77,16 +81,16 @@ public class NetworkMiddleware
     // Set headers 
     context.Response.Headers["X-Content-Type-Options"] = "nosniff";
     context.Response.Headers["X-Frame-Options"] = "DENY";
-    context.Response.Headers["Content-Security-Policy"] = 
-      "default-src 'self';" + 
-      "frame-ancestors 'none';" + 
+    context.Response.Headers["Content-Security-Policy"] =
+      "default-src 'self';" +
+      "frame-ancestors 'none';" +
       "object-src 'none';" +
       "base-uri 'self';" +
 
       "script-src 'self';" +
       "style-src 'self' 'unsafe-inline';" +
       "img-src 'self' data:;" +
-      "connect-src 'self';" + 
+      "connect-src 'self';" +
       "form-action 'self';";
 
     context.Response.Headers["Referrer-Policy"] = "no-referrer";
