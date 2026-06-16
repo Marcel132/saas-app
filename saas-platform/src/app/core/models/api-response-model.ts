@@ -4,5 +4,7 @@ export interface ApiResponseModel<T>
   state: string,
   message: string | null,
   code: string | null,
-  data: T | null
+  data: T | null,
+  traceId: string,
+  timestamp: string
 }
