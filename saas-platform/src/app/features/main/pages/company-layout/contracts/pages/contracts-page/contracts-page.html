@@ -33,4 +33,16 @@
       }
     }
   </div>
+  <div class="page-info">
+    <span>Strona</span>
+
+    @for(page of pages(); track page){
+      <button
+        [class.active]="page === currentPage()"
+        (click)="loadOfferByPage(page)"
+      >
+        {{ page }}
+      </button>
+    }
+  </div>
 </div>

@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { catchError, switchMap, tap, throwError } from "rxjs";
+import { catchError, EMPTY, switchMap, tap, throwError } from "rxjs";
 
 import { ContractDto } from "../models/contract-dto";
 import { MeApi } from "../../../core/services/me-api";
@@ -11,6 +11,8 @@ import { ApplicationApi } from "../../../core/services/application-api";
 import { RequestState } from "../../../core/models/request-state";
 import { CONTRACT_STATUS_ORDER } from "../../auth/constants/contract-status-order";
 import { APPLICATIONS_STATUS_ORDER } from "../../auth/constants/application-status-order";
+import { PagedRequestModel } from "../../../core/models/paged-request-model";
+import { PagedResponseModel } from "../../../core/models/paged-response-model";
 
 @Injectable({
   providedIn: 'root'
@@ -33,20 +35,31 @@ export class CompanyStore {
 
   readonly applications = signal<CompanyApplicationsDto[]>([])
 
+  // CONST
+  private readonly pageSize = 4;
+
+  readonly pagedRequest = signal<PagedRequestModel>({
+    page: 1,
+    pageSize: this.pageSize,
+    search: null
+  })
+
+  readonly pagedResponse = signal<PagedResponseModel<ContractDto> | null >(null)
+
   getContracts() {
     this.request.set({
       state: 'loading',
       message: "Ładowanie kontraktów..."
     })
 
-    return this.meApi.getContracts()
+    return this.contractApi.getCompanyContracts(this.pagedRequest())
       .pipe(
         tap(res => {
           if (res.data) {
             res.data.items.sort(
               (a, b) => CONTRACT_STATUS_ORDER[a.contractStatus] - CONTRACT_STATUS_ORDER[b.contractStatus]
             )
-
+            this.pagedResponse.set(res.data);
             this.contracts.set(res.data.items)
             this.request.set({
               state: 'success',
@@ -64,6 +77,35 @@ export class CompanyStore {
         })
       )
   }
+
+  loadOffers(force: boolean = false, page: number | null = null){
+      if(!force && this.contracts().length > 0){
+        console.log("empty")
+        return EMPTY;
+      }
+
+      if(page != null && page > 0)
+        this.pagedRequest.set({
+          page: page,
+          pageSize: this.pageSize,
+          search: null,
+        })
+
+      return this.contractApi.getCompanyContracts(this.pagedRequest())
+        .pipe(
+          tap(res => {
+            if(!res.data)
+              return
+
+            res.data.items.sort(
+              (a, b) => CONTRACT_STATUS_ORDER[a.contractStatus] - CONTRACT_STATUS_ORDER[b.contractStatus]
+            )
+
+            this.pagedResponse.set(res.data);
+            this.contracts.set(res.data.items);
+          })
+        )
+    }
   getContractById(id: number) {
     this.request.set({
       state: 'loading',
@@ -93,7 +135,7 @@ export class CompanyStore {
   updateContract(id: number, form: EditContractDto) {
     return this.contractApi.updateContract(id, form)
       .pipe(
-        tap(res =>{
+        tap(res => {
           this.request.set({
             state: 'success',
             message: res.message ?? "Zaktualizowano kontrakt"
@@ -105,7 +147,7 @@ export class CompanyStore {
   addContract(form: AddContractDto) {
     return this.contractApi.createContract(form)
       .pipe(
-        tap(res =>{
+        tap(res => {
           this.request.set({
             state: 'success',
             message: res.message ?? "Dodano Kontrakt"
@@ -159,7 +201,7 @@ export class CompanyStore {
   acceptApplication(applicationId: number, contractId: number) {
     return this.applicationApi.acceptApplication(applicationId)
       .pipe(
-        tap(res =>{
+        tap(res => {
           this.request.set({
             state: 'success',
             message: res.message ?? "Dodano Kontrakt"

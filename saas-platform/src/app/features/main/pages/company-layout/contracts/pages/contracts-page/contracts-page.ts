@@ -29,6 +29,19 @@ export class ContractsPage {
     cancelled: this.contracts().filter(x => x.contractStatus == "Cancelled").length
   }))
 
+    readonly pages = computed(() => {
+    const totalPages = this.companyStore.pagedResponse()?.totalPages ?? 0
+
+    return Array.from(
+      { length: totalPages },
+      (_, i) => i + 1
+    )
+  })
+  readonly currentPage = computed(
+    () => this.companyStore.pagedResponse()?.page ?? 1
+  );
+
+
   ngOnInit(): void {
     this.companyStore.getContracts()
       .subscribe()
@@ -44,6 +57,11 @@ export class ContractsPage {
 
   deleteMethod(contractId: number){
     this.companyStore.deleteContract(contractId)
+      .subscribe()
+  }
+
+  loadOfferByPage(pageNumber: number) {
+    this.companyStore.loadOffers(true, pageNumber)
       .subscribe()
   }
 }
