@@ -1,5 +1,6 @@
 using backend.Api.Controllers;
 using backend.Api.Controllers.Contracts.DTOs;
+using backend.Domain.Entities;
 using backend.Domain.Entities.Enum;
 using backend.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -14,79 +15,180 @@ public class ContractQueryRepository : IContractQueryRepository
     _context = context;
   }
 
-  public async Task<PagedResponse<ContractResponseDto>> GetContractsAsync(Guid userId, int page, int pageSize, string? search)
+  public async Task<PagedResponse<PublicContractDto>> GetPublicContractsAsync(QueryParams queryParams)
   {
     var query = _context.Contracts
       .AsNoTracking()
-      .Where(c => c.ContractStatus == ContractStatus.Open && c.Deadline > DateTime.UtcNow && c.AuthorId != userId);
+      .Where(c =>
+      c.ContractStatus == ContractStatus.Open &&
+      c.Deadline > DateTime.UtcNow
+      );
 
-    if (!string.IsNullOrEmpty(search))
-    {
-      var escaped = search.Replace(@"\", @"\\").Replace("%", @"\%").Replace("_", @"\_");
-      query = query
-        .Where(c =>
-        EF.Functions.ILike(c.Title, $"%{escaped}%") ||
-        EF.Functions.ILike(c.Description, $"%{escaped}%"));
-    }
+    query = ApplySearch(query, queryParams.Search);
+
     var totalItems = await query.CountAsync();
 
     var contracts = await query
       .OrderByDescending(c => c.CreatedAt)
-      .Skip((page - 1) * pageSize)
-      .Take(pageSize)
-      .Select(c => new ContractResponseDto
+      .Skip((queryParams.Page - 1) * queryParams.PageSize)
+      .Take(queryParams.PageSize)
+      .Select(c => new PublicContractDto
       {
         ContractId = c.ContractId,
-        AuthorId = c.AuthorId,
         Title = c.Title,
-        Price = c.Price,
         Description = c.Description,
-        Deadline = c.Deadline,
+        ContractStatus = c.ContractStatus,
         CreatedAt = c.CreatedAt,
-        HasApplied = _context.ContractApplications.Any(ca =>
-        ca.ContractId == c.ContractId &&
-        ca.CandidateId == userId)
+        Deadline = c.Deadline,
+        Price = c.Price,
+        UpdatedAt = c.UpdatedAt
       })
       .ToListAsync();
 
-    return new PagedResponse<ContractResponseDto>
+    return new PagedResponse<PublicContractDto>
     {
-      Page = page,
-      PageSize = pageSize,
+      Page = queryParams.Page,
+      PageSize = queryParams.PageSize,
       TotalItems = totalItems,
-      TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
+      TotalPages = (int)Math.Ceiling(totalItems / (double)queryParams.PageSize),
       Items = contracts
     };
   }
-  public async Task<ContractResponseDto?> GetContractsByIdAsync(long contractId, Guid userId)
+
+  public async Task<PagedResponse<PentesterContractDto>> GetPentesterContractsAsync(Guid userId, QueryParams queryParams)
   {
-    var contract = await _context.Contracts
+    var query = _context.Contracts
       .AsNoTracking()
       .Where(c =>
-      c.ContractId == contractId &&
-      c.ContractStatus == ContractStatus.Open &&
-      c.Deadline > DateTime.UtcNow
+        c.ContractStatus == ContractStatus.Open &&
+        c.Deadline > DateTime.UtcNow
+      );
+
+    query = ApplySearch(query, queryParams.Search);
+
+    var totalItems = await query.CountAsync();
+
+    var contracts = await query
+     .OrderByDescending(c => c.CreatedAt)
+     .Skip((queryParams.Page - 1) * queryParams.PageSize)
+     .Take(queryParams.PageSize)
+     .Select(c => new PentesterContractDto
+     {
+       ContractId = c.ContractId,
+       Title = c.Title,
+       Description = c.Description,
+       ContractStatus = c.ContractStatus,
+       CreatedAt = c.CreatedAt,
+       Deadline = c.Deadline,
+       Price = c.Price,
+       UpdatedAt = c.UpdatedAt,
+       HasApplied = _context.ContractApplications
+         .Any(ca =>
+           ca.ContractId == c.ContractId &&
+           ca.CandidateId == userId
+         )
+     })
+     .ToListAsync();
+
+    return new PagedResponse<PentesterContractDto>
+    {
+      Page = queryParams.Page,
+      PageSize = queryParams.PageSize,
+      TotalItems = totalItems,
+      TotalPages = (int)Math.Ceiling(totalItems / (double)queryParams.PageSize),
+      Items = contracts
+    };
+  }
+
+  public async Task<PagedResponse<CompanyContractDto>> GetCompanyContractsAsync(Guid userId, QueryParams queryParams)
+  {
+    var query = _context.Contracts
+      .AsNoTracking()
+      .Where(c =>
+        c.AuthorId == userId
+      );
+
+    query = ApplySearch(query, queryParams.Search);
+
+    var totalItems = await query.CountAsync();
+
+    var contracts = await query
+      .OrderBy(c =>
+        c.ContractStatus == ContractStatus.InProgress ? 0 :
+        c.ContractStatus == ContractStatus.Open ? 1 :
+        c.ContractStatus == ContractStatus.Completed ? 2 :
+        3
       )
-      .Select(c => new ContractResponseDto
+      .ThenByDescending(c => c.CreatedAt)
+      .Skip((queryParams.Page - 1) * queryParams.PageSize)
+      .Take(queryParams.PageSize)
+      .Select(c => new CompanyContractDto
       {
         ContractId = c.ContractId,
-        AuthorId = c.AuthorId,
-        Title = c.Title,
+        ContractStatus = c.ContractStatus,
+        CreatedAt = c.CreatedAt,
+        Deadline = c.Deadline,
         Description = c.Description,
         Price = c.Price,
-        Deadline = c.Deadline,
-        CreatedAt = c.CreatedAt,
-        UpdatedAt = c.UpdatedAt,
+        Title = c.Title,
+        UpdatedAt = c.UpdatedAt
+      })
+      .ToListAsync();
+
+    return new PagedResponse<CompanyContractDto>
+    {
+      Page = queryParams.Page,
+      PageSize = queryParams.PageSize,
+      TotalItems = totalItems,
+      TotalPages = (int)Math.Ceiling(totalItems / (double)queryParams.PageSize),
+      Items = contracts
+    };
+  }
+
+  public async Task<ContractDetailsDto?> GetContractDetailsAsync(long contractId, Guid? userId)
+  {
+    var query = _context.Contracts
+      .AsNoTracking()
+      .Where(c =>
+        c.ContractId == contractId
+      );
+    if (userId.HasValue)
+    {
+      query = query
+        .Where(c =>
+          c.AuthorId == userId ||
+          (
+            c.ContractStatus == ContractStatus.Open &&
+            c.Deadline > DateTime.UtcNow
+          )
+        );
+    }
+    else
+    {
+      query = query.Where(c =>
+          c.ContractStatus == ContractStatus.Open
+      );
+    }
+
+    return await query
+      .Select(c => new ContractDetailsDto
+      {
+        ContractId = c.ContractId,
         ContractStatus = c.ContractStatus,
-        HasApplied = _context.ContractApplications.Any(ca =>
-          ca.ContractId == c.ContractId &&
-          ca.CandidateId == userId
-        )
+        CreatedAt = c.CreatedAt,
+        Deadline = c.Deadline,
+        Description = c.Description,
+        Price = c.Price,
+        Title = c.Title,
+        HasApplied = _context.ContractApplications
+          .Any(ca =>
+            ca.ContractId == c.ContractId &&
+            ca.CandidateId == userId
+          )
       })
       .FirstOrDefaultAsync();
-
-    return contract;
   }
+
   public async Task<List<ContractApplicationsDto>> GetContractApplicationsAsync(long contractId)
   {
     return await _context.ContractApplications
@@ -109,5 +211,26 @@ public class ContractQueryRepository : IContractQueryRepository
           AppliedAt = ca.AppliedAt
         })
         .ToListAsync();
+  }
+
+  private static string EscapedLike(string search)
+  {
+    return search
+      .Replace(@"\", @"\\")
+      .Replace("%", @"\%")
+      .Replace("_", @"\_");
+  }
+  private static IQueryable<Contract> ApplySearch(
+    IQueryable<Contract> query,
+    string? search)
+  {
+    if (string.IsNullOrWhiteSpace(search))
+      return query;
+
+    var escaped = EscapedLike(search);
+
+    return query.Where(c =>
+        EF.Functions.ILike(c.Title, $"%{escaped}%") ||
+        EF.Functions.ILike(c.Description, $"%{escaped}%"));
   }
 }

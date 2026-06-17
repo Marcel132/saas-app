@@ -24,49 +24,44 @@ public class ContractService : IContractService
     _unitOfWork = unitOfWork;
   }
 
-  public async Task<PagedResponse<ContractResponseDto>> GetContractsAsync(Guid userId, int page, int pageSize, string? search)
+  public async Task<PagedResponse<PublicContractDto>> GetPublicContractsAsync(QueryParams requestParams)
   {
-    if (page <= 0 || pageSize <= 0)
-      throw new ValueOutOfRangeAppException();
-    if (!string.IsNullOrWhiteSpace(search) && search.Length > 100)
-      throw new BadRequestAppException();
+    ValidateQueryParams(requestParams);
 
-    var contracts = await _contractQueryRepository.GetContractsAsync(userId, page, pageSize, search);
-    return contracts;
+    return await _contractQueryRepository.GetPublicContractsAsync(requestParams);
   }
-
-  public async Task<ContractResponseDto> GetContractByIdAsync(long contractId, Guid userId)
+  public async Task<PagedResponse<PentesterContractDto>> GetPentesterContractsAsync(Guid userId, QueryParams requestParams)
   {
-    if (contractId <= 0)
+    ValidateQueryParams(requestParams, userId);
+
+    return await _contractQueryRepository.GetPentesterContractsAsync(userId, requestParams);
+  }
+  public async Task<PagedResponse<CompanyContractDto>> GetCompanyContractsAsync(Guid userId, QueryParams requestParams)
+  {
+    ValidateQueryParams(requestParams, userId);
+
+    return await _contractQueryRepository.GetCompanyContractsAsync(userId, requestParams);
+  }
+  public async Task<ContractDetailsDto> GetContractDetailsAsync(long contractId, Guid? userId)
+  {
+    if(contractId <= 0)
       throw new ValueOutOfRangeAppException();
 
-    var contract = await _contractQueryRepository.GetContractsByIdAsync(contractId, userId)
+    if(userId is not null && userId == Guid.Empty)
+      throw new UnauthorizedAppException();
+
+    return await _contractQueryRepository.GetContractDetailsAsync(contractId, userId)
       ?? throw new NotFoundAppException();
-
-    var hasApplied = await _contractRepository.HasAlreadyAppliedAsync(contractId, userId);
-
-    contract.HasApplied = hasApplied;
-
-    return contract;
   }
 
-  public async Task<ContractResponseDto> CreateContractAsync(Guid authorId, ContractRequestDto request)
+  public async Task CreateContractAsync(Guid authorId, ContractRequestDto request)
   {
     var contract = new Contract(authorId, request.Title, request.Description, request.Price, request.Deadline);
 
     await _contractRepository.AddContractAsync(contract);
     await _unitOfWork.SaveChangesAsync();
 
-    return new ContractResponseDto
-    {
-      ContractId = contract.ContractId,
-      AuthorId = contract.AuthorId,
-      Title = contract.Title,
-      Description = contract.Description,
-      Price = contract.Price,
-      ContractStatus = contract.ContractStatus,
-      CreatedAt = contract.CreatedAt
-    };
+    return;
   }
 
   public async Task CloseContractAsync(Guid userId, long contractId)
@@ -154,4 +149,17 @@ public class ContractService : IContractService
     await _contractRepository.AddApplicationAsync(application);
     await _unitOfWork.SaveChangesAsync();
   }
+
+  private void ValidateQueryParams(QueryParams queryParams, Guid? userId = null)
+  {
+    if(userId != null && userId == Guid.Empty)
+      throw new UnauthorizedAppException();
+    
+    if (queryParams.Page <= 0 || queryParams.PageSize <= 0 || queryParams.PageSize > 50)
+      throw new ValueOutOfRangeAppException("Invalid request params");
+
+    if (!string.IsNullOrWhiteSpace(queryParams.Search) && queryParams.Search.Length > 100)
+      throw new ValueOutOfRangeAppException("Invalid request params 'search'");
+  }
+
 }
