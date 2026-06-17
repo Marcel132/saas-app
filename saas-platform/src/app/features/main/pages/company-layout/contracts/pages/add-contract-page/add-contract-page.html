@@ -20,6 +20,7 @@
       class='app-input description'
       id="description"
       formControlName='description'
+      (keydown.enter)="onEnter($event)"
     ></textarea>
 
     <label for="price">Cena</label>
