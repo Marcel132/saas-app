@@ -1,7 +1,6 @@
-import { ContractStatus } from "../../../shared/models/contract-status";
+import { ContractStatus } from "../../../../shared/models/contract-status";
 
-export interface ContractDto {
-  authorId: string;
+export interface BaseContractDto {
   contractId: number;
   contractStatus: ContractStatus;
   createdAt: string;
@@ -10,5 +9,4 @@ export interface ContractDto {
   price: number;
   title: string;
   updatedAt: string | null;
-  hasApplied: boolean
 }

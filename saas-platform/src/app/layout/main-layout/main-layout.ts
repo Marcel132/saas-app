@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
 
-import { RoleType } from '../../features/auth/models/role-type.enum';
+import { RoleType } from '../../features/auth/models/enums/role-type.enum';
 import { AuthStore } from '../../features/auth/store/auth.store';
 import { LayoutStore } from '../../core/stores/layout.store';
 

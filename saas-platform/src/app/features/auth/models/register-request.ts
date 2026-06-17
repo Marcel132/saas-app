@@ -1,5 +1,5 @@
-import { RoleType } from "./role-type.enum";
-import { SpecializationType } from "./specialization-type.enum";
+import { RoleType } from "./enums/role-type.enum";
+import { SpecializationType } from "./enums/specialization-type.enum";
 
 export interface RegisterRequest
 {
