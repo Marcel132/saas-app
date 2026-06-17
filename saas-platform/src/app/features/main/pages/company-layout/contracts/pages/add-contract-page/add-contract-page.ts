@@ -54,4 +54,42 @@ export class AddContractPage {
     this.companyStore.addContract(request)
     .subscribe()
   }
+
+  onEnter(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+
+    const start = textarea.selectionStart;
+    const value = textarea.value;
+
+    const beforeCursor = value.substring(0, start);
+    const lines = beforeCursor.split('\n');
+    const currentLine = lines[lines.length - 1];
+
+    const match = currentLine.match(/^(\d+)\.\s/);
+
+    if (!match) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const nextNumber = Number(match[1]) + 1;
+
+    const insertText = `\n${nextNumber}. `;
+
+    const newValue =
+      value.substring(0, start) +
+      insertText +
+      value.substring(start);
+
+    this.form.patchValue({
+      description: newValue
+    });
+
+    setTimeout(() => {
+      textarea.selectionStart =
+        textarea.selectionEnd =
+        start + insertText.length;
+    });
+  }
 }

@@ -10,7 +10,7 @@ import { Message } from "../../../../shared/ui/message/message";
   imports: [
     ReactiveFormsModule,
     Message
-],
+  ],
   templateUrl: './login-page.html',
   styleUrl: './login-page.scss',
 })
@@ -39,15 +39,13 @@ export class LoginPage {
     })
   })
 
-  login()
-  {
-    const request : LoginRequest =
+  login() {
+    const request: LoginRequest =
     {
       Email: this.form.controls.email.value,
       Password: this.form.controls.password.value
     }
-
-    this.authStore.login(request).subscribe()
-
+    this.authStore.login(request)
+      .subscribe()
   }
 }

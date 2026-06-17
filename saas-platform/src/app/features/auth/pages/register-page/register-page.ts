@@ -2,8 +2,8 @@ import { Component, effect, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { AuthStore } from '../../store/auth.store';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { RoleType } from '../../models/role-type.enum';
-import { SpecializationType } from '../../models/specialization-type.enum';
+import { RoleType } from '../../models/enums/role-type.enum';
+import { SpecializationType } from '../../models/enums/specialization-type.enum';
 import { RegisterRequest } from '../../models/register-request';
 import { Router } from '@angular/router';
 import { Message } from "../../../../shared/ui/message/message";
@@ -13,7 +13,7 @@ import { Message } from "../../../../shared/ui/message/message";
   imports: [
     ReactiveFormsModule,
     Message
-],
+  ],
   templateUrl: './register-page.html',
   styleUrl: './register-page.scss',
 })
@@ -28,35 +28,35 @@ export class RegisterPage {
   readonly specializationType = SpecializationType;
 
   readonly specializations = [
-  {
-    value: SpecializationType.WebSecurity,
-    label: 'Web Security'
-  },
-  {
-    value: SpecializationType.ApiSecurity,
-    label: 'API Security'
-  },
-  {
-    value: SpecializationType.MobileSecurity,
-    label: 'Mobile Security'
-  },
-  {
-    value: SpecializationType.CloudSecurity,
-    label: 'Cloud Security'
-  },
-  {
-    value: SpecializationType.InfrastructureSecurity,
-    label: 'Infrastructure Security'
-  },
-  {
-    value: SpecializationType.RedTeam,
-    label: 'Red Team'
-  }
+    {
+      value: SpecializationType.WebSecurity,
+      label: 'Web Security'
+    },
+    {
+      value: SpecializationType.ApiSecurity,
+      label: 'API Security'
+    },
+    {
+      value: SpecializationType.MobileSecurity,
+      label: 'Mobile Security'
+    },
+    {
+      value: SpecializationType.CloudSecurity,
+      label: 'Cloud Security'
+    },
+    {
+      value: SpecializationType.InfrastructureSecurity,
+      label: 'Infrastructure Security'
+    },
+    {
+      value: SpecializationType.RedTeam,
+      label: 'Red Team'
+    }
   ];
 
   constructor() {
     effect(() => {
-      if(this.request().state == 'success')
+      if (this.request().state == 'success')
         setTimeout(() => {
           this.router.navigate([`/app/${this.authStore.currentUser()?.role.toLowerCase()}`])
         }, 1000)
@@ -68,7 +68,7 @@ export class RegisterPage {
     password: new FormControl('', { nonNullable: true }),
 
     accountType: new FormControl<RoleType>(RoleType.pentester, { nonNullable: true }),
-    specializations: new FormControl<SpecializationType[]>([], {nonNullable: true}),
+    specializations: new FormControl<SpecializationType[]>([], { nonNullable: true }),
 
     firstname: new FormControl('', { nonNullable: true }),
     lastname: new FormControl('', { nonNullable: true }),
@@ -92,17 +92,17 @@ export class RegisterPage {
     }
   );
 
-  register(){
+  register() {
 
-    if(this.accountType() != this.roleType.company)
+    if (this.accountType() != this.roleType.company)
       this.form.patchValue({
         companyName: '',
         companyNip: ''
       })
-    if(this.accountType() != this.roleType.pentester)
+    if (this.accountType() != this.roleType.pentester)
       this.form.patchValue({
         specializations: []
-    })
+      })
 
     const request: RegisterRequest = {
       Email: this.form.controls.email.value,
@@ -126,8 +126,8 @@ export class RegisterPage {
   };
 
   toggleSpecialization(
-  specialization: SpecializationType,
-  event: Event
+    specialization: SpecializationType,
+    event: Event
   ): void {
 
     const checked = (event.target as HTMLInputElement).checked;
