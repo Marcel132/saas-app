@@ -11,6 +11,18 @@ public static class UserContextExtension
 
     return Guid.Parse(userClaim);
   }
+  public static Guid? TryGetUserId(this ClaimsPrincipal user)
+  {
+    var userClaim =
+        user.FindFirstValue(ClaimTypes.NameIdentifier);
+
+    if (string.IsNullOrWhiteSpace(userClaim))
+    {
+      return null;
+    }
+
+    return Guid.Parse(userClaim);
+  }
 
   public static string GetUserIp(this HttpContext httpContext)
   {
