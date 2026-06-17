@@ -23,7 +23,7 @@ public static class ServiceExtension
     services.AddScoped<UserAuthenticationService>();
     services.AddScoped<UserRegisterService>();
 
-    services.AddScoped<MeService>();
+    // services.AddScoped<MeService>();
 
 
 
@@ -47,7 +47,7 @@ public static class ServiceExtension
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<IUserQueryRepository, UserQueryRepository>();
 
-    services.AddScoped<IMeQueryRepository, MeQueryRepository>();
+    // services.AddScoped<IMeQueryRepository, MeQueryRepository>();
     services.AddScoped<IMeRepository, MeRepository>();
 
     services.AddScoped<ISessionRepository, SessionRepository>();
