@@ -4,7 +4,7 @@ import { catchError, switchMap, tap, throwError } from "rxjs";
 import { AuthApi } from "../../../core/services/auth-api";
 import { LoginRequest } from "../models/login-request";
 import { RegisterRequest } from "../models/register-request";
-import { CurrentUserDto } from "../models/user-dto";
+import { CurrentUserDto } from "../models/current-user-dto";
 import { UserApi } from "../../../core/services/user-api";
 import { RequestState } from "../../../core/models/request-state";
 

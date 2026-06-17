@@ -3,13 +3,15 @@ import { inject, Injectable } from '@angular/core';
 
 import { ApiResponseModel } from '../models/api-response-model';
 import { ApiEndpoints } from '../constants/api-endpoints';
-import { OffersResponseDto } from '../../features/main/models/offers-response-dto';
-import { ContractDto } from '../../features/main/models/contract-dto';
 import { EditContractDto } from '../../features/main/pages/company-layout/contracts/models/edit-contract-dto';
 import { AddContractDto } from '../../features/main/pages/company-layout/contracts/models/add-contract-dto';
 import { CompanyApplicationsDto } from '../../features/main/models/company-applications-dto';
 import { PagedRequestModel } from '../models/paged-request-model';
 import { PagedResponseModel } from '../models/paged-response-model';
+import { PublicContractDto } from '../../features/main/models/contracts/public-contract-dto';
+import { PentesterContractDto } from '../../features/main/models/contracts/pentester-contract-dto';
+import { CompanyContractDto } from '../../features/main/models/contracts/company-contract-dto';
+import { ContractDetailsDto } from '../../features/main/models/contracts/contract-details-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +29,7 @@ export class ContractApi {
       params.set('search', paramsReq.search)
     }
 
-    return this.http.get<ApiResponseModel<PagedResponseModel<ContractDto>>>(
+    return this.http.get<ApiResponseModel<PagedResponseModel<PublicContractDto>>>(
       `${ApiEndpoints.contracts.contracts}/public`,
       { params }
     )
@@ -41,7 +43,7 @@ export class ContractApi {
       params.set('search', paramsReq.search)
     }
 
-    return this.http.get<ApiResponseModel<PagedResponseModel<ContractDto>>>(
+    return this.http.get<ApiResponseModel<PagedResponseModel<PentesterContractDto>>>(
       `${ApiEndpoints.contracts.contracts}`,
       { params }
     )
@@ -55,14 +57,14 @@ export class ContractApi {
       params.set('search', paramsReq.search)
     }
 
-    return this.http.get<ApiResponseModel<PagedResponseModel<ContractDto>>>(
+    return this.http.get<ApiResponseModel<PagedResponseModel<CompanyContractDto>>>(
       `${ApiEndpoints.contracts.contracts}/company`,
       { params }
     )
   }
 
-  getContractDetailsById(contractId: number){
-    return this.http.get<ApiResponseModel<ContractDto>>(
+  getContractDetailsById(contractId: number) {
+    return this.http.get<ApiResponseModel<ContractDetailsDto>>(
       `${ApiEndpoints.contracts.contracts}/${contractId}`
     )
   }
@@ -71,17 +73,6 @@ export class ContractApi {
     return this.http.post<ApiResponseModel<null>>(
       ApiEndpoints.contracts.contracts,
       request,
-    )
-  }
-
-  //   return this.http.get<ApiResponseModel<PagedResponseModel<ContractDto>>>(
-  //     `${ApiEndpoints.contracts.contracts}`,
-  //     { params }
-  //   )
-  // }
-  getContractById(contractId: number) {
-    return this.http.get<ApiResponseModel<ContractDto>>(
-      `${ApiEndpoints.contracts.contracts}/${contractId}`,
     )
   }
   updateContract(contractId: number, request: EditContractDto) {

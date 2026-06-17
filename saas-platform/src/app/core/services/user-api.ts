@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 
 import { ApiEndpoints } from '../constants/api-endpoints';
-import { CurrentUserDto } from '../../features/auth/models/user-dto';
+import { CurrentUserDto } from '../../features/auth/models/current-user-dto';
 import { UserSummaryDto } from '../../features/main/models/user-summary-dto';
 import { ApiResponseModel } from '../models/api-response-model';
 
