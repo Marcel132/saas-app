@@ -1,6 +1,6 @@
 using backend.Domain.Entities.Enum;
 
-namespace backend.Api.Controllers.Me.DTOs;
+namespace backend.Api.Controllers.Applications.DTOs;
 
 public class ApplicationDto
 {
