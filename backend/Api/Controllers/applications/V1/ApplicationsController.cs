@@ -51,7 +51,7 @@ public class ApplicationsController : ControllerBase
   }
 
   [HasPermission(Permissions.ProfileApplications.Read)]
-  [HttpGet("me/applications")]
+  [HttpGet("me")]
   public async Task<IActionResult> GetCurrentUserApplications()
   {
     
