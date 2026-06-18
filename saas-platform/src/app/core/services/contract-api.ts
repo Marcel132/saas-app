@@ -30,7 +30,7 @@ export class ContractApi {
     }
 
     return this.http.get<ApiResponseModel<PagedResponseModel<PublicContractDto>>>(
-      `${ApiEndpoints.contracts.contracts}/public`,
+      ApiEndpoints.contracts.public,
       { params }
     )
   }
@@ -44,7 +44,7 @@ export class ContractApi {
     }
 
     return this.http.get<ApiResponseModel<PagedResponseModel<PentesterContractDto>>>(
-      `${ApiEndpoints.contracts.contracts}`,
+      ApiEndpoints.contracts.pentester,
       { params }
     )
   }
@@ -58,44 +58,44 @@ export class ContractApi {
     }
 
     return this.http.get<ApiResponseModel<PagedResponseModel<CompanyContractDto>>>(
-      `${ApiEndpoints.contracts.contracts}/company`,
+      ApiEndpoints.contracts.company,
       { params }
     )
   }
 
   getContractDetailsById(contractId: number) {
     return this.http.get<ApiResponseModel<ContractDetailsDto>>(
-      `${ApiEndpoints.contracts.contracts}/${contractId}`
+      ApiEndpoints.contracts.byId(contractId)
     )
   }
 
   createContract(request: AddContractDto) {
     return this.http.post<ApiResponseModel<null>>(
-      ApiEndpoints.contracts.contracts,
+      ApiEndpoints.contracts.base,
       request,
     )
   }
   updateContract(contractId: number, request: EditContractDto) {
     return this.http.patch<ApiResponseModel<null>>(
-      `${ApiEndpoints.contracts.contracts}/${contractId}`,
+      ApiEndpoints.contracts.update(contractId),
       request,
     )
   }
   deleteContractSoft(contractId: number) {
     return this.http.patch<ApiResponseModel<null>>(
-      `${ApiEndpoints.contracts.contracts}/${contractId}/close`,
+      ApiEndpoints.contracts.close(contractId),
       {},
     )
   }
   createApplication(contractId: number) {
     return this.http.post<ApiResponseModel<null>>(
-      `${ApiEndpoints.contracts.contracts}/${contractId}/applications`,
+      ApiEndpoints.contracts.apply(contractId),
       {},
     )
   }
   getContractApplications(contractId: number) {
     return this.http.get<ApiResponseModel<CompanyApplicationsDto[]>>(
-      `${ApiEndpoints.contracts.contracts}/${contractId}/applications`,
+      ApiEndpoints.contracts.applications(contractId),
     )
   }
 }
