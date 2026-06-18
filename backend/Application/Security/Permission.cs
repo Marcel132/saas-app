@@ -30,6 +30,7 @@ public static class Permissions
   public class Contracts
   {
     public const string Create = "contracts.create";
+    public const string Read = "contracts.read";
   }
   public class ContractsSelf
   {

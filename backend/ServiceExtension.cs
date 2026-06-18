@@ -23,9 +23,6 @@ public static class ServiceExtension
     services.AddScoped<UserAuthenticationService>();
     services.AddScoped<UserRegisterService>();
 
-    // services.AddScoped<MeService>();
-
-
 
     services.AddScoped<ApplicationService>();
     services.AddScoped<AssignmentService>();
@@ -47,9 +44,6 @@ public static class ServiceExtension
     services.AddScoped<IUserRepository, UserRepository>();
     services.AddScoped<IUserQueryRepository, UserQueryRepository>();
 
-    // services.AddScoped<IMeQueryRepository, MeQueryRepository>();
-    services.AddScoped<IMeRepository, MeRepository>();
-
     services.AddScoped<ISessionRepository, SessionRepository>();
     services.AddScoped<ISessionQueryRepository, SessionQueryRepository>();
 
@@ -58,6 +52,7 @@ public static class ServiceExtension
     services.AddScoped<IContractQueryRepository, ContractQueryRepository>();
 
     services.AddScoped<IApplicationRepository, ApplicationRepository>();
+    services.AddScoped<IApplicationQueryRepository, ApplicationQueryRepository>();
     services.AddScoped<IAssignmentRepository, AssignmentRepository>();
 
 

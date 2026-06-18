@@ -33,6 +33,8 @@ public class ApplicationsController : ControllerBase
       DomainErrorCodes.GeneralCodes.Success
       ));
   }
+  
+  
   [HasPermission(Permissions.ContractsSelf.AuthorizeApplications)]
   [HttpPatch("{applicationId}/reject")]
   public async Task<IActionResult> RejectApplication([FromRoute] long applicationId)
@@ -48,5 +50,22 @@ public class ApplicationsController : ControllerBase
       ));
   }
 
+  [HasPermission(Permissions.ProfileApplications.Read)]
+  [HttpGet("me/applications")]
+  public async Task<IActionResult> GetCurrentUserApplications()
+  {
+    
+    var userId = UserContextExtension.GetUserId(User);
+
+    var applications = await _applicationService.GetCurrentUserApplications(userId);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext,
+      HttpResponseState.Success,
+      "Applications retrieved successfuly",
+      DomainErrorCodes.GeneralCodes.Success,
+      applications
+    ));
+  }
 
 }

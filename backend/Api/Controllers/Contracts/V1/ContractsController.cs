@@ -39,6 +39,7 @@ public class ContractsController : ControllerBase
     ));
   }
 
+  [HasPermission(Permissions.ContractsSelf.Read)]
   [HttpGet("company")]
   public async Task<IActionResult> GetCompanyContracts([FromQuery] QueryParams queryParams)
   {
@@ -55,6 +56,8 @@ public class ContractsController : ControllerBase
     ));
   }
 
+  // [HasPermission(Permissions.Contracts.Read)]
+  // TODO: Update Permissions
   [HttpGet]
   public async Task<IActionResult> GetPentesterContracts([FromQuery] QueryParams queryParams)
   {
@@ -70,6 +73,7 @@ public class ContractsController : ControllerBase
       contracts
     ));
   }
+  
   [AllowAnonymous]
   [HttpGet("{contractId:long}")]
   public async Task<IActionResult> GetContractById([FromRoute] long contractId)
@@ -86,37 +90,6 @@ public class ContractsController : ControllerBase
       contract
     ));
   }
-
-
-  // [HttpGet]
-  // public async Task<IActionResult> GetContracts([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
-  // {
-  //   var userId = UserContextExtension.GetUserId(User);
-  //   var contracts = await _contractService.GetContractsAsync(userId, page, pageSize, search);
-
-  //   return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-  //     HttpContext,
-  //     HttpResponseState.Success,
-  //     "Contracts retrieved successfully",
-  //     DomainErrorCodes.AuthCodes.Success,
-  //     contracts
-  //   ));
-  // }
-
-  // [HttpGet("{contractId}")]
-  // public async Task<IActionResult> GetContractById([FromRoute] long contractId)
-  // {
-  //   var userId = UserContextExtension.GetUserId(User);
-  //   var contract = await _contractService.GetContractByIdAsync(contractId, userId);
-
-  //   return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-  //     HttpContext,
-  //     HttpResponseState.Success,
-  //     "Contract retrieved successfully",
-  //     DomainErrorCodes.AuthCodes.Success,
-  //     contract
-  //   ));
-  // }
 
   [HasPermission(Permissions.Contracts.Create)]
   [HttpPost]
@@ -181,7 +154,7 @@ public class ContractsController : ControllerBase
   }
 
   [HasPermission(Permissions.ProfileApplications.Create)]
-  [HttpPost("{contractId}/applications")]
+  [HttpPost("{contractId}/apply")]
   public async Task<IActionResult> ApplyToContract([FromRoute] long contractId)
   {
     var userId = UserContextExtension.GetUserId(User);

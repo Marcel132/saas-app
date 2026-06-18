@@ -1,3 +1,4 @@
+using backend.Api.Controllers.Applications.DTOs;
 using backend.Application.Services;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
@@ -6,15 +7,18 @@ namespace backend.Application.Services;
 
 public class ApplicationService
 {
+  private readonly IApplicationQueryRepository _applicationQueryRepository;
   private readonly IApplicationRepository _applicationRepository;
   private readonly AssignmentService _assignmentService;
   private readonly IUnitOfWork _unitOfWork;
   public ApplicationService(
+    IApplicationQueryRepository applicationQueryRepository,
     IApplicationRepository applicationRepository,
     AssignmentService assignmentService,
     IUnitOfWork unitOfWork
     )
   {
+    _applicationQueryRepository = applicationQueryRepository;
     _applicationRepository = applicationRepository;
     _assignmentService = assignmentService;
     _unitOfWork = unitOfWork;
@@ -62,5 +66,12 @@ public class ApplicationService
 
     application.Reject();
     await _unitOfWork.SaveChangesAsync();
+  }
+
+  public async Task<List<ApplicationDto>> GetCurrentUserApplications(Guid userId)
+  {
+    var applications = await _applicationQueryRepository.GetUserApplications(userId);
+
+    return applications;
   }
 }
