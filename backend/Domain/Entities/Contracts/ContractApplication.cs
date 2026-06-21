@@ -4,7 +4,7 @@ namespace backend.Domain.Entities;
 
 public class ContractApplication
 {
-  public long ApplicationId { get; private set; }
+  public long Id { get; private set; }
   public long ContractId { get; private set; }
   public Guid CandidateId { get; private set; }
   public ContractApplicationStatus Status { get; private set; } = ContractApplicationStatus.Pending;

@@ -35,3 +35,15 @@ public enum ContractReportStatus
   [EnumMember(Value = "rejected")]
   Rejected
 }
+
+public enum ContractRequestStatus
+{
+  [EnumMember(Value = "created")]
+  Created,
+  [EnumMember(Value = "testing")]
+  Testing,
+  [EnumMember(Value = "report_submitted")]
+  ReportSubmitted,
+  [EnumMember(Value = "completed")]
+  Completed
+}

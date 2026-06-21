@@ -4,9 +4,8 @@ namespace backend.Domain.Entities;
 
 public class ContractReport
 {
-  public long ReportId { get; private set; }
-  public long ContractId { get; private set; }
-  public long AssignmentId { get; private set; }
+  public long Id { get; private set; }
+  public long RequestId { get; private set; }
   public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
   public DateTime? ReviewedAt { get; private set; }
   public DateTime? SubmittedAt { get; private set; }
@@ -15,16 +14,18 @@ public class ContractReport
   public string? ReportUrl { get; private set; }
   public string? Feedback { get; private set; }
 
-  private ContractReport() { } // EF
-  public ContractAssignment Assignment { get; private set; } = null!;
 
-  public ContractReport(long contractId, long assignmentId)
+  public ICollection<ContractVulnerability> Vulnerabilities { get; private set; } = [];
+  public ContractRequest Request { get; private set; } = null!;
+  private ContractReport() { } // EF
+  // public ContractAssignment Assignment { get; private set; } = null!;
+
+  public ContractReport(long requestId)
   {
-    if (contractId <= 0 || assignmentId <= 0)
+    if (requestId <= 0)
       throw new ValueOutOfRangeAppException();
 
-    ContractId = contractId;
-    AssignmentId = assignmentId;
+    RequestId = requestId;
   }
 
   public void Submit(string reportUrl)

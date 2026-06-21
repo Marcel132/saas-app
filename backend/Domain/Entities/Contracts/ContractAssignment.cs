@@ -2,7 +2,7 @@ namespace backend.Domain.Entities;
 
 public class ContractAssignment
 {
-  public long AssignmentId { get; private set; }
+  public long Id { get; private set; }
   public long ContractId { get; private set; }
   public Guid DeveloperId { get; private set; }
   public bool IsActive { get; private set; } = true;
@@ -10,7 +10,8 @@ public class ContractAssignment
 
   private ContractAssignment() { } // EF
   public Contract Contract { get; private set; } = null!;
-  public ICollection<ContractReport> Reports { get; set; } = [];
+  public ICollection<ContractRequest> Requests { get; private set; } = [];
+  // public ICollection<ContractReport> Reports { get; private set; } = [];
 
   public ContractAssignment(long contractId, Guid developerId)
   {

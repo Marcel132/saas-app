@@ -4,12 +4,12 @@ namespace backend.Domain.Entities;
 
 public class Contract
 {
-  public long ContractId { get; private set; }
+  public long Id { get; private set; }
   public Guid AuthorId { get; private set; }
   public string Title { get; private set; } = string.Empty;
   public string Description { get; private set; } = string.Empty;
   public decimal Price { get; private set; }
-  public ContractStatus ContractStatus { get; private set; } // * For status use only ContractEnum
+  public ContractStatus Status { get; private set; } // * For status use only ContractEnum
   public bool IsFunded { get; private set; }
   public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
   public DateTime? UpdatedAt { get; private set; }
@@ -36,7 +36,7 @@ public class Contract
     Title = title;
     Description = description;
     Price = decimal.Round(price, 2);
-    ContractStatus = ContractStatus.Open;
+    Status = ContractStatus.Open;
 
     if (deadline != null)
     {
@@ -100,7 +100,7 @@ public class Contract
   }
   public bool CanModifyDetails()
   {
-    return ContractStatus == ContractStatus.Open && !IsExpired();
+    return Status == ContractStatus.Open && !IsExpired();
   }
   public void ExtendDeadline(DateTime newDeadline)
   {
@@ -123,7 +123,7 @@ public class Contract
     if (IsFunded)
       throw new InvalidOperationAppException();
 
-    if (ContractStatus != ContractStatus.Open)
+    if (Status != ContractStatus.Open)
       throw new InvalidOperationAppException();
 
     if (IsExpired())
@@ -138,12 +138,12 @@ public class Contract
     if (!CanModifyStatus(newStatus))
       throw new BadRequestAppException();
 
-    ContractStatus = newStatus;
+    Status = newStatus;
     UpdatedAt = DateTime.UtcNow;
   }
   private bool CanModifyStatus(ContractStatus newStatus)
   {
-    return ContractStatus switch
+    return Status switch
     {
       ContractStatus.Open => newStatus == ContractStatus.InProgress || newStatus == ContractStatus.Cancelled,
       ContractStatus.InProgress => newStatus == ContractStatus.Completed,
