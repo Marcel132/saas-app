@@ -18,13 +18,12 @@ public static class ServiceExtension
     services.AddScoped<IContractService, ContractService>();
     services.AddScoped<IUserService, UserService>();
     services.AddScoped<ICredentialsService, CredentialsService>();
+    services.AddScoped<IApplicationService, ApplicationService>();
 
     
     services.AddScoped<UserAuthenticationService>();
     services.AddScoped<UserRegisterService>();
 
-
-    services.AddScoped<ApplicationService>();
     services.AddScoped<AssignmentService>();
 
     services.AddScoped<AuthSessionService>();

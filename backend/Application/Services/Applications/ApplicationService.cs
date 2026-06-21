@@ -1,11 +1,11 @@
 using backend.Api.Controllers.Applications.DTOs;
-using backend.Application.Services;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
+using backend.Domain.Interfaces.Services;
 
 namespace backend.Application.Services;
 
-public class ApplicationService
+public class ApplicationService : IApplicationService
 {
   private readonly IApplicationQueryRepository _applicationQueryRepository;
   private readonly IApplicationRepository _applicationRepository;

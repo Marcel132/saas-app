@@ -1,7 +1,7 @@
 using backend.Api.Auth;
 using backend.Api.Http;
 using backend.Application.Security;
-using backend.Application.Services;
+using backend.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,8 +13,8 @@ namespace backend.Api.Controllers.Applications.V1;
 [Authorize]
 public class ApplicationsController : ControllerBase
 {
-  private readonly ApplicationService _applicationService;
-  public ApplicationsController(ApplicationService applicationService)
+  private readonly IApplicationService _applicationService;
+  public ApplicationsController(IApplicationService applicationService)
   {
     _applicationService = applicationService;
   }
