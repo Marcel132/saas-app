@@ -1,7 +1,7 @@
 
 
 using backend.Application.Services;
-using backend.Domain.Entities.Synchronizer;
+using backend.Domain.Entities;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
 using backend.Domain.Interfaces.Services;
