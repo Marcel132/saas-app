@@ -1,6 +1,6 @@
-using backend.Api.Controllers.Auth.DTOs;
 using backend.Domain.Entities;
 using backend.Domain.Entities.Enum;
+using backend.Domain.Entities.Records;
 using backend.Domain.Policies;
 using NUnit.Framework;
 
@@ -23,29 +23,7 @@ public class LoginPolicyTests
   {
     var policy = new LoginPolicy();
 
-    var data = new RegisterRequestDto()
-    {
-      Email = "test@testmail.com",
-      Password = "test123",
-      Role = RoleType.Pentester,
-      FirstName = "Adam",
-      LastName = "Nowak",
-      Nickname = "AdamNowak",
-      PhoneNumber = "123",
-      Description = "Skills",
-      City = "City",
-      Country = "Country",
-      PostalCode = "00-000",
-      Street = "Street"
-    };
-
-    var userData = new UserData(data);
-    var user = new User(
-      "test@testmail.com",
-      "test123",
-      data.Role,
-      userData
-    );
+    var user = CreateUser();
 
     user.RegisterFailedLoginAttempt(1, TimeSpan.FromMinutes(15));
 
@@ -59,30 +37,7 @@ public class LoginPolicyTests
   {
     var policy = new LoginPolicy();
 
-    var data = new RegisterRequestDto()
-    {
-      Email = "test@testmail.com",
-      Password = "test123",
-      Role = RoleType.Pentester,
-      FirstName = "Adam",
-      LastName = "Nowak",
-      Nickname = "AdamNowak",
-      PhoneNumber = "123",
-      Description = "Skills",
-      City = "City",
-      Country = "Country",
-      PostalCode = "00-000",
-      Street = "Street"
-    };
-
-    var userData = new UserData(data);
-
-    var user = new User(
-      "test@testmail.com",
-      "test123",
-      data.Role,
-      userData
-    );
+    var user = CreateUser();
 
     user.DeactivateAccount();
 
@@ -96,34 +51,23 @@ public class LoginPolicyTests
   {
     var policy = new LoginPolicy();
 
-    var data = new RegisterRequestDto()
-    {
-      Email = "test@testmail.com",
-      Password = "test123",
-      Role = RoleType.Pentester,
-      FirstName = "Adam",
-      LastName = "Nowak",
-      Nickname = "AdamNowak",
-      PhoneNumber = "123",
-      Description = "Skills",
-      City = "City",
-      Country = "Country",
-      PostalCode = "00-000",
-      Street = "Street"
-    };
-
-    var userData = new UserData(data);
-
-    var user = new User(
-      "test@testmail.com",
-      "test123",
-      data.Role,
-      userData
-    );
+    var user = CreateUser();
 
     Assert.DoesNotThrow(() =>
     {
       policy.EnsureCanLogin(user);
     });
+
+  }
+
+  private static User CreateUser()
+  {
+    var record = new UserRecord(
+      "text@gmail.com",
+      "test_1234",
+      RoleType.Pentester
+    );
+
+    return new User(record);
   }
 }

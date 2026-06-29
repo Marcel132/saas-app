@@ -4,5 +4,6 @@ namespace backend.Domain.Interfaces;
 
 public interface IRegisterPolicy
 {
-  void EnsureCanRegister(bool emailAlreadyExists, RegisterRequestDto user);
+  public void EnsureCanRegisterPentester(bool emailAlreadyExists, bool nicknameAlreadyExists, RegisterPentesterRequestDto req);
+  public void EnsureCanRegisterCompany(bool emailAlreadyExists, RegisterCompanyRequestDto req);
 }

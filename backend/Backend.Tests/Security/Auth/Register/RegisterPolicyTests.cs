@@ -8,99 +8,94 @@ namespace backend.Backend.Tests.Security.Auth;
 public class RegisterPolicyTests
 {
   [Test]
-  public void Validate_EmailAlreadyExists_ThrowsBadRequest()
+  public void Validate_EmailAlreadyExists_Pentester_ThrowsBadRequest()
   {
     var policy = new RegisterPolicy();
 
     Assert.Throws<BadRequestAppException>(() =>
-      policy.EnsureCanRegister(true, new RegisterRequestDto())
+      policy.EnsureCanRegisterPentester(true, false, new RegisterPentesterRequestDto())
     );
   }
-
   [Test]
-  public void Validate_IsPasswordWeak_ThrowsInvalidFormat()
+  public void Validate_NicknameAlreadyExists_Pentester_ThrowsBadRequest()
   {
     var policy = new RegisterPolicy();
-
-    var req = new RegisterRequestDto
-    {
-      Email = "test@example.com",
-      Password = "JohnTestPassword!123",
-      Nickname = "JohnDoe",
-      FirstName = "John",
-      LastName = "Doe",
-      SpecializationType = [Specialization.ApiSecurity, Specialization.CloudSecurity],
-      CompanyName = null,
-      CompanyNip = null
-    };
-
-    Assert.Throws<InvalidFormatAppException>(() =>
-      policy.EnsureCanRegister(false, req)
-    );
-  }
-
-  [Test]
-  public void Validate_IsSpecializationInvalid_ThrowsBadRequest()
-  {
-    var policy = new RegisterPolicy();
-
-    var req = new RegisterRequestDto
-    {
-      Email = "test@example.com",
-      Password = "StrongPassword!123",
-      Nickname = "JohnDoe",
-      FirstName = "John",
-      LastName = "Doe",
-      SpecializationType = [],
-      CompanyName = null,
-      CompanyNip = null
-    };
 
     Assert.Throws<BadRequestAppException>(() =>
-      policy.EnsureCanRegister(false, req)
+      policy.EnsureCanRegisterPentester(false, true, new RegisterPentesterRequestDto())
+    );
+  }
+  [Test]
+  public void Validate_EmailAlreadyExists_Company_ThrowsBadRequest()
+  {
+    var policy = new RegisterPolicy();
+
+    Assert.Throws<BadRequestAppException>(() =>
+      policy.EnsureCanRegisterCompany(true, new RegisterCompanyRequestDto())
     );
   }
 
   [Test]
-  public void Validate_InvalidCompanyData_ThrowsInvalidFormat()
+  public void Validate_EmailIsInvalidFormat_Any_ThrowsInvalidFormat()
   {
     var policy = new RegisterPolicy();
 
-    var req = new RegisterRequestDto
+    var user = new RegisterPentesterRequestDto
     {
-      Email = "test@example.com",
-      Password = "StrongPassword!123",
-      FirstName = "John",
-      LastName = "Doe",
-      Nickname = "JohnDoe",
-      SpecializationType = [Specialization.RedTeam],
-      CompanyName = "PorkAndCheese",
-      CompanyNip = null
+      Email = "testagmail.com"
     };
 
     Assert.Throws<InvalidFormatAppException>(() =>
-      policy.EnsureCanRegister(false, req)
+      policy.EnsureCanRegisterPentester(false, false, user)
     );
   }
-  public void RequestIsValid_Success()
+
+  [Test]
+  public void Validate_PasswordIsInvalidFormat_ThrowsInvalidFormat()
   {
     var policy = new RegisterPolicy();
 
-    var req = new RegisterRequestDto
+    var user = new RegisterPentesterRequestDto
     {
-      Email = "test@example.com",
-      Password = "StrongPassword!123",
-      FirstName = "John",
-      LastName = "Doe",
-      Nickname = "JohnDoe",
-      SpecializationType = [Specialization.WebSecurity],
-      CompanyName = "PorkAndCheese",
-      CompanyNip = "123-456-789"
+      Email = "test@gmail.com",
+      Password = "thereisnoupperletter_123"
     };
 
-    Assert.DoesNotThrow(() =>
-      policy.EnsureCanRegister(false, req)
+    Assert.Throws<InvalidFormatAppException>(() =>
+      policy.EnsureCanRegisterPentester(false, false, user)
     );
-  }
+  } 
 
+  [Test]
+  public void Validate_PasswordContainsEmail_ThrowsInvalidFormat()
+  {
+    var policy = new RegisterPolicy();
+
+    var user = new RegisterPentesterRequestDto
+    {
+      Email = "test@gmail.com",
+      Password = "Test@gmail.com123"
+    };
+
+    Assert.Throws<InvalidFormatAppException>(() =>
+      policy.EnsureCanRegisterPentester(false, false, user)
+    );
+  } 
+
+  [Test]
+  public void Validate_PasswordContainsName_ThrowsInvalidFormat()
+  {
+    var policy = new RegisterPolicy();
+
+    var user = new RegisterCompanyRequestDto
+    {
+      Email = "test@gmail.com",
+      Password = "JanPolSa123__",
+      Name = "JanPolSa"
+    };
+
+    Assert.Throws<InvalidFormatAppException>(() =>
+      policy.EnsureCanRegisterCompany(false, user)
+    );
+  } 
 }
