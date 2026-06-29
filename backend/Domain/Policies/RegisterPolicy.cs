@@ -1,6 +1,5 @@
 using backend.Api.Controllers.Auth.DTOs;
-using backend.Domain.Entities;
-using backend.Domain.Entities.Enum;
+using backend.Application.Validators;
 using backend.Domain.Interfaces;
 
 namespace backend.Domain.Policies;
@@ -8,62 +7,37 @@ namespace backend.Domain.Policies;
 public class RegisterPolicy : IRegisterPolicy
 {
 
-  public void EnsureCanRegister(bool emailAlreadyExists, RegisterRequestDto request)
+
+  public void EnsureCanRegisterPentester(bool emailAlreadyExists, bool nicknameAlreadyExists, RegisterPentesterRequestDto req)
   {
     if (emailAlreadyExists)
-      throw new BadRequestAppException("Podany adres email już istnieje");
+      throw new BadRequestAppException("Niepoprawne dane");
 
-    if (string.IsNullOrWhiteSpace(request.FirstName) || string.IsNullOrWhiteSpace(request.LastName))
-      throw new InvalidFormatAppException("Imię i nazwisko są wymagane");
+    if (nicknameAlreadyExists)
+      throw new BadRequestAppException("Taki pseudonim już istnieje");
 
-    var email = request.Email.Trim().ToLowerInvariant();
-    if (!User.IsValidEmailFormat(email))
-      throw new InvalidFormatAppException("Niepoprawny format adresu email");
+    if (!CredentialsFormatValidator.IsValidEmailFormat(req.Email))
+      throw new InvalidFormatAppException("Zły format: Email");
 
-    if (!User.IsValidPasswordFormat(request.Password))
-      throw new InvalidFormatAppException("Hasło nie spełnia wymogów bezpieczeństwa");
+    if (!CredentialsFormatValidator.IsValidPassword(req.Password))
+      throw new InvalidFormatAppException("Zły format: Hasło");
 
-    if (IsPasswordWeak(request))
-      throw new InvalidFormatAppException("Hasło jest za słabe. Nie używaj poufnych danych");
-
-    if (IsSpecializationInvalid(request))
-      throw new BadRequestAppException("Wybierz co najmniej jedną specjalizacje");
-
-    if (HasInvalidCompanyData(request))
-      throw new InvalidFormatAppException("Podaj nazwę oraz NIP firmy");
+    if (CredentialsFormatValidator.ContainsAnyOf(req.Password, [req.Email, req.FirstName, req.LastName]))
+      throw new InvalidFormatAppException("Zły format: Hasło zawiera: {Email i/lub Imię i/lub Hasło}");
 
   }
-
-  private static bool IsPasswordWeak(RegisterRequestDto req)
+  public void EnsureCanRegisterCompany(bool emailAlreadyExists, RegisterCompanyRequestDto req)
   {
-    return req.Password.Contains(req.Email, StringComparison.OrdinalIgnoreCase)
-      || req.Password.Contains(req.FirstName, StringComparison.OrdinalIgnoreCase)
-      || req.Password.Contains(req.LastName, StringComparison.OrdinalIgnoreCase);
-  }
+    if (emailAlreadyExists)
+      throw new BadRequestAppException("Niepoprawne dane");
 
-  private static bool HasInvalidCompanyData(RegisterRequestDto req)
-  {
-    var hasName = !string.IsNullOrEmpty(req.CompanyName);
-    var hasNip = !string.IsNullOrEmpty(req.CompanyNip);
+    if (!CredentialsFormatValidator.IsValidEmailFormat(req.Email))
+      throw new InvalidFormatAppException("Zły format: Email");
 
-    return hasName ^ hasNip;
-  }
+    if (!CredentialsFormatValidator.IsValidPassword(req.Password))
+      throw new InvalidFormatAppException("Zły format: Hasło");
 
-  private static bool IsSpecializationInvalid(RegisterRequestDto req)
-  {
-    if (req.Role == RoleType.Company)
-      return false;
-
-    // TODO: DELETE IF 
-    if (req.SpecializationType == null || !req.SpecializationType.Any())
-      return true;
-
-    foreach (var spec in req.SpecializationType)
-    {
-      if (!Enum.IsDefined(typeof(Specialization), spec))
-        return true;
-    }
-
-    return false;
+    if (CredentialsFormatValidator.ContainsAnyOf(req.Password, [req.Email, req.Name]))
+      throw new InvalidFormatAppException("Zły format: Hasło zawiera: {Email i/lub Nazwę}");
   }
 }
