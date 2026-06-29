@@ -24,41 +24,24 @@ public class UsersController : ControllerBase
     _userService = userService;
   }
 
-  // * DONE
-  [HasPermission(Permissions.Users.ReadAll)]
-  [HttpGet]
-  public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string? search = null)
-  {
-    var users = await _userService.GetAllAsync(page, pageSize, search);
+  // GetAllAsync (admin) 
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext,
-      HttpResponseState.Success,
-      "Users retrieved successfully",
-      DomainErrorCodes.AuthCodes.Success,
-      users
-      ));
-  }
-
-  // * DONE 
   [HasPermission(Permissions.Users.Read)]
   [HttpGet("{userId}")]
-  public async Task<IActionResult> GetUserById([FromRoute] Guid userId)
+  public async Task<IActionResult> GetPentesterById([FromRoute] Guid userId)
   {
     var currentUserId = UserContextExtension.GetUserId(User);
 
-    var user = await _userService.GetUserByIdAsync(userId, currentUserId);
+    var pentester = await _userService.GetPentesterByIdAsync(userId, currentUserId);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
       HttpResponseState.Success,
       "User retrieved successfully",
       DomainErrorCodes.AuthCodes.Success,
-      user
+      pentester
     ));
   }
-
-  // * DONE
 
   [HasPermission(Permissions.Profile.Read)]
   [HttpGet("me")]
@@ -93,13 +76,12 @@ public class UsersController : ControllerBase
     ));
   }
 
-  // * DONE
   [HasPermission(Permissions.Profile.Update)]
-  [HttpPatch("me")]
-  public async Task<IActionResult> UpdateCurrentUser([FromBody] UpdateUserDto request)
+  [HttpPatch("me/pentester")]
+  public async Task<IActionResult> UpdateCurrentPentester([FromBody] UpdatePentesterDto request)
   {
     var userId = UserContextExtension.GetUserId(User);
-    await _userService.UpdateUserAsync(userId, request);
+    await _userService.UpdatePentesterAsync(userId, request);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
@@ -109,7 +91,21 @@ public class UsersController : ControllerBase
     ));
   }
 
-  // * DONE
+  [HasPermission(Permissions.Profile.Update)]
+  [HttpPatch("me/company")]
+  public async Task<IActionResult> UpdateCurrentCompany([FromBody] UpdateCompanyDto request)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    await _userService.UpdateCompanyAsync(userId, request);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext,
+      HttpResponseState.Success,
+      "Company updated successfully",
+      DomainErrorCodes.AuthCodes.Success
+    ));
+  }
+
   [HasPermission(Permissions.Profile.Delete)]
   [HttpDelete("me")]
   public async Task<IActionResult> DeleteCurrentUser()
@@ -120,7 +116,6 @@ public class UsersController : ControllerBase
     return NoContent();
   }
 
-  // * DONE
   [HasPermission(Permissions.ProfileContracts.Read)]
   [HttpGet("me/contracts")]
   public async Task<IActionResult> GetCurrentUserContracts([FromQuery] ContractStatus? status = null)
@@ -137,7 +132,6 @@ public class UsersController : ControllerBase
     ));
   }
 
-  // * DONE
   [HasPermission(Permissions.ProfileApplications.Read)]
   [HttpGet("me/applications")]
   public async Task<IActionResult> GetCurrentUserApplications([FromQuery] ContractApplicationStatus? status = null)

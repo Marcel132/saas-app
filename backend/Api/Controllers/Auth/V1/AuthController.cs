@@ -27,12 +27,12 @@ public class AuthController : ControllerBase
 
   [AllowAnonymous]
   [HttpPost("login")]
-  public async Task<IActionResult> LoginUser([FromBody] LoginRequestDto request)
+  public async Task<IActionResult> LoginUser([FromBody] LoginRequestDto req)
   {
     var ipAddress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    var credentials = await _authService.LoginAsync(request, ipAddress, userAgent);
+    var credentials = await _authService.LoginAsync(req, ipAddress, userAgent);
 
     AuthCookies.SetAuthCookie(Response, credentials.RefreshToken, credentials.AuthToken);
 
@@ -45,13 +45,13 @@ public class AuthController : ControllerBase
   }
 
   [AllowAnonymous]
-  [HttpPost("register")]
-  public async Task<IActionResult> RegisterUser([FromBody] RegisterRequestDto request)
+  [HttpPost("register/pentester")]
+  public async Task<IActionResult> RegisterUser([FromBody] RegisterPentesterRequestDto req)
   {
     var ipAddress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    var credentials = await _authService.RegisterAsync(request, ipAddress, userAgent);
+    var credentials = await _authService.RegisterPentesterAsync(req, ipAddress, userAgent);
 
     AuthCookies.SetAuthCookie(Response, credentials.RefreshToken, credentials.AuthToken);
 
@@ -62,6 +62,26 @@ public class AuthController : ControllerBase
       DomainErrorCodes.AuthCodes.Success
       ));
   }
+
+  [AllowAnonymous]
+  [HttpPost("register/company")]
+  public async Task<IActionResult> RegisterCompany([FromBody] RegisterCompanyRequestDto req)
+  {
+    var ipAddress = UserContextExtension.GetUserIp(HttpContext);
+    var userAgent = UserContextExtension.GetUserAgent(HttpContext);
+
+    var credentials = await _authService.RegisterCompanyAsync(req, ipAddress, userAgent);
+
+    AuthCookies.SetAuthCookie(Response, credentials.RefreshToken, credentials.AuthToken);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext,
+      HttpResponseState.Success,
+      "Zarejestrowano",
+      DomainErrorCodes.AuthCodes.Success
+      ));
+  }
+
 
   [Authorize]
   [HttpPost("logout")]
