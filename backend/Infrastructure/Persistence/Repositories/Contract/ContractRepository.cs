@@ -15,7 +15,7 @@ public class ContractRepository : IContractRepository
   public async Task<Contract?> GetContractByIdAsync(long contractId)
   {
     return await _context.Contracts
-      .FirstOrDefaultAsync(c => c.ContractId == contractId);
+      .FirstOrDefaultAsync(c => c.Id == contractId);
   }
 
   public async Task AddContractAsync(Contract contract)
@@ -30,6 +30,6 @@ public class ContractRepository : IContractRepository
   public async Task<bool> HasAlreadyAppliedAsync(long contractId, Guid candidateId)
   {
     return await _context.ContractApplications
-      .AnyAsync(a => a.ContractId == contractId && a.CandidateId == candidateId);
+      .AnyAsync(a => a.ContractId == contractId && a.UserId == candidateId);
   }
 }

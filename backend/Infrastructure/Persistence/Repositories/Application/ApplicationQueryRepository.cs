@@ -20,30 +20,30 @@ public class ApplicationQueryRepository : IApplicationQueryRepository
   {
     var query = await _context.ContractApplications
       .AsNoTracking()
-      .Where(ca => 
-        ca.CandidateId == userId &&
+      .Where(ca =>
+        ca.UserId == userId &&
         (
           ca.Status == ContractApplicationStatus.Accepted ||
-          ca.Status == ContractApplicationStatus.Pending || 
+          ca.Status == ContractApplicationStatus.Pending ||
           (
             ca.Status == ContractApplicationStatus.Rejected &&
-            ca.Contract.Deadline > DateTime.UtcNow &&
-            ca.Contract.ContractStatus == ContractStatus.Open
+            ca.Contract.RecruitmentDeadline > DateOnly.FromDateTime(DateTime.UtcNow) &&
+            ca.Contract.Status == ContractStatus.Open
           )
         )
       )
-
       .Select(x => new ApplicationDto
       {
-        ApplicationId = x.ApplicationId,
-        ApplicationStatus = x.Status,
-        AppliedAt = x.AppliedAt,
+        ApplicationId = x.Id,
         ContractId = x.ContractId,
-        ContractTitle = x.Contract.Title,
-        Price = x.Contract.Price
+        Title = x.Contract.Title,
+        PricePerRequests = x.Contract.PricePerRequest,
+        // ! x does not contain MaxRequests, FIX MaxRequests = x.MaxRequests 
+        Status = x.Status,
+        AppliedAt = x.AppliedAt,
       })
       .ToListAsync();
-  
+
     return query;
   }
 }

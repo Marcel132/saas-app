@@ -20,8 +20,8 @@ public class ContractQueryRepository : IContractQueryRepository
     var query = _context.Contracts
       .AsNoTracking()
       .Where(c =>
-      c.ContractStatus == ContractStatus.Open &&
-      c.Deadline > DateTime.UtcNow
+        c.Status == ContractStatus.Open &&
+        c.RecruitmentDeadline > DateOnly.FromDateTime(DateTime.UtcNow)
       );
 
     query = ApplySearch(query, queryParams.Search);
@@ -34,13 +34,14 @@ public class ContractQueryRepository : IContractQueryRepository
       .Take(queryParams.PageSize)
       .Select(c => new PublicContractDto
       {
-        ContractId = c.ContractId,
+        ContractId = c.Id,
         Title = c.Title,
         Description = c.Description,
-        ContractStatus = c.ContractStatus,
+        ContractStatus = c.Status,
         CreatedAt = c.CreatedAt,
-        Deadline = c.Deadline,
-        Price = c.Price,
+        Deadline = c.RecruitmentDeadline,
+        Price = c.PricePerRequest,
+        MaxRequests = c.MaxRequests,
         UpdatedAt = c.UpdatedAt
       })
       .ToListAsync();
@@ -60,8 +61,8 @@ public class ContractQueryRepository : IContractQueryRepository
     var query = _context.Contracts
       .AsNoTracking()
       .Where(c =>
-        c.ContractStatus == ContractStatus.Open &&
-        c.Deadline > DateTime.UtcNow
+        c.Status == ContractStatus.Open &&
+        c.RecruitmentDeadline > DateOnly.FromDateTime(DateTime.UtcNow)
       );
 
     query = ApplySearch(query, queryParams.Search);
@@ -74,18 +75,20 @@ public class ContractQueryRepository : IContractQueryRepository
      .Take(queryParams.PageSize)
      .Select(c => new PentesterContractDto
      {
-       ContractId = c.ContractId,
+       ContractId = c.Id,
        Title = c.Title,
        Description = c.Description,
-       ContractStatus = c.ContractStatus,
+       ContractStatus = c.Status,
        CreatedAt = c.CreatedAt,
-       Deadline = c.Deadline,
-       Price = c.Price,
+       Deadline = c.RecruitmentDeadline,
+       Price = c.PricePerRequest,
+       MaxRequests = c.MaxRequests,
        UpdatedAt = c.UpdatedAt,
        HasApplied = _context.ContractApplications
          .Any(ca =>
-           ca.ContractId == c.ContractId &&
-           ca.CandidateId == userId
+           ca.ContractId == c.Id &&
+           ca.UserId == userId &&
+           ca.Status == ContractApplicationStatus.Pending
          )
      })
      .ToListAsync();
@@ -104,9 +107,7 @@ public class ContractQueryRepository : IContractQueryRepository
   {
     var query = _context.Contracts
       .AsNoTracking()
-      .Where(c =>
-        c.AuthorId == userId
-      );
+      .Where(c => c.AuthorId == userId);
 
     query = ApplySearch(query, queryParams.Search);
 
@@ -114,9 +115,9 @@ public class ContractQueryRepository : IContractQueryRepository
 
     var contracts = await query
       .OrderBy(c =>
-        c.ContractStatus == ContractStatus.InProgress ? 0 :
-        c.ContractStatus == ContractStatus.Open ? 1 :
-        c.ContractStatus == ContractStatus.Completed ? 2 :
+        c.Status == ContractStatus.InProgress ? 0 :
+        c.Status == ContractStatus.Open ? 1 :
+        c.Status == ContractStatus.Completed ? 2 :
         3
       )
       .ThenByDescending(c => c.CreatedAt)
@@ -124,12 +125,13 @@ public class ContractQueryRepository : IContractQueryRepository
       .Take(queryParams.PageSize)
       .Select(c => new CompanyContractDto
       {
-        ContractId = c.ContractId,
-        ContractStatus = c.ContractStatus,
+        ContractId = c.Id,
+        ContractStatus = c.Status,
         CreatedAt = c.CreatedAt,
-        Deadline = c.Deadline,
+        Deadline = c.RecruitmentDeadline,
         Description = c.Description,
-        Price = c.Price,
+        Price = c.PricePerRequest,
+        MaxRequests = c.MaxRequests,
         Title = c.Title,
         UpdatedAt = c.UpdatedAt
       })
@@ -149,46 +151,46 @@ public class ContractQueryRepository : IContractQueryRepository
   {
     var query = _context.Contracts
       .AsNoTracking()
-      .Where(c =>
-        c.ContractId == contractId
-      );
+      .Where(c => c.Id == contractId);
+
     if (userId.HasValue)
     {
       query = query
         .Where(c =>
           c.AuthorId == userId ||
           (
-            c.ContractStatus == ContractStatus.Open &&
-            c.Deadline > DateTime.UtcNow
+            c.Status == ContractStatus.Open &&
+            c.RecruitmentDeadline > DateOnly.FromDateTime(DateTime.UtcNow)
           )
         );
     }
     else
     {
-      query = query.Where(c =>
-          c.ContractStatus == ContractStatus.Open
-      );
+      query = query.Where(c => c.Status == ContractStatus.Open);
     }
 
     return await query
       .Select(c => new ContractDetailsDto
       {
-        ContractId = c.ContractId,
-        ContractStatus = c.ContractStatus,
+        ContractId = c.Id,
+        ContractStatus = c.Status,
         CreatedAt = c.CreatedAt,
-        Deadline = c.Deadline,
+        Deadline = c.RecruitmentDeadline,
         Description = c.Description,
-        Price = c.Price,
+        Price = c.PricePerRequest,
+        MaxRequests = c.MaxRequests,
         Title = c.Title,
-        HasApplied = _context.ContractApplications
+        HasApplied = userId.HasValue && _context.ContractApplications
           .Any(ca =>
-            ca.ContractId == c.ContractId &&
-            ca.CandidateId == userId
+            ca.ContractId == c.Id &&
+            ca.UserId == userId.Value &&
+            ca.Status == ContractApplicationStatus.Pending
           )
       })
       .FirstOrDefaultAsync();
   }
 
+  // Kandydaci to zawsze pentesterzy - firma widzi listę aplikacji na swój kontrakt.
   public async Task<List<ContractApplicationsDto>> GetContractApplicationsAsync(long contractId)
   {
     return await _context.ContractApplications
@@ -196,21 +198,24 @@ public class ContractQueryRepository : IContractQueryRepository
       .Where(ca => ca.ContractId == contractId)
       .Join(
         _context.Users,
-        ca => ca.CandidateId,
+        ca => ca.UserId,
         u => u.Id,
-        (ca, u) => new ContractApplicationsDto
-        {
-          ApplicationId = ca.ApplicationId,
-          ContractId = contractId,
-          CandidateId = ca.CandidateId,
-          FirstName = u.UserData.FirstName,
-          LastName = u.UserData.LastName,
-          Nickname = u.UserData.Nickname ?? string.Empty,
-          Description = u.UserData.Description,
-          Status = ca.Status,
-          AppliedAt = ca.AppliedAt
-        })
-        .ToListAsync();
+        (ca, u) => new { ca, u }
+      )
+      .Where(x => x.u.PentesterProfile != null)
+      .Select(x => new ContractApplicationsDto
+      {
+        ApplicationId = x.ca.Id,
+        ContractId = contractId,
+        CandidateId = x.ca.UserId,
+        FirstName = x.u.PentesterProfile!.FirstName,
+        LastName = x.u.PentesterProfile.LastName,
+        NickName = x.u.PentesterProfile.NickName,
+        Bio = x.u.PentesterProfile.Bio,
+        Status = x.ca.Status,
+        AppliedAt = x.ca.AppliedAt
+      })
+      .ToListAsync();
   }
 
   private static string EscapedLike(string search)
@@ -220,6 +225,7 @@ public class ContractQueryRepository : IContractQueryRepository
       .Replace("%", @"\%")
       .Replace("_", @"\_");
   }
+
   private static IQueryable<Contract> ApplySearch(
     IQueryable<Contract> query,
     string? search)

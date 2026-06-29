@@ -52,7 +52,7 @@ public class SessionQueryRepository : ISessionQueryRepository
     return await _context.Sessions
       .Where(s =>
         s.UserId == userId &&
-        s.SessionId == sessionId
+        s.Id == sessionId
       )
       .FirstOrDefaultAsync();
   }

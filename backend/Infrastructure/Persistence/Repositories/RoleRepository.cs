@@ -52,7 +52,7 @@ public class RoleRepository : IRoleRepository
       )
       .Join(_context.Permissions,
         rp => rp,
-        p => p.PermissionId,
+        p => p.Id,
         (rp, p) => new { p.Code, p.IsActive })
       .Where(p => p.IsActive)
       .Select(p => p.Code)
@@ -65,15 +65,15 @@ public class RoleRepository : IRoleRepository
       .Where(up => up.UserId == userId)
       .Join(_context.Permissions,
         up => up.PermissionId,
-        p => p.PermissionId,
-        (up, p) => new { up.IsDenied, p.Code }
+        p => p.Id,
+        (up, p) => new { up.IsActive, p.Code }
       )
       .AsNoTracking()
       .ToListAsync();
 
     foreach (var up in userPermissions)
     {
-      if (up.IsDenied)
+      if (!up.IsActive)
         effectivePermissions.Remove(up.Code);
       else
         effectivePermissions.Add(up.Code);
