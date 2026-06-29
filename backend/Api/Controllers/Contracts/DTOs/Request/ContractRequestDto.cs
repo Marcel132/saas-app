@@ -13,6 +13,11 @@ public class ContractRequestDto
   public string Description { get; set; } = string.Empty;
 
   [Required]
-  public decimal Price { get; set; }
-  public DateTime? Deadline { get; set; }
+  public decimal PricePerRequest { get; set; }
+  
+  [Required]
+  public int MaxRequests {get; set; }
+
+  [Required]
+  public DateOnly? Deadline { get; set; }
 }

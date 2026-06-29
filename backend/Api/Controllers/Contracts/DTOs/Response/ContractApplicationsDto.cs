@@ -9,8 +9,8 @@ public class ContractApplicationsDto
   public Guid CandidateId { get; set; }
   public string FirstName { get; set; } = string.Empty;
   public string LastName { get; set; } = string.Empty;
-  public string Nickname { get; set; } = string.Empty;
-  public string Description { get; set; } = string.Empty;
+  public string NickName { get; set; } = string.Empty;
+  public string Bio { get; set; } = string.Empty;
   public ContractApplicationStatus Status { get; set; }
   public DateTime AppliedAt { get; set; }
 }
