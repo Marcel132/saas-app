@@ -1,4 +1,4 @@
-using backend.Domain.EntitiesNew;
+using backend.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -49,15 +49,12 @@ public class SessionConfig : IEntityTypeConfiguration<Session>
       .HasMaxLength(1024)
       .IsRequired();
 
-    builder
-      .HasIndex(x => x.UserId);
-
-    builder
-      .HasIndex(x => x.RefreshTokenHash)
+    builder.HasIndex(x => x.UserId);
+    builder.HasIndex(x => x.RefreshTokenHash)
       .IsUnique();
 
     builder
-      .HasOne<User>()
+      .HasOne(s => s.User)
       .WithMany()
       .HasForeignKey(s => s.UserId)
       .OnDelete(DeleteBehavior.NoAction);

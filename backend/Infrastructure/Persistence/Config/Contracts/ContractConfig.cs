@@ -1,4 +1,4 @@
-using backend.Domain.EntitiesNew;
+using backend.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -61,6 +61,12 @@ public class ContractConfig : IEntityTypeConfiguration<Contract>
 
     builder.HasIndex(x => x.Status);
 
+    builder
+      .HasOne<CompanyProfile>()
+      .WithMany()
+      .HasForeignKey(x => x.AuthorId)
+      .HasPrincipalKey(x => x.UserId)
+      .OnDelete(DeleteBehavior.NoAction);
 
     builder
       .HasMany(x => x.Applications)

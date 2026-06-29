@@ -1,4 +1,4 @@
-using backend.Domain.EntitiesNew;
+using backend.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -49,28 +49,7 @@ public class UserConfig : IEntityTypeConfiguration<User>
     builder.HasIndex(x => x.Email)
       .IsUnique();
 
-    builder
-      .HasOne(u => u.CompanyProfile)
-      .WithOne()
-      .HasForeignKey<CompanyProfile>(cp => cp.UserId)
-      .OnDelete(DeleteBehavior.Cascade);
-
-    builder
-      .HasOne(u => u.PentesterProfile)
-      .WithOne()
-      .HasForeignKey<PentesterProfile>(pp => pp.UserId)
-      .OnDelete(DeleteBehavior.Cascade);
-
-    builder
-      .HasMany(x => x.UserRoles)
-      .WithOne()
-      .HasForeignKey(x => x.UserId);
-
-    builder
-      .HasMany(x => x.UserPermissions)
-      .WithOne()
-      .HasForeignKey(x => x.UserId);
-
+   
     builder.Navigation(x => x.UserRoles)
       .UsePropertyAccessMode(PropertyAccessMode.Field);
 

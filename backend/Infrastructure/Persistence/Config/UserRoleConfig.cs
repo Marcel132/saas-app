@@ -1,4 +1,4 @@
-using backend.Domain.EntitiesNew;
+using backend.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -28,13 +28,13 @@ public class UserRoleConfig : IEntityTypeConfiguration<UserRole>
 
 
     builder
-      .HasOne<User>()
-      .WithMany()
+      .HasOne(x => x.User)
+      .WithMany(x => x.UserRoles)
       .HasForeignKey(x => x.UserId)
       .OnDelete(DeleteBehavior.Cascade);
 
     builder
-      .HasOne<Role>()
+      .HasOne(x => x.Role)
       .WithMany()
       .HasForeignKey(x => x.RoleId)
       .OnDelete(DeleteBehavior.Cascade);

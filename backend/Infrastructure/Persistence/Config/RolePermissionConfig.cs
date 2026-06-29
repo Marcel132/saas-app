@@ -1,4 +1,4 @@
-using backend.Domain.EntitiesNew;
+using backend.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -24,13 +24,13 @@ public class RolePermissionConfig : IEntityTypeConfiguration<RolePermission>
       .IsRequired();
       
     builder
-      .HasOne<Role>()
+      .HasOne(x => x.Role)
       .WithMany()
       .HasForeignKey(x => x.RoleId)
       .OnDelete(DeleteBehavior.Cascade);
 
     builder
-      .HasOne<Permission>()
+      .HasOne(x => x.Permission)
       .WithMany()
       .HasForeignKey(x => x.PermissionId)
       .OnDelete(DeleteBehavior.Cascade);

@@ -1,4 +1,4 @@
-using backend.Domain.EntitiesNew;
+using backend.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -52,13 +52,11 @@ public class CompanyProfileConfig : IEntityTypeConfiguration<CompanyProfile>
 
     builder.Property(x => x.Bio)
       .HasColumnName("bio")
-      .HasMaxLength(1000)
-      .IsRequired();
+      .HasMaxLength(1000);
 
     builder.Property(x => x.WebsiteUrl)
       .HasColumnName("website_url")
-      .HasMaxLength(256)
-      .IsRequired();
+      .HasMaxLength(256);
   
     builder.HasIndex(x => x.Nip)
       .IsUnique();
