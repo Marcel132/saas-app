@@ -28,7 +28,13 @@ public class GlobalErrorHandlingMiddleware
 
   private async Task HandleAppExceptionAsync(HttpContext context, AppException ex)
   {
-    _logger.LogError(ex, "Unhandled exception at {Path} {Method}: {Message}", context.Request.Path, context.Request.Method, ex.Message);
+    _logger.LogWarning(
+      "{Code}: {Message} {Method} {Path}", 
+      ex.DomainError, 
+      ex.Message,
+      context.Request.Method, 
+      context.Request.Path
+    );
 
     var (status, state) = ex switch
     {
@@ -69,17 +75,17 @@ public class GlobalErrorHandlingMiddleware
 
   private async Task HandleExceptionAsync(HttpContext context, Exception ex)
   {
+    if (ex is AppException appEx)
+    {
+      await HandleAppExceptionAsync(context, appEx);
+      return;
+    }
     _logger.LogError(ex,
       "Unhandled exception at {Path} {Method}",
       context.Request.Path,
       context.Request.Method
     );
 
-    if (ex is AppException appEx)
-    {
-      await HandleAppExceptionAsync(context, appEx);
-      return;
-    }
 
     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
