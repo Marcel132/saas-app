@@ -55,7 +55,7 @@ public class UserRegisterService
       GithubUrl: req.GithubUrl ?? string.Empty,
       LinkedinUrl: req.LinkedinUrl ?? string.Empty,
       Certificates: [],
-      Experience: ExperienceLevel.None
+      Experience: req.ExperienceLevel ?? ExperienceLevel.None
     );
 
     using var transaction = await _unitOfWork.BeginTransactionAsync();
