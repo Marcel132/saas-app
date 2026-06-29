@@ -10,25 +10,36 @@ public class ContractRequest
   public string Url { get; private set; } = string.Empty;
   public string Scope { get; private set; } = string.Empty;
   public string Credentials { get; private set; } = string.Empty;
-  public DateTime? Deadline { get; private set; } = DateTime.UtcNow.AddDays(7);
-
-  public ContractRequestStatus Status { get; private set; } = ContractRequestStatus.Created;
-
-  public ContractAssignment ContractAssignment { get; private set; } = null!;
+  public ContractRequestStatus Status { get; private set; }
+  public DateOnly Deadline { get; private set; }
+  public bool IsActive { get; private set; }
 
   private ContractRequest() { } // EF
 
+  public ContractAssignment ContractAssignment { get; private set; } = null!;
+
   // TODO: Move arguments to dto
-  public ContractRequest(long assignmentId, string title, string url, string scope, string credentials, DateTime? deadline)
+  public ContractRequest(long assignmentId, string title, string url, string scope, string credentials, DateOnly deadline)
   {
     if (assignmentId <= 0)
       throw new ValueOutOfRangeAppException("Assignment ID must have value greater than 0");
 
-    if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(url) || string.IsNullOrWhiteSpace(scope) || string.IsNullOrWhiteSpace(credentials))
+    if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(scope) || string.IsNullOrWhiteSpace(credentials))
       throw new BadRequestAppException("Błędne dane!");
 
-    if (deadline.HasValue && deadline <= DateTime.UtcNow.AddDays(7))
-      throw new BadRequestAppException("Deadline nie może być mniejszy niż 7 dni");
+    if (title.Length > 256)
+      throw new BadRequestAppException("Tytuł jest za długi");
+
+    if (string.IsNullOrWhiteSpace(url) || !Uri.IsWellFormedUriString(url, UriKind.Absolute))
+      throw new BadRequestAppException("Url ma zły format");
+
+    if (url.Length > 256 || scope.Length > 256)
+      throw new BadRequestAppException("Tytuł jest za długi");
+
+    var minimumDeadline = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7));
+
+    if (deadline < minimumDeadline)
+      throw new BadRequestAppException("Deadline musi być większy niż 7 dni");
 
     Deadline = deadline;
     AssignmentId = assignmentId;
@@ -36,22 +47,56 @@ public class ContractRequest
     Url = url;
     Scope = scope;
     Credentials = credentials;
+    Status = ContractRequestStatus.Created;
+    IsActive = true;
   }
 
   // TODO: Add logic 
   public void StartRequest()
   {
-    Status = ContractRequestStatus.Testing;
+    ChangeStatus(ContractRequestStatus.Testing);
   }
 
   public void SubmitRequest()
   {
-    Status = ContractRequestStatus.ReportSubmitted;
+    ChangeStatus(ContractRequestStatus.ReportSubmitted);
   }
 
   public void CompleteRequest()
   {
-    Status = ContractRequestStatus.Completed;
+    ChangeStatus(ContractRequestStatus.Completed);
+  }
+
+  public void Deactivate()
+  {
+    EnsureIsActive();
+
+    IsActive = false;
+  }
+
+  private void EnsureIsActive()
+  {
+    if (!IsActive)
+      throw new BadRequestAppException("Nie można operować na nieaktywnym request");
+  }
+
+  private void ChangeStatus(ContractRequestStatus newStatus)
+  {
+    EnsureIsActive();
+
+    if (!CanModifyStatus(newStatus))
+      throw new BadRequestAppException();
+    Status = newStatus;
+  }
+  private bool CanModifyStatus(ContractRequestStatus newStatus)
+  {
+    return Status switch
+    {
+      ContractRequestStatus.Created => newStatus == ContractRequestStatus.Testing,
+      ContractRequestStatus.Testing => newStatus == ContractRequestStatus.ReportSubmitted,
+      ContractRequestStatus.ReportSubmitted => newStatus == ContractRequestStatus.Completed,
+      _ => false
+    };
   }
 
 }

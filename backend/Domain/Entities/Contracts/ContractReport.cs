@@ -5,38 +5,31 @@ namespace backend.Domain.Entities;
 public class ContractReport
 {
   public long Id { get; private set; }
-  public long RequestId { get; private set; }
-  public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
-  public DateTime? ReviewedAt { get; private set; }
-  public DateTime? SubmittedAt { get; private set; }
-  public DateTime? UpdatedAt { get; private set; }
-  public ContractReportStatus Status { get; private set; } = ContractReportStatus.Draft;
-  public string? ReportUrl { get; private set; }
+  public long AssignmentId { get; private set; }
+  public ContractReportStatus Status { get; private set; }
   public string? Feedback { get; private set; }
+  public DateTime CreatedAt { get; private set; } 
+  public DateTime? ReviewedAt { get; private set; } 
+  public DateTime? SubmittedAt { get; private set; } 
+  public DateTime? UpdatedAt { get; private set; } 
 
-
-  public ICollection<ContractVulnerability> Vulnerabilities { get; private set; } = [];
-  public ContractRequest Request { get; private set; } = null!;
   private ContractReport() { } // EF
-  // public ContractAssignment Assignment { get; private set; } = null!;
+  public ContractAssignment ContractAssignment { get; private set; } = null!;
 
-  public ContractReport(long requestId)
+  public ContractReport(long assignmentId)
   {
-    if (requestId <= 0)
-      throw new ValueOutOfRangeAppException();
+    if(assignmentId <= 0)
+      throw new BadRequestAppException();
 
-    RequestId = requestId;
+    AssignmentId = assignmentId;
+    Status = ContractReportStatus.Draft;
+    CreatedAt = DateTime.UtcNow;
   }
 
-  public void Submit(string reportUrl)
+public void Submit()
   {
-    if (string.IsNullOrWhiteSpace(reportUrl) || reportUrl.Length > 1000)
-      throw new ValueOutOfRangeAppException("Report URL is invalid.");
-
     ChangeStatus(ContractReportStatus.Submitted);
 
-    ReportUrl = reportUrl;
-    Feedback = null;
     SubmittedAt = DateTime.UtcNow;
   }
 
@@ -55,7 +48,6 @@ public class ContractReport
   {
     ChangeStatus(ContractReportStatus.Approved);
     ReviewedAt = DateTime.UtcNow;
-    Feedback = null;
   }
 
   public void Reject(string feedback)

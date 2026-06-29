@@ -6,22 +6,24 @@ public class ContractApplication
 {
   public long Id { get; private set; }
   public long ContractId { get; private set; }
-  public Guid CandidateId { get; private set; }
-  public ContractApplicationStatus Status { get; private set; } = ContractApplicationStatus.Pending;
-  public DateTime AppliedAt { get; private set; } = DateTime.UtcNow;
+  public Guid UserId { get; private set; }
+  public ContractApplicationStatus Status { get; private set; }
+  public DateTime AppliedAt { get; private set; }
 
-  private ContractApplication() { } // EF
+  private ContractApplication() { } // EF 
+
   public Contract Contract { get; private set; } = null!;
+  public PentesterProfile PentesterProfile { get; private set; } = null!;
 
-  public ContractApplication(long contractId, Guid candidateId)
+  public ContractApplication(long contractId, Guid userId)
   {
-    if (contractId <= 0)
-      throw new ValueOutOfRangeAppException();
-    if (candidateId == Guid.Empty)
-      throw new BadRequestAppException();
+    if(contractId <= 0 || userId == Guid.Empty)
+      throw new BadRequestAppException("Nie można utworzyć aplikacji");
 
     ContractId = contractId;
-    CandidateId = candidateId;
+    UserId = userId;
+    Status = ContractApplicationStatus.Pending;
+    AppliedAt = DateTime.UtcNow;
   }
 
   public void Accept()
