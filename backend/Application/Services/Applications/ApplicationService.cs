@@ -36,11 +36,11 @@ public class ApplicationService : IApplicationService
     await using var transaction = await _unitOfWork.BeginTransactionAsync();
     try
     {
-      await _assignmentService.AssignCandidateToContractAsync(userId, application.ContractId, application.CandidateId);
+      await _assignmentService.AssignCandidateToContractAsync(userId, application.ContractId, application.UserId);
       application.Accept();
       application.Contract.StartContract();
 
-      var applicationsToReject = await _applicationRepository.GetApplicationsByContractIdAsync(application.ContractId, application.CandidateId);
+      var applicationsToReject = await _applicationRepository.GetApplicationsByContractIdAsync(application.ContractId, application.UserId);
 
       foreach (var app in applicationsToReject)
       {

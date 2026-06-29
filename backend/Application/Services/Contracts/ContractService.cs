@@ -2,6 +2,7 @@ using backend.Api.Controllers;
 using backend.Api.Controllers.Contracts.DTOs;
 using backend.Domain.Entities;
 using backend.Domain.Entities.Enum;
+using backend.Domain.Entities.Records;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
 using backend.Domain.Interfaces.Services;
@@ -56,7 +57,16 @@ public class ContractService : IContractService
 
   public async Task CreateContractAsync(Guid authorId, ContractRequestDto request)
   {
-    var contract = new Contract(authorId, request.Title, request.Description, request.Price, request.Deadline);
+    var data = new ContractRecord
+    (
+      authorId,
+      request.Title,
+      request.Description,
+      request.PricePerRequest,
+      request.MaxRequests,
+      request.Deadline ?? DateOnly.FromDateTime(DateTime.UtcNow.AddDays(30))
+    );
+    var contract = new Contract(data);
 
     await _contractRepository.AddContractAsync(contract);
     await _unitOfWork.SaveChangesAsync();
@@ -101,7 +111,7 @@ public class ContractService : IContractService
       contract.UpdatePrice(request.Price.Value);
 
     if (request.NewDeadline.HasValue)
-      contract.ExtendDeadline(request.NewDeadline.Value);
+      contract.ChangeDeadline(DateOnly.FromDateTime(request.NewDeadline.Value));
 
     await _unitOfWork.SaveChangesAsync();
   }
@@ -139,10 +149,7 @@ public class ContractService : IContractService
     if (contract.AuthorId == candidateId)
       throw new InvalidOperationAppException("You cannot apply to your own contract.");
 
-    if (contract.IsExpired())
-      throw new InvalidOperationAppException("Cannot apply to an expired contract.");
-
-    if (contract.ContractStatus != ContractStatus.Open)
+    if (contract.Status != ContractStatus.Open)
       throw new InvalidOperationAppException("Cannot apply to a non-open contract.");
 
     var application = new ContractApplication(contractId, candidateId);

@@ -1,4 +1,3 @@
-using backend.Api.Controllers;
 using backend.Api.Controllers.Users.DTOs;
 using backend.Domain.Entities.Enum;
 using backend.Domain.Interfaces;
@@ -24,28 +23,28 @@ public class UserService : IUserService
     _userRepo = userRepository;
   }
 
-  public async Task<PagedResponse<UserResponsePublicDto>> GetAllAsync(int page, int pageSize, string? search = null)
-  {
-    return await _userQueryRepo.GetAllAsync(page, pageSize, search);
-  }
-
-  public async Task<UserResponsePublicDto> GetUserByIdAsync(Guid userId, Guid currentUserId)
+  public async Task<UserPublicPentesterDto> GetPentesterByIdAsync(Guid userId, Guid currentUserId)
   {
     if (userId == Guid.Empty)
-    {
       throw new BadRequestAppException();
-    }
 
-    var user = await _userQueryRepo.GetUserByIdAsync(userId);
+    var pentester = await _userQueryRepo.GetPentesterByIdAsync(userId);
 
     // TODO: Create log with userId and currentUserId (who requested the data) for auditing purposes
 
-    return user;
+    return pentester;
   }
 
-  public async Task<UserResponsePrivateDto> GetCurrentUserAsync(Guid userId)
+  public async Task<object> GetCurrentUserAsync(Guid userId)
   {
-    return await _userQueryRepo.GetCurrentUserByIdAsync(userId);
+    var roleType = await _userQueryRepo.GetRoleTypeAsync(userId);
+
+    return roleType switch
+    {
+      RoleType.Pentester => (object)await _userQueryRepo.GetCurrentPentesterAsync(userId),
+      RoleType.Company => (object)await _userQueryRepo.GetCurrentCompanyAsync(userId),
+      _ => throw new InvalidOperationAppException()
+    };
   }
 
   public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status = null)
@@ -63,20 +62,51 @@ public class UserService : IUserService
     return await _userQueryRepo.GetSummary(userId);
   }
 
-
-  public async Task UpdateUserAsync(Guid userId, UpdateUserDto request)
+  public async Task UpdatePentesterAsync(Guid userId, UpdatePentesterDto request)
   {
     var user = await _userRepo.GetByIdAsync(userId)
       ?? throw new NotFoundAppException();
 
     if (request.SpecializationType != null)
     {
-      user.ClearSpecializations();
+      user.ClearAllPentesterSpecializations();
+
       foreach (var spec in request.SpecializationType)
-        user.AddSpecialization(spec);
+        user.AddPentesterSpecialization(spec);
     }
 
-    user.UpdateUserData(request);
+    user.UpdatePentesterProfile(
+      request.FirstName,
+      request.LastName,
+      request.NickName,
+      request.Phone,
+      request.Country,
+      request.City,
+      request.Street,
+      request.PostalCode,
+      request.Bio,
+      request.GithubUrl,
+      request.LinkedinUrl
+    );
+
+    await _unitOfWork.SaveChangesAsync();
+  }
+
+  public async Task UpdateCompanyAsync(Guid userId, UpdateCompanyDto request)
+  {
+    var user = await _userRepo.GetByIdAsync(userId)
+      ?? throw new NotFoundAppException();
+
+    user.UpdateCompanyProfile(
+      request.Name,
+      request.Phone,
+      request.Country,
+      request.City,
+      request.Street,
+      request.PostalCode,
+      request.Bio,
+      request.WebsiteUrl
+    );
 
     await _unitOfWork.SaveChangesAsync();
   }
@@ -89,5 +119,4 @@ public class UserService : IUserService
     user.DeleteAccount();
     await _unitOfWork.SaveChangesAsync();
   }
-
 }

@@ -34,9 +34,16 @@ public class AuthService : IAuthService
     return await GenerateCredentialsAndHandleSessionAsync(user.Id, ipAddress, userAgent);
   }
 
-  public async Task<CredentialsDto> RegisterAsync(RegisterRequestDto request, string ipAddress, string userAgent)
+  public async Task<CredentialsDto> RegisterPentesterAsync(RegisterPentesterRequestDto req, string ipAddress, string userAgent)
   {
-    var user = await _registration.RegisterAsync(request);
+    var user = await _registration.RegisterPentesterAsync(req);
+
+    return await GenerateCredentialsAndHandleSessionAsync(user.Id, ipAddress, userAgent);
+  }
+
+  public async Task<CredentialsDto> RegisterCompanyAsync(RegisterCompanyRequestDto req, string ipAddress, string userAgent)
+  {
+    var user = await _registration.RegisterCompanyAsync(req);
 
     return await GenerateCredentialsAndHandleSessionAsync(user.Id, ipAddress, userAgent);
   }
@@ -71,17 +78,17 @@ public class AuthService : IAuthService
   {
     var validationResult = await ValidateRefreshTokenAsync(refreshToken, ipAddress, userAgent);
 
-    var used = await _sessionService.TryUseRefreshTokenAsync(validationResult.Session.SessionId);
+    var used = await _sessionService.TryUseRefreshTokenAsync(validationResult.Session.Id);
     if (!used)
     {
-      await _sessionService.RevokeAllSessionsAsync(validationResult.UserId, validationResult.Session.SessionId);
+      await _sessionService.RevokeAllSessionsAsync(validationResult.UserId, validationResult.Session.Id);
       throw new SuspiciousActivityAppException();
     }
 
     var tokens = await _credentialsService.GenerateCredentials(validationResult.UserId);
     var newSession = await _sessionService.CreateSessionAsync(validationResult.UserId, tokens.RefreshToken, ipAddress, userAgent);
 
-    await _sessionService.SetReplacedByAndRevokedAsync(validationResult.Session.SessionId, newSession.SessionId);
+    await _sessionService.SetReplacedByAndRevokedAsync(validationResult.Session.Id, newSession.Id);
 
     return tokens;
   }
@@ -99,7 +106,7 @@ public class AuthService : IAuthService
 
     if (session.ExpiresAt <= DateTime.UtcNow)
     {
-      await _sessionService.RevokeSessionByIdAsync(session.UserId, session.SessionId, null);
+      await _sessionService.RevokeSessionByIdAsync(session.UserId, session.Id, null);
       throw new TokenExpiredAppException();
     }
 
