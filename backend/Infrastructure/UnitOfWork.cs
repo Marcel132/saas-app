@@ -1,5 +1,4 @@
 using backend.Domain.Interfaces;
-using backend.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace backend.Infrastructure;
