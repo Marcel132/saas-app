@@ -38,38 +38,6 @@ public class ContractsController : ControllerBase
     ));
   }
 
-  [HttpGet("company")]
-  public async Task<IActionResult> GetCompanyContracts([FromQuery] QueryParams queryParams)
-  {
-    var userId = UserContextExtension.GetUserId(User);
-
-    var contracts = await _contractService.GetCompanyContractsAsync(userId, queryParams);
-
-    return Ok(HttpResponseFactory.CreateSuccessResponse(
-      HttpContext,
-      HttpResponseState.Success,
-      "Pobrano kontrakty firmy",
-      DomainErrorCodes.GeneralCodes.Success,
-      contracts
-    ));
-  }
-
-  [HttpGet]
-  public async Task<IActionResult> GetOpenContracts([FromQuery] QueryParams queryParams)
-  {
-    var userId = UserContextExtension.GetUserId(User);
-
-    var contracts = await _contractService.GetOpenContractsAsync(userId, queryParams);
-
-    return Ok(HttpResponseFactory.CreateSuccessResponse(
-      HttpContext,
-      HttpResponseState.Success,
-      "Pobrano kontrakty pentestera",
-      DomainErrorCodes.GeneralCodes.Success,
-      contracts
-    ));
-  }
-  
   [AllowAnonymous]
   [HttpGet("{contractId:long}")]
   public async Task<IActionResult> GetContractById([FromRoute] long contractId)
@@ -87,6 +55,41 @@ public class ContractsController : ControllerBase
     ));
   }
 
+  [HasPermission(Permissions.Contracts.Read)]
+  [HttpGet]
+  public async Task<IActionResult> GetOpenContracts([FromQuery] QueryParams queryParams)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+
+    var contracts = await _contractService.GetOpenContractsAsync(userId, queryParams);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse(
+      HttpContext,
+      HttpResponseState.Success,
+      "Pobrano kontrakty pentestera",
+      DomainErrorCodes.GeneralCodes.Success,
+      contracts
+    ));
+  }
+
+  [HasPermission(Permissions.ContractsSelf.Read)]
+  [HttpGet("company")]
+  public async Task<IActionResult> GetCompanyContracts([FromQuery] QueryParams queryParams)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+
+    var contracts = await _contractService.GetCompanyContractsAsync(userId, queryParams);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse(
+      HttpContext,
+      HttpResponseState.Success,
+      "Pobrano kontrakty firmy",
+      DomainErrorCodes.GeneralCodes.Success,
+      contracts
+    ));
+  }
+
+  [HasPermission(Permissions.Contracts.Create)]
   [HttpPost]
   public async Task<IActionResult> CreateContract([FromBody] ContractRequestDto contractRequest)
   {
@@ -102,6 +105,7 @@ public class ContractsController : ControllerBase
     ));
   }
 
+  [HasPermission(Permissions.Contracts.Update)]
   [HttpPatch("{contractId}/close")]
   public async Task<IActionResult> CloseContract([FromRoute] long contractId)
   {
@@ -116,6 +120,7 @@ public class ContractsController : ControllerBase
     ));
   }
 
+  [HasPermission(Permissions.Contracts.Update)]
   [HttpPatch("{contractId}")]
   public async Task<IActionResult> UpdateContractAsync([FromRoute] long contractId, [FromBody] UpdateContractDto request)
   {
@@ -130,6 +135,7 @@ public class ContractsController : ControllerBase
     ));
   }
 
+  [HasPermission(Permissions.Contracts.ReadApplications)]
   [HttpGet("{contractId}/applications")]
   public async Task<IActionResult> GetContractApplications([FromRoute] long contractId)
   {
@@ -145,6 +151,7 @@ public class ContractsController : ControllerBase
     ));
   }
 
+  [HasPermission(Permissions.Contracts.Apply)]
   [HttpPost("{contractId}/apply")]
   public async Task<IActionResult> ApplyToContract([FromRoute] long contractId)
   {
