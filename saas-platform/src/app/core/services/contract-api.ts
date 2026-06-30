@@ -44,7 +44,7 @@ export class ContractApi {
     }
 
     return this.http.get<ApiResponseModel<PagedResponseModel<PentesterContractDto>>>(
-      ApiEndpoints.contracts.pentester,
+      ApiEndpoints.contracts.open,
       { params }
     )
   }
@@ -71,7 +71,7 @@ export class ContractApi {
 
   createContract(request: AddContractDto) {
     return this.http.post<ApiResponseModel<null>>(
-      ApiEndpoints.contracts.base,
+      ApiEndpoints.contracts.create,
       request,
     )
   }

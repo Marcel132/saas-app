@@ -13,13 +13,13 @@ export class UserApi {
 
   private readonly http = inject(HttpClient)
 
-  getCurrentUser(){
+  getCurrentUser() {
     return this.http.get<ApiResponseModel<CurrentUserDto>>(
       ApiEndpoints.users.currentUser,
     )
   }
 
-  getCurrentUserSummary(){
+  getCurrentUserSummary() {
     return this.http.get<ApiResponseModel<UserSummaryDto>>(
       ApiEndpoints.users.summary,
     )

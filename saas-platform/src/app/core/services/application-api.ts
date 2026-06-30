@@ -10,23 +10,23 @@ import { UserApplicationDto } from '../../features/main/models/application-dto';
 export class ApplicationApi {
   private readonly http = inject(HttpClient)
 
-  acceptApplication(applicationId: number){
+  acceptApplication(applicationId: number) {
     return this.http.patch<ApiResponseModel<null>>(
       `${ApiEndpoints.applications.accept(applicationId)}`,
       {},
     )
   }
 
-  rejectApplication(applicationId: number){
+  rejectApplication(applicationId: number) {
     return this.http.patch<ApiResponseModel<null>>(
       `${ApiEndpoints.applications.reject(applicationId)}`,
       {},
     )
   }
 
-  getApplications(){
+  getApplications() {
     return this.http.get<ApiResponseModel<UserApplicationDto[]>>(
-      `${ApiEndpoints.applications.myApplications}`
+      `${ApiEndpoints.users.currentUserApplications}`
     )
   }
 }
