@@ -1,5 +1,4 @@
-export enum RoleType
-{
+export enum RoleType {
   company = "Company",
   pentester = "Pentester"
 }

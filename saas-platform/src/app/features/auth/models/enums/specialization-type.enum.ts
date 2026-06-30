@@ -1,5 +1,4 @@
-export enum SpecializationType
-{
+export enum SpecializationType {
   WebSecurity = 1,
   ApiSecurity = 2,
   MobileSecurity = 3,
