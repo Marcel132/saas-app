@@ -6,7 +6,7 @@ namespace backend.Domain.Interfaces.Services;
 public interface IContractService
 {
   public Task<PagedResponse<PublicContractDto>> GetPublicContractsAsync(QueryParams requestParams);
-  public Task<PagedResponse<PentesterContractDto>> GetPentesterContractsAsync(Guid userId, QueryParams requestParams);
+  public Task<PagedResponse<OpenContractDto>> GetOpenContractsAsync(Guid userId, QueryParams requestParams);
   public Task<PagedResponse<CompanyContractDto>> GetCompanyContractsAsync(Guid userId, QueryParams requestParams);
   public Task<ContractDetailsDto> GetContractDetailsAsync(long contractId, Guid? userId);
 

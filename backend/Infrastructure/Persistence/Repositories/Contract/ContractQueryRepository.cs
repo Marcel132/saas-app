@@ -56,7 +56,7 @@ public class ContractQueryRepository : IContractQueryRepository
     };
   }
 
-  public async Task<PagedResponse<PentesterContractDto>> GetPentesterContractsAsync(Guid userId, QueryParams queryParams)
+  public async Task<PagedResponse<OpenContractDto>> GetOpenContractsAsync(Guid userId, QueryParams queryParams)
   {
     var query = _context.Contracts
       .AsNoTracking()
@@ -73,7 +73,7 @@ public class ContractQueryRepository : IContractQueryRepository
      .OrderByDescending(c => c.CreatedAt)
      .Skip((queryParams.Page - 1) * queryParams.PageSize)
      .Take(queryParams.PageSize)
-     .Select(c => new PentesterContractDto
+     .Select(c => new OpenContractDto
      {
        ContractId = c.Id,
        Title = c.Title,
@@ -93,7 +93,7 @@ public class ContractQueryRepository : IContractQueryRepository
      })
      .ToListAsync();
 
-    return new PagedResponse<PentesterContractDto>
+    return new PagedResponse<OpenContractDto>
     {
       Page = queryParams.Page,
       PageSize = queryParams.PageSize,

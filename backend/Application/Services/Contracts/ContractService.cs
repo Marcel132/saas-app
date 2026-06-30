@@ -31,11 +31,11 @@ public class ContractService : IContractService
 
     return await _contractQueryRepository.GetPublicContractsAsync(requestParams);
   }
-  public async Task<PagedResponse<PentesterContractDto>> GetPentesterContractsAsync(Guid userId, QueryParams requestParams)
+  public async Task<PagedResponse<OpenContractDto>> GetOpenContractsAsync(Guid userId, QueryParams requestParams)
   {
     ValidateQueryParams(requestParams, userId);
 
-    return await _contractQueryRepository.GetPentesterContractsAsync(userId, requestParams);
+    return await _contractQueryRepository.GetOpenContractsAsync(userId, requestParams);
   }
   public async Task<PagedResponse<CompanyContractDto>> GetCompanyContractsAsync(Guid userId, QueryParams requestParams)
   {

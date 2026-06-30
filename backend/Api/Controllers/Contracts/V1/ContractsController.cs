@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using backend.Api.Auth;
 using backend.Api.Controllers.Contracts.DTOs;
 using backend.Api.Http;
@@ -39,7 +38,6 @@ public class ContractsController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.ContractsSelf.Read)]
   [HttpGet("company")]
   public async Task<IActionResult> GetCompanyContracts([FromQuery] QueryParams queryParams)
   {
@@ -56,14 +54,12 @@ public class ContractsController : ControllerBase
     ));
   }
 
-  // [HasPermission(Permissions.Contracts.Read)]
-  // TODO: Update Permissions
   [HttpGet]
-  public async Task<IActionResult> GetPentesterContracts([FromQuery] QueryParams queryParams)
+  public async Task<IActionResult> GetOpenContracts([FromQuery] QueryParams queryParams)
   {
     var userId = UserContextExtension.GetUserId(User);
 
-    var contracts = await _contractService.GetPentesterContractsAsync(userId, queryParams);
+    var contracts = await _contractService.GetOpenContractsAsync(userId, queryParams);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse(
       HttpContext,
@@ -91,7 +87,6 @@ public class ContractsController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.Contracts.Create)]
   [HttpPost]
   public async Task<IActionResult> CreateContract([FromBody] ContractRequestDto contractRequest)
   {
@@ -107,7 +102,6 @@ public class ContractsController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.ContractsSelf.Status)]
   [HttpPatch("{contractId}/close")]
   public async Task<IActionResult> CloseContract([FromRoute] long contractId)
   {
@@ -122,7 +116,6 @@ public class ContractsController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.ContractsSelf.ModifyDetails)]
   [HttpPatch("{contractId}")]
   public async Task<IActionResult> UpdateContractAsync([FromRoute] long contractId, [FromBody] UpdateContractDto request)
   {
@@ -137,7 +130,6 @@ public class ContractsController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.ContractsSelf.Read)]
   [HttpGet("{contractId}/applications")]
   public async Task<IActionResult> GetContractApplications([FromRoute] long contractId)
   {
@@ -153,7 +145,6 @@ public class ContractsController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.ProfileApplications.Create)]
   [HttpPost("{contractId}/apply")]
   public async Task<IActionResult> ApplyToContract([FromRoute] long contractId)
   {

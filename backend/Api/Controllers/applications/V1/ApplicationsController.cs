@@ -19,7 +19,6 @@ public class ApplicationsController : ControllerBase
     _applicationService = applicationService;
   }
 
-  [HasPermission(Permissions.ContractsSelf.AuthorizeApplications)]
   [HttpPatch("{applicationId}/accept")]
   public async Task<IActionResult> AcceptApplication([FromRoute] long applicationId)
   {
@@ -35,7 +34,6 @@ public class ApplicationsController : ControllerBase
   }
   
   
-  [HasPermission(Permissions.ContractsSelf.AuthorizeApplications)]
   [HttpPatch("{applicationId}/reject")]
   public async Task<IActionResult> RejectApplication([FromRoute] long applicationId)
   {
@@ -50,22 +48,21 @@ public class ApplicationsController : ControllerBase
       ));
   }
 
-  [HasPermission(Permissions.ProfileApplications.Read)]
-  [HttpGet("me")]
-  public async Task<IActionResult> GetCurrentUserApplications()
-  {
+  // [HttpGet("me")]
+  // public async Task<IActionResult> GetCurrentUserApplications()
+  // {
     
-    var userId = UserContextExtension.GetUserId(User);
+  //   var userId = UserContextExtension.GetUserId(User);
 
-    var applications = await _applicationService.GetCurrentUserApplications(userId);
+  //   var applications = await _applicationService.GetCurrentUserApplications(userId);
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext,
-      HttpResponseState.Success,
-      "Applications retrieved successfuly",
-      DomainErrorCodes.GeneralCodes.Success,
-      applications
-    ));
-  }
+  //   return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+  //     HttpContext,
+  //     HttpResponseState.Success,
+  //     "Applications retrieved successfuly",
+  //     DomainErrorCodes.GeneralCodes.Success,
+  //     applications
+  //   ));
+  // }
 
 }

@@ -26,7 +26,6 @@ public class UsersController : ControllerBase
 
   // GetAllAsync (admin) 
 
-  [HasPermission(Permissions.Users.Read)]
   [HttpGet("{userId}")]
   public async Task<IActionResult> GetPentesterById([FromRoute] Guid userId)
   {
@@ -43,7 +42,6 @@ public class UsersController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.Profile.Read)]
   [HttpGet("me")]
   public async Task<IActionResult> GetCurrentUser()
   {
@@ -59,7 +57,6 @@ public class UsersController : ControllerBase
       ));
   }
 
-  [HasPermission(Permissions.Profile.Read)]
   [HttpGet("me/summary")]
   public async Task<IActionResult> GetCurrentUserSummary()
   {
@@ -76,7 +73,6 @@ public class UsersController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.Profile.Update)]
   [HttpPatch("me/pentester")]
   public async Task<IActionResult> UpdateCurrentPentester([FromBody] UpdatePentesterDto request)
   {
@@ -91,7 +87,6 @@ public class UsersController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.Profile.Update)]
   [HttpPatch("me/company")]
   public async Task<IActionResult> UpdateCurrentCompany([FromBody] UpdateCompanyDto request)
   {
@@ -106,7 +101,6 @@ public class UsersController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.Profile.Delete)]
   [HttpDelete("me")]
   public async Task<IActionResult> DeleteCurrentUser()
   {
@@ -116,7 +110,6 @@ public class UsersController : ControllerBase
     return NoContent();
   }
 
-  [HasPermission(Permissions.ProfileContracts.Read)]
   [HttpGet("me/contracts")]
   public async Task<IActionResult> GetCurrentUserContracts([FromQuery] ContractStatus? status = null)
   {
@@ -132,7 +125,6 @@ public class UsersController : ControllerBase
     ));
   }
 
-  [HasPermission(Permissions.ProfileApplications.Read)]
   [HttpGet("me/applications")]
   public async Task<IActionResult> GetCurrentUserApplications([FromQuery] ContractApplicationStatus? status = null)
   {
