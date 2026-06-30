@@ -1,39 +1,46 @@
 import { environment } from "../../../environments/environment"
 
-const domain = environment.apiUrl
-const version = 'v1'
+const domain = environment.apiUrl;
+const version = 'v1';
+
+const authBase = `${domain}/${version}/auth`;
+const usersBase = `${domain}/${version}/users`;
+const contractsBase = `${domain}/${version}/contracts`;
+const applicationsBase = `${domain}/${version}/applications`
 
 export const ApiEndpoints = {
   auth: {
-    login: `${domain}/${version}/auth/login`,
-    register: `${domain}/${version}/auth/register`,
-    refreshToken: `${domain}/${version}/auth/refresh-token`,
-    logout: `${domain}/${version}/auth/logout`
+    login: `${authBase}/login`,
+    registerPentester: `${authBase}/register/pentester`,
+    registerCompany: `${authBase}/register/company`,
+    refreshToken: `${authBase}/refresh-token`,
+    logout: `${authBase}/logout`
   },
   users: {
-    currentUser: `${domain}/${version}/users/me`,
-    summary: `${domain}/${version}/users/me/summary`
+    byId: (userId: string) => `${usersBase}/${userId}`,
+    currentUser: `${usersBase}/me`,
+    summary: `${usersBase}/me/summary`,
+    delete: `${usersBase}/me`,
+    updateCurrentUserPentester: `${usersBase}/me/pentester`,
+    updateCurrentUserCompany: `${usersBase}/me/company`,
+    currentUserContracts: `${usersBase}/me/contracts`,
+    currentUserApplications: `${usersBase}/me/applications`
   },
   contracts: {
-    base: `${domain}/${version}/contracts`,
-    update: (contractId: number) => `${domain}/${version}/contracts/${contractId}`,
-    close: (contractId: number) => `${domain}/${version}/contracts/${contractId}/close`,
+    public: `${contractsBase}/public`,
+    byId: (contractId: number) => `${contractsBase}/${contractId}`,
+    open: `${contractsBase}`,
+    company: `${contractsBase}/company`,
 
-    public: `${domain}/${version}/contracts/public`,
-    company: `${domain}/${version}/contracts/company`,
-    pentester: `${domain}/${version}/contracts`,
+    create: `${contractsBase}`,
+    update: (contractId: number) => `${contractsBase}/${contractId}`,
+    close: (contractId: number) => `${contractsBase}/${contractId}/close`,
 
-    byId: (contractId: number) => `${domain}/${version}/contracts/${contractId}`,
-
-    applications: (contractId: number) => `${domain}/${version}/contracts/${contractId}/applications`,
-    apply: (contractId: number) => `${domain}/${version}/contracts/${contractId}/apply`,
+    applications: (contractId: number) => `${contractsBase}/${contractId}/applications`,
+    apply: (contractId: number) => `${contractsBase}/${contractId}/apply`,
   },
   applications: {
-    base: `${domain}/${version}/applications`,
-
-    accept: (applicationId: number) => `${domain}/${version}/applications/${applicationId}/accept`,
-    reject: (applicationId: number) => `${domain}/${version}/applications/${applicationId}/reject`,
-
-    myApplications: `${domain}/${version}/applications/me`
+    accept: (applicationId: number) => `${applicationsBase}/${applicationId}/accept`,
+    reject: (applicationId: number) => `${applicationsBase}/${applicationId}/reject`,
   }
 }
