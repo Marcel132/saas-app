@@ -1,4 +1,3 @@
-using backend.Api.Controllers;
 using backend.Api.Controllers.Users.DTOs;
 using backend.Domain.Entities.Enum;
 using backend.Domain.Interfaces.Repositories;
