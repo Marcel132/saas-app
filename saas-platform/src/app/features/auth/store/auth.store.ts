@@ -83,6 +83,7 @@ export class AuthStore {
       message: 'Rejestracja...'
     })
 
+
     return this.authApiService.registerCompany(request)
       .pipe(
         switchMap(response => this.loadCurrentUser().pipe(
@@ -115,4 +116,5 @@ export class AuthStore {
       tap(() => this.currentUser.set(null))
     )
   }
+
 }
