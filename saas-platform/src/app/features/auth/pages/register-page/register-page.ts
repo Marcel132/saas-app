@@ -1,7 +1,7 @@
 import { Component, effect, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { AuthStore } from '../../store/auth.store';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Message } from "../../../../shared/ui/message/message";
 import { CompanyForm } from './company-form/company-form';
 import { PentesterForm } from './pentester-form/pentester-form';
@@ -15,8 +15,9 @@ import { RoleType } from '../../models/enums/role-type.enum';
     ReactiveFormsModule,
     Message,
     PentesterForm,
-    CompanyForm
-  ],
+    CompanyForm,
+    RouterLink
+],
   templateUrl: './register-page.html',
   styleUrl: './register-page.scss',
 })
