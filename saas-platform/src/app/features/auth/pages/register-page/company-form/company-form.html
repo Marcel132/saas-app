@@ -17,6 +17,19 @@
         id="email"
         formControlName="email"
       />
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <div class="error-message">
+          @if(form.controls.email.errors?.['required']) {
+            Email jest wymagany
+          }
+          @if(form.controls.email.errors?.['email']) {
+            Niepoprawny format email
+          }
+          @if(form.controls.email.errors?.['maxlength']) {
+            Email nie może być dłuższy niż 254 znaki
+          }
+        </div>
+      }
     </div>
     <div class="part">
       <label for="password">Hasło</label>
@@ -26,6 +39,19 @@
         id="password"
         formControlName="password"
       />
+      @if(form.controls.password.touched && form.controls.password.invalid) {
+        <div class="error-message">
+          @if(form.controls.password.errors?.['required']) {
+            Hasło jest wymagane
+          }
+          @if(form.controls.password.errors?.['minlength'] || form.controls.password.errors?.['maxlength']) {
+            Hasło musi mieć od 8 do 64 znaków
+          }
+          @if(form.controls.password.errors?.['pattern']) {
+            Hasło musi zawierać co najmniej jedną wielką literę, jedną małą literę, jedną cyfrę i jeden znak specjalny
+          }
+        </div>
+      }
     </div>
 
   </div>
@@ -42,6 +68,16 @@
         id="name"
         formControlName="name"
       />
+      @if(form.controls.name.touched && form.controls.name.invalid) {
+        <div class="error-message">
+          @if(form.controls.name.errors?.['required']) {
+            Nazwa firmy jest wymagana
+          }
+          @if(form.controls.name.errors?.['maxlength']) {
+            Nazwa firmy nie może być dłuższa niż 256 znaków
+          }
+        </div>
+      }
     </div>
     <div class="part">
       <label for="nip">NIP</label>
@@ -51,6 +87,19 @@
         id="nip"
         formControlName="nip"
       />
+      @if(form.controls.nip.touched && form.controls.nip.invalid) {
+        <div class="error-message">
+          @if(form.controls.nip.errors?.['required']) {
+            NIP jest wymagany
+          }
+          @if(form.controls.nip.errors?.['pattern']) {
+            NIP musi składać się z 10 cyfr
+          }
+          @if(form.controls.nip.errors?.['minlength'] || form.controls.nip.errors?.['maxlength']) {
+            NIP musi składać się z 10 cyfr
+          }
+        </div>
+      }
     </div>
     <div class="part">
       <label for="phone">Telefon</label>
@@ -59,7 +108,21 @@
         type="text"
         id="phone"
         formControlName="phone"
+        (input)="onPhoneInput($event)"
       />
+      @if(form.controls.phone.touched && form.controls.phone.invalid) {
+        <div class="error-message">
+          @if(form.controls.phone.errors?.['required']) {
+            Telefon jest wymagany
+          }
+          @if(form.controls.phone.errors?.['pattern']) {
+            Niepoprawny format telefonu
+          }
+          @if(form.controls.phone.errors?.['maxlength']) {
+            Telefon nie może być dłuższy niż 30 znaków
+          }
+        </div>
+      }
     </div>
     <div class="part">
       <label for="city">Miasto</label>
@@ -69,6 +132,16 @@
         id="city"
         formControlName="city"
       />
+      @if(form.controls.city.touched && form.controls.city.invalid) {
+        <div class="error-message">
+          @if(form.controls.city.errors?.['required']) {
+            Miasto jest wymagane
+          }
+          @if(form.controls.city.errors?.['maxlength']) {
+            Miasto nie może być dłuższe niż 100 znaków
+          }
+        </div>
+      }
     </div>
     <div class="part">
       <label for="country">Państwo</label>
@@ -78,6 +151,16 @@
         id="country"
         formControlName="country"
       />
+      @if(form.controls.country.touched && form.controls.country.invalid) {
+        <div class="error-message">
+          @if(form.controls.country.errors?.['required']) {
+            Państwo jest wymagane
+          }
+          @if(form.controls.country.errors?.['maxlength']) {
+            Państwo nie może być dłuższe niż 100 znaków
+          }
+        </div>
+      }
     </div>
     <div class="part">
       <label for="postalCode">Kod pocztowy</label>
@@ -87,6 +170,16 @@
         id="postalCode"
         formControlName="postalCode"
       />
+      @if(form.controls.postalCode.touched && form.controls.postalCode.invalid) {
+        <div class="error-message">
+          @if(form.controls.postalCode.errors?.['required']) {
+            Kod pocztowy jest wymagany
+          }
+          @if(form.controls.postalCode.errors?.['maxlength']) {
+            Kod pocztowy nie może być dłuższy niż 20 znaków
+          }
+        </div>
+      }
     </div>
     <div class="part">
       <label for="street">Ulica</label>
@@ -96,6 +189,16 @@
         id="street"
         formControlName="street"
       />
+      @if(form.controls.street.touched && form.controls.street.invalid) {
+        <div class="error-message">
+          @if(form.controls.street.errors?.['required']) {
+            Ulica jest wymagana
+          }
+          @if(form.controls.street.errors?.['maxlength']) {
+            Ulica nie może być dłuższa niż 100 znaków
+          }
+        </div>
+      }
     </div>
 
   </div>
@@ -111,6 +214,13 @@
         id="bio"
         formControlName="bio">
       </textarea>
+      @if(form.controls.bio.touched && form.controls.bio.invalid) {
+        <div class="error-message">
+          @if(form.controls.bio.errors?.['maxlength']) {
+            Opis firmy nie może być dłuższy niż 1000 znaków
+          }
+        </div>
+      }
     </div>
     <div class="part">
       <label for="websiteUrl">Strona internetowa</label>
@@ -120,6 +230,16 @@
         id="websiteUrl"
         formControlName="websiteUrl"
       />
+      @if(form.controls.websiteUrl.touched && form.controls.websiteUrl.invalid) {
+        <div class="error-message">
+          @if(form.controls.websiteUrl.errors?.['maxlength']) {
+            Strona internetowa nie może być dłuższa niż 2048 znaków
+          }
+          @if(form.controls.websiteUrl.errors?.['pattern']) {
+            Niepoprawny format strony internetowej
+          }
+        </div>
+      }
     </div>
 
   </div>
