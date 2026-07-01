@@ -18,7 +18,7 @@ export class LoginPage {
 
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
-  readonly request = this.authStore.request
+  readonly request = this.authStore.request.asReadonly()
 
   constructor() {
     effect(() => {
