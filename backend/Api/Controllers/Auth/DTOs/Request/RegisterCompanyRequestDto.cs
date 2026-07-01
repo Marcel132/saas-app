@@ -14,6 +14,7 @@ public class RegisterCompanyRequestDto
   public string Password { get; set; } = string.Empty;
 
   [Required]
+  [StringLength(10, MinimumLength = 10)]
   [RegularExpression(@"^[0-9]{10}$", ErrorMessage = "NIP musi składać się z 10 cyfr")]
   public string Nip { get; set; } = string.Empty;
 
@@ -25,7 +26,6 @@ public class RegisterCompanyRequestDto
   [Required]
   [RegularExpression(@"^[^%<>]*$")]
   [StringLength(30)]
-  [Phone]
   public string Phone { get; set; } = string.Empty;
 
   [Required]
@@ -39,8 +39,7 @@ public class RegisterCompanyRequestDto
   public string Country { get; set; } = string.Empty;
 
   [Required]
-  [RegularExpression(@"^[^%<>]*$")]
-  [StringLength(10)]
+  [StringLength(20)]
   public string PostalCode { get; set; } = string.Empty;
 
   [Required]

@@ -51,7 +51,7 @@ public class UserRegisterService
       City: req.City,
       Street: req.Street,
       PostalCode: req.PostalCode,
-      Bio: req.Bio,
+      Bio: req.Bio ?? string.Empty,
       GithubUrl: req.GithubUrl ?? string.Empty,
       LinkedinUrl: req.LinkedinUrl ?? string.Empty,
       Certificates: [],
