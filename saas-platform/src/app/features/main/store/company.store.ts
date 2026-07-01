@@ -45,6 +45,13 @@ export class CompanyStore {
 
   readonly pagedResponse = signal<PagedResponseModel<CompanyContractDto> | null >(null)
 
+  clearRequestState() {
+    this.request.set({
+      state: 'idle',
+      message: ''
+    })
+  }
+
   getContracts() {
     this.request.set({
       state: 'loading',

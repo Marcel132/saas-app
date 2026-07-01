@@ -8,7 +8,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authApi = inject(AuthApi);
   const exludedEndpoints = [
     ApiEndpoints.auth.login,
-    ApiEndpoints.auth.register,
+    ApiEndpoints.auth.registerCompany,
+    ApiEndpoints.auth.registerPentester,
     ApiEndpoints.auth.refreshToken
   ]
   if(exludedEndpoints.some(x => req.url.includes(x))){

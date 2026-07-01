@@ -3,10 +3,11 @@ import { catchError, switchMap, tap, throwError } from "rxjs";
 
 import { AuthApi } from "../../../core/services/auth-api";
 import { LoginRequest } from "../models/login-request";
-import { RegisterRequest } from "../models/register-request";
-import { CurrentUserDto } from "../models/current-user-dto";
 import { UserApi } from "../../../core/services/user-api";
 import { RequestState } from "../../../core/models/request-state";
+import { RegisterPentesterRequest } from "../models/register-pentester-request";
+import { RegisterCompanyRequest } from "../models/register-company-request";
+import { CurrentUser } from "../models/current-user/current-user-base";
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class AuthStore {
     message: ''
   })
 
-  readonly currentUser = signal<CurrentUserDto | null>(null);
+  readonly currentUser = signal<CurrentUser | null>(null);
 
 
   login(request: LoginRequest) {
@@ -45,28 +46,55 @@ export class AuthStore {
     )
   }
 
-  register(request: RegisterRequest) {
+  registerPentester(request: RegisterPentesterRequest) {
     this.request.set({
       state: 'loading',
       message: 'Rejestracja...'
     })
-    return this.authApiService.register(request).pipe(
-      switchMap(response => this.loadCurrentUser().pipe(
-        tap(() => this.request.set({
-          state: 'success',
-          message: response.message ?? "Zarejestrowano"
-        }))
-      )),
-      catchError(err => {
-        this.request.set({
-          state: 'error',
-          message: err.error.message
-        })
-        return throwError(() => err)
-      })
-    )
-  };
 
+    return this.authApiService.registerPentester(request)
+      .pipe(
+        switchMap(response => this.loadCurrentUser().pipe(
+          tap(() => this.request.set({
+            state: 'success',
+            message: response.message ?? "Zarejestrowano"
+          }))
+        )),
+        catchError(err => {
+          this.request.set({
+            state: 'error',
+            message: err.error.message
+          })
+          return throwError(() => err)
+        })
+      )
+      .subscribe();
+  }
+
+  registerCompany(request: RegisterCompanyRequest) {
+    this.request.set({
+      state: 'loading',
+      message: 'Rejestracja...'
+    })
+
+    return this.authApiService.registerCompany(request)
+      .pipe(
+        switchMap(response => this.loadCurrentUser().pipe(
+          tap(() => this.request.set({
+            state: 'success',
+            message: response.message ?? "Zarejestrowano"
+          }))
+        )),
+        catchError(err => {
+          this.request.set({
+            state: 'error',
+            message: err.error.message
+          })
+          return throwError(() => err)
+        })
+      )
+      .subscribe()
+  }
 
   loadCurrentUser() {
     return this.userApiService.getCurrentUser().pipe(
