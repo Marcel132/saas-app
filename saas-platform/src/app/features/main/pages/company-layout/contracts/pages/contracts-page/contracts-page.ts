@@ -20,7 +20,7 @@ export class ContractsPage {
   private readonly router = inject(Router)
 
   // SIGNALS
-  readonly contracts = this.companyStore.contracts
+  readonly contracts = this.companyStore.contracts.asReadonly()
 
   readonly counter = computed( () => ({
     open: this.contracts().filter(x => x.contractStatus == "Open").length,

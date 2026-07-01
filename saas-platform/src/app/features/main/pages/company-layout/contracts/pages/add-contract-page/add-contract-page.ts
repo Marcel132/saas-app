@@ -21,7 +21,7 @@ export class AddContractPage {
   readonly companyStore = inject(CompanyStore)
 
   actualDate = Date.now();
-  request = this.companyStore.request
+  request = this.companyStore.request.asReadonly()
 
   form = new FormGroup({
     title: new FormControl("", {nonNullable: true}),
@@ -31,10 +31,7 @@ export class AddContractPage {
   })
 
   ngOnInit(): void {
-    this.request.set({
-      state: 'idle',
-      message: ''
-    })
+    this.companyStore.clearRequestState();
   }
 
   addContract(){

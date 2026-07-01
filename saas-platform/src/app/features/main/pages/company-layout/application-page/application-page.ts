@@ -23,16 +23,13 @@ export class ApplicationPage {
   // DI
   private readonly companyStore = inject(CompanyStore);
   private readonly route = inject(ActivatedRoute);
-  readonly applications = this.companyStore.applications;
+  readonly applications = this.companyStore.applications.asReadonly();
   private id!: number;
 
-  request = this.companyStore.request
+  request = this.companyStore.request.asReadonly();
 
   ngOnInit(): void {
-    this.request.set({
-      state: 'idle',
-      message: ''
-    })
+    this.companyStore.clearRequestState();
 
     const id = Number(
       this.route.snapshot.paramMap.get('id')

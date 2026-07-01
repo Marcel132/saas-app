@@ -19,9 +19,9 @@ export class EditContractPage {
   private readonly companyStore = inject(CompanyStore)
   private readonly route = inject(ActivatedRoute)
 
-  request = this.companyStore.request
+  request = this.companyStore.request.asReadonly()
 
-  readonly contract = this.companyStore.selectedContract
+  readonly contract = this.companyStore.selectedContract.asReadonly()
   private id!: number
 
   form = new FormGroup({
@@ -49,10 +49,7 @@ export class EditContractPage {
   }
 
   ngOnInit(): void {
-    this.request.set({
-      state: 'idle',
-      message: ''
-    })
+    this.companyStore.clearRequestState();
     const id = Number(
       this.route.snapshot.paramMap.get('id')
     )
@@ -68,11 +65,6 @@ export class EditContractPage {
     console.log(this.form.dirty);
 
     if(!this.form.dirty){
-      this.request.set({
-        state:'error',
-        message: 'Nie wprowadzono zmian'
-      })
-
       return;
     }
 
