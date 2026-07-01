@@ -21,10 +21,21 @@ export class MainLayout {
 
 
   readonly currentUser = this.authStore.currentUser.asReadonly();
+  
   readonly isSidebarCollapsed = this.layoutStore.isSidebarCollapsed.asReadonly();
 
   readonly roleType = RoleType;
   readonly isMobile = signal(window.innerWidth <= 740);
+
+  readonly displayName = computed(() => {
+    const user = this.currentUser();
+    if(!user)
+      return "Użytkownik";
+
+    return user.role === this.roleType.company
+      ? user.name
+      : user.nickName
+  })
 
   protected readonly baseRoute = computed(() => {
     return this.authStore.currentUser()?.role === this.roleType.company

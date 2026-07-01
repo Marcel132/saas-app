@@ -21,42 +21,6 @@
       </a>
     }
 
-    <!-- <a class="nav-link"
-       [routerLink]="[baseRoute(), 'dashboard']"
-       routerLinkActive="active">
-      Dashboard
-    </a>
-
-    <a class="nav-link"
-       [routerLink]="[baseRoute(), 'offers']"
-       routerLinkActive="active">
-      Oferty
-    </a>
-
-    <a class="nav-link"
-       [routerLink]="[baseRoute(), 'assignments']"
-       routerLinkActive="active">
-      Zlecenia
-    </a>
-
-    <a class="nav-link"
-       [routerLink]="[baseRoute(), 'reports']"
-       routerLinkActive="active">
-      Raporty
-    </a>
-
-    <a class="nav-link"
-       [routerLink]="[baseRoute(), 'profile']"
-       routerLinkActive="active">
-      Profil
-    </a>
-
-    <a class="nav-link"
-       [routerLink]="[baseRoute(), 'settings']"
-       routerLinkActive="active">
-      Ustawienia
-    </a> -->
-
     <a class="nav-link"
        routerLink="/"
        (click)="logout()">
@@ -89,7 +53,7 @@
         }
         @else {
           <img src="/icons/account.svg" alt="Account">
-          <span>{{ currentUser()?.nickname }}, Witamy</span>
+          <span>{{ displayName() }}, Witamy</span>
         }
       </div>
 
