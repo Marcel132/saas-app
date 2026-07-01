@@ -54,6 +54,18 @@ export class RegisterPage {
   //     label: 'Red Team'
   //   }
   // ];
+  constructor() {
+    effect(() => {
+      if (this.request().state == 'success')
+        setTimeout(() => {
+          this.router.navigate([`/app/${this.authStore.currentUser()?.role.toLowerCase()}`])
+        }, 1000)
+    })
+  }
+
+  ngOnInit() {
+    this.authStore.clearRequestState();
+  }
 
   form = this.fb.group({
     accountType: this.fb.control<RoleType.pentester | RoleType.company>(RoleType.pentester, { nonNullable: true })
@@ -68,13 +80,5 @@ export class RegisterPage {
     this.authStore.registerCompany(dto);
   }
 
-  constructor() {
-    effect(() => {
-      if (this.request().state == 'success')
-        setTimeout(() => {
-          this.router.navigate([`/app/${this.authStore.currentUser()?.role.toLowerCase()}`])
-        }, 1000)
-    })
-  }
 }
 

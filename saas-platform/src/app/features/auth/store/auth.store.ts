@@ -23,6 +23,12 @@ export class AuthStore {
 
   readonly currentUser = signal<CurrentUser | null>(null);
 
+  clearRequestState() {
+    this.request.set({
+      state: 'idle',
+      message: ''
+    })
+  }
 
   login(request: LoginRequest) {
     this.request.set({

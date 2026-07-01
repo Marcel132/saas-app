@@ -1,5 +1,5 @@
 import { Component, effect, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { AuthStore } from '../../store/auth.store';
 import { LoginRequest } from '../../models/login-request';
@@ -9,8 +9,9 @@ import { Message } from "../../../../shared/ui/message/message";
   selector: 'app-login-page',
   imports: [
     ReactiveFormsModule,
-    Message
-  ],
+    Message,
+    RouterLink
+],
   templateUrl: './login-page.html',
   styleUrl: './login-page.scss',
 })
@@ -28,6 +29,10 @@ export class LoginPage {
         }, 1000)
       }
     })
+  }
+
+  ngOnInit() {
+    this.authStore.clearRequestState();
   }
 
   form = new FormGroup({

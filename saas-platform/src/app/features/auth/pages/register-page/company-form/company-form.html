@@ -3,105 +3,127 @@
   class="form"
   (ngSubmit)="onSubmit()"
 >
-  <div class="part">
-    <label for="email">Email</label>
-    <input
-      class="app-input"
-      type="email"
-      id="email"
-      formControlName="email"
-    />
+
+
+  <h5 class="section-title">Dane Konta</h5>
+
+  <div class="row">
+
+    <div class="part">
+      <label for="email">Email</label>
+      <input
+        class="app-input"
+        type="email"
+        id="email"
+        formControlName="email"
+      />
+    </div>
+    <div class="part">
+      <label for="password">Hasło</label>
+      <input
+        class="app-input"
+        type="password"
+        id="password"
+        formControlName="password"
+      />
+    </div>
+
   </div>
-  <div class="part">
-    <label for="password">Hasło</label>
-    <input
-      class="app-input"
-      type="password"
-      id="password"
-      formControlName="password"
-    />
+
+  <h5 class="section-title">Dane Prywatne</h5>
+
+  <div class="row">
+
+    <div class="part">
+      <label for="name">Nazwa firmy</label>
+      <input
+        class="app-input"
+        type="text"
+        id="name"
+        formControlName="name"
+      />
+    </div>
+    <div class="part">
+      <label for="nip">NIP</label>
+      <input
+        class="app-input"
+        type="text"
+        id="nip"
+        formControlName="nip"
+      />
+    </div>
+    <div class="part">
+      <label for="phone">Telefon</label>
+      <input
+        class="app-input"
+        type="text"
+        id="phone"
+        formControlName="phone"
+      />
+    </div>
+    <div class="part">
+      <label for="city">Miasto</label>
+      <input
+        class="app-input"
+        type="text"
+        id="city"
+        formControlName="city"
+      />
+    </div>
+    <div class="part">
+      <label for="country">Państwo</label>
+      <input
+        class="app-input"
+        type="text"
+        id="country"
+        formControlName="country"
+      />
+    </div>
+    <div class="part">
+      <label for="postalCode">Kod pocztowy</label>
+      <input
+        class="app-input"
+        type="text"
+        id="postalCode"
+        formControlName="postalCode"
+      />
+    </div>
+    <div class="part">
+      <label for="street">Ulica</label>
+      <input
+        class="app-input"
+        type="text"
+        id="street"
+        formControlName="street"
+      />
+    </div>
+
   </div>
-  <div class="part">
-    <label for="name">Nazwa firmy</label>
-    <input
-      class="app-input"
-      type="text"
-      id="name"
-      formControlName="name"
-    />
+
+  <h5 class="section-title">Profil</h5>
+
+  <div class="row">
+
+    <div class="part">
+      <label for="bio">Opis Firmy</label>
+      <textarea
+        class="app-input"
+        id="bio"
+        formControlName="bio">
+      </textarea>
+    </div>
+    <div class="part">
+      <label for="websiteUrl">Strona internetowa</label>
+      <input
+        class="app-input"
+        type="text"
+        id="websiteUrl"
+        formControlName="websiteUrl"
+      />
+    </div>
+
   </div>
-  <div class="part">
-    <label for="nip">NIP</label>
-    <input
-      class="app-input"
-      type="text"
-      id="nip"
-      formControlName="nip"
-    />
-  </div>
-  <div class="part">
-    <label for="phone">Telefon</label>
-    <input
-      class="app-input"
-      type="text"
-      id="phone"
-      formControlName="phone"
-    />
-  </div>
-  <div class="part">
-    <label for="city">Miasto</label>
-    <input
-      class="app-input"
-      type="text"
-      id="city"
-      formControlName="city"
-    />
-  </div>
-  <div class="part">
-    <label for="country">Państwo</label>
-    <input
-      class="app-input"
-      type="text"
-      id="country"
-      formControlName="country"
-    />
-  </div>
-  <div class="part">
-    <label for="postalCode">Kod pocztowy</label>
-    <input
-      class="app-input"
-      type="text"
-      id="postalCode"
-      formControlName="postalCode"
-    />
-  </div>
-  <div class="part">
-    <label for="street">Ulica</label>
-    <input
-      class="app-input"
-      type="text"
-      id="street"
-      formControlName="street"
-    />
-  </div>
-  <div class="part">
-    <label for="bio">Opis firmy</label>
-    <input
-      class="app-input"
-      type="text"
-      id="bio"
-      formControlName="bio"
-    />
-  </div>
-  <div class="part">
-    <label for="websiteUrl">Strona internetowa</label>
-    <input
-      class="app-input"
-      type="text"
-      id="websiteUrl"
-      formControlName="websiteUrl"
-    />
-  </div>
+
   <button type="submit" class="app-button">
     Zarejestruj
   </button>

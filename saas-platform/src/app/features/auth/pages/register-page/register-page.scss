@@ -1,23 +1,61 @@
-.wrapper{
+:host {
+  display: block;
   width: 100%;
-  max-width: 420px;
+}
 
-  margin: var(--space-xl) auto;
+.wrapper {
+  max-width: 760px;
+  margin: 3rem auto;
+  padding: 2rem 2.5rem;
+
+  background: var(--surface, #fff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 18px;
 
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: 2rem;
 
-  h3{
-    font-size: var(--font-size-xl);
-  }
+  box-shadow:
+    0 8px 24px rgba(0,0,0,.05),
+    0 2px 8px rgba(0,0,0,.04);
 }
 
-.box{
-  display: grid;
-  grid-template-columns:  auto auto;
-  flex-direction: row;
+.header {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.form {
+  display: flex;
+  gap: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color, #ececec);
+}
+
+.form label {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-lg)
+  gap: .5rem;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+input[type="radio"] {
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+
+  .wrapper {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+
+  .form {
+    flex-direction: column;
+    gap: .75rem;
+    align-items: flex-start;
+  }
 }
