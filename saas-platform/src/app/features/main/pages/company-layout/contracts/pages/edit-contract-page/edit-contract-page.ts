@@ -1,16 +1,19 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject} from '@angular/core';
 import { CompanyStore } from '../../../../../store/company.store';
 import { ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { RequestState } from '../../../../../../../core/models/request-state';
 import { Message } from "../../../../../../../shared/ui/message/message";
+import { DatePipe } from '@angular/common';
+import { InfoTooltip } from '../../../../../../../shared/ui/info-tooltip/info-tooltip';
 
 @Component({
   selector: 'app-edit-contract-page',
   imports: [
     ReactiveFormsModule,
-    Message
-],
+    Message,
+    DatePipe,
+    InfoTooltip
+  ],
   templateUrl: './edit-contract-page.html',
   styleUrl: './edit-contract-page.scss',
 })
@@ -23,11 +26,15 @@ export class EditContractPage {
 
   readonly contract = this.companyStore.selectedContract.asReadonly()
   private id!: number
+  actualDate = Date.now()
+
+  // TODO: ADD validation for UX exp
 
   form = new FormGroup({
     title: new FormControl("", {nonNullable: true}),
     description: new FormControl("", {nonNullable: true}),
-    price: new FormControl(),
+    pricePerRequest: new FormControl(),
+    maxRequests: new FormControl(),
     newDeadline: new FormControl()
   })
 
@@ -38,10 +45,12 @@ export class EditContractPage {
     if(!contract)
       return
 
+
     this.form.patchValue({
       title: contract.title,
       description: contract.description,
-      price: contract.price,
+      pricePerRequest: contract.pricePerRequest,
+      maxRequests: contract.maxRequests,
       newDeadline: contract.deadline.split('T')[0]
     })
     this.form.markAsPristine();
@@ -61,9 +70,11 @@ export class EditContractPage {
       .subscribe()
   }
 
-  update(){
-    console.log(this.form.dirty);
+  get maxBudget(){
+    return (this.form.controls.maxRequests.value ?? 0) * ( this.form.controls.pricePerRequest.value ?? 0)
+  }
 
+  update(){
     if(!this.form.dirty){
       return;
     }

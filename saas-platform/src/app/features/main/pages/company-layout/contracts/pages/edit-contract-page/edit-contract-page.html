@@ -6,48 +6,112 @@
   }
   @else if(contract()) {
 
-    <h4>Edytuj kontrakt</h4>
-
     <form [formGroup]="form" class="card" (ngSubmit)="update()">
 
-      <label for='title'>Tytuł</label>
-      <input
-        class="app-input title"
-        formControlName="title"
-        id='title'
-      >
+      <h4 class="section-title">Dane Kontraktu</h4>
 
-      <label for='description'>Opis</label>
-      <textarea
-        class="app-input description"
-        formControlName="description"
-        id='description'
-        (keydown.enter)="onEnter($event)"
-        >
-      </textarea>
+      <div class="row desc-section">
 
-      <label for='price'>Cena</label>
-      <input
-        class="app-input price"
-        type="number"
-        formControlName="price"
-        id='price'
-      >
+        <div class="part">
+          <label for="title">Tytuł</label>
+          <input
+          type="text"
+          id="title"
+          class="app-input title"
+          formControlName='title'
+          >
+          <!-- @if(){} -->
+        </div>
 
-      <label for='deadline'>Deadline</label>
-      <input
-        class='app-input deadline'
-        type="string"
-        id="deadline"
-        formControlName='newDeadline'
-      >
+        <div class="part">
+          <label for="description">Opis</label>
+          <textarea
+          class='app-input description'
+          id="description"
+          formControlName='description'
+          (keydown.enter)="onEnter($event)"
+          ></textarea>
+
+        </div>
+
+      </div>
+
+      <h4 class="section-title">Szczegóły kontraktu</h4>
+      <div class="row price-section">
+
+        <div class="part">
+            <label for="maxRequests">
+              Ilość requestów
+              <app-info-tooltip
+                text='Maksymalna liczba adresów URL, które pentester będzie miał do sprawdzenia.'
+              />
+            </label>
+            <input
+              type="number"
+              id="maxRequests"
+              class="app-input maxRequests"
+              formControlName='maxRequests'
+              min='1'
+              step='1'
+            >
+            @if(form.controls.maxRequests.touched && form.controls.maxRequests.invalid){
+              <div class="error-message">
+                @if(form.controls.maxRequests.errors?.['required']){
+                  Należy podać ilość requestów
+                }
+                @if(form.controls.maxRequests.errors?.['min']){
+                  Nie można wybrać liczby mniejszej od 1
+                }
+                @if(form.controls.maxRequests.errors?.['pattern']){
+                  Request musi być liczbą całkowitą
+                }
+              </div>
+            }
+        </div>
+
+        <div class="part ">
+          <label for="pricePerRequest">
+            Cena za request
+            <app-info-tooltip
+              text="Cena za dokładnie 1 request. Cena kontraktu wyświetla się poniżej jako budżet"
+            />
+          </label>
+          <input
+            type="number"
+            id="pricePerRequest"
+            class="app-input pricePerRequest"
+            formControlName='pricePerRequest'
+            >
+        </div>
+
+        <span>Budżet na kontrakt <br><br> <b><i>({{this.maxBudget}} zł)</i></b></span>
+      </div>
+
+      <h4 class="section-title">Czas ważności ogłoszenia</h4>
+      <div class="row">
+
+        <label for="deadline">
+          Termin zgłoszeń
+          <app-info-tooltip
+            text="Domyślnie 30 dni"
+          />
+        </label>
+        <input
+          type="string"
+          class='app-input newDeadline'
+          id="deadline"
+          formControlName='newDeadline'
+          [placeholder]="actualDate | date: 'yyyy-MM-dd'"
+          >
+
+      </div>
+
       <button
-      type='submit'
-        class="app-button save">
-        Zapisz zmiany
+      type="submit"
+      class='app-button edit'
+      >
+      Edytuj
       </button>
-
-
     </form>
 
     <app-message [request]="request()"></app-message>

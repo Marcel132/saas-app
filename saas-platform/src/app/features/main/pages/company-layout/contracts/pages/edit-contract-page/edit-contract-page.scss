@@ -1,18 +1,21 @@
+:host {
+  display: block;
+  width: 100%;
+}
 .wrapper {
+  display: block;
   width: 100%;
   padding: var(--space-lg);
 
   display: flex;
   flex-direction: column;
-}
-
-h4 {
-  font-size: var(--font-size-xl);
-  margin-bottom: var(--space-lg);
+  align-items: center;
+  justify-content: center;
 }
 
 .card {
   width: 100%;
+  max-width: 720px;
   padding: var(--space-md);
   border-radius: var(--border-radius-l);
   background-color: var(--color-surface-tertiary);
@@ -28,19 +31,102 @@ h4 {
   }
 }
 
-label {
-  padding: var(--space-xs) 0;
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding-bottom: .5rem;
+  border-bottom: 2px solid var(--color-border-primary);
 }
-.description {
-  min-height: 150px;
-  resize: vertical;
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  text-align: center;
 }
-.price {
+
+.part {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .45rem;
+}
+
+.part label {
+  font-size: .9rem;
+  font-weight: 600;
+  align-items: center;
+}
+.price-section input[type='number'] {
   max-width: 150px;
   text-align: center;
 }
 
+textarea.app-input {
+  min-height: 100px;
+  resize: vertical;
+}
 .save {
   align-self: center;
   max-width: 150px;
 }
+
+@media (max-width: 768px) {
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+i {
+  font-size: var(--font-size-xl);
+}
+
+
+
+// .wrapper {
+//   width: 100%;
+//   padding: var(--space-lg);
+
+//   display: flex;
+//   flex-direction: column;
+// }
+
+// h4 {
+//   font-size: var(--font-size-xl);
+//   margin-bottom: var(--space-lg);
+// }
+
+// .card {
+//   width: 100%;
+//   padding: var(--space-md);
+//   border-radius: var(--border-radius-l);
+//   background-color: var(--color-surface-tertiary);
+
+//   display: flex;
+//   flex-direction: column;
+//   gap: var(--space-md);
+
+//   &:hover{
+//     opacity: .9;
+//     border-color: var(--color-text);
+//     box-shadow: 4px 4px 16px var(--color-text);
+//   }
+// }
+
+// label {
+//   padding: var(--space-xs) 0;
+// }
+// .description {
+//   min-height: 150px;
+//   resize: vertical;
+// }
+// .price {
+//   max-width: 150px;
+//   text-align: center;
+// }
+
+// .save {
+//   align-self: center;
+//   max-width: 150px;
+// }
