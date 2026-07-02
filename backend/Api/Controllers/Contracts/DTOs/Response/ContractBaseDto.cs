@@ -7,9 +7,8 @@ public class BaseContractDto
   public long ContractId { get; set; }
   public string Title { get; set; } = string.Empty;
   public string Description { get; set; } = string.Empty;
-  public decimal Price { get; set; }
-  // MAX BUDGET
-  
+  public decimal PricePerRequest { get; set; }
+  public decimal MaxBudget { get; set; }
   public int MaxRequests { get; set; }
   public ContractStatus ContractStatus { get; set; }
   public DateTime CreatedAt { get; set; }
