@@ -1,6 +1,6 @@
 import { Component, effect, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthStore } from '../../store/auth.store';
 import { LoginRequest } from '../../models/login-request';
 import { Message } from "../../../../shared/ui/message/message";
@@ -37,9 +37,20 @@ export class LoginPage {
 
   form = new FormGroup({
     email: new FormControl('', {
+      validators: [
+        Validators.required,
+        Validators.email,
+        Validators.maxLength(254)
+      ],
       nonNullable: true
     }),
     password: new FormControl('', {
+      validators: [
+        Validators.required,
+        Validators.minLength(8),
+        Validators.maxLength(64),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).+$/)
+      ],
       nonNullable: true
     })
   })
@@ -50,6 +61,9 @@ export class LoginPage {
       Email: this.form.controls.email.value,
       Password: this.form.controls.password.value
     }
+
+    if(this.form.invalid)
+      return;
     this.authStore.login(request)
       .subscribe()
   }

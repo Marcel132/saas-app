@@ -34,11 +34,6 @@
   font-weight: 600;
 }
 
-.app-input {
-  width: 100%;
-  box-sizing: border-box;
-}
-
 textarea.app-input {
   min-height: 100px;
   resize: vertical;
@@ -54,11 +49,4 @@ textarea.app-input {
   .row {
     grid-template-columns: 1fr;
   }
-}
-
-
-.error-message {
-  color: var(--color-error);
-  font-size: .8rem;
-  font-weight: 500;
 }

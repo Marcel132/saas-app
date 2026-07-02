@@ -12,6 +12,21 @@
     placeholder='Email'
     class='app-input'
     >
+
+    @if(form.controls.email.touched && form.controls.email.invalid){
+      <div class="error-message">
+        @if(form.controls.email.errors?.['required']){
+          Wymagany email do zalogowania
+        }
+        @if(form.controls.email.errors?.['email']){
+          Zły format emaila
+        }
+        @if(form.controls.email.errors?.['maxlength']){
+          Zbyt długi email
+        }
+      </div>
+    }
+
     <input
     type="password"
     formControlName="password"
@@ -19,6 +34,19 @@
     class='app-input'
     >
 
+    @if(form.controls.password.touched && form.controls.password.invalid){
+      <div class="error-message">
+        @if(form.controls.password.errors?.['required']){
+          Wymagane hasło do zalogowania
+        }
+        @if(form.controls.password.errors?.['minlength'] || form.controls.password.errors?.['maxlength']){
+          Hasło musi mieć od 8 do 64 znaków
+        }
+        @if(form.controls.password.errors?.['pattern']){
+          Hasło musi mieć co najmniej jedną wielką literę, jedną małą literę, cyfrę oraz znak specjalny
+        }
+      </div>
+    }
     <button
     type="submit"
     class='app-button'
