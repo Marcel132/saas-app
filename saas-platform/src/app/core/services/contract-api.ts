@@ -8,9 +8,9 @@ import { AddContractDto } from '../../features/main/pages/company-layout/contrac
 import { CompanyApplicationsDto } from '../../features/main/models/company-applications-dto';
 import { PagedRequestModel } from '../models/paged-request-model';
 import { PagedResponseModel } from '../models/paged-response-model';
-import { PublicContractDto } from '../../features/main/models/contracts/public-contract-dto';
-import { PentesterContractDto } from '../../features/main/models/contracts/pentester-contract-dto';
-import { CompanyContractDto } from '../../features/main/models/contracts/company-contract-dto';
+import { PublicContractDto } from '../../features/main/models/response/public-contract-dto';
+import { PentesterContractDto } from '../../features/main/models/response/open-contract-dto';
+import { CompanyContractDto } from '../../features/main/models/response/company-contract-dto';
 import { ContractDetailsDto } from '../../features/main/models/contracts/contract-details-dto';
 
 @Injectable({

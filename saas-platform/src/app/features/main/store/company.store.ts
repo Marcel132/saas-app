@@ -11,7 +11,7 @@ import { CONTRACT_STATUS_ORDER } from "../../../core/constants/contract-status-o
 import { APPLICATIONS_STATUS_ORDER } from "../../../core/constants/application-status-order";
 import { PagedRequestModel } from "../../../core/models/paged-request-model";
 import { PagedResponseModel } from "../../../core/models/paged-response-model";
-import { CompanyContractDto } from "../models/contracts/company-contract-dto";
+import { CompanyContractDto } from "../models/response/company-contract-dto";
 import { ContractDetailsDto } from "../models/contracts/contract-details-dto";
 
 @Injectable({
@@ -124,8 +124,8 @@ export class CompanyStore {
             this.selectedContract.set(res.data)
 
           this.request.set({
-            state: 'success',
-            message: `Pobrano Kontrakt ${id}`
+            state: 'idle',
+            message: ``
           })
         }),
         catchError(error => {
