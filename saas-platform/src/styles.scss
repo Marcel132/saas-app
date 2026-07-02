@@ -1,4 +1,32 @@
-:root{
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$magenta-palette,
+        tertiary: mat.$violet-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  color-scheme: light;
+  background-color: var(
+    --mat-sys-surface
+  );
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
+:root {
   // font-size
   --font-size-xs: 0.5rem;
   --font-size-sm: 0.75rem;
@@ -9,8 +37,8 @@
   --font-size-3xl: 2rem;
 
   // space
-  --space-xs: .25rem;
-  --space-sm: .5rem;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
   --space-md: 1rem;
   --space-lg: 1.5rem;
   --space-xl: 2rem;
@@ -22,12 +50,9 @@
   --border-radius-l: 15px;
 
   --font-family:
-    Inter,
-    system-ui,
-    sans-serif;
-
+    Inter, system-ui, sans-serif;
 }
-:root[data-theme="light"]{
+:root[data-theme='light'] {
   --color-background: #f5f7fa;
   --color-surface: #ffffff;
   --color-surface-secondary: #f1f5f9;
@@ -48,8 +73,10 @@
 
   --color-button-delete-bg: #fee2e2;
   --color-button-delete-text: #dc2626;
+
+  --color-border-primary: #3f4239;
 }
-:root[data-theme="dark"]{
+:root[data-theme='dark'] {
   --color-background: #121212;
   --color-surface: #1e1e1e;
   --color-surface-secondary: #252525;
@@ -70,10 +97,11 @@
 
   --color-button-delete-bg: #451a1a;
   --color-button-delete-text: #f87171;
+
+  --color-border-primary: #edeede;
 }
 
-*
-{
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -89,59 +117,68 @@ body {
   font-family: var(--font-family);
 }
 
-a{
+a {
   color: var(--color-text-sec);
   text-decoration: none;
   cursor: pointer;
 
-  &:hover{
+  &:hover {
     text-decoration: underline;
   }
 }
 a.active {
   color: var(--color-primary);
-  text-decoration: underline var(--color-primary);
-  border-left: 3px solid var(--color-primary);
-  padding-left: calc(var(--space-md) - 3px);
+  text-decoration: underline
+    var(--color-primary);
+  border-left: 3px solid
+    var(--color-primary);
+  padding-left: calc(
+    var(--space-md) - 3px
+  );
   font-weight: 600;
 }
-
 
 .card {
   width: 100%;
   padding: var(--space-md);
   border-radius: var(--border-radius-l);
-  background-color: var(--color-surface-tertiary);
+  background-color: var(
+    --color-surface-tertiary
+  );
 
   display: flex;
   flex-direction: column;
   transition: 0.2s;
 
-  &:hover{
-    opacity: .9;
+  &:hover {
+    opacity: 0.9;
     border-color: var(--color-text);
-    box-shadow: 4px 4px 16px var(--color-text);
+    box-shadow: 4px 4px 16px
+      var(--color-text);
     transform: translateY(-2px);
   }
 }
-.app-input{
+.app-input {
   width: 100%;
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-sm)
+    var(--space-md);
   border-radius: var(--border-radius-l);
 
-  border: 1px solid var(--color-surface-hover);
+  border: 1px solid
+    var(--color-surface-hover);
 
   background: var(--color-background);
   color: var(--color-text);
-  cursor: pointer;
+  cursor: focus;
 
-  &:focus{
+  &:focus {
     outline: none;
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(59,130,246,.25);
+    box-shadow: 0 0 0 3px
+      rgba(59, 130, 246, 0.25);
   }
 }
-.app-button{
+.app-button {
   width: auto;
   padding: var(--space-sm);
 
@@ -153,8 +190,8 @@ a.active {
 
   cursor: pointer;
 
-  &:hover{
-    opacity: .9;
+  &:hover {
+    opacity: 0.9;
   }
 }
 
@@ -166,32 +203,59 @@ a.active {
   width: auto;
   min-width: 100px;
   max-width: 150px;
-  background: var(--color-button-edit-bg);
+  background: var(
+    --color-button-edit-bg
+  );
   color: var(--color-button-edit-text);
 }
 .btn-delete {
   min-width: 100px;
   max-width: 150px;
-  background-color: var(--color-button-delete-bg);
-  color: var(--color-button-delete-text)
+  background-color: var(
+    --color-button-delete-bg
+  );
+  color: var(
+    --color-button-delete-text
+  );
 }
 
-.app-card{
+.app-card {
   width: 100%;
   padding: var(--space-md);
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: var(--space-lg);
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-surface-hover);
+  background-color: var(
+    --color-surface
+  );
+  border: 1px solid
+    var(--color-surface-hover);
   border-radius: var(--border-radius-m);
 }
 
-h1,h2,h3,h4,h5,h6{
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 600;
 }
 
+.my-tooltip {
+  max-width: 260px;
+  text-align: left;
+  line-height: 1.4;
+}
+.info-icon {
+  font-size: 18px;
+  width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  vertical-align: middle;
+  cursor: help;
+}
 
 html[data-theme='light'] {
   --cancelled-bg: #fee2e2;
@@ -274,3 +338,10 @@ html[data-theme='dark'] {
   --warning-bg: #3b2f12;
   --warning-txt: #fbbf24;
 }
+
+.error-message {
+  color: var(--color-error);
+  font-size: .8rem;
+  font-weight: 500;
+}
+
