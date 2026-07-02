@@ -15,11 +15,10 @@
                 @{{a.nickname}}
               </span>
             </div>
-            <app-badge
+            <ui-badge
               [variant]="getVariant(a.status)"
               [text]="a.status"
-              >
-            </app-badge>
+            />
             <div class="details">
               <span class="applied">Aplikowano: {{a.appliedAt | date: 'yyyy/MM/dd'}}</span>
             </div>
@@ -40,9 +39,9 @@
         </div>
       }
 
-      <app-message
+      <ui-message
         [request]='request()'
-      ></app-message>
+      />
     }
   </div>
 </div>

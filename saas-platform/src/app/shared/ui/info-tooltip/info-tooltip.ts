@@ -3,7 +3,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
-  selector: 'app-info-tooltip',
+  selector: 'ui-info-tooltip',
   imports: [
     MatIconModule,
     MatTooltipModule

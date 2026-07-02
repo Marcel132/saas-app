@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { RequestState } from '../../../core/models/request-state';
 
 @Component({
-  selector: 'app-message',
+  selector: 'ui-message',
   imports: [],
   templateUrl: './message.html',
   styleUrl: './message.scss',

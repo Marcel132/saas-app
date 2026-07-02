@@ -2,7 +2,7 @@
   <div class="header">
     <span class='title'>{{ title() }}</span>
     <div class="actions">
-      <app-badge [variant]="variant()" [text]="status()"></app-badge>
+      <ui-badge [variant]="variant()" [text]="status()"/>
       @if(status() == "Open"){
       <button class="app-button btn-edit" (click)="onEdit($event)">
         Edytuj
