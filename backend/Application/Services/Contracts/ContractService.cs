@@ -104,16 +104,23 @@ public class ContractService : IContractService
     if (contract.AuthorId != userId)
       throw new UnauthorizedAppException();
 
+    await using var transaction = await _unitOfWork.BeginTransactionAsync();
+
     if (!string.IsNullOrWhiteSpace(request.Title) || !string.IsNullOrWhiteSpace(request.Description))
       contract.UpdateContractDetails(request.Title, request.Description);
 
-    if (request.Price.HasValue)
-      contract.UpdatePrice(request.Price.Value);
+    if (request.PricePerRequest.HasValue)
+      contract.UpdatePrice(request.PricePerRequest.Value);
+
+    if (request.MaxRequests.HasValue)
+      contract.UpdateMaxRequests(request.MaxRequests.Value);
 
     if (request.NewDeadline.HasValue)
       contract.ChangeDeadline(DateOnly.FromDateTime(request.NewDeadline.Value));
 
     await _unitOfWork.SaveChangesAsync();
+
+    await transaction.CommitAsync();
   }
 
   public async Task<List<ContractApplicationsDto>> GetContractApplicationsAsync(Guid userId, long contractId)

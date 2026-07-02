@@ -40,7 +40,8 @@ public class ContractQueryRepository : IContractQueryRepository
         ContractStatus = c.Status,
         CreatedAt = c.CreatedAt,
         Deadline = c.RecruitmentDeadline,
-        Price = c.PricePerRequest,
+        PricePerRequest = c.PricePerRequest,
+        MaxBudget = c.MaxBudget,
         MaxRequests = c.MaxRequests,
         UpdatedAt = c.UpdatedAt
       })
@@ -81,7 +82,8 @@ public class ContractQueryRepository : IContractQueryRepository
        ContractStatus = c.Status,
        CreatedAt = c.CreatedAt,
        Deadline = c.RecruitmentDeadline,
-       Price = c.PricePerRequest,
+       PricePerRequest = c.PricePerRequest,
+       MaxBudget = c.MaxBudget,
        MaxRequests = c.MaxRequests,
        UpdatedAt = c.UpdatedAt,
        HasApplied = _context.ContractApplications
@@ -130,7 +132,8 @@ public class ContractQueryRepository : IContractQueryRepository
         CreatedAt = c.CreatedAt,
         Deadline = c.RecruitmentDeadline,
         Description = c.Description,
-        Price = c.PricePerRequest,
+        PricePerRequest = c.PricePerRequest,
+        MaxBudget = c.MaxBudget,
         MaxRequests = c.MaxRequests,
         Title = c.Title,
         UpdatedAt = c.UpdatedAt
@@ -177,7 +180,8 @@ public class ContractQueryRepository : IContractQueryRepository
         CreatedAt = c.CreatedAt,
         Deadline = c.RecruitmentDeadline,
         Description = c.Description,
-        Price = c.PricePerRequest,
+        PricePerRequest = c.PricePerRequest,
+        MaxBudget = c.MaxBudget,
         MaxRequests = c.MaxRequests,
         Title = c.Title,
         HasApplied = userId.HasValue && _context.ContractApplications

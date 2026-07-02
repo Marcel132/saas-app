@@ -11,6 +11,9 @@ public class SessionConfig : IEntityTypeConfiguration<Session>
     builder.ToTable("sessions");
     builder.HasKey(x => x.Id);
 
+    builder.Property(x => x.Id)
+      .HasColumnName("id");
+
     builder.Property(x => x.UserId)
       .HasColumnName("user_id");
     

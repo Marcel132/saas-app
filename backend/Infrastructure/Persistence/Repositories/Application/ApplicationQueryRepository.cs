@@ -38,7 +38,7 @@ public class ApplicationQueryRepository : IApplicationQueryRepository
         ContractId = x.ContractId,
         Title = x.Contract.Title,
         PricePerRequests = x.Contract.PricePerRequest,
-        // ! x does not contain MaxRequests, FIX MaxRequests = x.MaxRequests 
+        MaxBudget = x.Contract.MaxBudget,
         Status = x.Status,
         AppliedAt = x.AppliedAt,
       })
