@@ -16,6 +16,19 @@
         class="app-input title"
         formControlName='title'
       >
+
+      @let title = form.controls.title;
+
+      @if(title.touched && title.invalid){
+        <div class="error-message">
+          @if(title.hasError('required')){
+            Pole jest wymagane
+          }
+          @if(title.hasError('maxlength')){
+            Tytuł musi być krótszy niż 255 znaków
+          }
+        </div>
+      }
     </div>
 
 
@@ -27,6 +40,19 @@
         formControlName='description'
         (keydown.enter)="onEnter($event)"
       ></textarea>
+
+      @let description = form.controls.description;
+
+      @if(description.touched && description.invalid){
+        <div class="error-message">
+          @if(description.hasError('required')){
+            Pole jest wymagane
+          }
+          @if(description.hasError('maxlength')){
+            Opis nie może przekraczać 1500 znaków
+          }
+        </div>
+      }
     </div>
 
   </div>
@@ -37,7 +63,7 @@
     <div class="part">
       <label for="maxRequests">
         Ilość requestów
-        <app-info-tooltip
+        <ui-info-tooltip
           text='Maksymalna liczba adresów URL, które pentester będzie miał do sprawdzenia.'
         />
       </label>
@@ -49,15 +75,18 @@
         min='1'
         step='1'
       >
-      @if(form.controls.maxRequests.touched && form.controls.maxRequests.invalid){
+
+      @let maxRequests = form.controls.maxRequests;
+
+      @if(maxRequests.touched && maxRequests.invalid){
         <div class="error-message">
-          @if(form.controls.maxRequests.errors?.['required']){
+          @if(maxRequests.hasError('required')){
             Należy podać ilość requestów
           }
-          @if(form.controls.maxRequests.errors?.['min']){
+          @if(maxRequests.hasError('min')){
             Nie można wybrać liczby mniejszej od 1
           }
-          @if(form.controls.maxRequests.errors?.['pattern']){
+          @if(maxRequests.hasError('pattern')){
             Request musi być liczbą całkowitą
           }
         </div>
@@ -67,7 +96,7 @@
     <div class="part ">
       <label for="pricePerRequest">
         Cena za request
-        <app-info-tooltip
+        <ui-info-tooltip
           text="Cena za dokładnie 1 request. Cena kontraktu wyświetla się poniżej jako budżet"
         />
       </label>
@@ -77,38 +106,54 @@
         class="app-input pricePerRequest"
         formControlName='pricePerRequest'
         >
+      @let pricePerRequest = form.controls.pricePerRequest;
+      @if(pricePerRequest.touched && pricePerRequest.invalid){
+        <div class="error-message">
+          @if(pricePerRequest.hasError('required')){
+            Pole jest wymagane
+          }
+          @if(pricePerRequest.hasError('min')){
+            Nie można ustawić ceny niższej niż 1
+          }
+        </div>
+      }
     </div>
 
-      <span>Budżet na kontrakt <br><br> <b><i>({{this.maxBudget}} zł)</i></b></span>
+      <span>Budżet na kontrakt <br><br> <b><i>({{maxBudget}} zł)</i></b></span>
   </div>
 
   <h4 class="section-title">Czas ważności ogłoszenia</h4>
   <div class="row">
 
-  <label for="deadline">
-    Termin zgłoszeń
-    <app-info-tooltip
-      text="Domyślnie 30 dni"
-    />
-  </label>
-  <input
-    type="string"
-    class='app-input deadline'
-    id="deadline"
-    formControlName='deadline'
-    [placeholder]="actualDate | date: 'yyyy-MM-dd'"
+    <label for="deadline">
+      Termin zgłoszeń
+      <ui-info-tooltip
+        text="Domyślnie 30 dni"
+      />
+    </label>
+    <input
+      type="date"
+      class='app-input deadline'
+      id="deadline"
+      formControlName='deadline'
     >
 
+    @let deadline = form.controls.deadline;
+
+    @if(deadline.touched && deadline.invalid){
+      <div class="error-message">
+        @if(deadline.hasError('required')){
+          Pole jest wymagane w formacie DD.MM.YYYY
+        }
+      </div>
+    }
+
   </div>
-
-
-
-
 
     <button class='app-button save'>
       Dodaj Kontrakt
     </button>
   </form>
 
-  <app-message [request]='request()'></app-message>
+  <ui-message [request]='request()'/>
 </div>

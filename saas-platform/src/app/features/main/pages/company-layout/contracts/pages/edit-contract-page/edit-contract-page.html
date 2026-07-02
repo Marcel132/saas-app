@@ -42,7 +42,7 @@
         <div class="part">
             <label for="maxRequests">
               Ilość requestów
-              <app-info-tooltip
+              <ui-info-tooltip
                 text='Maksymalna liczba adresów URL, które pentester będzie miał do sprawdzenia.'
               />
             </label>
@@ -72,7 +72,7 @@
         <div class="part ">
           <label for="pricePerRequest">
             Cena za request
-            <app-info-tooltip
+            <ui-info-tooltip
               text="Cena za dokładnie 1 request. Cena kontraktu wyświetla się poniżej jako budżet"
             />
           </label>
@@ -92,7 +92,7 @@
 
         <label for="deadline">
           Termin zgłoszeń
-          <app-info-tooltip
+          <ui-info-tooltip
             text="Domyślnie 30 dni"
           />
         </label>
@@ -114,7 +114,7 @@
       </button>
     </form>
 
-    <app-message [request]="request()"></app-message>
+    <ui-message [request]="request()"/>
 
   } @else {
 

@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CompanyStore } from '../../../../../store/company.store';
@@ -10,7 +9,6 @@ import { InfoTooltip } from "../../../../../../../shared/ui/info-tooltip/info-to
   selector: 'app-add-contract-page',
   imports: [
     ReactiveFormsModule,
-    DatePipe,
     Message,
     InfoTooltip
 ],
@@ -21,16 +19,31 @@ export class AddContractPage {
   // DI
   readonly companyStore = inject(CompanyStore)
 
-  actualDate = Date.now();
   request = this.companyStore.request.asReadonly()
-
-  // TODO: ADD validation for UX exp
 
 
   form = new FormGroup({
-    title: new FormControl("", { nonNullable: true }),
-    description: new FormControl("", { nonNullable: true }),
-    pricePerRequest: new FormControl(0, { nonNullable: true }),
+    title: new FormControl("", {
+      validators: [
+        Validators.required,
+        Validators.maxLength(255)
+      ],
+      nonNullable: true
+    }),
+    description: new FormControl("", {
+      validators: [
+        Validators.required,
+        Validators.maxLength(1500)
+      ],
+      nonNullable: true
+    }),
+    pricePerRequest: new FormControl(0, {
+      validators: [
+        Validators.required,
+        Validators.min(1)
+      ],
+      nonNullable: true
+    }),
     maxRequests: new FormControl(0, {
       validators: [
         Validators.required,
@@ -39,7 +52,12 @@ export class AddContractPage {
       ],
       nonNullable: true,
     }),
-    deadline: new FormControl("", { nonNullable: true }),
+    deadline: new FormControl("", {
+      validators: [
+        Validators.required
+      ],
+      nonNullable: true
+    }),
   })
 
   ngOnInit(): void {

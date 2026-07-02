@@ -3,10 +3,10 @@
     <div class="left-header">
       <h4>Moje Kontrakty:</h4>
       <div class="badges">
-        <app-badge variant='open' text="Open ({{counter().open.toString()}})"></app-badge>
-        <app-badge variant='in-progress' text="In Progress ({{counter().inProgress.toString()}})"></app-badge>
-        <app-badge variant='completed' text="Completed ({{counter().completed.toString()}})"></app-badge>
-        <app-badge variant='cancelled' text="Cancelled ({{counter().cancelled.toString()}})"></app-badge>
+        <ui-badge variant='open' text="Open ({{counter().open.toString()}})"/>
+        <ui-badge variant='in-progress' text="In Progress ({{counter().inProgress.toString()}})"/>
+        <ui-badge variant='completed' text="Completed ({{counter().completed.toString()}})"/>
+        <ui-badge variant='cancelled' text="Cancelled ({{counter().cancelled.toString()}})"/>
       </div>
     </div>
     <button class="app-button btn-add" routerLink="add">
