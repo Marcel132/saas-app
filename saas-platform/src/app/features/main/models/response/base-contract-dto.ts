@@ -2,11 +2,13 @@ import { ContractStatus } from "../../../../shared/models/contract-status";
 
 export interface BaseContractDto {
   contractId: number;
+  title: string;
+  description: string;
+  pricePerRequest: number;
+  maxBudget: number;
+  maxRequests: number;
   contractStatus: ContractStatus;
   createdAt: string;
-  deadline: string;
-  description: string;
-  price: number;
-  title: string;
   updatedAt: string | null;
+  deadline: string;
 }

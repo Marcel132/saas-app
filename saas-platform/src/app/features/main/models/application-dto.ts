@@ -1,8 +1,12 @@
+import { ApplicationStatus } from "../../../shared/models/application-status";
+
 export interface UserApplicationDto{
   applicationId: number,
   contractId: number,
-  contractTitle: string,
-  price: number,
-  applicationStatus: string,
+  title: string,
+  pricePerRequest: number,
+  maxBudget: number,
+  maxRequests: number,
+  applicationStatus: ApplicationStatus,
   appliedAt: Date
 }

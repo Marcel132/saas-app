@@ -1,6 +1,7 @@
 export interface AddContractDto {
   title: string,
   description: string,
-  price: number,
+  pricePerRequest: number,
+  maxRequests: number,
   deadline: string
 }
