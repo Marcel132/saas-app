@@ -12,37 +12,53 @@
     placeholder='Email'
     class='app-input'
     >
+    @let email = form.controls.email;
 
-    @if(form.controls.email.touched && form.controls.email.invalid){
+    @if(email.touched && email.invalid){
       <div class="error-message">
-        @if(form.controls.email.errors?.['required']){
+        @if(email.hasError('required')){
           Wymagany email do zalogowania
         }
-        @if(form.controls.email.errors?.['email']){
+        @if(email.hasError('email')){
           Zły format emaila
         }
-        @if(form.controls.email.errors?.['maxlength']){
+        @if(email.hasError('maxlength')){
           Zbyt długi email
         }
       </div>
     }
 
-    <input
-    type="password"
-    formControlName="password"
-    placeholder='Hasło'
-    class='app-input'
-    >
+    <div class="password-field">
+      <input
+      [type]="showPassword ? 'text' : 'password'"
+      formControlName="password"
+      placeholder='Hasło'
+      class='app-input'
+      >
+      <button
+        type="button"
+        class="toggle-password"
+        (click)="showPassword = !showPassword"
+      >
 
-    @if(form.controls.password.touched && form.controls.password.invalid){
+      <mat-icon>
+        {{ showPassword ? 'visibility_off' : 'visibility' }}
+      </mat-icon>
+
+      </button>
+
+    </div>
+    @let password = form.controls.password;
+
+    @if(password.touched && password.invalid){
       <div class="error-message">
-        @if(form.controls.password.errors?.['required']){
+        @if(password.hasError('required')){
           Wymagane hasło do zalogowania
         }
-        @if(form.controls.password.errors?.['minlength'] || form.controls.password.errors?.['maxlength']){
+        @if(password.hasError('minlength') || password.hasError('maxlength')){
           Hasło musi mieć od 8 do 64 znaków
         }
-        @if(form.controls.password.errors?.['pattern']){
+        @if(password.hasError('pattern')){
           Hasło musi mieć co najmniej jedną wielką literę, jedną małą literę, cyfrę oraz znak specjalny
         }
       </div>

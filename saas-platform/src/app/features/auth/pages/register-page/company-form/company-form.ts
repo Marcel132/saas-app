@@ -2,12 +2,14 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { RegisterCompanyRequest } from '../../../models/register-company-request';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AsYouType } from 'libphonenumber-js';
+import { MatIcon } from "@angular/material/icon";
 
 @Component({
   selector: 'app-company-form',
   imports: [
-    ReactiveFormsModule
-  ],
+    ReactiveFormsModule,
+    MatIcon
+],
   templateUrl: './company-form.html',
   styleUrl: './company-form.scss',
 })
@@ -16,6 +18,7 @@ export class CompanyForm {
   register = new EventEmitter<RegisterCompanyRequest>();
 
   private formatter = new AsYouType();
+  showPassword: boolean = false;
 
   form = new FormGroup({
     email: new FormControl('', {
@@ -107,6 +110,12 @@ export class CompanyForm {
     input.value = this.formatter.input(input.value);
   }
   onSubmit(): void {
+
+    if(this.form.invalid){
+      this.form.markAllAsTouched();
+      return;
+    }
+
     this.register.emit(this.form.getRawValue());
   }
 }

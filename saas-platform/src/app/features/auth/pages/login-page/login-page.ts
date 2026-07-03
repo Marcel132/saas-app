@@ -4,13 +4,15 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { AuthStore } from '../../store/auth.store';
 import { LoginRequest } from '../../models/login-request';
 import { Message } from "../../../../shared/ui/message/message";
+import { MatIcon } from "@angular/material/icon";
 
 @Component({
   selector: 'app-login-page',
   imports: [
     ReactiveFormsModule,
     Message,
-    RouterLink
+    RouterLink,
+    MatIcon
 ],
   templateUrl: './login-page.html',
   styleUrl: './login-page.scss',
@@ -20,6 +22,7 @@ export class LoginPage {
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   readonly request = this.authStore.request.asReadonly()
+  showPassword: boolean = false;
 
   constructor() {
     effect(() => {

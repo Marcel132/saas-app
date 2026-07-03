@@ -16,16 +16,20 @@
         type="email"
         id="email"
         formControlName="email"
+        placeholder='Example@example.com'
       />
-      @if (form.controls.email.touched && form.controls.email.invalid) {
+
+      @let email = form.controls.email;
+
+      @if (email.touched && email.invalid) {
         <div class="error-message">
-          @if(form.controls.email.errors?.['required']) {
+          @if(email.hasError('required')) {
             Email jest wymagany
           }
-          @if(form.controls.email.errors?.['email']) {
+          @if(email.hasError('email')) {
             Niepoprawny format email
           }
-          @if(form.controls.email.errors?.['maxlength']) {
+          @if(email.hasError('maxlength')) {
             Email nie może być dłuższy niż 254 znaki
           }
         </div>
@@ -33,21 +37,37 @@
     </div>
     <div class="part">
       <label for="password">Hasło</label>
-      <input
-        class="app-input"
-        type="password"
-        id="password"
-        formControlName="password"
-      />
-      @if(form.controls.password.touched && form.controls.password.invalid) {
+
+      <div class="password-field">
+        <input
+          class="app-input"
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder='Hasło_123'
+        />
+        <button
+          type="button"
+          class="toggle-password"
+          (click)="showPassword = !showPassword"
+        >
+          <mat-icon>
+            {{ showPassword ? 'visibility_off' : 'visibility' }}
+          </mat-icon>
+        </button>
+      </div>
+
+      @let password = form.controls.password;
+
+      @if(password.touched && password.invalid) {
         <div class="error-message">
-          @if(form.controls.password.errors?.['required']) {
+          @if(password.hasError('required')) {
             Hasło jest wymagane
           }
-          @if(form.controls.password.errors?.['minlength'] || form.controls.password.errors?.['maxlength']) {
+          @if(password.hasError('minlength') || password.hasError('maxlength')) {
             Hasło musi mieć od 8 do 64 znaków
           }
-          @if(form.controls.password.errors?.['pattern']) {
+          @if(password.hasError('pattern')) {
             Hasło musi zawierać co najmniej jedną wielką literę, jedną małą literę, jedną cyfrę i jeden znak specjalny
           }
         </div>
@@ -67,13 +87,16 @@
         type="text"
         id="name"
         formControlName="name"
+        placeholder='Nazwa firmy'
       />
-      @if(form.controls.name.touched && form.controls.name.invalid) {
+      @let name = form.controls.name;
+
+      @if(name.touched && name.invalid) {
         <div class="error-message">
-          @if(form.controls.name.errors?.['required']) {
+          @if(name.hasError('required')) {
             Nazwa firmy jest wymagana
           }
-          @if(form.controls.name.errors?.['maxlength']) {
+          @if(name.hasError('maxlength')) {
             Nazwa firmy nie może być dłuższa niż 256 znaków
           }
         </div>
@@ -86,16 +109,19 @@
         type="text"
         id="nip"
         formControlName="nip"
+        placeholder='Nip'
       />
-      @if(form.controls.nip.touched && form.controls.nip.invalid) {
+      @let nip = form.controls.nip;
+
+      @if(nip.touched && nip.invalid) {
         <div class="error-message">
-          @if(form.controls.nip.errors?.['required']) {
+          @if(nip.hasError('required')) {
             NIP jest wymagany
           }
-          @if(form.controls.nip.errors?.['pattern']) {
+          @if(nip.hasError('pattern')) {
             NIP musi składać się z 10 cyfr
           }
-          @if(form.controls.nip.errors?.['minlength'] || form.controls.nip.errors?.['maxlength']) {
+          @if(nip.hasError('minlength') || nip.hasError('maxlength')) {
             NIP musi składać się z 10 cyfr
           }
         </div>
@@ -109,16 +135,19 @@
         id="phone"
         formControlName="phone"
         (input)="onPhoneInput($event)"
+        placeholder='+48 00 000 00 00'
       />
-      @if(form.controls.phone.touched && form.controls.phone.invalid) {
+      @let phone = form.controls.phone;
+
+      @if(phone.touched && phone.invalid) {
         <div class="error-message">
-          @if(form.controls.phone.errors?.['required']) {
+          @if(phone.hasError('required')) {
             Telefon jest wymagany
           }
-          @if(form.controls.phone.errors?.['pattern']) {
+          @if(phone.hasError('pattern')) {
             Niepoprawny format telefonu
           }
-          @if(form.controls.phone.errors?.['maxlength']) {
+          @if(phone.hasError('maxlength')) {
             Telefon nie może być dłuższy niż 30 znaków
           }
         </div>
@@ -131,13 +160,16 @@
         type="text"
         id="city"
         formControlName="city"
+        placeholder='Miasto'
       />
-      @if(form.controls.city.touched && form.controls.city.invalid) {
+      @let city = form.controls.city;
+
+      @if(city.touched && city.invalid) {
         <div class="error-message">
-          @if(form.controls.city.errors?.['required']) {
+          @if(city.hasError('required')) {
             Miasto jest wymagane
           }
-          @if(form.controls.city.errors?.['maxlength']) {
+          @if(city.hasError('maxlength')) {
             Miasto nie może być dłuższe niż 100 znaków
           }
         </div>
@@ -150,13 +182,16 @@
         type="text"
         id="country"
         formControlName="country"
+        placeholder='Państwo'
       />
-      @if(form.controls.country.touched && form.controls.country.invalid) {
+      @let country = form.controls.country;
+
+      @if(country.touched && country.invalid) {
         <div class="error-message">
-          @if(form.controls.country.errors?.['required']) {
+          @if(country.hasError('required')) {
             Państwo jest wymagane
           }
-          @if(form.controls.country.errors?.['maxlength']) {
+          @if(country.hasError('maxlength')) {
             Państwo nie może być dłuższe niż 100 znaków
           }
         </div>
@@ -169,13 +204,16 @@
         type="text"
         id="postalCode"
         formControlName="postalCode"
+        placeholder='Kod pocztowy'
       />
-      @if(form.controls.postalCode.touched && form.controls.postalCode.invalid) {
+      @let postalCode = form.controls.postalCode;
+
+      @if(postalCode.touched && postalCode.invalid) {
         <div class="error-message">
-          @if(form.controls.postalCode.errors?.['required']) {
+          @if(postalCode.hasError('required')) {
             Kod pocztowy jest wymagany
           }
-          @if(form.controls.postalCode.errors?.['maxlength']) {
+          @if(postalCode.hasError('maxlength')) {
             Kod pocztowy nie może być dłuższy niż 20 znaków
           }
         </div>
@@ -188,13 +226,16 @@
         type="text"
         id="street"
         formControlName="street"
+        placeholder='Ulica'
       />
-      @if(form.controls.street.touched && form.controls.street.invalid) {
+      @let street = form.controls.street;
+
+      @if(street.touched && street.invalid) {
         <div class="error-message">
-          @if(form.controls.street.errors?.['required']) {
+          @if(street.hasError('required')) {
             Ulica jest wymagana
           }
-          @if(form.controls.street.errors?.['maxlength']) {
+          @if(street.hasError('maxlength')) {
             Ulica nie może być dłuższa niż 100 znaków
           }
         </div>
@@ -212,11 +253,15 @@
       <textarea
         class="app-input"
         id="bio"
-        formControlName="bio">
+        formControlName="bio"
+        placeholder='Opis firmy'
+        >
       </textarea>
-      @if(form.controls.bio.touched && form.controls.bio.invalid) {
+      @let bio = form.controls.bio;
+
+      @if(bio.touched && bio.invalid) {
         <div class="error-message">
-          @if(form.controls.bio.errors?.['maxlength']) {
+          @if(bio.hasError('maxlength')) {
             Opis firmy nie może być dłuższy niż 1000 znaków
           }
         </div>
@@ -229,13 +274,16 @@
         type="text"
         id="websiteUrl"
         formControlName="websiteUrl"
+        placeholder='https://www.example.com'
       />
-      @if(form.controls.websiteUrl.touched && form.controls.websiteUrl.invalid) {
+      @let websiteUrl = form.controls.websiteUrl;
+
+      @if(websiteUrl.touched && websiteUrl.invalid) {
         <div class="error-message">
-          @if(form.controls.websiteUrl.errors?.['maxlength']) {
+          @if(websiteUrl.hasError('maxlength')) {
             Strona internetowa nie może być dłuższa niż 2048 znaków
           }
-          @if(form.controls.websiteUrl.errors?.['pattern']) {
+          @if(websiteUrl.hasError('pattern')) {
             Niepoprawny format strony internetowej
           }
         </div>
