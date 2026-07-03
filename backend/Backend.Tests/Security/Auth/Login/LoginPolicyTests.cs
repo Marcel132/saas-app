@@ -19,7 +19,7 @@ public class LoginPolicyTests
   }
 
   [Test]
-  public void Validate_BlockDuration_ThrowsAccountBlocked()
+  public void Validate_BlockDuration_ThrowsInvalidCredentials()
   {
     var policy = new LoginPolicy();
 
@@ -27,13 +27,13 @@ public class LoginPolicyTests
 
     user.RegisterFailedLoginAttempt(1, TimeSpan.FromMinutes(15));
 
-    Assert.Throws<AccountBlockedAppException>(() =>
+    Assert.Throws<InvalidCredentialsAppException>(() =>
       policy.EnsureCanLogin(user)
     );
   }
 
   [Test]
-  public void Validate_UserIsNotActive_ThrowsForbidden()
+  public void Validate_UserIsNotActive_ThrowsInvalidCredentials()
   {
     var policy = new LoginPolicy();
 
@@ -41,7 +41,7 @@ public class LoginPolicyTests
 
     user.DeactivateAccount();
 
-    Assert.Throws<ForbiddenAppException>(() =>
+    Assert.Throws<InvalidCredentialsAppException>(() =>
       policy.EnsureCanLogin(user)
     );
   }
