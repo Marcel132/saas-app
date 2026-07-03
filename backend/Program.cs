@@ -4,7 +4,6 @@ using backend.Api.Controllers.Auth.DTOs;
 using backend.Api.Http;
 using backend.Api.Middlewares;
 using backend.Domain.Entities.Enum;
-using backend.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -40,6 +39,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         .MapEnum<ContractReportStatus>("report_status")
         .MapEnum<ContractApplicationStatus>("application_status")  
         .MapEnum<RoleType>("role_type")
+        .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
   )
 );
 
