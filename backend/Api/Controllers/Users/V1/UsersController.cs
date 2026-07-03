@@ -28,11 +28,11 @@ public class UsersController : ControllerBase
 
   [HasPermission(Permissions.Users.Read)]
   [HttpGet("{userId}")]
-  public async Task<IActionResult> GetPentesterById([FromRoute] Guid userId)
+  public async Task<IActionResult> GetPentesterById([FromRoute] Guid userId, CancellationToken ct)
   {
     var currentUserId = UserContextExtension.GetUserId(User);
 
-    var pentester = await _userService.GetPentesterByIdAsync(userId, currentUserId);
+    var pentester = await _userService.GetPentesterByIdAsync(userId, currentUserId, ct);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
@@ -61,11 +61,11 @@ public class UsersController : ControllerBase
 
   [HasPermission(Permissions.Profile.Read)]
   [HttpGet("me/summary")]
-  public async Task<IActionResult> GetCurrentUserSummary()
+  public async Task<IActionResult> GetCurrentUserSummary(CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
 
-    var summary = await _userService.GetCurrentUserSummaryAsync(userId);
+    var summary = await _userService.GetCurrentUserSummaryAsync(userId, ct);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
@@ -118,10 +118,10 @@ public class UsersController : ControllerBase
 
   [HasPermission(Permissions.Contracts.ReadOwn)]
   [HttpGet("me/contracts")]
-  public async Task<IActionResult> GetCurrentUserContracts([FromQuery] ContractStatus? status = null)
+  public async Task<IActionResult> GetCurrentUserContracts(CancellationToken ct, [FromQuery] ContractStatus? status = null)
   {
     var userId = UserContextExtension.GetUserId(User);
-    var contracts = await _userService.GetCurrentUserContractsAsync(userId, status);
+    var contracts = await _userService.GetCurrentUserContractsAsync(userId, status, ct);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,
@@ -134,10 +134,10 @@ public class UsersController : ControllerBase
 
   [HasPermission(Permissions.Applications.ReadOwn)]
   [HttpGet("me/applications")]
-  public async Task<IActionResult> GetCurrentUserApplications([FromQuery] ContractApplicationStatus? status = null)
+  public async Task<IActionResult> GetCurrentUserApplications(CancellationToken ct, [FromQuery] ContractApplicationStatus? status = null)
   {
     var userId = UserContextExtension.GetUserId(User);
-    var applications = await _userService.GetCurrentUserApplicationsAsync(userId, status);
+    var applications = await _userService.GetCurrentUserApplicationsAsync(userId, status, ct);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,

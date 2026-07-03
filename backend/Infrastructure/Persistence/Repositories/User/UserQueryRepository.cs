@@ -25,7 +25,7 @@ public class UserQueryRepository : IUserQueryRepository
     return user.RoleType;
   }
 
-  public async Task<UserPublicPentesterDto> GetPentesterByIdAsync(Guid userId)
+  public async Task<UserPublicPentesterDto> GetPentesterByIdAsync(Guid userId, CancellationToken ct)
   {
     return await _context.Users
       .AsNoTracking()
@@ -48,7 +48,7 @@ public class UserQueryRepository : IUserQueryRepository
           .ToList(),
         CreatedAt = u.CreatedAt
       })
-      .FirstOrDefaultAsync()
+      .FirstOrDefaultAsync(ct)
       ?? throw new NotFoundAppException();
   }
 
@@ -133,7 +133,7 @@ public class UserQueryRepository : IUserQueryRepository
       ?? throw new NotFoundAppException();
   }
 
-  public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status = null)
+  public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status, CancellationToken ct)
   {
     var query = _context.Contracts
       .AsNoTracking()
@@ -157,10 +157,10 @@ public class UserQueryRepository : IUserQueryRepository
         ContractStatus = c.Status,
         CreatedAt = c.CreatedAt
       })
-      .ToListAsync();
+      .ToListAsync(ct);
   }
 
-  public async Task<List<UserApplicationsDto>> GetApplicationsAsync(Guid userId, ContractApplicationStatus? status)
+  public async Task<List<UserApplicationsDto>> GetApplicationsAsync(Guid userId, ContractApplicationStatus? status, CancellationToken ct)
   {
     var query = _context.ContractApplications
       .AsNoTracking()
@@ -182,16 +182,17 @@ public class UserQueryRepository : IUserQueryRepository
     if (status.HasValue)
       query = query.Where(ca => ca.Status == status.Value);
 
-    return await query.ToListAsync();
+    return await query.ToListAsync(ct);
   }
 
-  public async Task<UserSummaryDto> GetSummary(Guid userId)
+  public async Task<UserSummaryDto> GetSummary(Guid userId, CancellationToken ct)
   {
     var activeTask = await _context.ContractAssignments
       .AsNoTracking()
       .CountAsync(ca =>
         ca.PentesterId == userId &&
-        ca.Contract.Status == ContractStatus.InProgress
+        ca.Contract.Status == ContractStatus.InProgress,
+        ct
       );
 
     var activeOrders = await _context.Contracts
@@ -201,7 +202,8 @@ public class UserQueryRepository : IUserQueryRepository
         (
           c.Status == ContractStatus.Open ||
           c.Status == ContractStatus.InProgress
-        )
+        ),
+        ct
       );
 
     var completedReports = await _context.ContractReports
@@ -211,14 +213,16 @@ public class UserQueryRepository : IUserQueryRepository
         (
           cr.ContractAssignment.PentesterId == userId ||
           cr.ContractAssignment.Contract.AuthorId == userId
-        )
+        ),
+        ct
       );
 
     var totalReports = await _context.ContractReports
       .AsNoTracking()
       .CountAsync(cr =>
         cr.ContractAssignment.PentesterId == userId ||
-        cr.ContractAssignment.Contract.AuthorId == userId
+        cr.ContractAssignment.Contract.AuthorId == userId,
+        ct
       );
 
     return new UserSummaryDto()

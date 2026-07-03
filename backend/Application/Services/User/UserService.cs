@@ -23,12 +23,12 @@ public class UserService : IUserService
     _userRepo = userRepository;
   }
 
-  public async Task<UserPublicPentesterDto> GetPentesterByIdAsync(Guid userId, Guid currentUserId)
+  public async Task<UserPublicPentesterDto> GetPentesterByIdAsync(Guid userId, Guid currentUserId, CancellationToken ct)
   {
     if (userId == Guid.Empty)
       throw new BadRequestAppException();
 
-    var pentester = await _userQueryRepo.GetPentesterByIdAsync(userId);
+    var pentester = await _userQueryRepo.GetPentesterByIdAsync(userId, ct);
 
     // TODO: Create log with userId and currentUserId (who requested the data) for auditing purposes
 
@@ -47,19 +47,19 @@ public class UserService : IUserService
     };
   }
 
-  public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status = null)
+  public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status, CancellationToken ct)
   {
-    return await _userQueryRepo.GetCurrentUserContractsAsync(userId, status);
+    return await _userQueryRepo.GetCurrentUserContractsAsync(userId, status, ct);
   }
 
-  public async Task<List<UserApplicationsDto>> GetCurrentUserApplicationsAsync(Guid userId, ContractApplicationStatus? status)
+  public async Task<List<UserApplicationsDto>> GetCurrentUserApplicationsAsync(Guid userId, ContractApplicationStatus? status, CancellationToken ct)
   {
-    return await _userQueryRepo.GetApplicationsAsync(userId, status);
+    return await _userQueryRepo.GetApplicationsAsync(userId, status, ct);
   }
 
-  public async Task<UserSummaryDto> GetCurrentUserSummaryAsync(Guid userId)
+  public async Task<UserSummaryDto> GetCurrentUserSummaryAsync(Guid userId, CancellationToken ct)
   {
-    return await _userQueryRepo.GetSummary(userId);
+    return await _userQueryRepo.GetSummary(userId, ct);
   }
 
   public async Task UpdatePentesterAsync(Guid userId, UpdatePentesterDto request)

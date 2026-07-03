@@ -15,7 +15,7 @@ public class ContractQueryRepository : IContractQueryRepository
     _context = context;
   }
 
-  public async Task<PagedResponse<PublicContractDto>> GetPublicContractsAsync(QueryParams queryParams)
+  public async Task<PagedResponse<PublicContractDto>> GetPublicContractsAsync(QueryParams queryParams, CancellationToken ct)
   {
     var query = _context.Contracts
       .AsNoTracking()
@@ -26,7 +26,7 @@ public class ContractQueryRepository : IContractQueryRepository
 
     query = ApplySearch(query, queryParams.Search);
 
-    var totalItems = await query.CountAsync();
+    var totalItems = await query.CountAsync(ct);
 
     var contracts = await query
       .OrderByDescending(c => c.CreatedAt)
@@ -45,7 +45,7 @@ public class ContractQueryRepository : IContractQueryRepository
         MaxRequests = c.MaxRequests,
         UpdatedAt = c.UpdatedAt
       })
-      .ToListAsync();
+      .ToListAsync(ct);
 
     return new PagedResponse<PublicContractDto>
     {
@@ -57,7 +57,7 @@ public class ContractQueryRepository : IContractQueryRepository
     };
   }
 
-  public async Task<PagedResponse<OpenContractDto>> GetOpenContractsAsync(Guid userId, QueryParams queryParams)
+  public async Task<PagedResponse<OpenContractDto>> GetOpenContractsAsync(Guid userId, QueryParams queryParams, CancellationToken ct)
   {
     var query = _context.Contracts
       .AsNoTracking()
@@ -68,7 +68,7 @@ public class ContractQueryRepository : IContractQueryRepository
 
     query = ApplySearch(query, queryParams.Search);
 
-    var totalItems = await query.CountAsync();
+    var totalItems = await query.CountAsync(ct);
 
     var contracts = await query
      .OrderByDescending(c => c.CreatedAt)
@@ -93,7 +93,7 @@ public class ContractQueryRepository : IContractQueryRepository
            ca.Status == ContractApplicationStatus.Pending
          )
      })
-     .ToListAsync();
+     .ToListAsync(ct);
 
     return new PagedResponse<OpenContractDto>
     {
@@ -105,7 +105,7 @@ public class ContractQueryRepository : IContractQueryRepository
     };
   }
 
-  public async Task<PagedResponse<CompanyContractDto>> GetCompanyContractsAsync(Guid userId, QueryParams queryParams)
+  public async Task<PagedResponse<CompanyContractDto>> GetCompanyContractsAsync(Guid userId, QueryParams queryParams, CancellationToken ct)
   {
     var query = _context.Contracts
       .AsNoTracking()
@@ -113,7 +113,7 @@ public class ContractQueryRepository : IContractQueryRepository
 
     query = ApplySearch(query, queryParams.Search);
 
-    var totalItems = await query.CountAsync();
+    var totalItems = await query.CountAsync(ct);
 
     var contracts = await query
       .OrderBy(c =>
@@ -138,7 +138,7 @@ public class ContractQueryRepository : IContractQueryRepository
         Title = c.Title,
         UpdatedAt = c.UpdatedAt
       })
-      .ToListAsync();
+      .ToListAsync(ct);
 
     return new PagedResponse<CompanyContractDto>
     {
@@ -150,7 +150,7 @@ public class ContractQueryRepository : IContractQueryRepository
     };
   }
 
-  public async Task<ContractDetailsDto?> GetContractDetailsAsync(long contractId, Guid? userId)
+  public async Task<ContractDetailsDto?> GetContractDetailsAsync(long contractId, Guid? userId, CancellationToken ct)
   {
     var query = _context.Contracts
       .AsNoTracking()
@@ -191,11 +191,10 @@ public class ContractQueryRepository : IContractQueryRepository
             ca.Status == ContractApplicationStatus.Pending
           )
       })
-      .FirstOrDefaultAsync();
+      .FirstOrDefaultAsync(ct);
   }
 
-  // Kandydaci to zawsze pentesterzy - firma widzi listę aplikacji na swój kontrakt.
-  public async Task<List<ContractApplicationsDto>> GetContractApplicationsAsync(long contractId)
+  public async Task<List<ContractApplicationsDto>> GetContractApplicationsAsync(long contractId, CancellationToken ct)
   {
     return await _context.ContractApplications
       .AsNoTracking()
@@ -219,7 +218,7 @@ public class ContractQueryRepository : IContractQueryRepository
         Status = x.ca.Status,
         AppliedAt = x.ca.AppliedAt
       })
-      .ToListAsync();
+      .ToListAsync(ct);
   }
 
   private static string EscapedLike(string search)

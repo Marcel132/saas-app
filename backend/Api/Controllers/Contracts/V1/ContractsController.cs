@@ -25,9 +25,9 @@ public class ContractsController : ControllerBase
 
   [AllowAnonymous]
   [HttpGet("public")]
-  public async Task<IActionResult> GetPublicContracts([FromQuery] QueryParams queryParams)
+  public async Task<IActionResult> GetPublicContracts([FromQuery] QueryParams queryParams, CancellationToken ct)
   {
-    var contracts = await _contractService.GetPublicContractsAsync(queryParams);
+    var contracts = await _contractService.GetPublicContractsAsync(queryParams, ct);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse(
       HttpContext,
@@ -40,11 +40,11 @@ public class ContractsController : ControllerBase
 
   [AllowAnonymous]
   [HttpGet("{contractId:long}")]
-  public async Task<IActionResult> GetContractById([FromRoute] long contractId)
+  public async Task<IActionResult> GetContractById([FromRoute] long contractId, CancellationToken ct)
   {
     var userId = UserContextExtension.TryGetUserId(User);
 
-    var contract = await _contractService.GetContractDetailsAsync(contractId, userId);
+    var contract = await _contractService.GetContractDetailsAsync(contractId, userId, ct);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse(
       HttpContext,
@@ -57,11 +57,11 @@ public class ContractsController : ControllerBase
 
   [HasPermission(Permissions.Contracts.Read)]
   [HttpGet]
-  public async Task<IActionResult> GetOpenContracts([FromQuery] QueryParams queryParams)
+  public async Task<IActionResult> GetOpenContracts([FromQuery] QueryParams queryParams, CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
 
-    var contracts = await _contractService.GetOpenContractsAsync(userId, queryParams);
+    var contracts = await _contractService.GetOpenContractsAsync(userId, queryParams, ct);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse(
       HttpContext,
@@ -74,11 +74,11 @@ public class ContractsController : ControllerBase
 
   [HasPermission(Permissions.ContractsSelf.Read)]
   [HttpGet("company")]
-  public async Task<IActionResult> GetCompanyContracts([FromQuery] QueryParams queryParams)
+  public async Task<IActionResult> GetCompanyContracts([FromQuery] QueryParams queryParams, CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
 
-    var contracts = await _contractService.GetCompanyContractsAsync(userId, queryParams);
+    var contracts = await _contractService.GetCompanyContractsAsync(userId, queryParams, ct);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse(
       HttpContext,
@@ -137,10 +137,10 @@ public class ContractsController : ControllerBase
 
   [HasPermission(Permissions.Contracts.ReadApplications)]
   [HttpGet("{contractId}/applications")]
-  public async Task<IActionResult> GetContractApplications([FromRoute] long contractId)
+  public async Task<IActionResult> GetContractApplications([FromRoute] long contractId, CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
-    var contractApplications = await _contractService.GetContractApplicationsAsync(userId, contractId);
+    var contractApplications = await _contractService.GetContractApplicationsAsync(userId, contractId, ct);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
       HttpContext,

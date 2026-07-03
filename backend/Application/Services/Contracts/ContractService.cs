@@ -25,25 +25,25 @@ public class ContractService : IContractService
     _unitOfWork = unitOfWork;
   }
 
-  public async Task<PagedResponse<PublicContractDto>> GetPublicContractsAsync(QueryParams requestParams)
+  public async Task<PagedResponse<PublicContractDto>> GetPublicContractsAsync(QueryParams requestParams, CancellationToken ct)
   {
     ValidateQueryParams(requestParams);
 
-    return await _contractQueryRepository.GetPublicContractsAsync(requestParams);
+    return await _contractQueryRepository.GetPublicContractsAsync(requestParams, ct);
   }
-  public async Task<PagedResponse<OpenContractDto>> GetOpenContractsAsync(Guid userId, QueryParams requestParams)
+  public async Task<PagedResponse<OpenContractDto>> GetOpenContractsAsync(Guid userId, QueryParams requestParams, CancellationToken ct)
   {
     ValidateQueryParams(requestParams, userId);
 
-    return await _contractQueryRepository.GetOpenContractsAsync(userId, requestParams);
+    return await _contractQueryRepository.GetOpenContractsAsync(userId, requestParams, ct);
   }
-  public async Task<PagedResponse<CompanyContractDto>> GetCompanyContractsAsync(Guid userId, QueryParams requestParams)
+  public async Task<PagedResponse<CompanyContractDto>> GetCompanyContractsAsync(Guid userId, QueryParams requestParams, CancellationToken ct)
   {
     ValidateQueryParams(requestParams, userId);
 
-    return await _contractQueryRepository.GetCompanyContractsAsync(userId, requestParams);
+    return await _contractQueryRepository.GetCompanyContractsAsync(userId, requestParams, ct);
   }
-  public async Task<ContractDetailsDto> GetContractDetailsAsync(long contractId, Guid? userId)
+  public async Task<ContractDetailsDto> GetContractDetailsAsync(long contractId, Guid? userId, CancellationToken ct)
   {
     if(contractId <= 0)
       throw new ValueOutOfRangeAppException();
@@ -51,7 +51,7 @@ public class ContractService : IContractService
     if(userId is not null && userId == Guid.Empty)
       throw new UnauthorizedAppException();
 
-    return await _contractQueryRepository.GetContractDetailsAsync(contractId, userId)
+    return await _contractQueryRepository.GetContractDetailsAsync(contractId, userId, ct)
       ?? throw new NotFoundAppException();
   }
 
@@ -123,20 +123,20 @@ public class ContractService : IContractService
     await transaction.CommitAsync();
   }
 
-  public async Task<List<ContractApplicationsDto>> GetContractApplicationsAsync(Guid userId, long contractId)
+  public async Task<List<ContractApplicationsDto>> GetContractApplicationsAsync(Guid userId, long contractId, CancellationToken ct)
   {
     if (userId == Guid.Empty)
       throw new BadRequestAppException();
     if (contractId <= 0)
       throw new ValueOutOfRangeAppException();
 
-    var contract = await _contractRepository.GetContractByIdAsync(contractId)
+    var contract = await _contractRepository.GetContractByIdAsync(contractId, ct)
       ?? throw new NotFoundAppException();
 
     if (contract.AuthorId != userId)
       throw new UnauthorizedAppException();
 
-    var applications = await _contractQueryRepository.GetContractApplicationsAsync(contractId);
+    var applications = await _contractQueryRepository.GetContractApplicationsAsync(contractId, ct);
 
     return applications;
   }

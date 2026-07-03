@@ -12,10 +12,10 @@ public class ContractRepository : IContractRepository
     _context = context;
   }
 
-  public async Task<Contract?> GetContractByIdAsync(long contractId)
+  public async Task<Contract?> GetContractByIdAsync(long contractId, CancellationToken ct)
   {
     return await _context.Contracts
-      .FirstOrDefaultAsync(c => c.Id == contractId);
+      .FirstOrDefaultAsync(c => c.Id == contractId, ct);
   }
 
   public async Task AddContractAsync(Contract contract)
