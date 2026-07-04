@@ -173,7 +173,11 @@ public class UserQueryRepository : IUserQueryRepository
         {
           ApplicationId = ca.Id,
           ContractId = ca.ContractId,
-          CompanyId = c.AuthorId,
+          // CompanyId = c.AuthorId,
+          Title = c.Title,
+          MaxBudget = c.MaxBudget,
+          MaxRequests = c.MaxRequests,
+          PricePerRequest = c.PricePerRequest,
           Status = ca.Status,
           AppliedAt = ca.AppliedAt
         }
