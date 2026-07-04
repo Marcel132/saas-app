@@ -3,10 +3,26 @@
     <div class="left-header">
       <h4>Moje Kontrakty:</h4>
       <div class="badges">
-        <ui-badge variant='open' text="Open ({{counter().open.toString()}})"/>
-        <ui-badge variant='in-progress' text="In Progress ({{counter().inProgress.toString()}})"/>
-        <ui-badge variant='completed' text="Completed ({{counter().completed.toString()}})"/>
-        <ui-badge variant='cancelled' text="Cancelled ({{counter().cancelled.toString()}})"/>
+        <ui-badge
+          variant='open'
+          text="Open ({{counter().open.toString()}})"
+          (click)="toggleStatus('Open')"
+        />
+        <ui-badge
+          variant='in-progress'
+          text="In Progress ({{counter().inProgress.toString()}})"
+          (click)="toggleStatus('InProgress')"
+        />
+        <ui-badge
+          variant='completed'
+          text="Completed ({{counter().completed.toString()}})"
+          (click)="toggleStatus('Completed')"
+        />
+        <ui-badge
+          variant='cancelled'
+          text="Cancelled ({{counter().cancelled.toString()}})"
+          (click)="toggleStatus('Cancelled')"
+        />
       </div>
     </div>
     <button class="app-button btn-add" routerLink="add">
@@ -17,15 +33,19 @@
     @if(contracts().length <= 0){
       <h5>Nie masz tutaj żadnych kontraków <br> Dodaj swój pierwszy kontrakt</h5>
     } @else {
-      @for(contract of contracts(); track contract.contractId){
+      @for(contract of filtredContracts(); track contract.contractId){
         <app-contract-card
         [contractId]='contract.contractId'
         [title]='contract.title'
         [description]='contract.description'
-        [price]='contract.pricePerRequest'
-        [deadline]='contract.deadline'
-        [route]='`${contract.contractId}/applications`'
+        [pricePerRequest]='contract.pricePerRequest'
+        [maxBudget]="contract.maxBudget"
+        [maxRequests]="contract.maxRequests"
         [status]='contract.contractStatus',
+        [deadline]='contract.deadline'
+        [createdAt]="contract.createdAt"
+        [numberOfApplications]="contract.numberOfApplications"
+        [route]='`${contract.contractId}/applications`'
         (editClicked)="openEditPage($event)"
         (deleteClicked)="deleteMethod($event)"
       >

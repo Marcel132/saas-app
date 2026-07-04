@@ -1,12 +1,14 @@
 .badge {
   display: block;
-  padding: .5rem .8rem;
+  padding: var(--space-xs) var(--space-sm);
   border-radius: 999px;
   font-size: var(--font-size-sm);
   font-weight: 600;
   white-space: nowrap;
   text-align: center;
   min-width: 80px;
+  font-style: italic;
+  cursor: pointer;
 
   &.cancelled{
     background: var(--cancelled-bg);

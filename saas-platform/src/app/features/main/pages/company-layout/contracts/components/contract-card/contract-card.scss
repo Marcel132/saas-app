@@ -41,11 +41,13 @@
   background-color: inherit;
   color: var(--color-text);
   opacity: .9;
-  text-decoration: underline;
+  // text-decoration: underline;
 }
 .description {
   white-space: pre-line;
-  max-height: 200px;
+  text-indent: 2rem;
+  text-wrap: wrap;
+  max-height: 280px;
   overflow-y: auto;
 }
 .price {
@@ -57,8 +59,27 @@
   background-color: var(--color-primary);
   cursor: pointer;
 }
-.deadline {
-  text-align: right;
+.budget-details{
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--space-md);
+  border-bottom: 2px dashed var(--color-surface);
+}
+.details{
+  display: flex;
+  align-items: center;
+
+  .left{
+    flex: 1
+  }
+  .right{
+    text-align: right;
+  }
+}
+.date {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
   font-size: var(--font-size-sm);
   font-style: italic;
   color: var(--color-text-sec);

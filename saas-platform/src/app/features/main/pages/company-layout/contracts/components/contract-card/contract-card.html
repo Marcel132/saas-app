@@ -15,15 +15,26 @@
   </div>
   <div class="content">
     <button class='app-button toggle-details' (click)="toggleDetails()">
-      {{ isExpended() ? "Ukryj szczegóły ▲" : "Rozwiń szczegóły ▼"}}
+      {{ isExpended() ? "▼ Szczegóły" : "▶ Szczegóły"}}
     </button>
     @if(isExpended()){
       <span class='description'>{{ description() }}</span>
     }
-    <span class="price">{{ price() | plnCurrency}}</span>
-    @if(status() == "Open"){
-      <button class='app-button application' [routerLink]="route()">Aplikacje </button>
-    }
-    <span class='deadline'>Data wygaśnięcia ogłoszenia: {{deadline() | date: 'yyyy/MM/dd'}}</span>
+    <div class="budget-details">
+      <span class="price">Cena za request {{ pricePerRequest() | plnCurrency}}</span>
+      <span class='price'>Ilośc requestów {{maxRequests()}} (szt.)</span>
+      <span class='price'><strong>Budżet {{maxBudget() | plnCurrency}}</strong></span>
+    </div>
+    <div class="details">
+      <div class="left">
+        @if(status() == "Open"){
+          <button class='app-button application ' [routerLink]="route()">Aplikacje <strong>({{numberOfApplications() }}) </strong></button>
+        }
+      </div>
+      <div class="date right">
+        <span>Data utworzenia ogłoszenia: {{createdAt() | date: 'yyyy/MM/dd'}}</span>
+        <span>Data wygaśnięcia ogłoszenia: {{deadline() | date: 'yyyy/MM/dd'}}</span>
+      </div>
+    </div>
   </div>
 </div>
