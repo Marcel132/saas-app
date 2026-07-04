@@ -20,5 +20,5 @@ export class ApplicationCard {
   maxBudget = input.required<number>()
   status = input.required<string>()
   appliedAt = input.required<Date>()
-  route = input.required<string>()
+  route = input<string>()
 }

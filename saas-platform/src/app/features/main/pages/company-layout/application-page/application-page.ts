@@ -41,7 +41,6 @@ export class ApplicationPage {
     this.id = id;
     this.companyStore.getContractApplications(id)
       .subscribe()
-    console.log(this.applications())
   }
 
   getVariant(status: ApplicationStatus) {

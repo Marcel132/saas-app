@@ -1,4 +1,4 @@
-import {HttpInterceptorFn } from "@angular/common/http";
+import { HttpInterceptorFn } from "@angular/common/http";
 import { inject } from "@angular/core";
 import { AuthApi } from "../services/auth-api";
 import { catchError, switchMap, throwError } from "rxjs";
@@ -12,7 +12,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     ApiEndpoints.auth.registerPentester,
     ApiEndpoints.auth.refreshToken
   ]
-  if(exludedEndpoints.some(x => req.url.includes(x))){
+  if (exludedEndpoints.some(x => req.url.includes(x))) {
     return next(req)
   }
 
