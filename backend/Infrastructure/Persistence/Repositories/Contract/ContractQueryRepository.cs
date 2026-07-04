@@ -136,7 +136,9 @@ public class ContractQueryRepository : IContractQueryRepository
         MaxBudget = c.MaxBudget,
         MaxRequests = c.MaxRequests,
         Title = c.Title,
-        UpdatedAt = c.UpdatedAt
+        UpdatedAt = c.UpdatedAt,
+        NumberOfApplications = _context.ContractApplications
+          .Count(ca => ca.ContractId == c.Id)
       })
       .ToListAsync(ct);
 
@@ -184,6 +186,7 @@ public class ContractQueryRepository : IContractQueryRepository
         MaxBudget = c.MaxBudget,
         MaxRequests = c.MaxRequests,
         Title = c.Title,
+        UpdatedAt = c.UpdatedAt,
         HasApplied = userId.HasValue && _context.ContractApplications
           .Any(ca =>
             ca.ContractId == c.Id &&
@@ -216,7 +219,7 @@ public class ContractQueryRepository : IContractQueryRepository
         NickName = x.u.PentesterProfile.NickName,
         Bio = x.u.PentesterProfile.Bio,
         Status = x.ca.Status,
-        AppliedAt = x.ca.AppliedAt
+        AppliedAt = x.ca.AppliedAt,
       })
       .ToListAsync(ct);
   }
