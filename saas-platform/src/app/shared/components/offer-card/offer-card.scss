@@ -1,18 +1,26 @@
+:host {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
 .card {
   min-height: 150px;
-  width: 100%;
+  max-width: 900px;
   padding: var(--space-md);
   border-radius: var(--border-radius-l);
-  background-color: var(--color-surface-tertiary);
+  background-color: var(
+    --color-surface-tertiary
+  );
   cursor: pointer;
 
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
 
-  &:hover{
-    opacity: .9;
-    box-shadow: 4px 4px 16px var(--color-surface)
+  &:hover {
+    opacity: 0.9;
+    box-shadow: 4px 4px 16px
+      var(--color-surface);
   }
 }
 
@@ -21,6 +29,10 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--space-sm);
+
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px dashed
+    var(--color-surface);
 }
 
 .title {
@@ -28,30 +40,74 @@
   font-size: var(--font-size-xl);
 }
 
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.toggle-details {
+  max-width: 150px;
+  padding: var(--space-xs);
+  background-color: inherit;
+  color: var(--color-text);
+  opacity: 0.9;
+}
 .description {
   white-space: pre-line;
-  max-height: 200px;
+  text-wrap: wrap;
+  max-height: 280px;
   overflow-y: auto;
-  padding-right: var(--space-lg);
+  padding: 0 var(--space-md);
 }
 .price {
   font-weight: 400;
   font-style: italic;
 }
 
+.budget-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding-bottom: var(--space-md);
+  border-bottom: 2px dashed
+    var(--color-surface);
+}
+.details {
+  display: flex;
+  align-items: center;
+
+  .left {
+    flex: 1;
+  }
+  .right {
+    text-align: right;
+  }
+}
+.date {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  font-size: var(--font-size-sm);
+  font-style: italic;
+  color: var(--color-text-sec);
+}
+
 .applied {
-  border-left: 3px solid var(--color-success);
+  border-right: 5px solid
+    var(--color-success);
 }
 
 .status {
-  padding: var(--space-xs) var(--space-sm);
+  padding: var(--space-xs)
+    var(--space-sm);
   border-radius: 999px;
 
   font-size: var(--font-size-sm);
   font-weight: 600;
 
   background: var(--success-bg);
-  color:  var(--success-txt);
+  color: var(--success-txt);
 }
 
 @media (max-width: 768px) {
@@ -65,7 +121,7 @@
 }
 
 @media screen and (max-width: 740px) {
-  .applied{
-    border: none
+  .applied {
+    border: none;
   }
 }

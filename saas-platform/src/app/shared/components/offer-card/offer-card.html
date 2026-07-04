@@ -1,4 +1,40 @@
-<div class="card" [class.applied]="hasApplied()" [routerLink]="route()">
+<div
+  class="card"
+  [class.applied]="hasApplied()"
+>
+  <div class="header">
+    <h4 class='title'>{{ title() }}</h4>
+    @if(hasApplied()){
+      <span class="status">✓ Zaaplikowano</span>
+    }
+  </div>
+  <div class="content">
+    <button class='app-button toggle-details' (click)="toggleDetails()">
+      {{ isExpended() ? "▼ Szczegóły" : "▶ Szczegóły"}}
+    </button>
+    @if(isExpended()){
+      <span class='description'>{{ description() }}</span>
+    }
+
+    <div class="budget-details">
+      <span class='price'><strong>Cena kontraktu {{maxBudget() | plnCurrency}}</strong></span>
+      <span class="price">Cena za request {{ pricePerRequest() | plnCurrency}}</span>
+      <span class='price'>Ilośc requestów {{maxRequests()}} (szt.)</span>
+    </div>
+    <div class="details">
+      <div class="left">
+        @if(!hasApplied()){
+          <button class='app-button application ' [routerLink]="route()">Aplikuj</button>
+        }
+      </div>
+      <div class="date right">
+        <span>Data wygaśnięcia ogłoszenia: {{deadline() | date: 'yyyy/MM/dd'}}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- <div class="card" [class.applied]="hasApplied()" [routerLink]="route()">
   <div class="header">
     <span class='title'>{{ title() }}</span>
     @if(hasApplied()){
@@ -6,5 +42,5 @@
     }
   </div>
   <span class='description'>{{ description() }}</span>
-  <span class="price">{{ price() | plnCurrency}}</span>
-</div>
+  <span class="price">{{ pricePerRequest() | plnCurrency}}</span>
+</div> -->
