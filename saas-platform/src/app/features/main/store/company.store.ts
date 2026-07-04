@@ -67,6 +67,9 @@ export class CompanyStore {
             )
             this.pagedResponse.set(res.data);
             this.contracts.set(res.data.items)
+
+            console.log(this.contracts())
+
             this.request.set({
               state: 'success',
               message: 'Pobrano Kontrakty'

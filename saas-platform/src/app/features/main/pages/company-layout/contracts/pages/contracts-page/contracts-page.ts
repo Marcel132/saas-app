@@ -3,6 +3,7 @@ import { CompanyStore } from '../../../../../store/company.store';
 import { ContractCard } from '../../components/contract-card/contract-card';
 import { Router, RouterLink } from '@angular/router';
 import { Badge } from "../../../../../../../shared/ui/badge/badge";
+import { ContractStatus } from '../../../../../../../shared/models/contract-status';
 
 @Component({
   selector: 'app-contracts-page',
@@ -10,7 +11,7 @@ import { Badge } from "../../../../../../../shared/ui/badge/badge";
     ContractCard,
     RouterLink,
     Badge
-],
+  ],
   templateUrl: './contracts-page.html',
   styleUrl: './contracts-page.scss',
 })
@@ -21,15 +22,27 @@ export class ContractsPage {
 
   // SIGNALS
   readonly contracts = this.companyStore.contracts.asReadonly()
+  // TODO: Move logic to backend
+  selectedStatuses = signal<ContractStatus[]>([])
+  filtredContracts = computed(() => {
+    const selected = this.selectedStatuses();
 
-  readonly counter = computed( () => ({
+    if (selected.length === 0)
+      return this.contracts();
+
+    return this.contracts().filter(c =>
+      selected.includes(c.contractStatus)
+    )
+  })
+
+  readonly counter = computed(() => ({
     open: this.contracts().filter(x => x.contractStatus == "Open").length,
     inProgress: this.contracts().filter(x => x.contractStatus == "InProgress").length,
     completed: this.contracts().filter(x => x.contractStatus == "Completed").length,
     cancelled: this.contracts().filter(x => x.contractStatus == "Cancelled").length
   }))
 
-    readonly pages = computed(() => {
+  readonly pages = computed(() => {
     const totalPages = this.companyStore.pagedResponse()?.totalPages ?? 0
 
     return Array.from(
@@ -46,6 +59,15 @@ export class ContractsPage {
     this.companyStore.getContracts()
       .subscribe()
   }
+  toggleStatus(status: ContractStatus) {
+    this.selectedStatuses.update(statuses => {
+      if (statuses.includes(status)) {
+        return statuses.filter(s => s !== status);
+      }
+
+      return [...statuses, status];
+    });
+  }
 
   openEditPage(contractId: number) {
     this.router.navigate([
@@ -55,7 +77,7 @@ export class ContractsPage {
     ]);
   }
 
-  deleteMethod(contractId: number){
+  deleteMethod(contractId: number) {
     this.companyStore.deleteContract(contractId)
       .subscribe()
   }
