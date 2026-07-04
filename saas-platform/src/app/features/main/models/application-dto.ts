@@ -7,6 +7,6 @@ export interface UserApplicationDto{
   pricePerRequest: number,
   maxBudget: number,
   maxRequests: number,
-  applicationStatus: ApplicationStatus,
+  status: ApplicationStatus,
   appliedAt: Date
 }
