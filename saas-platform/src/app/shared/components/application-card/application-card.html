@@ -5,22 +5,33 @@
       {{ title() }}
     </span>
 
-    <span class="badge"
-      [class.pending]='status()==="Pending"'
-      [class.accepted]='status()==="Accepted"'
-      [class.rejected]='status()==="Rejected"'
-    >
-      {{ status() }}
-    </span>
+    @if(status() == 'Accepted'){
+    <ui-badge
+      variant="success"
+      [text]="status()"
+    />
+    }
+    @if(status() == 'Pending'){
+    <ui-badge
+      variant="pending"
+      [text]="status()"
+    />
+    }
+    @if(status() == 'Rejected'){
+    <ui-badge
+      variant="rejected"
+      [text]="status()"
+    />
+    }
   </div>
 
   <div class="content">
     <span>
-      Cena:
-      {{ price() | plnCurrency }}
+      Budżet:
+      {{ maxBudget() | plnCurrency }}
     </span>
 
-    <span>
+    <span class='date'>
       Aplikowano:
       {{ appliedAt() | date: 'yyyy/MM/dd' }}
     </span>

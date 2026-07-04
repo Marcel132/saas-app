@@ -45,31 +45,6 @@
   opacity: .7;
 }
 
-.badge {
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: 999px;
-
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-
-  white-space: nowrap;
-}
-
-.badge.pending {
-  background: var(--pending-bg);
-  color: var(--pending-txt);
-}
-
-.badge.accepted {
-  background: var(--success-bg);
-  color: var(--success-txt);
-}
-
-.badge.rejected {
-  background: var(--rejected-bg);
-  color: var(--rejected-txt);
-}
-
 @media (max-width: 768px) {
   .header,
   .content {
@@ -77,7 +52,4 @@
     align-items: flex-start;
   }
 
-  .badge {
-    align-self: flex-start;
-  }
 }

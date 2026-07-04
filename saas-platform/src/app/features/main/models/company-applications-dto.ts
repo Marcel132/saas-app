@@ -6,7 +6,7 @@ export interface CompanyApplicationsDto {
   contractId: number,
   firstName: string,
   lastName: string,
-  nickname: string,
+  nickName: string,
   status: ApplicationStatus
   appliedAt: Date,
 }
