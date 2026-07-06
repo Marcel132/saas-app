@@ -7,6 +7,7 @@ const authBase = `${domain}/${version}/auth`;
 const usersBase = `${domain}/${version}/users`;
 const contractsBase = `${domain}/${version}/contracts`;
 const applicationsBase = `${domain}/${version}/applications`
+const reportsBase = `${domain}/${version}/reports`
 
 export const ApiEndpoints = {
   auth: {
@@ -42,5 +43,8 @@ export const ApiEndpoints = {
   applications: {
     accept: (applicationId: number) => `${applicationsBase}/${applicationId}/accept`,
     reject: (applicationId: number) => `${applicationsBase}/${applicationId}/reject`,
+  },
+  reports: {
+    get: `${reportsBase}`
   }
 }
