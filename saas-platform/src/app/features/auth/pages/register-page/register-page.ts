@@ -7,7 +7,7 @@ import { CompanyForm } from './company-form/company-form';
 import { PentesterForm } from './pentester-form/pentester-form';
 import { RegisterCompanyRequest } from '../../models/register-company-request';
 import { RegisterPentesterRequest } from '../../models/register-pentester-request';
-import { RoleType } from '../../models/enums/role-type.enum';
+import { RoleType, RoleTypeValues } from '../../models/enums/role-type.const';
 
 @Component({
   selector: 'app-register-page',
@@ -69,7 +69,7 @@ export class RegisterPage {
   }
 
   form = this.fb.group({
-    accountType: this.fb.control<RoleType.pentester | RoleType.company>(RoleType.pentester, { nonNullable: true })
+    accountType: this.fb.control<RoleType>(RoleTypeValues.Pentester, { nonNullable: true })
   });
 
   onRegisterPentester(dto: RegisterPentesterRequest): void {

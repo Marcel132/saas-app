@@ -1,4 +1,4 @@
-import { RoleType } from "../enums/role-type.enum";
+import { RoleType } from "../enums/role-type.const";
 import { CurrentCompany } from "./current-company";
 import { CurrentPentester } from "./current-pentester";
 

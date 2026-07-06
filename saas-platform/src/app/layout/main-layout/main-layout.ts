@@ -1,7 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from "@angular/router";
 
-import { RoleType } from '../../features/auth/models/enums/role-type.enum';
+import { RoleTypeValues } from '../../features/auth/models/enums/role-type.const';
 import { AuthStore } from '../../features/auth/store/auth.store';
 import { LayoutStore } from '../../core/stores/layout.store';
 
@@ -21,10 +21,10 @@ export class MainLayout {
 
 
   readonly currentUser = this.authStore.currentUser.asReadonly();
-  
+
   readonly isSidebarCollapsed = this.layoutStore.isSidebarCollapsed.asReadonly();
 
-  readonly roleType = RoleType;
+  readonly roleType = RoleTypeValues;
   readonly isMobile = signal(window.innerWidth <= 740);
 
   readonly displayName = computed(() => {
@@ -32,13 +32,13 @@ export class MainLayout {
     if(!user)
       return "Użytkownik";
 
-    return user.role === this.roleType.company
+    return user.role === this.roleType.Company
       ? user.name
       : user.nickName
   })
 
   protected readonly baseRoute = computed(() => {
-    return this.authStore.currentUser()?.role === this.roleType.company
+    return this.authStore.currentUser()?.role === this.roleType.Company
     ? 'company'
     : 'pentester';
   })
@@ -46,7 +46,7 @@ export class MainLayout {
   protected readonly navItems = computed(() => {
     const role = this.authStore.currentUser()?.role;
 
-    if(role == this.roleType.company){
+    if(role == this.roleType.Company){
       return [
         { label: 'Dashboard', route: 'dashboard'},
         { label: 'Kontrakty', route: 'contracts'},
@@ -54,7 +54,7 @@ export class MainLayout {
         { label: 'Profil', route: 'profile'},
         { label: 'Ustawienia', route: 'settings'}
       ]
-    } else if(role == this.roleType.pentester){
+    } else if(role == this.roleType.Pentester){
       return [
         { label: 'Dashboard', route: 'dashboard'},
         { label: 'Oferty', route: 'offers'},

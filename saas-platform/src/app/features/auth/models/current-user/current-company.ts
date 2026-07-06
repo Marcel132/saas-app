@@ -1,9 +1,9 @@
-import { RoleType } from "../enums/role-type.enum";
+import { RoleTypeValues } from "../enums/role-type.const";
 import { CurrentUserBase } from "./current-user-base";
 
 export interface CurrentCompany extends CurrentUserBase{
-  role: RoleType.company;
-  
+  role: typeof RoleTypeValues.Company;
+
   nip: string;
   name: string;
 
