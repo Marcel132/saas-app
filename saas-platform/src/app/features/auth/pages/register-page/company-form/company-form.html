@@ -41,7 +41,7 @@
       <div class="password-field">
         <input
           class="app-input"
-          type="password"
+          [type]="showPassword ? 'text' : 'password'"
           id="password"
           formControlName="password"
           placeholder='Hasło_123'
