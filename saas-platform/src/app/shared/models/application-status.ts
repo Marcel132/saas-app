@@ -1,4 +1,8 @@
+export const ApplicationStatus = {
+ Accepted: 'Accepted',
+ Pending: 'Pending',
+ Rejected: 'Rejected'
+} as const
+
 export type ApplicationStatus =
-| 'Accepted'
-| 'Pending'
-| 'Rejected'
+  typeof ApplicationStatus[keyof typeof ApplicationStatus]

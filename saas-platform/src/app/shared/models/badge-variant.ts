@@ -1,15 +1,19 @@
+export const BadgeVariant = {
+  accepted: 'accepted',
+  cancelled: 'cancelled',
+  completed: 'completed',
+  draft: 'draft',
+  error: 'error',
+  idle: 'idle',
+  info: 'info',
+  inProgress: 'in-progress',
+  open: 'open',
+  pending: 'pending',
+  primary: 'primary',
+  rejected: 'rejected',
+  success: 'success',
+  warning: 'warning'
+} as const
+
 export type BadgeVariant =
-| 'accepted'
-| 'cancelled'
-| 'completed'
-| 'draft'
-| 'error'
-| 'idle'
-| 'info'
-| 'in-progress'
-| 'open'
-| 'pending'
-| 'primary'
-| 'rejected'
-| 'success'
-| 'warning'
+  typeof BadgeVariant[keyof typeof BadgeVariant]
