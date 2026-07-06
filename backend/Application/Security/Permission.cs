@@ -31,4 +31,8 @@ public static class Permissions
   {
     public const string Read = "contracts-self.read";
   }
+  public static class Reports
+  {
+    public const string Read = "reports.read";
+  }
 }

@@ -1,3 +1,6 @@
+using backend.Api.Auth;
+using backend.Api.Http;
+using backend.Application.Security;
 using backend.Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,5 +22,20 @@ public class ReportsController : ControllerBase
     _reportService = reportService;
   }
 
-  
+  [HttpGet]
+  [HasPermission(Permissions.Reports.Read)]
+  public async Task<IActionResult> GetPentesterReports(CancellationToken ct)
+  {
+    var userId = UserContextExtension.GetUserId(User);
+    
+    var reports = await _reportService.GetPentesterReportsAsync(userId, ct);
+
+    return Ok(HttpResponseFactory.CreateSuccessResponse(
+      HttpContext,
+      HttpResponseState.Success,
+      "Reports retrieved successfully",
+      DomainErrorCodes.GeneralCodes.Success,
+      reports
+    ));
+  }
 }

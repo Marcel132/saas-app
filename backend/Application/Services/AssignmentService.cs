@@ -1,4 +1,5 @@
 using backend.Domain.Entities;
+using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
 
 namespace backend.Application.Services;
@@ -6,9 +7,17 @@ namespace backend.Application.Services;
 public class AssignmentService
 {
   private readonly IAssignmentRepository _assignmentRepository;
-  public AssignmentService(IAssignmentRepository assignmentRepository)
+  private readonly IReportRepository _reportRepository;
+  private readonly IUnitOfWork _unitOfWork;
+  public AssignmentService(
+    IAssignmentRepository assignmentRepository,
+    IReportRepository reportRepository,
+    IUnitOfWork unitOfWork
+  )
   {
     _assignmentRepository = assignmentRepository;
+    _reportRepository = reportRepository;
+    _unitOfWork = unitOfWork;
   }
 
   public async Task AssignCandidateToContractAsync(Guid userId, long contractId, Guid developerId)
@@ -23,5 +32,10 @@ public class AssignmentService
 
     var assignment = new ContractAssignment(contractId, developerId);
     await _assignmentRepository.AddAssignmentAsync(assignment);
+
+    await _unitOfWork.SaveChangesAsync();
+
+    var report = new ContractReport(assignment.Id);
+    await _reportRepository.CreateReport(report);
   }
 }

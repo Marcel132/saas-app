@@ -1,3 +1,4 @@
+using backend.Api.Controllers.Reports.DTOs;
 using backend.Domain.Interfaces.Repositories;
 using backend.Domain.Interfaces.Services;
 
@@ -12,5 +13,10 @@ public class ReportService : IReportService
   )
   {
     _queryRepo = queryRepo;
+  }
+
+  public async Task<List<PentesterReportDto>> GetPentesterReportsAsync(Guid userId, CancellationToken ct)
+  {
+    return await _queryRepo.GetPentesterReportsAsync(userId, ct);
   }
 }

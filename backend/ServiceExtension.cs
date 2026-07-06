@@ -19,6 +19,7 @@ public static class ServiceExtension
     services.AddScoped<IUserService, UserService>();
     services.AddScoped<ICredentialsService, CredentialsService>();
     services.AddScoped<IApplicationService, ApplicationService>();
+    services.AddScoped<IReportService, ReportService>();
 
     
     services.AddScoped<UserAuthenticationService>();
@@ -53,6 +54,9 @@ public static class ServiceExtension
     services.AddScoped<IApplicationRepository, ApplicationRepository>();
     services.AddScoped<IApplicationQueryRepository, ApplicationQueryRepository>();
     services.AddScoped<IAssignmentRepository, AssignmentRepository>();
+
+    services.AddScoped<IReportQueryRepository, ReportQueryRepository>();
+    services.AddScoped<IReportRepository, ReportRepository>();
 
 
     services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
