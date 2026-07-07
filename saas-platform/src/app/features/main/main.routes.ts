@@ -53,6 +53,12 @@ export const mainLayoutRoutes: Routes = [
             .then(x => x.EditContractPage)
       },
       {
+        path: 'contracts/:id/requests/create',
+        loadComponent: () =>
+          import('./pages/company-layout/contracts/pages/add-request-page/add-request-page')
+            .then(x => x.AddRequestPage)
+      },
+      {
         path: 'contracts/add',
         loadComponent: () =>
           import('./pages/company-layout/contracts/pages/add-contract-page/add-contract-page')

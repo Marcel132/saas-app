@@ -1,0 +1,15 @@
+@let contract = selectedContract();
+@if(contract){
+  <div class="wrapper">
+    @for(req of requestsIndex(); track req){
+      <app-request-card
+        [number]="req + 1"
+      />
+    }
+  </div>
+}
+@else {
+  <div class="error-message">
+    Błąd! Spróbuj ponownie poźniej lub skontaktuj się z administratorem
+  </div>
+}
