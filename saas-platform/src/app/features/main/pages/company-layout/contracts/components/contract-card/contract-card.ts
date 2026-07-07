@@ -5,6 +5,7 @@ import { DatePipe, JsonPipe } from '@angular/common';
 import { Badge } from "../../../../../../../shared/ui/badge/badge";
 import { BadgeVariant } from '../../../../../../../shared/models/badge-variant';
 import { ContractStatus } from '../../../../../../../shared/models/contract-status';
+import { CompanyContractDto } from '../../../../../models/response/company-contract-dto';
 
 @Component({
   selector: 'app-contract-card',
@@ -23,36 +24,37 @@ export class ContractCard {
   readonly deleteClicked = output<number>();
 
 
-  contractId = input.required<number>();
-  title = input.required<string>();
-  description = input.required<string>();
-  pricePerRequest = input.required<number>();
-  maxBudget = input.required<number>();
-  maxRequests = input.required<number>();
-  status = input.required<ContractStatus>();
-  createdAt = input.required<string>()
-  numberOfApplications = input.required<number>();
-  deadline = input.required<string>();
-  route = input.required<string>();
+  contract = input.required<CompanyContractDto>();
+
+  // contractId = input.required<number>();
+  // title = input.required<string>();
+  // description = input.required<string>();
+  // pricePerRequest = input.required<number>();
+  // maxBudget = input.required<number>();
+  // maxRequests = input.required<number>();
+  // status = input.required<ContractStatus>();
+  // createdAt = input.required<string>()
+  // numberOfApplications = input.required<number>();
+  // deadline = input.required<string>();
 
   readonly variant = computed(() =>
-    this.STATUS_VARIANTS[this.status()]
+    this.STATUS_VARIANTS[this.contract().contractStatus]
   )
 
 
   constructor() {
     effect(() => {
-      console.log(this.numberOfApplications());
+      console.log(this.contract().numberOfApplications);
     });
   }
   onEdit(event: Event) {
     event.stopPropagation();
-    this.editClicked.emit(this.contractId());
+    this.editClicked.emit(this.contract().contractId);
   }
 
   onDelete(event: Event) {
     event.stopPropagation()
-    this.deleteClicked.emit(this.contractId());
+    this.deleteClicked.emit(this.contract().contractId);
   }
 
   toggleDetails() {

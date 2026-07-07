@@ -1,9 +1,10 @@
+@let c = contract();
 <div class="card">
   <div class="header">
-    <span class='title'>{{ title() }}</span>
+    <span class='title'>{{ c.title }}</span>
     <div class="actions">
-      <ui-badge [variant]="variant()" [text]="status()"/>
-      @if(status() == "Open"){
+      <ui-badge [variant]="variant()" [text]="c.contractStatus"/>
+      @if(c.contractStatus == "Open"){
       <button class="app-button btn-edit" (click)="onEdit($event)">
         Edytuj
       </button>
@@ -18,22 +19,25 @@
       {{ isExpended() ? "▼ Szczegóły" : "▶ Szczegóły"}}
     </button>
     @if(isExpended()){
-      <span class='description'>{{ description() }}</span>
+      <span class='description'>{{ c.description }}</span>
     }
     <div class="budget-details">
-      <span class="price">Cena za request {{ pricePerRequest() | plnCurrency}}</span>
-      <span class='price'>Ilośc requestów {{maxRequests()}} (szt.)</span>
-      <span class='price'><strong>Budżet {{maxBudget() | plnCurrency}}</strong></span>
+      <span class="price">Cena za request {{ c.pricePerRequest | plnCurrency  }}</span>
+      <span class='price'>Ilośc requestów {{  c.maxRequests }} (szt.)</span>
+      <span class='price'><strong>Budżet {{ c.maxBudget | plnCurrency }}</strong></span>
     </div>
     <div class="details">
       <div class="left">
-        @if(status() == "Open"){
-          <button class='app-button application ' [routerLink]="route()">Aplikacje <strong>({{numberOfApplications() }}) </strong></button>
+        @if(c.contractStatus == "Open"){
+          <button class='app-button application' [routerLink]="`${c.contractId}/applications`">Aplikacje <strong>({{c.numberOfApplications }}) </strong></button>
+        }
+        @if(c.contractStatus == "InProgress"){
+          <button class='app-button requests' [routerLink]="`${c.contractId}/requests/create`">Dodaj Requesty</button> <i>Aby pentester mógł pracować nad tym zleceniem należy utworzyć wszystkie requesty</i>
         }
       </div>
       <div class="date right">
-        <span>Data utworzenia ogłoszenia: {{createdAt() | date: 'yyyy/MM/dd'}}</span>
-        <span>Data wygaśnięcia ogłoszenia: {{deadline() | date: 'yyyy/MM/dd'}}</span>
+        <span>Data utworzenia ogłoszenia: {{c.createdAt | date: 'yyyy/MM/dd'}}</span>
+        <span>Data wygaśnięcia ogłoszenia: {{c.deadline | date: 'yyyy/MM/dd'}}</span>
       </div>
     </div>
   </div>

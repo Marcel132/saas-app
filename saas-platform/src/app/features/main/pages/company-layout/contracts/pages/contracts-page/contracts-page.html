@@ -35,17 +35,7 @@
     } @else {
       @for(contract of filtredContracts(); track contract.contractId){
         <app-contract-card
-        [contractId]='contract.contractId'
-        [title]='contract.title'
-        [description]='contract.description'
-        [pricePerRequest]='contract.pricePerRequest'
-        [maxBudget]="contract.maxBudget"
-        [maxRequests]="contract.maxRequests"
-        [status]='contract.contractStatus',
-        [deadline]='contract.deadline'
-        [createdAt]="contract.createdAt"
-        [numberOfApplications]="contract.numberOfApplications"
-        [route]='`${contract.contractId}/applications`'
+        [contract]="contract"
         (editClicked)="openEditPage($event)"
         (deleteClicked)="deleteMethod($event)"
       >
