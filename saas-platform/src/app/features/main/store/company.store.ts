@@ -36,14 +36,15 @@ export class CompanyStore {
 
   // CONST
   private readonly pageSize = 4;
+  private readonly page = 1;
 
   readonly pagedRequest = signal<PagedRequestModel>({
-    page: 1,
+    page: this.page,
     pageSize: this.pageSize,
     search: null
   })
 
-  readonly pagedResponse = signal<PagedResponseModel<CompanyContractDto> | null >(null)
+  readonly pagedResponse = signal<PagedResponseModel<CompanyContractDto> | null>(null)
 
   clearRequestState() {
     this.request.set({
@@ -87,39 +88,51 @@ export class CompanyStore {
       )
   }
 
-  loadOffers(force: boolean = false, page: number | null = null){
-      if(!force && this.contracts().length > 0){
-        console.log("empty")
-        return EMPTY;
-      }
-
-      if(page != null && page > 0)
-        this.pagedRequest.set({
-          page: page,
-          pageSize: this.pageSize,
-          search: null,
-        })
-
-      return this.contractApi.getCompanyContracts(this.pagedRequest())
-        .pipe(
-          tap(res => {
-            if(!res.data)
-              return
-
-            res.data.items.sort(
-              (a, b) => CONTRACT_STATUS_ORDER[a.contractStatus] - CONTRACT_STATUS_ORDER[b.contractStatus]
-            )
-
-            this.pagedResponse.set(res.data);
-            this.contracts.set(res.data.items);
-          })
-        )
+  loadOffers(force: boolean = false, page: number | null = null) {
+    if (!force && this.contracts().length > 0) {
+      console.log("empty")
+      return EMPTY;
     }
+
+    if (page != null && page > 0)
+      this.pagedRequest.set({
+        page: page,
+        pageSize: this.pageSize,
+        search: null,
+      })
+
+    return this.contractApi.getCompanyContracts(this.pagedRequest())
+      .pipe(
+        tap(res => {
+          if (!res.data)
+            return
+
+          res.data.items.sort(
+            (a, b) => CONTRACT_STATUS_ORDER[a.contractStatus] - CONTRACT_STATUS_ORDER[b.contractStatus]
+          )
+
+          this.pagedResponse.set(res.data);
+          this.contracts.set(res.data.items);
+        })
+      )
+  }
   getContractById(id: number) {
     this.request.set({
       state: 'loading',
       message: "Ładowanie kontraktów..."
     })
+
+    const contract = this.contracts().find(x => x.contractId == id)
+
+    if (contract) {
+      this.selectedContract.set(contract);
+      this.request.set({
+        state: 'idle',
+        message: ''
+      })
+      return EMPTY;
+    }
+
     return this.contractApi.getContractDetailsById(id)
       .pipe(
         tap(res => {
