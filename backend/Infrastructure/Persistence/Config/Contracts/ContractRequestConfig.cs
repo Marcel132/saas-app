@@ -31,7 +31,7 @@ public class ContractRequestConfig : IEntityTypeConfiguration<ContractRequest>
 
     builder.Property(x => x.Scope)
       .HasColumnName("scope")
-      .HasMaxLength(256)
+      .HasMaxLength(1000)
       .IsRequired();
 
     builder.Property(x => x.Credentials)
