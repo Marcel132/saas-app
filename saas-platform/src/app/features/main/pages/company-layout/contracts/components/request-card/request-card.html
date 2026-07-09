@@ -1,1 +1,125 @@
-<p>request-card works!</p>
+<div class="box">
+  <h4>Request nr. {{ number() }}</h4>
+  <button class="app-button" (click)="toggleRequest()">
+    {{showRequest() ? "Pokaż" : "Schowaj"}}
+  </button>
+</div>
+@if(showRequest()){
+  <form class="form" [formGroup]="form">
+
+  <div class="part">
+    <label for="title">Tytuł</label>
+    <input
+      type="text"
+      id="title"
+      formControlName="title"
+      class="title"
+      placeholder='Tytuł'
+    />
+    @let title = form.controls.title;
+    @if ( title.touched && title.invalid) {
+      <div class="error-message">
+        @if ( title.hasError('required') ) {
+          Tytuł jest wymagany
+        }
+        @if(  title.hasError('maxlength')){
+          Tytuł nie może być dłuższy niż 256 znaków
+        }
+      </div>
+    }
+  </div>
+
+  <div class="part">
+    <label for="url">Url</label>
+    <input
+      type="text"
+      formControlName='url'
+      id="url"
+      placeholder='https://www.example.com/'
+    >
+    @let url = form.controls.url;
+    @if(url.touched && url.invalid){
+      <div class="error-message">
+        @if(url.hasError("required")){
+          Url jest wymagane
+        }
+        @if(url.hasError("maxlength")){
+          Url nie może być dłuższy niż 256 znaków
+        }
+        @if(url.hasError('pattern')){
+          Url ma niewłaściwy format
+        }
+      </div>
+    }
+  </div>
+
+  <div class="part">
+    <label for="scope">Scope</label>
+    <textarea
+      type="text"
+      id="scope"
+      formControlName='scope'
+      placeholder='Dozwolony / Niedozwolony scope'
+    ></textarea>
+
+    @let scope = form.controls.scope;
+    @if(scope.touched && scope.invalid){
+      <div class="error-message">
+        @if(scope.hasError('required')){
+          Scope jest wymagany
+        }
+        @if(scope.errors?.['maxlength']; as error){
+         Scope jest zbyt długi {{error.actualLength}}/{{error.requiredLength}}
+        }
+      </div>
+    }
+
+  </div>
+  <div class="part">
+    <label for="creds">Dane uwierzytelniające</label>
+    <textarea
+      id='creds'
+      formControlName='credentials'
+    ></textarea>
+
+    @let creds = form.controls.credentials;
+    @if(creds.touched && creds.invalid){
+      <div class="error-message">
+        @if(creds.hasError('required')){
+          Dane są wymagane
+        }
+        @if(creds.hasError("pattern")){
+          Dane muszą mieć format <br> Email: <br> Password:
+        }
+      </div>
+    }
+  </div>
+  <div class="part">
+    <label for="deadline">Termin wykonania</label>
+    <input
+      type="date"
+      formControlName='deadline'
+      id="deadline"
+    >
+    @let deadline = form.controls.deadline;
+    @if(deadline.touched && deadline.invalid){
+      <div class="error-message">
+        @if(deadline.hasError('required')){
+          Deadline jest wymagany
+        }
+      </div>
+    }
+  </div>
+
+  <button
+    type="submit"
+    class="app-button"
+    (click)="createRequest()"
+  >
+  Dodaj
+  </button>
+</form>
+
+
+
+}

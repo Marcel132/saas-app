@@ -1,0 +1,71 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+h4 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.part {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+label {
+  font-weight: 600;
+  font-size: .95rem;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: .75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: .5rem;
+  font: inherit;
+  transition: border-color .2s ease, box-shadow .2s ease;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgb(37 99 235 / 15%);
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: #dc2626;
+  }
+}
+
+textarea {
+  min-height: 120px;
+}
+
+#creds {
+  min-height: 100px;
+  font-family: monospace;
+}
+
+.error-message {
+  color: #dc2626;
+  font-size: .875rem;
+  line-height: 1.4;
+}
+
+.app-button {
+  align-self: flex-end;
+  padding: .8rem 2rem;
+}
+
+.box{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

@@ -3,6 +3,18 @@
   display: flex;
   flex-direction: column;
 }
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  padding: var(--space-xl);
+  gap: var(--space-xl)
+}
 .error-message{
   text-align: center;
+}
+
+@media screen and (max-width: 740px){
+  .wrapper{
+    grid-template-columns: 1fr;
+  }
 }
