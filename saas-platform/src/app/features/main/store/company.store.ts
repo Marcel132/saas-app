@@ -124,8 +124,12 @@ export class CompanyStore {
 
     const contract = this.contracts().find(x => x.contractId == id)
 
+    // TODO: Fix error with diffrent types ContractDetails and CompanyContracts
     if (contract) {
-      this.selectedContract.set(contract);
+      this.selectedContract.set({
+        ...contract,
+        hasApplied: true
+      });
       this.request.set({
         state: 'idle',
         message: ''
