@@ -1,6 +1,6 @@
 using backend.Application.Services.Auth.DTOs;
 
-namespace backend.Domain.Interfaces.Services;
+namespace backend.Domain.Interfaces.Features;
 
 public interface ICredentialsService
 {

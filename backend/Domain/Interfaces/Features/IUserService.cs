@@ -1,7 +1,7 @@
 using backend.Api.Controllers.Users.DTOs;
 using backend.Domain.Entities.Enum;
 
-namespace backend.Domain.Interfaces.Services;
+namespace backend.Domain.Interfaces.Features;
 
 public interface IUserService
 {

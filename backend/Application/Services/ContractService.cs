@@ -5,7 +5,7 @@ using backend.Domain.Entities.Enum;
 using backend.Domain.Entities.Records;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
-using backend.Domain.Interfaces.Services;
+using backend.Domain.Interfaces.Features;
 
 namespace backend.Application.Services;
 

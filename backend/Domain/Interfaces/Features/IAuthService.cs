@@ -1,7 +1,7 @@
 using backend.Api.Controllers.Auth.DTOs;
 using backend.Application.Services.Auth.DTOs;
 
-namespace backend.Domain.Interfaces.Services;
+namespace backend.Domain.Interfaces.Features;
 
 public interface IAuthService
 {

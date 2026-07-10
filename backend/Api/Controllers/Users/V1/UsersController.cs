@@ -3,7 +3,7 @@ using backend.Api.Controllers.Users.DTOs;
 using backend.Api.Http;
 using backend.Application.Security;
 using backend.Domain.Entities.Enum;
-using backend.Domain.Interfaces.Services;
+using backend.Domain.Interfaces.Features;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

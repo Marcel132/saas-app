@@ -1,6 +1,6 @@
 using backend.Api.Controllers.Applications.DTOs;
 
-namespace backend.Domain.Interfaces.Services;
+namespace backend.Domain.Interfaces.Features;
 
 public interface IApplicationService
 {

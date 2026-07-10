@@ -1,7 +1,7 @@
 using backend.Api.Controllers;
 using backend.Api.Controllers.Contracts.DTOs;
 
-namespace backend.Domain.Interfaces.Services;
+namespace backend.Domain.Interfaces.Features;
 
 public interface IContractService
 {

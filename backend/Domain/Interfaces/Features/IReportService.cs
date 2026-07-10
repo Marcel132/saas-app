@@ -1,6 +1,6 @@
 using backend.Api.Controllers.Reports.DTOs;
 
-namespace backend.Domain.Interfaces.Services;
+namespace backend.Domain.Interfaces.Features;
 
 public interface IReportService
 {

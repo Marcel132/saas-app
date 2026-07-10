@@ -1,6 +1,6 @@
 using backend.Api.Controllers.Reports.DTOs;
 using backend.Domain.Interfaces.Repositories;
-using backend.Domain.Interfaces.Services;
+using backend.Domain.Interfaces.Features;
 
 namespace backend.Application.Services;
 

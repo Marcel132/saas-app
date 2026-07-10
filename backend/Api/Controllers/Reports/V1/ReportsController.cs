@@ -2,7 +2,7 @@ using backend.Api.Auth;
 using backend.Api.Controllers.Reports.DTOs;
 using backend.Api.Http;
 using backend.Application.Security;
-using backend.Domain.Interfaces.Services;
+using backend.Domain.Interfaces.Features;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
