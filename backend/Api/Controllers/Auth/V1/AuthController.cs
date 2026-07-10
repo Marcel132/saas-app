@@ -1,7 +1,10 @@
 using backend.Api.Controllers.Auth.DTOs;
 using backend.Api.Http;
+using backend.Application.Abstractions.CQRS;
+using backend.Application.Features.Auth.Commands;
 using backend.Application.Security;
 using backend.Application.Services;
+using backend.Application.Services.Auth.DTOs;
 using backend.Domain.Interfaces.Features;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +17,14 @@ namespace backend.Api.Controllers.Auth.V1;
 public class AuthController : ControllerBase
 {
   private readonly IAuthService _authService;
+  private readonly ICommandHandler<LoginCommand, CredentialsDto> _loginHandler;
   public AuthController(
-    IAuthService authService
-  )
+  IAuthService authService,
+  ICommandHandler<LoginCommand, CredentialsDto> loginHandler
+)
   {
     _authService = authService;
+    _loginHandler = loginHandler;
   }
 
   // -------------------------------
@@ -32,16 +38,20 @@ public class AuthController : ControllerBase
     var ipAddress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
 
-    var credentials = await _authService.LoginAsync(req, ipAddress, userAgent);
+    var command = new LoginCommand(
+      req.Email, req.Password, ipAddress, userAgent
+    );
 
-    AuthCookies.SetAuthCookie(Response, credentials.RefreshToken, credentials.AuthToken);
+    var credentials = await _loginHandler.HandleAsync(command);
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext,
-      HttpResponseState.Success,
-      "Zalogowano",
-      DomainErrorCodes.AuthCodes.Success
-      ));
+    if (credentials.IsFailure)
+      if (credentials.IsFailure)
+        return credentials.ToActionResult(HttpContext);
+
+    AuthCookies.SetAuthCookie(Response, credentials.Value.RefreshToken, credentials.Value.AuthToken);
+
+    return credentials.ToActionResult(HttpContext, "Zalogowano", DomainErrorCodes.AuthCodes.Success);
+
   }
 
   [AllowAnonymous]

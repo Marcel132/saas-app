@@ -1,8 +1,9 @@
-using backend.Domain.Entities;
-
 namespace backend.Domain.Interfaces;
+
+using backend.Application.Abstractions.CQRS;
+using backend.Domain.Entities;
 
 public interface ILoginPolicy
 {
-  void EnsureCanLogin(User? user);
+  Result CanLogin(User? user);
 }

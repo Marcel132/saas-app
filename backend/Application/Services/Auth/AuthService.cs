@@ -24,16 +24,6 @@ public class AuthService : IAuthService
     _credentialsService = credentialsService;
   }
 
-  public async Task<CredentialsDto> LoginAsync(LoginRequestDto request, string ipAddress, string userAgent)
-  {
-    var user = await _authentication.AuthenticateAsync(
-      request.Email,
-      request.Password
-    );
-
-    return await GenerateCredentialsAndHandleSessionAsync(user.Id, ipAddress, userAgent);
-  }
-
   public async Task<CredentialsDto> RegisterPentesterAsync(RegisterPentesterRequestDto req, string ipAddress, string userAgent)
   {
     var user = await _registration.RegisterPentesterAsync(req);
@@ -64,7 +54,7 @@ public class AuthService : IAuthService
     return result;
   }
 
-  private async Task<CredentialsDto> GenerateCredentialsAndHandleSessionAsync(Guid userId, string ipAddress, string userAgent)
+  public async Task<CredentialsDto> GenerateCredentialsAndHandleSessionAsync(Guid userId, string ipAddress, string userAgent)
   {
     var tokens = await _credentialsService.GenerateCredentials(userId);
 

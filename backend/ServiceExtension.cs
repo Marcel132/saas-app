@@ -4,11 +4,14 @@ using backend.Application.Services;
 using backend.Domain.Entities;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
-using backend.Domain.Interfaces.Services;
+using backend.Domain.Interfaces.Features;
 using backend.Domain.Policies;
 using backend.Infrastructure;
 using backend.Infrastructure.Persistence.Repositories;
 using backend.Infrastructure.Security;
+using backend.Application.Abstractions.CQRS;
+using backend.Application.Features.Auth.Commands;
+using backend.Application.Services.Auth;
 
 public static class ServiceExtension
 {
@@ -30,8 +33,10 @@ public static class ServiceExtension
     services.AddScoped<AuthSessionService>();
     services.AddScoped<TokenService>();
     services.AddScoped<RoleService>();
+    services.AddScoped<AuthCredentialsIssuer>();
 
     services.AddScoped<UserRoleSynchronizer>();
+    services.AddCqrsHandlers(typeof(LoginCommandHandler).Assembly);
 
     return services;
   }

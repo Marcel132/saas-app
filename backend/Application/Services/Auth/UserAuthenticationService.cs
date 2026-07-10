@@ -1,3 +1,6 @@
+using backend.Api.Http;
+using backend.Application.Abstractions.CQRS;
+using backend.Application.Features.Auth.Commands;
 using backend.Domain.Entities;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
@@ -27,24 +30,35 @@ public class UserAuthenticationService
     _unitOfWork = unitOfWork;
   }
 
-  public async Task<User> AuthenticateAsync(string email, string password)
+  public async Task<Result<User>> AuthenticateAsync(LoginCommand dto)
   {
-    email = email.Trim().ToLowerInvariant();
-    var user = await _users.GetByEmailAsync(email)
-      ?? throw new InvalidCredentialsAppException("Błędne dane");
+    var user = await _users.GetByEmailAsync(dto.Email.Trim().ToLowerInvariant());
 
-    _policy.EnsureCanLogin(user);
+    if (user is null)
+      return Result<User>.Failure(new Error(
+        DomainErrorCodes.AuthCodes.InvalidCredentials,
+        "Nieprawidłowe dane",
+        HttpResponseState.BadRequest
+      ));
 
-    if (!_hasher.Verify(password, user.PasswordHash))
+    var policyResult = _policy.CanLogin(user);
+    if (policyResult.IsFailure)
+      return Result<User>.Failure(policyResult.Error);
+
+    if (!_hasher.Verify(dto.Password, user.PasswordHash))
     {
       user.RegisterFailedLoginAttempt(MaxAttempts, BlockDuration);
       await _unitOfWork.SaveChangesAsync();
-      throw new InvalidCredentialsAppException("Błędne dane");
+      return Result<User>.Failure(new Error(
+        DomainErrorCodes.AuthCodes.InvalidCredentials,
+        "Nieprawidłowe dane",
+        HttpResponseState.BadRequest
+      ));
     }
 
     user.ResetFailedLoginAttempts();
     await _unitOfWork.SaveChangesAsync();
 
-    return user;
+    return Result<User>.Success(user);
   }
 }

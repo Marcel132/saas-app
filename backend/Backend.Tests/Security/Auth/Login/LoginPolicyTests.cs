@@ -14,7 +14,7 @@ public class LoginPolicyTests
     var policy = new LoginPolicy();
 
     Assert.Throws<InvalidCredentialsAppException>(() =>
-      policy.EnsureCanLogin(null)
+      policy.CanLogin(null)
     );
   }
 
@@ -28,7 +28,7 @@ public class LoginPolicyTests
     user.RegisterFailedLoginAttempt(1, TimeSpan.FromMinutes(15));
 
     Assert.Throws<InvalidCredentialsAppException>(() =>
-      policy.EnsureCanLogin(user)
+      policy.CanLogin(user)
     );
   }
 
@@ -42,7 +42,7 @@ public class LoginPolicyTests
     user.DeactivateAccount();
 
     Assert.Throws<InvalidCredentialsAppException>(() =>
-      policy.EnsureCanLogin(user)
+      policy.CanLogin(user)
     );
   }
 
@@ -55,7 +55,7 @@ public class LoginPolicyTests
 
     Assert.DoesNotThrow(() =>
     {
-      policy.EnsureCanLogin(user);
+      policy.CanLogin(user);
     });
 
   }
