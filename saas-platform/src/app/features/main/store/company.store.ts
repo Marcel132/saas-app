@@ -13,6 +13,7 @@ import { PagedRequestModel } from "../../../core/models/paged-request-model";
 import { PagedResponseModel } from "../../../core/models/paged-response-model";
 import { CompanyContractDto } from "../models/response/company-contract-dto";
 import { ContractDetailsDto } from "../models/contracts/contract-details-dto";
+import { CreateRequestDto } from "../pages/company-layout/contracts/models/create-request-dto";
 
 @Injectable({
   providedIn: 'root'
@@ -121,21 +122,6 @@ export class CompanyStore {
       state: 'loading',
       message: "Ładowanie kontraktów..."
     })
-
-    const contract = this.contracts().find(x => x.contractId == id)
-
-    // TODO: Fix error with diffrent types ContractDetails and CompanyContracts
-    if (contract) {
-      this.selectedContract.set({
-        ...contract,
-        hasApplied: true
-      });
-      this.request.set({
-        state: 'idle',
-        message: ''
-      })
-      return EMPTY;
-    }
 
     return this.contractApi.getContractDetailsById(id)
       .pipe(
@@ -273,5 +259,15 @@ export class CompanyStore {
           return throwError(() => error)
         })
       )
+  }
+
+  createRequest(dto: CreateRequestDto){
+    return this.contractApi.createRequest(dto)
+      .pipe(
+        tap(res => {
+          console.log(res)
+        })
+      )
+
   }
 }
