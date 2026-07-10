@@ -4,6 +4,7 @@
     @for(req of requestsIndex(); track req){
       <app-request-card
         [number]="req + 1"
+        (save)="createRequest($event)"
       />
     }
   </div>

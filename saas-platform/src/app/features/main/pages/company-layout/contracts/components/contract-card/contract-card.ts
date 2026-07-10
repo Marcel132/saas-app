@@ -1,7 +1,7 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CurrencyPipe } from '../../../../../../../shared/pipes/currency-pipe';
-import { DatePipe, JsonPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Badge } from "../../../../../../../shared/ui/badge/badge";
 import { BadgeVariant } from '../../../../../../../shared/models/badge-variant';
 import { ContractStatus } from '../../../../../../../shared/models/contract-status';
@@ -26,27 +26,11 @@ export class ContractCard {
 
   contract = input.required<CompanyContractDto>();
 
-  // contractId = input.required<number>();
-  // title = input.required<string>();
-  // description = input.required<string>();
-  // pricePerRequest = input.required<number>();
-  // maxBudget = input.required<number>();
-  // maxRequests = input.required<number>();
-  // status = input.required<ContractStatus>();
-  // createdAt = input.required<string>()
-  // numberOfApplications = input.required<number>();
-  // deadline = input.required<string>();
 
   readonly variant = computed(() =>
     this.STATUS_VARIANTS[this.contract().contractStatus]
   )
 
-
-  constructor() {
-    effect(() => {
-      console.log(this.contract().numberOfApplications);
-    });
-  }
   onEdit(event: Event) {
     event.stopPropagation();
     this.editClicked.emit(this.contract().contractId);

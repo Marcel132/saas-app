@@ -2,6 +2,7 @@ import { Component, computed, effect, inject } from '@angular/core';
 import { CompanyStore } from '../../../../../store/company.store';
 import { ActivatedRoute } from '@angular/router';
 import { RequestCard } from '../../components/request-card/request-card';
+import { CreateRequestDto } from '../../models/create-request-dto';
 
 @Component({
   selector: 'app-add-request-page',
@@ -44,4 +45,8 @@ export class AddRequestPage {
       .subscribe()
   }
 
+  createRequest(dto: CreateRequestDto){
+    this.companyStore.createRequest(dto)
+      .subscribe()
+  }
 }

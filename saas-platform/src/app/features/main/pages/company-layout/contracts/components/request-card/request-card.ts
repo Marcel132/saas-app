@@ -1,5 +1,6 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { CreateRequestDto } from '../../models/create-request-dto';
 
 @Component({
   selector: 'app-request-card',
@@ -11,6 +12,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angula
 })
 export class RequestCard {
   number = input.required<number>();
+  save = output<CreateRequestDto>()
   showRequest = signal(false);
 
   form = new FormGroup({
@@ -59,6 +61,6 @@ export class RequestCard {
     if(this.form.invalid)
       return;
 
-    console.log(this.form.value)
+    this.save.emit(this.form.getRawValue())
   }
 }
