@@ -12,6 +12,7 @@ import { PublicContractDto } from '../../features/main/models/response/public-co
 import { PentesterContractDto } from '../../features/main/models/response/open-contract-dto';
 import { CompanyContractDto } from '../../features/main/models/response/company-contract-dto';
 import { ContractDetailsDto } from '../../features/main/models/contracts/contract-details-dto';
+import { CreateRequestDto } from '../../features/main/pages/company-layout/contracts/models/create-request-dto';
 
 @Injectable({
   providedIn: 'root',
@@ -96,6 +97,13 @@ export class ContractApi {
   getContractApplications(contractId: number) {
     return this.http.get<ApiResponseModel<CompanyApplicationsDto[]>>(
       ApiEndpoints.contracts.applications(contractId),
+    )
+  }
+
+  createRequest(dto: CreateRequestDto){
+    return this.http.post<ApiResponseModel<null>>(
+      ApiEndpoints.reports.create,
+      {dto}
     )
   }
 }

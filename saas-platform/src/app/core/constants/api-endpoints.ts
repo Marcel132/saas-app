@@ -45,6 +45,7 @@ export const ApiEndpoints = {
     reject: (applicationId: number) => `${applicationsBase}/${applicationId}/reject`,
   },
   reports: {
-    get: `${reportsBase}`
+    get: `${reportsBase}`,
+    create: `${reportsBase}`
   }
 }
