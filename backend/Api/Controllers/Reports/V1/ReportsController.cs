@@ -1,4 +1,5 @@
 using backend.Api.Auth;
+using backend.Api.Controllers.Reports.DTOs;
 using backend.Api.Http;
 using backend.Application.Security;
 using backend.Domain.Interfaces.Services;
@@ -27,7 +28,7 @@ public class ReportsController : ControllerBase
   public async Task<IActionResult> GetPentesterReports(CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
-    
+
     var reports = await _reportService.GetPentesterReportsAsync(userId, ct);
 
     return Ok(HttpResponseFactory.CreateSuccessResponse(
@@ -36,6 +37,19 @@ public class ReportsController : ControllerBase
       "Reports retrieved successfully",
       DomainErrorCodes.GeneralCodes.Success,
       reports
+    ));
+  }
+
+  [HttpPost]
+  // [HasPermission(Permissions.Reports.Create)]
+  public async Task<IActionResult> CreateRequest(CreateRequestDto req)
+  {
+    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+      HttpContext, 
+      HttpResponseState.Created,
+      "Request created",
+      DomainErrorCodes.GeneralCodes.Success,
+      null
     ));
   }
 }
