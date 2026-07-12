@@ -2,7 +2,7 @@ namespace backend.Application.Abstractions.CQRS;
 
 public interface ICommandHandler<in TCommand> where TCommand : ICommand
 {
-  Task<Result> HandleAsync(TCommand command );
+  Task<Result> HandleAsync(TCommand command, CancellationToken ct );
 }
 
 public interface ICommandHandler<in TCommand, TResult> where TCommand : ICommand<TResult>

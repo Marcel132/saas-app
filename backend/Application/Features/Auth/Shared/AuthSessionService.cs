@@ -89,4 +89,15 @@ public class AuthSessionService
   {
     await _sessionRepository.SetReplacedByAndRevokedAsync(oldSessionId, newSessionId, ct);
   }
+  // ! After CQRS check it
+  //   public async Task<CredentialsDto> GenerateCredentialsAndHandleSessionAsync(Guid userId, string ipAddress, string userAgent)
+  // {
+  //   var tokens = await _credentialsService.GenerateCredentials(userId);
+
+  //   // TODO: Instead of revoking all sessions, we should revoke only the session from the current device and ip to prevent session hijacking. This requires implementing device and ip tracking in sessions.
+  //   await _sessionService.RevokeAllSessionsAsync(userId, null);
+  //   await _sessionService.CreateSessionAsync(userId, tokens.RefreshToken, ipAddress, userAgent);
+
+  //   return tokens;
+  // }
 }
