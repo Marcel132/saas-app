@@ -1,11 +1,10 @@
 using backend.Api.Http;
 using backend.Application.Abstractions.CQRS;
-using backend.Application.Features.Auth.Commands;
 using backend.Domain.Entities;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
 
-namespace backend.Application.Services;
+namespace backend.Application.Features.Auth.Commands;
 
 public class UserAuthenticationService
 {
@@ -30,9 +29,9 @@ public class UserAuthenticationService
     _unitOfWork = unitOfWork;
   }
 
-  public async Task<Result<User>> AuthenticateAsync(LoginCommand dto)
+  public async Task<Result<User>> AuthenticateAsync(LoginCommand dto, CancellationToken ct)
   {
-    var user = await _users.GetByEmailAsync(dto.Email.Trim().ToLowerInvariant());
+    var user = await _users.GetByEmailAsync(dto.Email, ct);
 
     if (user is null)
       return Result<User>.Failure(new Error(
@@ -48,7 +47,7 @@ public class UserAuthenticationService
     if (!_hasher.Verify(dto.Password, user.PasswordHash))
     {
       user.RegisterFailedLoginAttempt(MaxAttempts, BlockDuration);
-      await _unitOfWork.SaveChangesAsync();
+      await _unitOfWork.SaveChangesAsync(ct);
       return Result<User>.Failure(new Error(
         DomainErrorCodes.AuthCodes.InvalidCredentials,
         "Nieprawidłowe dane",
@@ -57,7 +56,7 @@ public class UserAuthenticationService
     }
 
     user.ResetFailedLoginAttempts();
-    await _unitOfWork.SaveChangesAsync();
+    await _unitOfWork.SaveChangesAsync(ct);
 
     return Result<User>.Success(user);
   }
