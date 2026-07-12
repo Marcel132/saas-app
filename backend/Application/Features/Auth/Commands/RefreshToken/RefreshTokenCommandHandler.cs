@@ -4,7 +4,7 @@ using backend.Application.Features.Auth.Dto;
 using backend.Application.Features.Auth.Shared;
 using backend.Domain.Interfaces.Features;
 
-namespace backend.Application.Features.Auth;
+namespace backend.Application.Features.Auth.Commands;
 
 public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, CredentialsDto>
 {

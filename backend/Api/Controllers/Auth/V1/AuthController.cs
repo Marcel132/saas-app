@@ -1,13 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using backend.Api.Controllers.Auth.DTOs;
 using backend.Api.Http;
+using backend.Api.Controllers.Auth.DTOs;
 using backend.Application.Abstractions.CQRS;
 using backend.Application.Features.Auth.Commands;
 using backend.Application.Security;
 using backend.Application.Services;
 using backend.Application.Features.Auth.Dto;
-using backend.Application.Features.Auth;
 
 namespace backend.Api.Controllers.Auth.V1;
 
