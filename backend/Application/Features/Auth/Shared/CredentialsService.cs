@@ -1,7 +1,8 @@
-using backend.Application.Services.Auth.DTOs;
+using backend.Application.Features.Auth.Dto;
+using backend.Application.Services;
 using backend.Domain.Interfaces.Features;
 
-namespace backend.Application.Services;
+namespace backend.Application.Features.Auth.Shared;
 
 public class CredentialsService : ICredentialsService
 {
