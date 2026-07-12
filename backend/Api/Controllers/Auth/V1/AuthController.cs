@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using backend.Api.Controllers.Auth.DTOs;
 using backend.Api.Http;
 using backend.Application.Abstractions.CQRS;
@@ -5,9 +7,7 @@ using backend.Application.Features.Auth.Commands;
 using backend.Application.Security;
 using backend.Application.Services;
 using backend.Application.Features.Auth.Dto;
-using backend.Domain.Interfaces.Features;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using backend.Application.Features.Auth;
 
 namespace backend.Api.Controllers.Auth.V1;
 
@@ -16,21 +16,24 @@ namespace backend.Api.Controllers.Auth.V1;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class AuthController : ControllerBase
 {
-  private readonly IAuthService _authService;
   private readonly ICommandHandler<LoginCommand, CredentialsDto> _loginHandler;
   private readonly ICommandHandler<RegisterPentesterCommand, CredentialsDto> _registerPentesterHandler;
   private readonly ICommandHandler<RegisterCompanyCommand, CredentialsDto> _registerCompanyHandler;
+  private readonly ICommandHandler<LogoutCommand> _logoutHandler;
+  private readonly ICommandHandler<RefreshTokenCommand, CredentialsDto> _refreshTokenHandler;
   public AuthController(
-  IAuthService authService,
   ICommandHandler<LoginCommand, CredentialsDto> loginHandler,
   ICommandHandler<RegisterPentesterCommand, CredentialsDto> registerPentesterHandler,
-  ICommandHandler<RegisterCompanyCommand, CredentialsDto> registerCompanyHandler
+  ICommandHandler<RegisterCompanyCommand, CredentialsDto> registerCompanyHandler,
+  ICommandHandler<LogoutCommand> logoutHandler,
+  ICommandHandler<RefreshTokenCommand, CredentialsDto> refreshTokenHandler
 )
   {
-    _authService = authService;
     _loginHandler = loginHandler;
     _registerPentesterHandler = registerPentesterHandler;
     _registerCompanyHandler = registerCompanyHandler;
+    _logoutHandler = logoutHandler;
+    _refreshTokenHandler = refreshTokenHandler;
   }
 
   // -------------------------------
@@ -135,7 +138,7 @@ public class AuthController : ControllerBase
     );
 
     var credentials = await _registerCompanyHandler.HandleAsync(command, ct);
-    if(credentials.IsFailure)
+    if (credentials.IsFailure)
       return credentials.ToActionResult(
         HttpContext
       );
@@ -154,35 +157,48 @@ public class AuthController : ControllerBase
 
   [Authorize]
   [HttpPost("logout")]
-  public async Task<IActionResult> LogoutUser()
+  public async Task<IActionResult> LogoutUser(CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
     // TODO: Log device info on logout for security auditing
     // TODO: Deleted session and tokens from database on user ip or user agent change to prevent session hijacking
 
-    await _authService.LogoutAsync(userId);
-    AuthCookies.ClearAuthCookie(Response);
+    var result = await _logoutHandler.HandleAsync(new LogoutCommand(userId), ct);
 
-    return NoContent();
+    if (result.IsSuccess)
+      AuthCookies.ClearAuthCookie(Response);
+    
+    return result.ToActionResult(HttpContext);
   }
 
   [AllowAnonymous]
   [HttpPost("refresh-token")]
-  public async Task<IActionResult> RefreshToken()
+  public async Task<IActionResult> RefreshToken(CancellationToken ct)
   {
     var ipAddress = UserContextExtension.GetUserIp(HttpContext);
     var userAgent = UserContextExtension.GetUserAgent(HttpContext);
     var refreshToken = AuthCookies.GetRefreshToken(Request);
 
-    var result = await _authService.RefreshTokenAsync(ipAddress, userAgent, refreshToken);
+    var command = new RefreshTokenCommand(
+      IpAddress: ipAddress,
+      UserAgent: userAgent,
+      RefreshToken: refreshToken
+    );
 
-    AuthCookies.SetAuthCookie(Response, result.RefreshToken, result.AuthToken);
+    var result = await _refreshTokenHandler.HandleAsync(command, ct);
+    if (result.IsFailure)
+      return result.ToActionResult(
+        HttpContext
+      );
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    var resultValue = result.Value;
+
+    AuthCookies.SetAuthCookie(Response, resultValue.RefreshToken, resultValue.AuthToken);
+
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Odświeżono token",
+      "Refresh Token updated",
       DomainErrorCodes.AuthCodes.Success
-      ));
+    );
   }
 }

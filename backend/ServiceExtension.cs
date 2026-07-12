@@ -1,5 +1,3 @@
-
-
 using backend.Application.Services;
 using backend.Domain.Entities;
 using backend.Domain.Interfaces;
@@ -11,13 +9,12 @@ using backend.Infrastructure.Persistence.Repositories;
 using backend.Infrastructure.Security;
 using backend.Application.Abstractions.CQRS;
 using backend.Application.Features.Auth.Commands;
-using backend.Application.Services.Auth;
+using backend.Application.Features.Auth.Shared;
 
 public static class ServiceExtension
 {
   public static IServiceCollection AddApplicationService(this IServiceCollection services)
   {
-    services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IContractService, ContractService>();
     services.AddScoped<IUserService, UserService>();
     services.AddScoped<ICredentialsService, CredentialsService>();
@@ -26,7 +23,6 @@ public static class ServiceExtension
 
     
     services.AddScoped<UserAuthenticationService>();
-    services.AddScoped<UserRegisterService>();
 
     services.AddScoped<AssignmentService>();
 
