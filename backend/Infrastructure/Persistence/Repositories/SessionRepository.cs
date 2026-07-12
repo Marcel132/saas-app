@@ -16,16 +16,16 @@ public class SessionRepository : ISessionRepository
     _context = context;
   }
 
-  public async Task AddAsync(Session sess)
+  public async Task AddAsync(Session sess, CancellationToken ct)
   {
-    await _context.Sessions.AddAsync(sess);
+    await _context.Sessions.AddAsync(sess, ct);
   }
   public void Update(Session sess)
   {
     _context.Sessions.Update(sess);
   }
 
-  public async Task<bool> TryMarkSessionAsUsedAsync(long sessionId)
+  public async Task<bool> TryMarkSessionAsUsedAsync(long sessionId, CancellationToken ct)
   {
     var result = await _context.Database
       .ExecuteSqlInterpolatedAsync($@"
@@ -34,11 +34,11 @@ public class SessionRepository : ISessionRepository
         WHERE id = {sessionId}
           AND used = false
           AND revoked = false
-        ");
+        ", ct);
 
     return result > 0;
   }
-  public async Task SetReplacedByAndRevokedAsync(long oldSessionId, long newSessionId)
+  public async Task SetReplacedByAndRevokedAsync(long oldSessionId, long newSessionId, CancellationToken ct)
   {
     await _context.Database
       .ExecuteSqlInterpolatedAsync($@"
@@ -48,6 +48,6 @@ public class SessionRepository : ISessionRepository
           revoked = true
         WHERE id = {oldSessionId}
           AND replaced_by_token_id IS NULL
-        ");
+        ", ct);
   }
 }

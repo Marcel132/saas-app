@@ -1,9 +1,10 @@
-using backend.Api.Controllers.Auth.DTOs;
+using backend.Application.Abstractions.CQRS;
+using backend.Application.Features.Auth.Commands;
 
 namespace backend.Domain.Interfaces;
 
 public interface IRegisterPolicy
 {
-  public void EnsureCanRegisterPentester(bool emailAlreadyExists, bool nicknameAlreadyExists, RegisterPentesterRequestDto req);
-  public void EnsureCanRegisterCompany(bool emailAlreadyExists, RegisterCompanyRequestDto req);
+  public Result CanRegisterPentester(bool emailAlreadyExists, bool nicknameAlreadyExists, RegisterPentesterCommand req);
+  public Result CanRegisterCompany(bool emailAlreadyExists, RegisterCompanyCommand req);
 }

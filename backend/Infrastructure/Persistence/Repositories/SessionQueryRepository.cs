@@ -13,7 +13,7 @@ public class SessionQueryRepository : ISessionQueryRepository
     _context = context;
   }
 
-  public async Task<Session?> GetActiveSessionAsync(Guid userId)
+  public async Task<Session?> GetActiveSessionAsync(Guid userId, CancellationToken ct)
   {
     return await _context.Sessions
       .Where(s =>
@@ -21,15 +21,15 @@ public class SessionQueryRepository : ISessionQueryRepository
         !s.Revoked &&
         !s.Used
       )
-      .FirstOrDefaultAsync();
+      .FirstOrDefaultAsync(ct);
   }
-  public async Task<IReadOnlyCollection<Session>> GetAllSessionsAsync(Guid userId)
+  public async Task<IReadOnlyCollection<Session>> GetAllSessionsAsync(Guid userId, CancellationToken ct)
   {
     return await _context.Sessions
       .Where(s => s.UserId == userId)
-      .ToListAsync();
+      .ToListAsync(ct);
   }
-  public async Task<IReadOnlyCollection<Session>> GetAllActiveSessionsAsync(Guid userId)
+  public async Task<IReadOnlyCollection<Session>> GetAllActiveSessionsAsync(Guid userId, CancellationToken ct)
   {
     return await _context.Sessions
       .Where(s =>
@@ -37,24 +37,24 @@ public class SessionQueryRepository : ISessionQueryRepository
         !s.Revoked &&
         !s.Used
        )
-      .ToListAsync();
+      .ToListAsync(ct);
   }
-  public async Task<Session?> GetSessionByRefreshTokenAsync(string refreshToken)
+  public async Task<Session?> GetSessionByRefreshTokenAsync(string refreshToken, CancellationToken ct)
   {
     var refreshTokenHash = TokenHasher.HashToken(refreshToken);
 
     return await _context.Sessions
       .Where(s => s.RefreshTokenHash == refreshTokenHash)
-      .FirstOrDefaultAsync();
+      .FirstOrDefaultAsync(ct);
   }
-  public async Task<Session?> GetSessionByUserAndIdAsync(Guid userId, long sessionId)
+  public async Task<Session?> GetSessionByUserAndIdAsync(Guid userId, long sessionId, CancellationToken ct)
   {
     return await _context.Sessions
       .Where(s =>
         s.UserId == userId &&
         s.Id == sessionId
       )
-      .FirstOrDefaultAsync();
+      .FirstOrDefaultAsync(ct);
   }
 
 }

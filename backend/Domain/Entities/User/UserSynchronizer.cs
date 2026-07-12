@@ -12,10 +12,11 @@ public class UserRoleSynchronizer
     _roleRepo = roleRepo;
   }
 
-  public async Task SyncAsync(User user)
+  public async Task SyncAsync(User user, CancellationToken ct)
   {
     var roles = await _roleRepo.GetByCodesAsync(
-      new[] { Roles.BASE_USER.ToString(), Roles.PENTESTER.ToString(), Roles.COMPANY.ToString() }
+      new[] { Roles.BASE_USER.ToString(), Roles.PENTESTER.ToString(), Roles.COMPANY.ToString()},
+      ct
     );
 
     EnsureRole(user, roles[Roles.BASE_USER.ToString()].Id);

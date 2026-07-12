@@ -13,18 +13,17 @@ public class UserQueryRepository : IUserQueryRepository
     _context = context;
   }
 
-  public async Task<RoleType> GetRoleTypeAsync(Guid userId)
+  public async Task<RoleType> GetRoleTypeAsync(Guid userId, CancellationToken ct)
   {
     var user = await _context.Users
       .AsNoTracking()
       .Where(u => u.Id == userId && u.IsActive)
       .Select(u => new { u.RoleType })
-      .FirstOrDefaultAsync()
+      .FirstOrDefaultAsync(ct)
       ?? throw new NotFoundAppException();
 
     return user.RoleType;
   }
-
   public async Task<UserPublicPentesterDto> GetPentesterByIdAsync(Guid userId, CancellationToken ct)
   {
     return await _context.Users
@@ -51,8 +50,7 @@ public class UserQueryRepository : IUserQueryRepository
       .FirstOrDefaultAsync(ct)
       ?? throw new NotFoundAppException();
   }
-
-  public async Task<PentesterPrivateDto> GetCurrentPentesterAsync(Guid userId)
+  public async Task<PentesterPrivateDto> GetCurrentPentesterAsync(Guid userId, CancellationToken ct)
   {
     return await _context.Users
       .AsNoTracking()
@@ -93,11 +91,10 @@ public class UserQueryRepository : IUserQueryRepository
           .Join(_context.Permissions, permId => permId, p => p.Id, (permId, p) => p.Code)
           .ToHashSet()
       })
-      .FirstOrDefaultAsync()
+      .FirstOrDefaultAsync(ct)
       ?? throw new NotFoundAppException();
   }
-
-  public async Task<CompanyPrivateDto> GetCurrentCompanyAsync(Guid userId)
+  public async Task<CompanyPrivateDto> GetCurrentCompanyAsync(Guid userId, CancellationToken ct)
   {
     return await _context.Users
       .AsNoTracking()
@@ -129,10 +126,9 @@ public class UserQueryRepository : IUserQueryRepository
           .Join(_context.Permissions, permId => permId, p => p.Id, (permId, p) => p.Code)
           .ToHashSet()
       })
-      .FirstOrDefaultAsync()
+      .FirstOrDefaultAsync(ct)
       ?? throw new NotFoundAppException();
   }
-
   public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status, CancellationToken ct)
   {
     var query = _context.Contracts
@@ -159,7 +155,6 @@ public class UserQueryRepository : IUserQueryRepository
       })
       .ToListAsync(ct);
   }
-
   public async Task<List<UserApplicationsDto>> GetApplicationsAsync(Guid userId, ContractApplicationStatus? status, CancellationToken ct)
   {
     var query = _context.ContractApplications
@@ -188,7 +183,6 @@ public class UserQueryRepository : IUserQueryRepository
 
     return await query.ToListAsync(ct);
   }
-
   public async Task<UserSummaryDto> GetSummary(Guid userId, CancellationToken ct)
   {
     var activeTask = await _context.ContractAssignments

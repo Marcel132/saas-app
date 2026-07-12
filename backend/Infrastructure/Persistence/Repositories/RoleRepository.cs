@@ -13,7 +13,7 @@ public class RoleRepository : IRoleRepository
     _context = context;
   }
 
-  public async Task<Role> GetByCodeAsync(string code, CancellationToken ct = default)
+  public async Task<Role> GetByCodeAsync(string code, CancellationToken ct)
   {
     var role = await _context.Roles
       .AsNoTracking()
@@ -23,7 +23,7 @@ public class RoleRepository : IRoleRepository
     return role;
   }
 
-  public async Task<IReadOnlyDictionary<string, Role>> GetByCodesAsync(IEnumerable<string> codes, CancellationToken ct = default)
+  public async Task<IReadOnlyDictionary<string, Role>> GetByCodesAsync(IEnumerable<string> codes, CancellationToken ct)
   {
     var codeSet = codes.Distinct().ToArray();
 
@@ -41,7 +41,7 @@ public class RoleRepository : IRoleRepository
     return roles.ToDictionary(r => r.Code, r => r, StringComparer.OrdinalIgnoreCase);
   }
 
-  public async Task<HashSet<string>> GetEffectivePermissionsAsync(Guid userId)
+  public async Task<HashSet<string>> GetEffectivePermissionsAsync(Guid userId, CancellationToken ct)
   {
     var rolePermisions = await _context.UserRoles
       .Where(ur => ur.UserId == userId)
@@ -57,7 +57,7 @@ public class RoleRepository : IRoleRepository
       .Where(p => p.IsActive)
       .Select(p => p.Code)
       .AsNoTracking()
-      .ToListAsync();
+      .ToListAsync(ct);
 
     var effectivePermissions = new HashSet<string>(rolePermisions);
 

@@ -1,4 +1,4 @@
-using backend.Application.Services.Auth.DTOs;
+using backend.Application.Features.Auth.Dto;
 
 namespace backend.Domain.Interfaces.Features;
 

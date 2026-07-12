@@ -4,6 +4,6 @@ namespace backend.Domain.Interfaces;
 
 public interface IUnitOfWork
 {
-  Task SaveChangesAsync();
+  Task SaveChangesAsync(CancellationToken ct);
   Task<IDbContextTransaction> BeginTransactionAsync();
 }
