@@ -1,5 +1,6 @@
-using backend.Api.Controllers.Auth.DTOs;
-using backend.Application.Services.Auth.DTOs;
+using backend.Application.Features.Auth.Commands;
+using backend.Application.Features.Auth.Dto;
+using backend.Application.Features.Auth.Shared;
 using backend.Domain.Interfaces.Features;
 
 namespace backend.Application.Services;
@@ -22,20 +23,6 @@ public class AuthService : IAuthService
     _authentication = authenticationService;
     _registration = registerService;
     _credentialsService = credentialsService;
-  }
-
-  public async Task<CredentialsDto> RegisterPentesterAsync(RegisterPentesterRequestDto req, string ipAddress, string userAgent)
-  {
-    var user = await _registration.RegisterPentesterAsync(req);
-
-    return await GenerateCredentialsAndHandleSessionAsync(user.Id, ipAddress, userAgent);
-  }
-
-  public async Task<CredentialsDto> RegisterCompanyAsync(RegisterCompanyRequestDto req, string ipAddress, string userAgent)
-  {
-    var user = await _registration.RegisterCompanyAsync(req);
-
-    return await GenerateCredentialsAndHandleSessionAsync(user.Id, ipAddress, userAgent);
   }
 
   // TODO: Logout user per ip and device instead of logging out from all sessions to prevent session hijacking
