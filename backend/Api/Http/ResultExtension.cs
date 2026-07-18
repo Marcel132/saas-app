@@ -25,11 +25,19 @@ public static class ResultExtensions
     return new ObjectResult(successBody) { StatusCode = (int)HttpResponseState.Success };
   }
 
+  /// <summary>
+  /// Message and Code are only on success
+  /// </summary>
+  /// <param name="result"></param>
+  /// <param name="context"></param>
+  /// <param name="message"></param>
+  /// <param name="code"></param>
+  /// <returns></returns>
   public static IActionResult ToActionResult(
     this Result result,
     HttpContext context,
-    string? successMessage = null,
-    string? successCode = null)
+    string? message = null,
+    string? code = null)
   {
     if (result.IsFailure)
     {
@@ -40,7 +48,7 @@ public static class ResultExtensions
     }
 
     var successBody = HttpResponseFactory.CreateSuccessResponse<object>(
-      context, HttpResponseState.Success, successMessage, successCode);
+      context, HttpResponseState.Success, message, code);
 
     return new ObjectResult(successBody) { StatusCode = (int)HttpResponseState.Success };
   }
