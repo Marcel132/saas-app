@@ -1,5 +1,7 @@
 using backend.Api.Auth;
 using backend.Api.Http;
+using backend.Application.Abstractions.CQRS;
+using backend.Application.Features.Applications.Commands;
 using backend.Application.Security;
 using backend.Domain.Interfaces.Features;
 using Microsoft.AspNetCore.Authorization;
@@ -14,24 +16,35 @@ namespace backend.Api.Controllers.Applications.V1;
 public class ApplicationsController : ControllerBase
 {
   private readonly IApplicationService _applicationService;
-  public ApplicationsController(IApplicationService applicationService)
+  private readonly ICommandHandler<AcceptApplicationCommand> _acceptCommandHandler;
+  public ApplicationsController(
+    IApplicationService applicationService,
+    ICommandHandler<AcceptApplicationCommand> acceptCommandHandler
+  )
   {
     _applicationService = applicationService;
+    _acceptCommandHandler = acceptCommandHandler;
   }
 
   [HasPermission(Permissions.Applications.Review)]
   [HttpPatch("{applicationId}/accept")]
-  public async Task<IActionResult> AcceptApplication([FromRoute] long applicationId)
+  public async Task<IActionResult> AcceptApplication([FromRoute] long applicationId, CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
-    await _applicationService.AcceptApplicationAsync(userId, applicationId);
+    var command = new AcceptApplicationCommand(
+      UserId: userId,
+      ApplicationId: applicationId
+    );
+    var result = await _acceptCommandHandler.HandleAsync(command, ct);
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    if(result.IsFailure)
+      return result.ToActionResult(HttpContext);
+
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Application accepted successfully.",
+      "Zaakceptowano aplikację",
       DomainErrorCodes.GeneralCodes.Success
-      ));
+    );
   }
   
   [HasPermission(Permissions.Applications.Review)]
