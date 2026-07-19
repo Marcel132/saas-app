@@ -13,11 +13,11 @@ public class ApplicationRepository : IApplicationRepository
     _context = dbContext;
   }
 
-  public async Task<ContractApplication?> GetApplicationAsync(long applicationId)
+  public async Task<ContractApplication?> GetApplicationAsync(long applicationId, CancellationToken ct)
   {
     return await _context.ContractApplications
       .Include(ca => ca.Contract)
-      .FirstOrDefaultAsync(ca => ca.Id == applicationId);
+      .FirstOrDefaultAsync(ca => ca.Id == applicationId, ct);
   }
 
   public async Task<List<ContractApplication>> GetApplicationsByContractIdAsync(long contractId, Guid? excludeCandidateId = null)

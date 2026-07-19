@@ -3,7 +3,6 @@ using backend.Api.Http;
 using backend.Application.Abstractions.CQRS;
 using backend.Application.Features.Applications.Commands;
 using backend.Application.Security;
-using backend.Domain.Interfaces.Features;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,15 +14,15 @@ namespace backend.Api.Controllers.Applications.V1;
 [Authorize]
 public class ApplicationsController : ControllerBase
 {
-  private readonly IApplicationService _applicationService;
   private readonly ICommandHandler<AcceptApplicationCommand> _acceptCommandHandler;
+  private readonly ICommandHandler<RejectApplicationCommand> _rejectCommandHandler;
   public ApplicationsController(
-    IApplicationService applicationService,
-    ICommandHandler<AcceptApplicationCommand> acceptCommandHandler
+    ICommandHandler<AcceptApplicationCommand> acceptCommandHandler,
+    ICommandHandler<RejectApplicationCommand> rejectCommandHandler
   )
   {
-    _applicationService = applicationService;
     _acceptCommandHandler = acceptCommandHandler;
+    _rejectCommandHandler = rejectCommandHandler;
   }
 
   [HasPermission(Permissions.Applications.Review)]
@@ -49,16 +48,23 @@ public class ApplicationsController : ControllerBase
   
   [HasPermission(Permissions.Applications.Review)]
   [HttpPatch("{applicationId}/reject")]
-  public async Task<IActionResult> RejectApplication([FromRoute] long applicationId)
+  public async Task<IActionResult> RejectApplication([FromRoute] long applicationId, CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
-    await _applicationService.RejectApplicationAsync(userId, applicationId);
+    var command = new RejectApplicationCommand(
+      UserId: userId,
+      ApplicationId: applicationId
+    );
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    var result = await _rejectCommandHandler.HandleAsync(command, ct);
+
+    if(result.IsFailure)
+      return result.ToActionResult(HttpContext);
+
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Application rejected successfully.",
+      "Pomyślnie odrzucono aplikacje",
       DomainErrorCodes.GeneralCodes.Success
-      ));
+    );
   }
 }
