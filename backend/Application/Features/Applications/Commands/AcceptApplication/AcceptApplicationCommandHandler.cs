@@ -1,6 +1,8 @@
 
+using System.Diagnostics.Contracts;
 using backend.Api.Http;
 using backend.Application.Abstractions.CQRS;
+using backend.Application.Features.Assignments.Commands;
 using backend.Application.Services;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
@@ -9,17 +11,17 @@ namespace backend.Application.Features.Applications.Commands;
 
 public sealed class AcceptApplicationCommandHandler : ICommandHandler<AcceptApplicationCommand>
 {
+  private readonly ICommandHandler<AssignCandidateToContractCommand> _assignCandidateCommandHandler;
   private readonly IApplicationRepository _repo;
-  private readonly AssignmentService _assignmentService;
   private readonly IUnitOfWork _unitOfWork;
   public AcceptApplicationCommandHandler(
+    ICommandHandler<AssignCandidateToContractCommand> assignCandidateCommandHandler,
     IApplicationRepository applicationRepository,
-    AssignmentService assignmentService,
     IUnitOfWork unitOfWork
   )
   {
+    _assignCandidateCommandHandler = assignCandidateCommandHandler;
     _repo = applicationRepository;
-    _assignmentService = assignmentService;
     _unitOfWork = unitOfWork;
   }
 
@@ -49,7 +51,16 @@ public sealed class AcceptApplicationCommandHandler : ICommandHandler<AcceptAppl
       ));
 
     await using var transaction = await _unitOfWork.BeginTransactionAsync();
-    await _assignmentService.AssignCandidateToContractAsync(command.UserId, application.ContractId, application.UserId);
+
+    var assignCommand = new AssignCandidateToContractCommand(
+      UserId: command.UserId,
+      ContractId: application.ContractId,
+      DeveloperId: application.UserId
+    );
+    var assignment = await _assignCandidateCommandHandler.HandleAsync(assignCommand, ct);
+
+    if(assignment.IsFailure)
+      return Result.Failure(assignment.Error);
 
     application.Accept();
     application.Contract.StartContract();
