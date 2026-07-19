@@ -12,11 +12,11 @@ public class AssignmentRepository : IAssignmentRepository
     _context = context;
   }
 
-  public async Task<ContractAssignment?> GetActiveAssignmentByContractIdAsync(long contractId)
+  public async Task<ContractAssignment?> GetActiveAssignmentByContractIdAsync(long contractId, CancellationToken ct)
   {
     return await _context.ContractAssignments
       .Where(ca => ca.ContractId == contractId && ca.IsActive)
-      .FirstOrDefaultAsync();
+      .FirstOrDefaultAsync(ct);
   }
   public async Task AddAssignmentAsync(ContractAssignment assignment)
   {
