@@ -16,7 +16,7 @@ public class ApplicationQueryRepository : IApplicationQueryRepository
     _context = appDbContext;
   }
 
-  public async Task<List<ApplicationDto>> GetUserApplications(Guid userId)
+  public async Task<List<ApplicationDto>> GetUserApplications(Guid userId, CancellationToken ct)
   {
     var query = await _context.ContractApplications
       .AsNoTracking()
@@ -42,7 +42,7 @@ public class ApplicationQueryRepository : IApplicationQueryRepository
         Status = x.Status,
         AppliedAt = x.AppliedAt,
       })
-      .ToListAsync();
+      .ToListAsync(ct);
 
     return query;
   }
