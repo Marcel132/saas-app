@@ -4,5 +4,5 @@ namespace backend.Domain.Interfaces.Features;
 
 public interface ICredentialsService
 {
-  public Task<CredentialsDto> GenerateCredentials(Guid userId);
+  public Task<CredentialsDto> GenerateCredentials(Guid userId, CancellationToken ct);
 }
