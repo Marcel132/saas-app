@@ -12,9 +12,9 @@ public class RoleService
     _roleRepository = repository;
   }
 
-  public async Task<HashSet<string>> GetEffectivePermissions(Guid userId)
+  public async Task<HashSet<string>> GetEffectivePermissions(Guid userId, CancellationToken ct)
   {
-    return await _roleRepository.GetEffectivePermissionsAsync(userId);
+    return await _roleRepository.GetEffectivePermissionsAsync(userId, ct);
   }
 
 }
