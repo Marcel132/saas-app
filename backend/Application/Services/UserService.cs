@@ -22,19 +22,6 @@ public class UserService : IUserService
     _userQueryRepo = userQueryRepository;
     _userRepo = userRepository;
   }
-
-  public async Task<UserPublicPentesterDto> GetPentesterByIdAsync(Guid userId, Guid currentUserId, CancellationToken ct)
-  {
-    if (userId == Guid.Empty)
-      throw new BadRequestAppException();
-
-    var pentester = await _userQueryRepo.GetPentesterByIdAsync(userId, ct);
-
-    // TODO: Create log with userId and currentUserId (who requested the data) for auditing purposes
-
-    return pentester;
-  }
-
   public async Task<object> GetCurrentUserAsync(Guid userId)
   {
     var roleType = await _userQueryRepo.GetRoleTypeAsync(userId);

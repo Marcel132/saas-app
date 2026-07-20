@@ -1,6 +1,7 @@
 using backend.Api.Auth;
 using backend.Api.Controllers.Users.DTOs;
 using backend.Api.Http;
+using backend.Application.Abstractions.CQRS;
 using backend.Application.Security;
 using backend.Domain.Entities.Enum;
 using backend.Domain.Interfaces.Features;
@@ -16,12 +17,14 @@ namespace backend.Api.Controllers.Users.V1;
 public class UsersController : ControllerBase
 {
   private readonly IUserService _userService;
-
+  private readonly IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> _getPentesterById;
   public UsersController(
-    IUserService userService
+    IUserService userService,
+    IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> getPentesterById
   )
   {
     _userService = userService;
+    _getPentesterById = getPentesterById;
   }
 
   // GetAllAsync (admin) 
@@ -32,15 +35,18 @@ public class UsersController : ControllerBase
   {
     var currentUserId = UserContextExtension.GetUserId(User);
 
-    var pentester = await _userService.GetPentesterByIdAsync(userId, currentUserId, ct);
+    var query = new GetPentesterByIdQuery(
+      UserId: userId,
+      CurrentUserId: currentUserId
+    );
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext,
-      HttpResponseState.Success,
-      "User retrieved successfully",
-      DomainErrorCodes.AuthCodes.Success,
-      pentester
-    ));
+    var result = await _getPentesterById.HandleAsync(query, ct);
+
+    if(result.IsFailure)
+      return result.ToActionResult(HttpContext);
+
+    return result.ToActionResult(HttpContext);
+
   }
 
   [HasPermission(Permissions.Profile.Read)]

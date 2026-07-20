@@ -6,8 +6,6 @@ namespace backend.Domain.Interfaces.Features;
 public interface IUserService
 {
   // GetAllAsync (admin) 
-
-  public Task<UserPublicPentesterDto> GetPentesterByIdAsync(Guid userId, Guid currentUserId, CancellationToken ct = default);
   public Task<object> GetCurrentUserAsync(Guid userId);
   public Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status = null, CancellationToken ct = default);
   public Task<List<UserApplicationsDto>> GetCurrentUserApplicationsAsync(Guid userId, ContractApplicationStatus? status, CancellationToken ct = default);
