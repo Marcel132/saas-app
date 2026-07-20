@@ -46,7 +46,7 @@ public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCom
       ));
     }
 
-    var tokens = await _credsService.GenerateCredentials(session.UserId);
+    var tokens = await _credsService.GenerateCredentials(session.UserId, ct);
     var newSession = await _sessionService.CreateSessionAsync(session.UserId, tokens.RefreshToken, req.IpAddress, req.UserAgent, ct);
 
     await _sessionService.SetReplacedByAndRevokedAsync(session.Session.Id, newSession.Id, ct);

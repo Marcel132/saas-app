@@ -17,9 +17,9 @@ public class CredentialsService : ICredentialsService
     _roleService = roleService;
   }
 
-  public async Task<CredentialsDto> GenerateCredentials(Guid userId)
+  public async Task<CredentialsDto> GenerateCredentials(Guid userId, CancellationToken ct)
   {
-    var permissions = await _roleService.GetEffectivePermissions(userId);
+    var permissions = await _roleService.GetEffectivePermissions(userId, ct);
 
     var authToken = _tokenService.GenerateAuthToken(userId, permissions);
     var refreshToken = _tokenService.GenerateRefreshToken();

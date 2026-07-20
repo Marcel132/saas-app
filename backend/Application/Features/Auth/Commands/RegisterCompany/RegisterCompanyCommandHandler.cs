@@ -1,4 +1,3 @@
-using backend.Api.Http;
 using backend.Application.Abstractions.CQRS;
 using backend.Application.Features.Auth.Dto;
 using backend.Application.Features.Auth.Shared;
