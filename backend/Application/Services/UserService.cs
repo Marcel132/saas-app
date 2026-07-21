@@ -22,18 +22,6 @@ public class UserService : IUserService
     _userQueryRepo = userQueryRepository;
     _userRepo = userRepository;
   }
-  public async Task<object> GetCurrentUserAsync(Guid userId)
-  {
-    var roleType = await _userQueryRepo.GetRoleTypeAsync(userId);
-
-    return roleType switch
-    {
-      RoleType.Pentester => (object)await _userQueryRepo.GetCurrentPentesterAsync(userId),
-      RoleType.Company => (object)await _userQueryRepo.GetCurrentCompanyAsync(userId),
-      _ => throw new InvalidOperationAppException()
-    };
-  }
-
   public async Task<List<UserContractsDto>> GetCurrentUserContractsAsync(Guid userId, ContractStatus? status, CancellationToken ct)
   {
     return await _userQueryRepo.GetCurrentUserContractsAsync(userId, status, ct);
