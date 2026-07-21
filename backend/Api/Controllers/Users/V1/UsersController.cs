@@ -2,6 +2,7 @@ using backend.Api.Auth;
 using backend.Api.Controllers.Users.DTOs;
 using backend.Api.Http;
 using backend.Application.Abstractions.CQRS;
+using backend.Application.Features.Users.Queries;
 using backend.Application.Security;
 using backend.Domain.Entities.Enum;
 using backend.Domain.Interfaces.Features;
@@ -18,13 +19,16 @@ public class UsersController : ControllerBase
 {
   private readonly IUserService _userService;
   private readonly IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> _getPentesterById;
+  private readonly IQueryHandler<GetCurrentUserQuery, object> _getCurrentUser;
   public UsersController(
     IUserService userService,
-    IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> getPentesterById
+    IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> getPentesterById,
+    IQueryHandler<GetCurrentUserQuery, object> getCurrentUser
   )
   {
     _userService = userService;
     _getPentesterById = getPentesterById;
+    _getCurrentUser = getCurrentUser;
   }
 
   // GetAllAsync (admin) 
@@ -51,18 +55,23 @@ public class UsersController : ControllerBase
 
   [HasPermission(Permissions.Profile.Read)]
   [HttpGet("me")]
-  public async Task<IActionResult> GetCurrentUser()
+  public async Task<IActionResult> GetCurrentUser(CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
-    var user = await _userService.GetCurrentUserAsync(userId);
+    var query = new GetCurrentUserQuery(
+      UserId: userId
+    );
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    var result = await _getCurrentUser.HandleAsync(query, ct);
+
+    if(result.IsFailure)
+      return result.ToActionResult(HttpContext);
+
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Current user retrieved successfully",
-      DomainErrorCodes.AuthCodes.Success,
-      user
-      ));
+      "Pobrano użytkownika",
+      DomainErrorCodes.AuthCodes.Success
+    );
   }
 
   [HasPermission(Permissions.Profile.Read)]
