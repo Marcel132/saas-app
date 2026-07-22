@@ -20,15 +20,18 @@ public class UsersController : ControllerBase
   private readonly IUserService _userService;
   private readonly IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> _getPentesterById;
   private readonly IQueryHandler<GetCurrentUserQuery, object> _getCurrentUser;
+  private readonly IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> _getCurrentUserContracts;
   public UsersController(
     IUserService userService,
     IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> getPentesterById,
-    IQueryHandler<GetCurrentUserQuery, object> getCurrentUser
+    IQueryHandler<GetCurrentUserQuery, object> getCurrentUser,
+    IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> getCurrentUserContracts
   )
   {
     _userService = userService;
     _getPentesterById = getPentesterById;
     _getCurrentUser = getCurrentUser;
+    _getCurrentUserContracts = getCurrentUserContracts;
   }
 
   // GetAllAsync (admin) 
@@ -46,11 +49,7 @@ public class UsersController : ControllerBase
 
     var result = await _getPentesterById.HandleAsync(query, ct);
 
-    if(result.IsFailure)
-      return result.ToActionResult(HttpContext);
-
     return result.ToActionResult(HttpContext);
-
   }
 
   [HasPermission(Permissions.Profile.Read)]
@@ -63,9 +62,6 @@ public class UsersController : ControllerBase
     );
 
     var result = await _getCurrentUser.HandleAsync(query, ct);
-
-    if(result.IsFailure)
-      return result.ToActionResult(HttpContext);
 
     return result.ToActionResult(
       HttpContext,
@@ -136,15 +132,17 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> GetCurrentUserContracts(CancellationToken ct, [FromQuery] ContractStatus? status = null)
   {
     var userId = UserContextExtension.GetUserId(User);
-    var contracts = await _userService.GetCurrentUserContractsAsync(userId, status, ct);
+    var query = new GetCurrentUserContractQuery(
+      UserId: userId,
+      Status: status
+    );
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext,
-      HttpResponseState.Success,
-      "User contracts retrieved successfully",
-      DomainErrorCodes.AuthCodes.Success,
-      contracts
-    ));
+    var contracts = await _getCurrentUserContracts.HandleAsync(query, ct);
+
+    return contracts.ToActionResult(
+    HttpContext,
+    "Kontrakty pobrane",
+    DomainErrorCodes.GeneralCodes.Success);
   }
 
   [HasPermission(Permissions.Applications.ReadOwn)]
