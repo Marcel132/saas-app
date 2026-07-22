@@ -21,17 +21,20 @@ public class UsersController : ControllerBase
   private readonly IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> _getPentesterById;
   private readonly IQueryHandler<GetCurrentUserQuery, object> _getCurrentUser;
   private readonly IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> _getCurrentUserContracts;
+  private readonly IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> _getCurrentUserApplications;
   public UsersController(
     IUserService userService,
     IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> getPentesterById,
     IQueryHandler<GetCurrentUserQuery, object> getCurrentUser,
-    IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> getCurrentUserContracts
+    IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> getCurrentUserContracts,
+    IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> getCurrentUserApplications
   )
   {
     _userService = userService;
     _getPentesterById = getPentesterById;
     _getCurrentUser = getCurrentUser;
     _getCurrentUserContracts = getCurrentUserContracts;
+    _getCurrentUserApplications = getCurrentUserApplications;
   }
 
   // GetAllAsync (admin) 
@@ -150,14 +153,16 @@ public class UsersController : ControllerBase
   public async Task<IActionResult> GetCurrentUserApplications(CancellationToken ct, [FromQuery] ContractApplicationStatus? status = null)
   {
     var userId = UserContextExtension.GetUserId(User);
-    var applications = await _userService.GetCurrentUserApplicationsAsync(userId, status, ct);
+    var query = new GetCurrentUserApplicationsQuery(
+      UserId: userId,
+      Status: status
+    );
+    var applications = await _getCurrentUserApplications.HandleAsync(query, ct);
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    return applications.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "User applications retrieved successfully",
-      DomainErrorCodes.AuthCodes.Success,
-      applications
-    ));
+      "Pobrano aplikacje",
+      DomainErrorCodes.GeneralCodes.Success
+    );
   }
 }

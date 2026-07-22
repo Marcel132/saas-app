@@ -22,10 +22,6 @@ public class UserService : IUserService
     _userQueryRepo = userQueryRepository;
     _userRepo = userRepository;
   }
-  public async Task<List<UserApplicationsDto>> GetCurrentUserApplicationsAsync(Guid userId, ContractApplicationStatus? status, CancellationToken ct)
-  {
-    return await _userQueryRepo.GetApplicationsAsync(userId, status, ct);
-  }
 
   public async Task<UserSummaryDto> GetCurrentUserSummaryAsync(Guid userId, CancellationToken ct)
   {
