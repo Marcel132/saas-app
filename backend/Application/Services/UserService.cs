@@ -23,11 +23,6 @@ public class UserService : IUserService
     _userRepo = userRepository;
   }
 
-  public async Task<UserSummaryDto> GetCurrentUserSummaryAsync(Guid userId, CancellationToken ct)
-  {
-    return await _userQueryRepo.GetSummary(userId, ct);
-  }
-
   public async Task UpdatePentesterAsync(Guid userId, UpdatePentesterDto request)
   {
     var user = await _userRepo.GetByIdAsync(userId)

@@ -22,12 +22,14 @@ public class UsersController : ControllerBase
   private readonly IQueryHandler<GetCurrentUserQuery, object> _getCurrentUser;
   private readonly IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> _getCurrentUserContracts;
   private readonly IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> _getCurrentUserApplications;
+  private readonly IQueryHandler<GetUserSummaryQuery, UserSummaryDto> _getSummary;
   public UsersController(
     IUserService userService,
     IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> getPentesterById,
     IQueryHandler<GetCurrentUserQuery, object> getCurrentUser,
     IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> getCurrentUserContracts,
-    IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> getCurrentUserApplications
+    IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> getCurrentUserApplications,
+    IQueryHandler<GetUserSummaryQuery, UserSummaryDto> getSummary
   )
   {
     _userService = userService;
@@ -35,6 +37,7 @@ public class UsersController : ControllerBase
     _getCurrentUser = getCurrentUser;
     _getCurrentUserContracts = getCurrentUserContracts;
     _getCurrentUserApplications = getCurrentUserApplications;
+    _getSummary = getSummary;
   }
 
   // GetAllAsync (admin) 
@@ -79,15 +82,18 @@ public class UsersController : ControllerBase
   {
     var userId = UserContextExtension.GetUserId(User);
 
-    var summary = await _userService.GetCurrentUserSummaryAsync(userId, ct);
+    var query = new GetUserSummaryQuery(
+      UserId: userId
+    );
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    var summary = await _getSummary.HandleAsync(query, ct);
+
+    return summary.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Pobrano dane użytkownika",
-      DomainErrorCodes.GeneralCodes.Success,
-      summary
-    ));
+      "Pobrano wyciąg",
+      DomainErrorCodes.GeneralCodes.Success
+    );
+
   }
 
   [HasPermission(Permissions.Profile.Update)]
