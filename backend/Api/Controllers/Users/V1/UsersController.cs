@@ -18,7 +18,6 @@ namespace backend.Api.Controllers.Users.V1;
 [Authorize]
 public class UsersController : ControllerBase
 {
-  private readonly IUserService _userService;
   private readonly IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> _getPentesterById;
   private readonly IQueryHandler<GetCurrentUserQuery, object> _getCurrentUser;
   private readonly IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> _getCurrentUserContracts;
@@ -26,23 +25,27 @@ public class UsersController : ControllerBase
   private readonly IQueryHandler<GetUserSummaryQuery, UserSummaryDto> _getSummary;
 
   private readonly ICommandHandler<UpdatePentesterCommand> _updatePentester;
+  private readonly ICommandHandler<UpdateCompanyCommand> _updateCompany;
+  private readonly ICommandHandler<DeleteUserCommand> _deleteUser;
   public UsersController(
-    IUserService userService,
     IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> getPentesterById,
     IQueryHandler<GetCurrentUserQuery, object> getCurrentUser,
     IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> getCurrentUserContracts,
     IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> getCurrentUserApplications,
     IQueryHandler<GetUserSummaryQuery, UserSummaryDto> getSummary,
-    ICommandHandler<UpdatePentesterCommand> updatePentester
+    ICommandHandler<UpdatePentesterCommand> updatePentester,
+    ICommandHandler<UpdateCompanyCommand> updateCompany,
+    ICommandHandler<DeleteUserCommand> deleteUser
   )
   {
-    _userService = userService;
     _getPentesterById = getPentesterById;
     _getCurrentUser = getCurrentUser;
     _getCurrentUserContracts = getCurrentUserContracts;
     _getCurrentUserApplications = getCurrentUserApplications;
     _getSummary = getSummary;
     _updatePentester = updatePentester;
+    _updateCompany = updateCompany;
+    _deleteUser = deleteUser;
   }
 
   // GetAllAsync (admin) 
@@ -122,27 +125,40 @@ public class UsersController : ControllerBase
 
   [HasPermission(Permissions.Profile.Update)]
   [HttpPatch("me/company")]
-  public async Task<IActionResult> UpdateCurrentCompany([FromBody] UpdateCompanyDto request)
+  public async Task<IActionResult> UpdateCurrentCompany([FromBody] UpdateCompanyDto request, CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
-    await _userService.UpdateCompanyAsync(userId, request);
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    var command = new UpdateCompanyCommand(
+      UserId: userId,
+      Dto: request
+    );
+
+    var result = await _updateCompany.HandleAsync(command, ct);
+
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Company updated successfully",
-      DomainErrorCodes.AuthCodes.Success
-    ));
+      "Zaktualizowano",
+      DomainErrorCodes.GeneralCodes.Success
+    );
   }
 
   [HasPermission(Permissions.Profile.Delete)]
   [HttpDelete("me")]
-  public async Task<IActionResult> DeleteCurrentUser()
+  public async Task<IActionResult> DeleteCurrentUser(CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
-    await _userService.DeleteUserAsync(userId);
 
-    return NoContent();
+    var command = new DeleteUserCommand(
+      UserId: userId
+    );
+    var result = await _deleteUser.HandleAsync(command, ct);
+
+    return result.ToActionResult(
+      HttpContext,
+      "Usunięto użytkownika",
+      DomainErrorCodes.UserCodes.UserDeleted
+    );
   }
 
   [HasPermission(Permissions.Contracts.ReadOwn)]
