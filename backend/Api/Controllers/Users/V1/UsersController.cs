@@ -2,6 +2,7 @@ using backend.Api.Auth;
 using backend.Api.Controllers.Users.DTOs;
 using backend.Api.Http;
 using backend.Application.Abstractions.CQRS;
+using backend.Application.Features.Users.Commands;
 using backend.Application.Features.Users.Queries;
 using backend.Application.Security;
 using backend.Domain.Entities.Enum;
@@ -23,13 +24,16 @@ public class UsersController : ControllerBase
   private readonly IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> _getCurrentUserContracts;
   private readonly IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> _getCurrentUserApplications;
   private readonly IQueryHandler<GetUserSummaryQuery, UserSummaryDto> _getSummary;
+
+  private readonly ICommandHandler<UpdatePentesterCommand> _updatePentester;
   public UsersController(
     IUserService userService,
     IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> getPentesterById,
     IQueryHandler<GetCurrentUserQuery, object> getCurrentUser,
     IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> getCurrentUserContracts,
     IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> getCurrentUserApplications,
-    IQueryHandler<GetUserSummaryQuery, UserSummaryDto> getSummary
+    IQueryHandler<GetUserSummaryQuery, UserSummaryDto> getSummary,
+    ICommandHandler<UpdatePentesterCommand> updatePentester
   )
   {
     _userService = userService;
@@ -38,6 +42,7 @@ public class UsersController : ControllerBase
     _getCurrentUserContracts = getCurrentUserContracts;
     _getCurrentUserApplications = getCurrentUserApplications;
     _getSummary = getSummary;
+    _updatePentester = updatePentester;
   }
 
   // GetAllAsync (admin) 
@@ -98,17 +103,21 @@ public class UsersController : ControllerBase
 
   [HasPermission(Permissions.Profile.Update)]
   [HttpPatch("me/pentester")]
-  public async Task<IActionResult> UpdateCurrentPentester([FromBody] UpdatePentesterDto request)
+  public async Task<IActionResult> UpdateCurrentPentester([FromBody] UpdatePentesterDto request, CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
-    await _userService.UpdatePentesterAsync(userId, request);
+    
+    var command = new UpdatePentesterCommand(
+      UserId: userId,
+      Dto: request
+    );
+    var result = await _updatePentester.HandleAsync(command, ct);
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "User updated successfully",
-      DomainErrorCodes.AuthCodes.Success
-    ));
+      "Zaktualizowao",
+      DomainErrorCodes.UserCodes.UserUpdated
+    );
   }
 
   [HasPermission(Permissions.Profile.Update)]

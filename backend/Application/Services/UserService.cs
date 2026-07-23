@@ -23,36 +23,6 @@ public class UserService : IUserService
     _userRepo = userRepository;
   }
 
-  public async Task UpdatePentesterAsync(Guid userId, UpdatePentesterDto request)
-  {
-    var user = await _userRepo.GetByIdAsync(userId)
-      ?? throw new NotFoundAppException();
-
-    if (request.SpecializationType != null)
-    {
-      user.ClearAllPentesterSpecializations();
-
-      foreach (var spec in request.SpecializationType)
-        user.AddPentesterSpecialization(spec);
-    }
-
-    user.UpdatePentesterProfile(
-      request.FirstName,
-      request.LastName,
-      request.NickName,
-      request.Phone,
-      request.Country,
-      request.City,
-      request.Street,
-      request.PostalCode,
-      request.Bio,
-      request.GithubUrl,
-      request.LinkedinUrl
-    );
-
-    await _unitOfWork.SaveChangesAsync();
-  }
-
   public async Task UpdateCompanyAsync(Guid userId, UpdateCompanyDto request)
   {
     var user = await _userRepo.GetByIdAsync(userId)

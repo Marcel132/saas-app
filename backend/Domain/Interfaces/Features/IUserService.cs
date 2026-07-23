@@ -7,7 +7,6 @@ public interface IUserService
 {
   // GetAllAsync (admin) 
 
-  public Task UpdatePentesterAsync(Guid userId, UpdatePentesterDto request);
   public Task UpdateCompanyAsync(Guid userId, UpdateCompanyDto request);
   public Task DeleteUserAsync(Guid userId);
 }
