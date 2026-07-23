@@ -16,7 +16,6 @@ public static class ServiceExtension
   public static IServiceCollection AddApplicationService(this IServiceCollection services)
   {
     services.AddScoped<IContractService, ContractService>();
-    services.AddScoped<IUserService, UserService>();
     services.AddScoped<ICredentialsService, CredentialsService>();
     services.AddScoped<IReportService, ReportService>();
 
