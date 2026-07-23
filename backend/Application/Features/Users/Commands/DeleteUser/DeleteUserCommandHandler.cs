@@ -25,7 +25,7 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
 
     if (user is null)
       return Result.Failure(new Error(
-        DomainErrorCodes.UserCodes.UserNotFound,
+        DomainCodes.User.NotFound,
         "Nie znaleziono użytkownika",
         HttpResponseState.NotFound
       ));

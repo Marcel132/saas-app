@@ -27,7 +27,7 @@ public sealed class AssignCandidateToContractCommandHandler : ICommand<AssignCan
   {
     if (command.ContractId <= 0 || command.DeveloperId == Guid.Empty || command.UserId == Guid.Empty)
       return Result.Failure(new Error(
-        DomainErrorCodes.ValidationCodes.MissingRequiredField,
+        DomainCodes.Validation.MissingRequiredField,
         "Błędne dane",
         HttpResponseState.BadRequest
       ));
@@ -36,7 +36,7 @@ public sealed class AssignCandidateToContractCommandHandler : ICommand<AssignCan
 
     if(activeAssignment is not null)
       return Result.Failure(new Error(
-        DomainErrorCodes.GeneralCodes.Conflict,
+        DomainCodes.General.Conflict,
         "Wyłączono możliwość przypisania do tego kontraktu",
         HttpResponseState.Conflict
       ));

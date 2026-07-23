@@ -65,7 +65,7 @@ public class AuthController : ControllerBase
     return credentials.ToActionResult(
       HttpContext,
       "Zalogowano",
-      DomainErrorCodes.AuthCodes.Success
+      DomainCodes.Auth.LoginSucceeded
     );
 
   }
@@ -109,7 +109,7 @@ public class AuthController : ControllerBase
     return credentials.ToActionResult(
       HttpContext,
       "Zarejestrowano",
-      DomainErrorCodes.AuthCodes.Success
+      DomainCodes.User.Created
     );
   }
 
@@ -149,7 +149,7 @@ public class AuthController : ControllerBase
     return credentials.ToActionResult(
       HttpContext,
       "Zarejestrowano",
-      DomainErrorCodes.AuthCodes.Success
+      DomainCodes.User.Created
     );
   }
 
@@ -167,7 +167,11 @@ public class AuthController : ControllerBase
     if (result.IsSuccess)
       AuthCookies.ClearAuthCookie(Response);
     
-    return result.ToActionResult(HttpContext);
+    return result.ToActionResult(
+      HttpContext,
+      "Wylogowano",
+      DomainCodes.Auth.LogoutSucceeded
+    );
   }
 
   [AllowAnonymous]
@@ -197,7 +201,7 @@ public class AuthController : ControllerBase
     return result.ToActionResult(
       HttpContext,
       "Refresh Token updated",
-      DomainErrorCodes.AuthCodes.Success
+      DomainCodes.Auth.RefreshSucceeded
     );
   }
 }

@@ -6,7 +6,6 @@ using backend.Application.Features.Users.Commands;
 using backend.Application.Features.Users.Queries;
 using backend.Application.Security;
 using backend.Domain.Entities.Enum;
-using backend.Domain.Interfaces.Features;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,15 +17,16 @@ namespace backend.Api.Controllers.Users.V1;
 [Authorize]
 public class UsersController : ControllerBase
 {
-  private readonly IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> _getPentesterById;
-  private readonly IQueryHandler<GetCurrentUserQuery, object> _getCurrentUser;
-  private readonly IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> _getCurrentUserContracts;
-  private readonly IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> _getCurrentUserApplications;
-  private readonly IQueryHandler<GetUserSummaryQuery, UserSummaryDto> _getSummary;
+  // TODO: Create dispacher for all DI Handlers
+  private readonly IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> _getPentesterByIdQueryHandler;
+  private readonly IQueryHandler<GetCurrentUserQuery, object> _getCurrentUserQueryHandler;
+  private readonly IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> _getCurrentUserContractsQueryHandler;
+  private readonly IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> _getCurrentUserApplicationsQueryHandler;
+  private readonly IQueryHandler<GetUserSummaryQuery, UserSummaryDto> _getSummaryQueryHandler;
 
-  private readonly ICommandHandler<UpdatePentesterCommand> _updatePentester;
-  private readonly ICommandHandler<UpdateCompanyCommand> _updateCompany;
-  private readonly ICommandHandler<DeleteUserCommand> _deleteUser;
+  private readonly ICommandHandler<UpdatePentesterCommand> _updatePentesterCommandHandler;
+  private readonly ICommandHandler<UpdateCompanyCommand> _updateCompanyCommandHandler;
+  private readonly ICommandHandler<DeleteUserCommand> _deleteUserCommandHandler;
   public UsersController(
     IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> getPentesterById,
     IQueryHandler<GetCurrentUserQuery, object> getCurrentUser,
@@ -38,14 +38,14 @@ public class UsersController : ControllerBase
     ICommandHandler<DeleteUserCommand> deleteUser
   )
   {
-    _getPentesterById = getPentesterById;
-    _getCurrentUser = getCurrentUser;
-    _getCurrentUserContracts = getCurrentUserContracts;
-    _getCurrentUserApplications = getCurrentUserApplications;
-    _getSummary = getSummary;
-    _updatePentester = updatePentester;
-    _updateCompany = updateCompany;
-    _deleteUser = deleteUser;
+    _getPentesterByIdQueryHandler = getPentesterById;
+    _getCurrentUserQueryHandler = getCurrentUser;
+    _getCurrentUserContractsQueryHandler = getCurrentUserContracts;
+    _getCurrentUserApplicationsQueryHandler = getCurrentUserApplications;
+    _getSummaryQueryHandler = getSummary;
+    _updatePentesterCommandHandler = updatePentester;
+    _updateCompanyCommandHandler = updateCompany;
+    _deleteUserCommandHandler = deleteUser;
   }
 
   // GetAllAsync (admin) 
@@ -54,33 +54,32 @@ public class UsersController : ControllerBase
   [HttpGet("{userId}")]
   public async Task<IActionResult> GetPentesterById([FromRoute] Guid userId, CancellationToken ct)
   {
-    var currentUserId = UserContextExtension.GetUserId(User);
-
     var query = new GetPentesterByIdQuery(
       UserId: userId,
-      CurrentUserId: currentUserId
+      CurrentUserId: CurrentUserId
     );
+    var result = await _getPentesterByIdQueryHandler.HandleAsync(query, ct);
 
-    var result = await _getPentesterById.HandleAsync(query, ct);
-
-    return result.ToActionResult(HttpContext);
+    return result.ToActionResult(
+      HttpContext,
+      "Pobrano użytkownika",
+      DomainCodes.User.Retrieved
+      );
   }
 
   [HasPermission(Permissions.Profile.Read)]
   [HttpGet("me")]
   public async Task<IActionResult> GetCurrentUser(CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
     var query = new GetCurrentUserQuery(
-      UserId: userId
+      UserId: CurrentUserId
     );
-
-    var result = await _getCurrentUser.HandleAsync(query, ct);
+    var result = await _getCurrentUserQueryHandler.HandleAsync(query, ct);
 
     return result.ToActionResult(
       HttpContext,
       "Pobrano użytkownika",
-      DomainErrorCodes.AuthCodes.Success
+      DomainCodes.User.Retrieved
     );
   }
 
@@ -88,18 +87,15 @@ public class UsersController : ControllerBase
   [HttpGet("me/summary")]
   public async Task<IActionResult> GetCurrentUserSummary(CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
-
     var query = new GetUserSummaryQuery(
-      UserId: userId
+      UserId: CurrentUserId
     );
+    var result = await _getSummaryQueryHandler.HandleAsync(query, ct);
 
-    var summary = await _getSummary.HandleAsync(query, ct);
-
-    return summary.ToActionResult(
+    return result.ToActionResult(
       HttpContext,
       "Pobrano wyciąg",
-      DomainErrorCodes.GeneralCodes.Success
+      DomainCodes.User.Retrieved
     );
 
   }
@@ -108,18 +104,16 @@ public class UsersController : ControllerBase
   [HttpPatch("me/pentester")]
   public async Task<IActionResult> UpdateCurrentPentester([FromBody] UpdatePentesterDto request, CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
-    
     var command = new UpdatePentesterCommand(
-      UserId: userId,
+      UserId: CurrentUserId,
       Dto: request
     );
-    var result = await _updatePentester.HandleAsync(command, ct);
+    var result = await _updatePentesterCommandHandler.HandleAsync(command, ct);
 
     return result.ToActionResult(
       HttpContext,
-      "Zaktualizowao",
-      DomainErrorCodes.UserCodes.UserUpdated
+      "Zaktualizowano",
+      DomainCodes.User.Updated
     );
   }
 
@@ -127,19 +121,16 @@ public class UsersController : ControllerBase
   [HttpPatch("me/company")]
   public async Task<IActionResult> UpdateCurrentCompany([FromBody] UpdateCompanyDto request, CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
-
     var command = new UpdateCompanyCommand(
-      UserId: userId,
+      UserId: CurrentUserId,
       Dto: request
     );
-
-    var result = await _updateCompany.HandleAsync(command, ct);
+    var result = await _updateCompanyCommandHandler.HandleAsync(command, ct);
 
     return result.ToActionResult(
       HttpContext,
       "Zaktualizowano",
-      DomainErrorCodes.GeneralCodes.Success
+      DomainCodes.User.Updated
     );
   }
 
@@ -147,17 +138,15 @@ public class UsersController : ControllerBase
   [HttpDelete("me")]
   public async Task<IActionResult> DeleteCurrentUser(CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
-
     var command = new DeleteUserCommand(
-      UserId: userId
+      UserId: CurrentUserId
     );
-    var result = await _deleteUser.HandleAsync(command, ct);
+    var result = await _deleteUserCommandHandler.HandleAsync(command, ct);
 
     return result.ToActionResult(
       HttpContext,
       "Usunięto użytkownika",
-      DomainErrorCodes.UserCodes.UserDeleted
+      DomainCodes.User.Deleted
     );
   }
 
@@ -165,35 +154,35 @@ public class UsersController : ControllerBase
   [HttpGet("me/contracts")]
   public async Task<IActionResult> GetCurrentUserContracts(CancellationToken ct, [FromQuery] ContractStatus? status = null)
   {
-    var userId = UserContextExtension.GetUserId(User);
     var query = new GetCurrentUserContractQuery(
-      UserId: userId,
+      UserId: CurrentUserId,
       Status: status
     );
+    var result = await _getCurrentUserContractsQueryHandler.HandleAsync(query, ct);
 
-    var contracts = await _getCurrentUserContracts.HandleAsync(query, ct);
-
-    return contracts.ToActionResult(
-    HttpContext,
-    "Kontrakty pobrane",
-    DomainErrorCodes.GeneralCodes.Success);
+    return result.ToActionResult(
+      HttpContext,
+      "Kontrakty pobrane",
+      DomainCodes.General.Success
+    );
   }
 
   [HasPermission(Permissions.Applications.ReadOwn)]
   [HttpGet("me/applications")]
   public async Task<IActionResult> GetCurrentUserApplications(CancellationToken ct, [FromQuery] ContractApplicationStatus? status = null)
   {
-    var userId = UserContextExtension.GetUserId(User);
     var query = new GetCurrentUserApplicationsQuery(
-      UserId: userId,
+      UserId: CurrentUserId,
       Status: status
     );
-    var applications = await _getCurrentUserApplications.HandleAsync(query, ct);
+    var result = await _getCurrentUserApplicationsQueryHandler.HandleAsync(query, ct);
 
-    return applications.ToActionResult(
+    return result.ToActionResult(
       HttpContext,
       "Pobrano aplikacje",
-      DomainErrorCodes.GeneralCodes.Success
+      DomainCodes.General.Success
     );
   }
+
+  private Guid CurrentUserId => UserContextExtension.GetUserId(User);
 }

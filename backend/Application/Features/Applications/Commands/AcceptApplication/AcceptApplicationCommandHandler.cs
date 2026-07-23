@@ -29,7 +29,7 @@ public sealed class AcceptApplicationCommandHandler : ICommandHandler<AcceptAppl
   {
     if (command.ApplicationId <= 0)
       return Result.Failure(new Error(
-        DomainErrorCodes.ValidationCodes.ValueOutOfRange,
+        DomainCodes.Validation.ValueOutOfRange,
         "Nie można przekazać takiego ID",
         HttpResponseState.BadRequest
       ));
@@ -38,14 +38,14 @@ public sealed class AcceptApplicationCommandHandler : ICommandHandler<AcceptAppl
 
     if (application is null)
       return Result.Failure(new Error(
-        DomainErrorCodes.GeneralCodes.NotFound,
+        DomainCodes.General.NotFound,
         "Nie znaleziono aplikacji",
         HttpResponseState.NotFound
       ));
 
     if (application.Contract.AuthorId != command.UserId)
       return Result.Failure(new Error(
-        DomainErrorCodes.AuthCodes.ForbiddenAccess,
+        DomainCodes.Auth.Forbidden,
         "Nie jesteś uprawniony do zaakceptowania tej aplikacji",
         HttpResponseState.Forbidden
       ));

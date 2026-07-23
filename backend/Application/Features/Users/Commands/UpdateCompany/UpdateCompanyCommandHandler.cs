@@ -24,7 +24,7 @@ public sealed class UpdateCompanyCommandHandler : ICommandHandler<UpdateCompanyC
 
     if( user is null)
       return Result.Failure(new Error(
-        DomainErrorCodes.UserCodes.UserNotFound,
+        DomainCodes.User.NotFound,
         "Nie znaleziono użytkownika",
         HttpResponseState.NotFound
       ));

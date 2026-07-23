@@ -12,15 +12,15 @@ public class LoginPolicy : ILoginPolicy
     // * Note: żeby uniknąć user enumeration, błąd musi być identyczny dla braku usera i zablokowanego/nieaktywnego konta.
     if (user is null)
       return Result.Failure(new Error(
-        DomainErrorCodes.AuthCodes.InvalidCredentials, "Nieprawidłowy email lub hasło", HttpResponseState.Unauthorized));
+        DomainCodes.Auth.InvalidCredentials, "Nieprawidłowy email lub hasło", HttpResponseState.Unauthorized));
 
     if (!user.IsActive)
       return Result.Failure(new Error(
-        DomainErrorCodes.AuthCodes.InvalidCredentials, "Nieprawidłowy email lub hasło", HttpResponseState.Unauthorized));
+        DomainCodes.Auth.InvalidCredentials, "Nieprawidłowy email lub hasło", HttpResponseState.Unauthorized));
 
     if (!user.CanLogin())
       return Result.Failure(new Error(
-        DomainErrorCodes.AuthCodes.InvalidCredentials, "Nieprawidłowy email lub hasło", HttpResponseState.Unauthorized));
+        DomainCodes.Auth.InvalidCredentials, "Nieprawidłowy email lub hasło", HttpResponseState.Unauthorized));
 
     return Result.Success();
   }

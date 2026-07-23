@@ -93,7 +93,7 @@ public class GlobalErrorHandlingMiddleware
       context,
       HttpResponseState.ServerError,
       null,
-      DomainErrorCodes.GeneralCodes.ServerError
+      DomainCodes.General.InternalServerError
     );
 
     await context.Response.WriteAsJsonAsync(response);

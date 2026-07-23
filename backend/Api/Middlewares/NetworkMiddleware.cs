@@ -33,7 +33,7 @@ public class NetworkMiddleware
           context,
           HttpResponseState.UnsupportedMediaType,
           "Unsupported Media Type. Request is missing Content-Type header.",
-          DomainErrorCodes.GeneralCodes.UnsupportedMediaType
+          DomainCodes.Validation.UnsupportedMediaType
           );
 
         context.Response.ContentType = "application/json";
@@ -51,7 +51,7 @@ public class NetworkMiddleware
           context,
           HttpResponseState.ContentTooLarge,
           "Payload Too Large. Request body exceeds the maximum allowed size.",
-          DomainErrorCodes.FirewallCodes.PayloadBlocked
+          DomainCodes.Firewall.PayloadBlocked
           );
 
         context.Response.ContentType = "application/json";

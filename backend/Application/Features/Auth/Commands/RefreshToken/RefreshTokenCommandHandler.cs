@@ -24,7 +24,7 @@ public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCom
   {
     if (string.IsNullOrEmpty(req.RefreshToken))
       return Result<CredentialsDto>.Failure(new Error(
-        DomainErrorCodes.AuthCodes.TokenNotFound,
+        DomainCodes.Auth.TokenNotFound,
         "Brak tokenu",
         HttpResponseState.NotFound
       ));
@@ -40,7 +40,7 @@ public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCom
     {
       await _sessionService.RevokeAllSessionsAsync(session.UserId, session.Session.Id, ct);
       return Result<CredentialsDto>.Failure(new Error(
-        DomainErrorCodes.AuthCodes.TokenTampered,
+        DomainCodes.Auth.TokenTampered,
         "Token was used",
         HttpResponseState.BadRequest
       ));
@@ -59,7 +59,7 @@ public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCom
     var session = await _sessionService.GetSessionByRefreshTokenAsync(refreshToken, ct);
     if(session is null)
       return Result<ValidatedSession>.Failure(new Error(
-        DomainErrorCodes.AuthCodes.SessionNotFound,
+        DomainCodes.Auth.SessionNotFound,
         "Session not found",
         HttpResponseState.BadRequest
       ));
@@ -68,7 +68,7 @@ public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCom
     {
       await _sessionService.RevokeAllSessionsAsync(session.UserId, null, ct);
       return Result<ValidatedSession>.Failure(new Error(
-        DomainErrorCodes.AuthCodes.TokenTampered,
+        DomainCodes.Auth.TokenTampered,
         "Token used is flagged: Revoked and Used",
         HttpResponseState.Forbidden
       ));
@@ -78,7 +78,7 @@ public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCom
     {
       await _sessionService.RevokeSessionByIdAsync(session.UserId, session.Id, null, ct);
       return Result<ValidatedSession>.Failure(new Error(
-        DomainErrorCodes.AuthCodes.TokenExpired,
+        DomainCodes.Auth.TokenExpired,
         "Token Expired",
         HttpResponseState.Forbidden
       ));

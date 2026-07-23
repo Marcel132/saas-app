@@ -42,7 +42,7 @@ public class ApplicationsController : ControllerBase
     return result.ToActionResult(
       HttpContext,
       "Zaakceptowano aplikację",
-      DomainErrorCodes.GeneralCodes.Success
+      DomainCodes.General.Success
     );
   }
   
@@ -64,7 +64,7 @@ public class ApplicationsController : ControllerBase
     return result.ToActionResult(
       HttpContext,
       "Pomyślnie odrzucono aplikacje",
-      DomainErrorCodes.GeneralCodes.Success
+      DomainCodes.General.Success
     );
   }
 }

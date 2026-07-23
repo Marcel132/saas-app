@@ -35,7 +35,7 @@ public class UserAuthenticationService
 
     if (user is null)
       return Result<User>.Failure(new Error(
-        DomainErrorCodes.AuthCodes.InvalidCredentials,
+        DomainCodes.Auth.InvalidCredentials,
         "Nieprawidłowe dane",
         HttpResponseState.BadRequest
       ));
@@ -49,7 +49,7 @@ public class UserAuthenticationService
       user.RegisterFailedLoginAttempt(MaxAttempts, BlockDuration);
       await _unitOfWork.SaveChangesAsync(ct);
       return Result<User>.Failure(new Error(
-        DomainErrorCodes.AuthCodes.InvalidCredentials,
+        DomainCodes.Auth.InvalidCredentials,
         "Nieprawidłowe dane",
         HttpResponseState.BadRequest
       ));
