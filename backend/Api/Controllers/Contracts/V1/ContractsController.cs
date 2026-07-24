@@ -1,6 +1,8 @@
 using backend.Api.Auth;
 using backend.Api.Controllers.Contracts.DTOs;
 using backend.Api.Http;
+using backend.Application.Abstractions.CQRS;
+using backend.Application.Features.Contracts.Queries;
 using backend.Application.Security;
 using backend.Domain.Interfaces.Features;
 using Microsoft.AspNetCore.Authorization;
@@ -15,27 +17,35 @@ namespace backend.Api.Controllers.Contracts.V1;
 public class ContractsController : ControllerBase
 {
   private readonly IContractService _contractService;
+  private readonly IQueryHandler<GetPublicContractsQuery, PagedResponse<PublicContractDto>> _getPublicContractQueryHandler;
+  private readonly IQueryHandler<GetOpenContractsQuery, PagedResponse<OpenContractDto>> _getOpenContractQueryHandler;
 
   public ContractsController(
-    IContractService contractService
+    IContractService contractService,
+    IQueryHandler<GetPublicContractsQuery, PagedResponse<PublicContractDto>> getPublicContractQueryHandler,
+    IQueryHandler<GetOpenContractsQuery, PagedResponse<OpenContractDto>> getOpenContractQueryHandler
   )
   {
     _contractService = contractService;
+    _getPublicContractQueryHandler = getPublicContractQueryHandler;
+    _getOpenContractQueryHandler = getOpenContractQueryHandler;
   }
 
   [AllowAnonymous]
   [HttpGet("public")]
   public async Task<IActionResult> GetPublicContracts([FromQuery] QueryParams queryParams, CancellationToken ct)
   {
-    var contracts = await _contractService.GetPublicContractsAsync(queryParams, ct);
+    var query = new GetPublicContractsQuery(
+      QueryParams: queryParams
+    );
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse(
+    var result = await _getPublicContractQueryHandler.HandleAsync(query, ct);
+
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Pobrano publiczne kontrakty",
-      DomainErrorCodes.GeneralCodes.Success,
-      contracts
-    ));
+      "Pobrano kontrakty {public}",
+      DomainCodes.General.Success
+    );
   }
 
   [AllowAnonymous]
@@ -61,15 +71,17 @@ public class ContractsController : ControllerBase
   {
     var userId = UserContextExtension.GetUserId(User);
 
-    var contracts = await _contractService.GetOpenContractsAsync(userId, queryParams, ct);
+    var query = new GetOpenContractsQuery(
+      UserId: userId,
+      QueryParams: queryParams
+    );
+    var result = await _getOpenContractQueryHandler.HandleAsync(query, ct);
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse(
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Pobrano kontrakty pentestera",
-      DomainErrorCodes.GeneralCodes.Success,
-      contracts
-    ));
+      "Pobrano kontrakty {open}",
+      DomainCodes.General.Success
+    );
   }
 
   [HasPermission(Permissions.ContractsSelf.Read)]
