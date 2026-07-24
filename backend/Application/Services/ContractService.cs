@@ -24,24 +24,6 @@ public class ContractService : IContractService
     _contractRepository = contractRepository;
     _unitOfWork = unitOfWork;
   }
-  public async Task<PagedResponse<CompanyContractDto>> GetCompanyContractsAsync(Guid userId, QueryParams requestParams, CancellationToken ct)
-  {
-    ValidateQueryParams(requestParams, userId);
-
-    return await _contractQueryRepository.GetCompanyContractsAsync(userId, requestParams, ct);
-  }
-  public async Task<ContractDetailsDto> GetContractDetailsAsync(long contractId, Guid? userId, CancellationToken ct)
-  {
-    if(contractId <= 0)
-      throw new ValueOutOfRangeAppException();
-
-    if(userId is not null && userId == Guid.Empty)
-      throw new UnauthorizedAppException();
-
-    return await _contractQueryRepository.GetContractDetailsAsync(contractId, userId, ct)
-      ?? throw new NotFoundAppException();
-  }
-
   public async Task CreateContractAsync(Guid authorId, ContractRequestDto request)
   {
     var data = new ContractRecord
