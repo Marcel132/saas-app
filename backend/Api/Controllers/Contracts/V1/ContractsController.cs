@@ -17,18 +17,25 @@ namespace backend.Api.Controllers.Contracts.V1;
 public class ContractsController : ControllerBase
 {
   private readonly IContractService _contractService;
-  private readonly IQueryHandler<GetPublicContractsQuery, PagedResponse<PublicContractDto>> _getPublicContractQueryHandler;
-  private readonly IQueryHandler<GetOpenContractsQuery, PagedResponse<OpenContractDto>> _getOpenContractQueryHandler;
+  private readonly IQueryHandler<GetPublicContractsQuery, PagedResponse<PublicContractDto>> _getPublicContractsQueryHandler;
+  private readonly IQueryHandler<GetOpenContractsQuery, PagedResponse<OpenContractDto>> _getOpenContractsQueryHandler;
+  private readonly IQueryHandler<GetCompanyContractsQuery, PagedResponse<CompanyContractDto>> _getCompanyContractsQueryHandler;
+  private readonly IQueryHandler<GetContractByIdQuery, ContractDetailsDto> _getContractByIdQueryHandler;
+
 
   public ContractsController(
     IContractService contractService,
-    IQueryHandler<GetPublicContractsQuery, PagedResponse<PublicContractDto>> getPublicContractQueryHandler,
-    IQueryHandler<GetOpenContractsQuery, PagedResponse<OpenContractDto>> getOpenContractQueryHandler
+    IQueryHandler<GetPublicContractsQuery, PagedResponse<PublicContractDto>> getPublicContractsQueryHandler,
+    IQueryHandler<GetOpenContractsQuery, PagedResponse<OpenContractDto>> getOpenContractsQueryHandler,
+    IQueryHandler<GetContractByIdQuery, ContractDetailsDto> getContractByIdQueryHandler,
+    IQueryHandler<GetCompanyContractsQuery, PagedResponse<CompanyContractDto>> getCompanyContractsQueryHandler
   )
   {
     _contractService = contractService;
-    _getPublicContractQueryHandler = getPublicContractQueryHandler;
-    _getOpenContractQueryHandler = getOpenContractQueryHandler;
+    _getPublicContractsQueryHandler = getPublicContractsQueryHandler;
+    _getOpenContractsQueryHandler = getOpenContractsQueryHandler;
+    _getContractByIdQueryHandler = getContractByIdQueryHandler;
+    _getCompanyContractsQueryHandler = getCompanyContractsQueryHandler;
   }
 
   [AllowAnonymous]
@@ -39,7 +46,7 @@ public class ContractsController : ControllerBase
       QueryParams: queryParams
     );
 
-    var result = await _getPublicContractQueryHandler.HandleAsync(query, ct);
+    var result = await _getPublicContractsQueryHandler.HandleAsync(query, ct);
 
     return result.ToActionResult(
       HttpContext,
@@ -53,16 +60,18 @@ public class ContractsController : ControllerBase
   public async Task<IActionResult> GetContractById([FromRoute] long contractId, CancellationToken ct)
   {
     var userId = UserContextExtension.TryGetUserId(User);
+    var query = new GetContractByIdQuery(
+      ContractId: contractId,
+      UserId: userId
+    );
+    var result = await _getContractByIdQueryHandler.HandleAsync(query, ct);
 
-    var contract = await _contractService.GetContractDetailsAsync(contractId, userId, ct);
-
-    return Ok(HttpResponseFactory.CreateSuccessResponse(
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Pobrano kontrakt",
-      DomainErrorCodes.GeneralCodes.Success,
-      contract
-    ));
+      "Pobrano szczegóły kontraktu",
+      DomainCodes.General.Success
+    );
+
   }
 
   [HasPermission(Permissions.Contracts.Read)]
@@ -75,7 +84,7 @@ public class ContractsController : ControllerBase
       UserId: userId,
       QueryParams: queryParams
     );
-    var result = await _getOpenContractQueryHandler.HandleAsync(query, ct);
+    var result = await _getOpenContractsQueryHandler.HandleAsync(query, ct);
 
     return result.ToActionResult(
       HttpContext,
@@ -89,16 +98,18 @@ public class ContractsController : ControllerBase
   public async Task<IActionResult> GetCompanyContracts([FromQuery] QueryParams queryParams, CancellationToken ct)
   {
     var userId = UserContextExtension.GetUserId(User);
+    var query = new GetCompanyContractsQuery(
+      UserId: userId, 
+      QueryParams: queryParams
+    );
 
-    var contracts = await _contractService.GetCompanyContractsAsync(userId, queryParams, ct);
+    var result = await _getCompanyContractsQueryHandler.HandleAsync(query, ct);
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse(
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Pobrano kontrakty firmy",
-      DomainErrorCodes.GeneralCodes.Success,
-      contracts
-    ));
+      "Pobrano kontrakty {company}",
+      DomainCodes.General.Success
+    );
   }
 
   [HasPermission(Permissions.Contracts.Create)]
