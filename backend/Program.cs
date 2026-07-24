@@ -52,7 +52,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
         context.HttpContext,
         HttpResponseState.BadRequest,
         "Niepoprawne dane",
-        DomainErrorCodes.ValidationCodes.InvalidModel
+        DomainCodes.Validation.InvalidFormat
       )
     );
   };

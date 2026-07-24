@@ -24,7 +24,7 @@ public sealed class GetCurrentUserQueryHandler : IQueryHandler<GetCurrentUserQue
       RoleType.Company => (object)await _repo.GetCurrentCompanyAsync(query.UserId, ct),
       RoleType.Pentester => (object)await _repo.GetCurrentPentesterAsync(query.UserId, ct),
       _ => Result.Failure(new Error(
-        DomainErrorCodes.GeneralCodes.BadRequest,
+        DomainCodes.General.BadRequest,
         "Nie znaleziono roli",
         HttpResponseState.BadRequest
       ))
