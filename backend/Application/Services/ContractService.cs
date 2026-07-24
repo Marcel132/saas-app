@@ -24,19 +24,6 @@ public class ContractService : IContractService
     _contractRepository = contractRepository;
     _unitOfWork = unitOfWork;
   }
-
-  public async Task<PagedResponse<PublicContractDto>> GetPublicContractsAsync(QueryParams requestParams, CancellationToken ct)
-  {
-    ValidateQueryParams(requestParams);
-
-    return await _contractQueryRepository.GetPublicContractsAsync(requestParams, ct);
-  }
-  public async Task<PagedResponse<OpenContractDto>> GetOpenContractsAsync(Guid userId, QueryParams requestParams, CancellationToken ct)
-  {
-    ValidateQueryParams(requestParams, userId);
-
-    return await _contractQueryRepository.GetOpenContractsAsync(userId, requestParams, ct);
-  }
   public async Task<PagedResponse<CompanyContractDto>> GetCompanyContractsAsync(Guid userId, QueryParams requestParams, CancellationToken ct)
   {
     ValidateQueryParams(requestParams, userId);
