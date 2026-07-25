@@ -33,6 +33,10 @@ public class ContractApplicationConfig : IEntityTypeConfiguration<ContractApplic
       .IsRequired();
 
     builder.HasIndex(x => x.Status);
+    builder.HasIndex(x => new { x.ContractId, x.UserId})
+      .HasFilter("status = Pending")
+      .IsUnique();
+    
 
     builder
       .HasOne(x => x.PentesterProfile)
