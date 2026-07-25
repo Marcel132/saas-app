@@ -1,6 +1,7 @@
 using backend.Domain.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using backend.Domain.Entities;
+using backend.Domain.Entities.Enum;
 
 namespace backend.Infrastructure.Persistence.Repositories;
 
@@ -27,9 +28,14 @@ public class ContractRepository : IContractRepository
   {
     await _context.ContractApplications.AddAsync(application);
   }
-  public async Task<bool> HasAlreadyAppliedAsync(long contractId, Guid candidateId)
+  public async Task<bool> HasAlreadyAppliedAsync(long contractId, Guid candidateId, CancellationToken ct)
   {
     return await _context.ContractApplications
-      .AnyAsync(a => a.ContractId == contractId && a.UserId == candidateId);
+      .AnyAsync(a => 
+        a.ContractId == contractId && 
+        a.UserId == candidateId &&
+        a.Status == ContractApplicationStatus.Pending,
+        ct
+      );
   }
 }
