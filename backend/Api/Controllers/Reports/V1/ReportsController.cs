@@ -35,7 +35,7 @@ public class ReportsController : ControllerBase
       HttpContext,
       HttpResponseState.Success,
       "Reports retrieved successfully",
-      DomainErrorCodes.GeneralCodes.Success,
+      DomainCodes.General.Success,
       reports
     ));
   }
@@ -48,7 +48,7 @@ public class ReportsController : ControllerBase
       HttpContext, 
       HttpResponseState.Created,
       "Request created",
-      DomainErrorCodes.GeneralCodes.Success,
+      DomainCodes.General.Success,
       null
     ));
   }

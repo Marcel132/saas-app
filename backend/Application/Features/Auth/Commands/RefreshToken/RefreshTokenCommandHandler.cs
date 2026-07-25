@@ -41,8 +41,8 @@ public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCom
       await _sessionService.RevokeAllSessionsAsync(session.UserId, session.Session.Id, ct);
       return Result<CredentialsDto>.Failure(new Error(
         DomainCodes.Auth.TokenTampered,
-        "Token was used",
-        HttpResponseState.BadRequest
+        "Token został sfałszowany",
+        HttpResponseState.Forbidden
       ));
     }
 
@@ -69,7 +69,7 @@ public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCom
       await _sessionService.RevokeAllSessionsAsync(session.UserId, null, ct);
       return Result<ValidatedSession>.Failure(new Error(
         DomainCodes.Auth.TokenTampered,
-        "Token used is flagged: Revoked and Used",
+        "Użyty token ma flagę: 'used' oraz 'revoked'",
         HttpResponseState.Forbidden
       ));
     }
