@@ -6,7 +6,7 @@ using backend.Domain.Interfaces.Repositories;
 
 namespace backend.Application.Features.Assignments.Commands;
 
-public sealed class AssignCandidateToContractCommandHandler : ICommand<AssignCandidateToContractCommand>
+public sealed class AssignCandidateToContractCommandHandler : ICommandHandler<AssignCandidateToContractCommand>
 {
   private readonly IAssignmentRepository _assignmentRepository;
   private readonly IReportRepository _reportRepository;
@@ -45,8 +45,6 @@ public sealed class AssignCandidateToContractCommandHandler : ICommand<AssignCan
     // TODO: Add navigation between ContractAssignment and ContractReport.
     // TODO: Create both entities before SaveChanges() and remove the extra SaveChanges() call.
 
-    await using var transaction = await _unitOfWork.BeginTransactionAsync();
-
     var assignment = new ContractAssignment(command.ContractId, command.DeveloperId);
     await _assignmentRepository.AddAssignmentAsync(assignment);
 
@@ -56,7 +54,6 @@ public sealed class AssignCandidateToContractCommandHandler : ICommand<AssignCan
     await _reportRepository.CreateReport(report);
 
     await _unitOfWork.SaveChangesAsync(ct);
-    await transaction.CommitAsync();
 
     return Result.Success();
   }

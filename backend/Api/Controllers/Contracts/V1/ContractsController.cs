@@ -2,6 +2,7 @@ using backend.Api.Auth;
 using backend.Api.Controllers.Contracts.DTOs;
 using backend.Api.Http;
 using backend.Application.Abstractions.CQRS;
+using backend.Application.Features.Contracts.Commands;
 using backend.Application.Features.Contracts.Queries;
 using backend.Application.Security;
 using backend.Domain.Interfaces.Features;
@@ -16,26 +17,40 @@ namespace backend.Api.Controllers.Contracts.V1;
 [Authorize]
 public class ContractsController : ControllerBase
 {
-  private readonly IContractService _contractService;
   private readonly IQueryHandler<GetPublicContractsQuery, PagedResponse<PublicContractDto>> _getPublicContractsQueryHandler;
   private readonly IQueryHandler<GetOpenContractsQuery, PagedResponse<OpenContractDto>> _getOpenContractsQueryHandler;
   private readonly IQueryHandler<GetCompanyContractsQuery, PagedResponse<CompanyContractDto>> _getCompanyContractsQueryHandler;
   private readonly IQueryHandler<GetContractByIdQuery, ContractDetailsDto> _getContractByIdQueryHandler;
+  private readonly IQueryHandler<GetContractApplicationsQuery, List<ContractApplicationsDto>> _getContractApplicationsQueryHandler;
 
+  private readonly ICommandHandler<CreateContractCommand> _createContractCommandHandler;
+  private readonly ICommandHandler<CloseContractCommand> _closeContractCommandHandler;
+  private readonly ICommandHandler<UpdateContractCommand> _updateContractCommandHandler;
+  private readonly ICommandHandler<ApplyToContractCommand> _applyToContractCommand;
 
   public ContractsController(
-    IContractService contractService,
     IQueryHandler<GetPublicContractsQuery, PagedResponse<PublicContractDto>> getPublicContractsQueryHandler,
     IQueryHandler<GetOpenContractsQuery, PagedResponse<OpenContractDto>> getOpenContractsQueryHandler,
     IQueryHandler<GetContractByIdQuery, ContractDetailsDto> getContractByIdQueryHandler,
-    IQueryHandler<GetCompanyContractsQuery, PagedResponse<CompanyContractDto>> getCompanyContractsQueryHandler
+    IQueryHandler<GetCompanyContractsQuery, PagedResponse<CompanyContractDto>> getCompanyContractsQueryHandler,
+    IQueryHandler<GetContractApplicationsQuery, List<ContractApplicationsDto>> getContractApplicationsQueryHandler,
+
+    ICommandHandler<CreateContractCommand> createContractCommandHandler,
+    ICommandHandler<CloseContractCommand> closeContractCommandHandler,
+    ICommandHandler<UpdateContractCommand> updateContractCommandHandler,
+    ICommandHandler<ApplyToContractCommand> applyToContractCommand
   )
   {
-    _contractService = contractService;
     _getPublicContractsQueryHandler = getPublicContractsQueryHandler;
     _getOpenContractsQueryHandler = getOpenContractsQueryHandler;
     _getContractByIdQueryHandler = getContractByIdQueryHandler;
     _getCompanyContractsQueryHandler = getCompanyContractsQueryHandler;
+    _getContractApplicationsQueryHandler = getContractApplicationsQueryHandler;
+
+    _createContractCommandHandler = createContractCommandHandler;
+    _closeContractCommandHandler = closeContractCommandHandler;
+    _updateContractCommandHandler = updateContractCommandHandler;
+    _applyToContractCommand = applyToContractCommand;
   }
 
   [AllowAnonymous]
@@ -51,7 +66,7 @@ public class ContractsController : ControllerBase
     return result.ToActionResult(
       HttpContext,
       "Pobrano kontrakty {public}",
-      DomainCodes.General.Success
+      DomainCodes.Contract.Success
     );
   }
 
@@ -69,7 +84,7 @@ public class ContractsController : ControllerBase
     return result.ToActionResult(
       HttpContext,
       "Pobrano szczegóły kontraktu",
-      DomainCodes.General.Success
+      DomainCodes.Contract.Success
     );
 
   }
@@ -78,10 +93,9 @@ public class ContractsController : ControllerBase
   [HttpGet]
   public async Task<IActionResult> GetOpenContracts([FromQuery] QueryParams queryParams, CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
 
     var query = new GetOpenContractsQuery(
-      UserId: userId,
+      UserId: CurrentUserId,
       QueryParams: queryParams
     );
     var result = await _getOpenContractsQueryHandler.HandleAsync(query, ct);
@@ -89,7 +103,7 @@ public class ContractsController : ControllerBase
     return result.ToActionResult(
       HttpContext,
       "Pobrano kontrakty {open}",
-      DomainCodes.General.Success
+      DomainCodes.Contract.Success
     );
   }
 
@@ -97,9 +111,8 @@ public class ContractsController : ControllerBase
   [HttpGet("company")]
   public async Task<IActionResult> GetCompanyContracts([FromQuery] QueryParams queryParams, CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
     var query = new GetCompanyContractsQuery(
-      UserId: userId, 
+      UserId: CurrentUserId, 
       QueryParams: queryParams
     );
 
@@ -108,85 +121,98 @@ public class ContractsController : ControllerBase
     return result.ToActionResult(
       HttpContext,
       "Pobrano kontrakty {company}",
-      DomainCodes.General.Success
+      DomainCodes.Contract.Success
     );
   }
 
   [HasPermission(Permissions.Contracts.Create)]
   [HttpPost]
-  public async Task<IActionResult> CreateContract([FromBody] ContractRequestDto contractRequest)
+  public async Task<IActionResult> CreateContract([FromBody] ContractRequestDto contractRequest, CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
+    var command = new CreateContractCommand(
+      AuthorId: CurrentUserId,
+      Request: contractRequest
+    );
+    var result = await _createContractCommandHandler.HandleAsync(command, ct);
 
-    await _contractService.CreateContractAsync(userId, contractRequest);
-
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Created,
-      "Contract created successfully",
-      DomainErrorCodes.AuthCodes.Success
-    ));
+      $"Utworzono Kontrakt",
+      DomainCodes.Contract.Created
+    );
   }
 
   [HasPermission(Permissions.Contracts.Update)]
   [HttpPatch("{contractId}/close")]
-  public async Task<IActionResult> CloseContract([FromRoute] long contractId)
+  public async Task<IActionResult> CloseContract([FromRoute] long contractId, CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
-    await _contractService.CloseContractAsync(userId, contractId);
+    var command = new CloseContractCommand(
+      UserId: CurrentUserId, 
+      ContractId: contractId
+    );
+    var result = await _closeContractCommandHandler.HandleAsync(command, ct);
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Contract closed successfully",
-      DomainErrorCodes.AuthCodes.Success
-    ));
+      "Zamknieto kontrakt",
+      DomainCodes.Contract.ClosedSuccessfully
+    );
   }
 
   [HasPermission(Permissions.Contracts.Update)]
   [HttpPatch("{contractId}")]
-  public async Task<IActionResult> UpdateContractAsync([FromRoute] long contractId, [FromBody] UpdateContractDto request)
+  public async Task<IActionResult> UpdateContractAsync([FromRoute] long contractId, [FromBody] UpdateContractDto request, CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
-    await _contractService.UpdateContractAsync(userId, contractId, request);
+    var command = new UpdateContractCommand(
+      UserId: CurrentUserId,
+      ContractId: contractId,
+      Request: request
+    );
+    var result = await _updateContractCommandHandler.HandleAsync(command, ct);
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
-      HttpContext,
-      HttpResponseState.Success,
-      "Contract updated successfully",
-      DomainErrorCodes.AuthCodes.Success
-    ));
+    return result.ToActionResult(
+      HttpContext, 
+      "Zaktualizowano Kontrakt",
+      DomainCodes.Contract.Updated
+    );
   }
 
   [HasPermission(Permissions.Contracts.ReadApplications)]
   [HttpGet("{contractId}/applications")]
   public async Task<IActionResult> GetContractApplications([FromRoute] long contractId, CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
-    var contractApplications = await _contractService.GetContractApplicationsAsync(userId, contractId, ct);
+    var query = new GetContractApplicationsQuery(
+      UserId: CurrentUserId,
+      ContractId: contractId
+    );
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    var result = await _getContractApplicationsQueryHandler.HandleAsync(query, ct);
+
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Success,
-      "Contract applications retrieved successfully",
-      DomainErrorCodes.AuthCodes.Success,
-      contractApplications
-    ));
+      "Pobrano aplikacje",
+      DomainCodes.Contract.Success
+    );
   }
 
   [HasPermission(Permissions.Contracts.Apply)]
   [HttpPost("{contractId}/apply")]
-  public async Task<IActionResult> ApplyToContract([FromRoute] long contractId)
+  public async Task<IActionResult> ApplyToContract([FromRoute] long contractId, CancellationToken ct)
   {
-    var userId = UserContextExtension.GetUserId(User);
-    await _contractService.ApplyToContractAsync(userId, contractId);
+    var command = new ApplyToContractCommand(
+      CandidateId: CurrentUserId,
+      ContractId: contractId
+    );
 
-    return Ok(HttpResponseFactory.CreateSuccessResponse<object>(
+    var result = await _applyToContractCommand.HandleAsync(command, ct);
+
+    return result.ToActionResult(
       HttpContext,
-      HttpResponseState.Created,
-      "Applied to contract successfully",
-      DomainErrorCodes.GeneralCodes.Success
-    ));
+      "Zaaplikowano",
+      DomainCodes.Contract.Applied
+    );
   }
+
+  private Guid CurrentUserId => UserContextExtension.GetUserId(User);
 }
 
