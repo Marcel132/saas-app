@@ -37,6 +37,7 @@ public static class DomainCodes
     public const string InternalServerError = "GEN-50/001_INTERNAL_SERVER_ERROR";
     public const string DatabaseUnavailable = "GEN-50/002_DATABASE_UNAVAILABLE";
   }
+  
   public static class Auth
   {
     public const string LoginSucceeded = "AUTH-10/001_LOGIN_SUCCEEDED";
@@ -55,7 +56,7 @@ public static class DomainCodes
     public const string TokenTampered = "AUTH-40/013_TOKEN_TAMPERED";
     public const string AccountBlocked = "AUTH-40/003_ACCOUNT_BLOCKED";
   }
-
+  
   public static class Validation
   {
     public const string ValidationSucceeded = "VALID-10/001_VALIDATION_SUCCEEDED";
@@ -95,5 +96,15 @@ public static class DomainCodes
     public const string XssDetected = "FIRE-40/007_XSS_DETECTED";
     public const string SuspiciousActivityDetected = "FIRE-40/008_SUSPICIOUS_ACTIVITY_DETECTED";
     public const string DdosDetected = "FIRE-40/009_DDOS_DETECTED";
+  }
+
+  public static class Contract
+  {
+    public const string Success = "CTR-10/001_SUCCESS";
+    public const string Created = "CTR-10/002_CREATED";
+    public const string ClosedSuccessfully = "CTR-10/003_CLOSED_SUCCESSFULY";
+    public const string Updated = "CTR-10/004_UPDATED";
+    public const string Applied = "CTR-10/005_Applied";
+    public const string NotFound = "CTR-30/001_NOT_FOUND";
   }
 }
