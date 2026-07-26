@@ -5,7 +5,8 @@ using backend.Domain.Entities.Records;
 using backend.Domain.Policies;
 using NUnit.Framework;
 
-namespace backend.Backend.Tests.Security.Auth;
+
+namespace backend.Backend.Tests.UnitTests.Domain;
 
 public sealed class LoginPolicyTests
 {

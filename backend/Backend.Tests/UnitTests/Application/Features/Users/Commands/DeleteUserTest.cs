@@ -6,7 +6,7 @@ using backend.Domain.Interfaces.Repositories;
 using Moq;
 using NUnit.Framework;
 
-namespace backend.Backend.Tests.Application.Features.Users.Commands;
+namespace backend.Backend.Tests.UnitTests.Application.Features.Users.Commands;
 
 public sealed class DeleteUserCommandHandlerTests
 {

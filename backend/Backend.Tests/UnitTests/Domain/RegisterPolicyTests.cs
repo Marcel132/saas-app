@@ -4,7 +4,7 @@ using backend.Domain.Entities.Enum;
 using backend.Domain.Policies;
 using NUnit.Framework;
 
-namespace backend.Backend.Tests.Security.Auth;
+namespace backend.Backend.Tests.UnitTests.Domain;
 
 public sealed class RegisterPolicyTests
 {
