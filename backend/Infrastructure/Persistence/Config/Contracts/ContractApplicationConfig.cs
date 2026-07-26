@@ -34,7 +34,7 @@ public class ContractApplicationConfig : IEntityTypeConfiguration<ContractApplic
 
     builder.HasIndex(x => x.Status);
     builder.HasIndex(x => new { x.ContractId, x.UserId})
-      .HasFilter("status = Pending")
+      .HasFilter("status = 'Pending'")
       .IsUnique();
     
 
