@@ -1,3 +1,4 @@
+using backend.Api.Http;
 using backend.Domain.Entities;
 using backend.Domain.Entities.Enum;
 using backend.Domain.Entities.Records;
@@ -13,23 +14,11 @@ public class LoginPolicyTests
   {
     var policy = new LoginPolicy();
 
-    Assert.Throws<InvalidCredentialsAppException>(() =>
-      policy.CanLogin(null)
-    );
-  }
+    var result = policy.CanLogin(null);
 
-  [Test]
-  public void Validate_BlockDuration_ThrowsInvalidCredentials()
-  {
-    var policy = new LoginPolicy();
-
-    var user = CreateUser();
-
-    user.RegisterFailedLoginAttempt(1, TimeSpan.FromMinutes(15));
-
-    Assert.Throws<InvalidCredentialsAppException>(() =>
-      policy.CanLogin(user)
-    );
+    Assert.That(result.IsFailure, Is.True);
+    Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.Auth.InvalidCredentials));
+    Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.Unauthorized));
   }
 
   [Test]
@@ -41,10 +30,29 @@ public class LoginPolicyTests
 
     user.DeactivateAccount();
 
-    Assert.Throws<InvalidCredentialsAppException>(() =>
-      policy.CanLogin(user)
-    );
+    var result = policy.CanLogin(user);
+
+    Assert.That(result.IsFailure, Is.True);
+    Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.Auth.InvalidCredentials));
+    Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.Unauthorized));
   }
+
+  [Test]
+  public void Validate_BlockDuration_ThrowsInvalidCredentials()
+  {
+    var policy = new LoginPolicy();
+
+    var user = CreateUser();
+
+    user.RegisterFailedLoginAttempt(1, TimeSpan.FromMinutes(15));
+
+    var result = policy.CanLogin(user);
+
+    Assert.That(result.IsFailure, Is.True);
+    Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.Auth.InvalidCredentials));
+    Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.Unauthorized));
+  }
+
 
   [Test]
   public void Validate_UserIsValid_Success()
