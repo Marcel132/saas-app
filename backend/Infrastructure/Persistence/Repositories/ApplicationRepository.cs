@@ -20,7 +20,7 @@ public class ApplicationRepository : IApplicationRepository
       .FirstOrDefaultAsync(ca => ca.Id == applicationId, ct);
   }
 
-  public async Task<List<ContractApplication>> GetApplicationsByContractIdAsync(long contractId, Guid? excludeCandidateId = null)
+  public async Task<List<ContractApplication>> GetApplicationsByContractIdAsync(long contractId, Guid? excludeCandidateId, CancellationToken ct)
   {
     var query = _context.ContractApplications
       .Where(ca =>
@@ -33,6 +33,6 @@ public class ApplicationRepository : IApplicationRepository
       query = query.Where(ca => ca.UserId != excludeCandidateId.Value);
     }
 
-    return await query.ToListAsync();
+    return await query.ToListAsync(ct);
   }
 }

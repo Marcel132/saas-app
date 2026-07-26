@@ -62,7 +62,7 @@ public sealed class AcceptApplicationCommandHandler : ICommandHandler<AcceptAppl
     application.Accept();
     application.Contract.StartContract();
 
-    var applicationsToReject = await _repo.GetApplicationsByContractIdAsync(application.ContractId, application.UserId);
+    var applicationsToReject = await _repo.GetApplicationsByContractIdAsync(application.ContractId, application.UserId, ct);
     foreach (var app in applicationsToReject)
       app.Reject();
 
