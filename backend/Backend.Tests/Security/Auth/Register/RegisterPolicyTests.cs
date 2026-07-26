@@ -1,3 +1,4 @@
+using backend.Api.Http;
 using backend.Application.Features.Auth.Commands;
 using backend.Domain.Entities.Enum;
 using backend.Domain.Policies;
@@ -5,74 +6,117 @@ using NUnit.Framework;
 
 namespace backend.Backend.Tests.Security.Auth;
 
-public class RegisterPolicyTests
+public sealed class RegisterPolicyTests
 {
   [Test]
-  public void Validate_EmailAlreadyExists_Pentester_ThrowsBadRequest()
+  public void CanRegisterPentester_ShouldReturnBadRequest_WhenEmailAlreadyExists()
   {
     var policy = new RegisterPolicy();
 
-    Assert.Throws<BadRequestAppException>(() =>
-      policy.CanRegisterPentester(true, false, CreatePentesterCommand())
+    var result = policy.CanRegisterPentester(
+      true, 
+      false, 
+      CreatePentesterCommand()
     );
+
+    Assert.That(result.IsFailure, Is.True);
+    Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.User.AlreadyExists));
+    Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.BadRequest));
   }
   [Test]
-  public void Validate_NicknameAlreadyExists_Pentester_ThrowsBadRequest()
+  public void CanRegisterPentester_ShouldReturnBadRequest_WhenNicknameAlreadyExists()
   {
     var policy = new RegisterPolicy();
 
-    Assert.Throws<BadRequestAppException>(() =>
-      policy.CanRegisterPentester(false, true, CreatePentesterCommand())
+    var result = policy.CanRegisterPentester(
+      false,
+      true,
+      CreatePentesterCommand()
     );
+
+    Assert.That(result.IsFailure, Is.True);
+    Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.User.AlreadyExists));
+    Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.BadRequest));
   }
   [Test]
-  public void Validate_EmailAlreadyExists_Company_ThrowsBadRequest()
+  public void CanRegisterCompany_ShouldReturnBadRequest_WhenEmailAlreadyExists()
   {
     var policy = new RegisterPolicy();
 
-    Assert.Throws<BadRequestAppException>(() =>
-      policy.CanRegisterCompany(true, CreateCompanyCommand())
+    var result = policy.CanRegisterCompany(
+      true,
+      CreateCompanyCommand()
     );
+
+    Assert.That(result.IsFailure, Is.True);
+    Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.User.AlreadyExists));
+    Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.BadRequest));
   }
 
   [Test]
-  public void Validate_EmailIsInvalidFormat_Any_ThrowsInvalidFormat()
+  public void CanRegister_ShouldReturnBadRequest_WhenEmailIsInvalidFormat()
   {
     var policy = new RegisterPolicy();
 
-    var command = CreatePentesterCommand(email: "testagmail.com");
-
-    Assert.Throws<InvalidFormatAppException>(() =>
-      policy.CanRegisterPentester(false, false, command)
+    var command = CreatePentesterCommand(
+      email: "testagmail.com"
     );
+
+    var result = policy.CanRegisterPentester(
+      false,
+      false,
+      command
+    );
+
+    Assert.That(result.IsFailure, Is.True);
+    Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.Validation.InvalidFormat));
+    Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.BadRequest));
   }
 
   [Test]
-  public void Validate_PasswordIsInvalidFormat_ThrowsInvalidFormat()
+  public void CanRegister_ShouldReturnBadRequest_WhenPasswordIsInvalidFormat()
   {
     var policy = new RegisterPolicy();
 
-    var command = CreatePentesterCommand(email: "testagmail.com", password: "hereisnoupperletter_123");
-
-    Assert.Throws<InvalidFormatAppException>(() =>
-      policy.CanRegisterPentester(false, false, command)
+    var command = CreatePentesterCommand(
+      email: "testagmail.com", 
+      password: "hereisnoupperletter_123"
     );
+
+    var result = policy.CanRegisterPentester(
+      false, 
+      false,
+      command
+    );
+
+    Assert.That(result.IsFailure, Is.True);
+    Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.Validation.InvalidFormat));
+    Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.BadRequest));
   }
 
   [Test]
-  public void Validate_PasswordContainsEmail_ThrowsInvalidFormat()
+  public void CanRegister_ShouldReturnBadRequest_WhenPasswordContainsEmail()
   {
     var policy = new RegisterPolicy();
 
-    var command = CreatePentesterCommand(email: "test@gmail.com", password: "Test@gmail.com123");
-
-    Assert.Throws<InvalidFormatAppException>(() =>
-      policy.CanRegisterPentester(false, false, command)
+    var command = CreatePentesterCommand(
+      email: "test@gmail.com", 
+      password: "Test@gmail.com123"
     );
+
+    var result = policy.CanRegisterPentester(
+      false,
+      false,
+      command
+    );
+
+    Assert.That(result.IsFailure, Is.True);
+    Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.Validation.InvalidFormat));
+    Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.BadRequest));
   }
 
   [Test]
-  public void Validate_PasswordContainsName_ThrowsInvalidFormat()
+  public void CanRegister_ShouldReturnBadRequest_WhenPasswordContainsName()
   {
     var policy = new RegisterPolicy();
 
@@ -82,9 +126,43 @@ public class RegisterPolicyTests
       name: "JanPolSa"
     );
 
-    Assert.Throws<InvalidFormatAppException>(() =>
-      policy.CanRegisterCompany(false, command)
+    var result = policy.CanRegisterCompany(
+      false, 
+      command
     );
+
+    Assert.That(result.IsFailure, Is.True);
+    Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.Validation.InvalidFormat));
+    Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.BadRequest));
+  }
+
+  [Test]
+  public void CanRegisterPentester_ShouldReturnSuccess()
+  {
+    var policy = new RegisterPolicy();
+
+    var command = CreatePentesterCommand();
+
+    var result = policy.CanRegisterPentester(
+      false,
+      false,
+      command
+    );
+
+    Assert.That(result.IsSuccess, Is.True);
+  }
+
+  [Test]
+  public void CanRegisterCompany_ShouldReturnSuccess()
+  {
+    var policy = new RegisterPolicy();
+    var command = CreateCompanyCommand();
+    var result = policy.CanRegisterCompany(
+      false,
+      command
+    );
+  
+    Assert.That(result.IsSuccess, Is.True);
   }
 
 

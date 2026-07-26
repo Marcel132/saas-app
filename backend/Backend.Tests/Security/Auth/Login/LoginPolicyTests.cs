@@ -7,10 +7,10 @@ using NUnit.Framework;
 
 namespace backend.Backend.Tests.Security.Auth;
 
-public class LoginPolicyTests
+public sealed class LoginPolicyTests
 {
   [Test]
-  public void Validate_UserIsNull_ThrowsInvalidCredentials()
+  public void CanLogin_ShouldReturnUnauthorized_WhenUserIsNull() 
   {
     var policy = new LoginPolicy();
 
@@ -22,7 +22,7 @@ public class LoginPolicyTests
   }
 
   [Test]
-  public void Validate_UserIsNotActive_ThrowsInvalidCredentials()
+  public void CanLogin_ShouldReturnUnauthorized_WhenAccountIsDeactivated()
   {
     var policy = new LoginPolicy();
 
@@ -38,7 +38,7 @@ public class LoginPolicyTests
   }
 
   [Test]
-  public void Validate_BlockDuration_ThrowsInvalidCredentials()
+  public void CanLogin_ShouldReturnUnauthorized_WhenUserReachedMaxLoginAttempts()
   {
     var policy = new LoginPolicy();
 
@@ -55,17 +55,15 @@ public class LoginPolicyTests
 
 
   [Test]
-  public void Validate_UserIsValid_Success()
+  public void CanLogin_ShouldReturnSuccess()
   {
     var policy = new LoginPolicy();
 
     var user = CreateUser();
 
-    Assert.DoesNotThrow(() =>
-    {
-      policy.CanLogin(user);
-    });
+    var result = policy.CanLogin(user);
 
+    Assert.That(result.IsSuccess, Is.True);
   }
 
   private static User CreateUser()
