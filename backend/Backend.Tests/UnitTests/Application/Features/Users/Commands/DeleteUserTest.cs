@@ -1,6 +1,8 @@
 using backend.Api.Http;
 using backend.Application.Features.Users.Commands;
 using backend.Domain.Entities;
+using backend.Domain.Entities.Enum;
+using backend.Domain.Entities.Records;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
 using Moq;
@@ -47,5 +49,52 @@ public sealed class DeleteUserCommandHandlerTests
     unitOfWork.Verify(
       x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
       Times.Never);
+  }
+
+  [Test]
+  public async Task HandleAsync_ShouldReturnSuccess_WhenUserExists()
+  {
+    var userRepository = new Mock<IUserRepository>();
+    var unitOfWork = new Mock<IUnitOfWork>();
+
+    var userRecord = new UserRecord(
+      "testtest1@gmail.com123123123",
+      "Password123!",
+      RoleType.Pentester
+    );
+
+    var user = new User(
+      userRecord
+    );
+    var command = new DeleteUserCommand(
+      user.Id
+    );
+    userRepository
+      .Setup(x => 
+        x.GetByIdAsync(
+          command.UserId, 
+          It.IsAny<CancellationToken>()
+        ) 
+      )
+      .ReturnsAsync(user);
+    
+
+    var handler = new DeleteUserCommandHandler(
+      userRepository.Object,
+      unitOfWork.Object
+    );
+
+    var result = await handler.HandleAsync(command, CancellationToken.None);
+
+    Assert.That(result.IsSuccess, Is.True);
+    Assert.That(user.IsActive, Is.False);
+
+    userRepository.Verify(
+      x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+      Times.Once);
+
+    unitOfWork.Verify(
+      x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
+      Times.Once);
   }
 }
