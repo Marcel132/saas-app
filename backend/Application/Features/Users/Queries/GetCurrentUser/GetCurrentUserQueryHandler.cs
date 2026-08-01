@@ -21,9 +21,13 @@ public sealed class GetCurrentUserQueryHandler : IQueryHandler<GetCurrentUserQue
 
     return roleType switch
     {
-      RoleType.Company => (object)await _repo.GetCurrentCompanyAsync(query.UserId, ct),
-      RoleType.Pentester => (object)await _repo.GetCurrentPentesterAsync(query.UserId, ct),
-      _ => Result.Failure(new Error(
+      RoleType.Company 
+        => (object)await _repo.GetCurrentCompanyAsync(query.UserId, ct),
+      
+      RoleType.Pentester 
+        => (object)await _repo.GetCurrentPentesterAsync(query.UserId, ct),
+      
+      _ => Result<object>.Failure(new Error(
         DomainCodes.General.BadRequest,
         "Nie znaleziono roli",
         HttpResponseState.BadRequest
