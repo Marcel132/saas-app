@@ -13,7 +13,7 @@ namespace backend.Backend.Tests.UnitTests.Application.Features.Users.Commands;
 public sealed class DeleteUserCommandHandlerTests
 {
   [Test]
-  public async Task HandleAsync_ShouldReturnNotFound_WhenUserDoesNotExists()
+  public async Task HandleAsync_ShouldReturnNotFound_WhenUserDoesNotExist()
   {
     var command = new DeleteUserCommand(
       Guid.NewGuid()

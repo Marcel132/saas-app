@@ -11,14 +11,14 @@ using NUnit.Framework;
 
 namespace backend.Backend.Tests.UnitTests.Application.Features.Users.Commands;
 
-public sealed class UpdatePentesterCommandHandlerTests
+public sealed class UpdateCompanyCommandHandlerTests
 {
   [Test]
   public async Task HandleAsync_ShouldReturnNotFound_WhenUserDoesNotExist()
   {
-    var command = new UpdatePentesterCommand(
+    var command = new UpdateCompanyCommand(
       UserId: Guid.NewGuid(),
-      new UpdatePentesterDto()
+      new UpdateCompanyDto()
     );
 
     var userRepository = new Mock<IUserRepository>();
@@ -33,17 +33,19 @@ public sealed class UpdatePentesterCommandHandlerTests
       )
       .ReturnsAsync((User?)null);
 
-    var handler = new UpdatePentesterCommandHandler(
+    var handler = new UpdateCompanyCommandHandler(
       userRepository.Object,
       unitOfWork.Object
     );
 
-    var result = await handler.HandleAsync(command, CancellationToken.None);
+    var result = await handler.HandleAsync(
+      command,
+      CancellationToken.None
+    );
 
     Assert.That(result.IsFailure, Is.True);
     Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.User.NotFound));
     Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.NotFound));
-
 
     userRepository.Verify(
       x => x.GetByIdAsync(
@@ -62,43 +64,34 @@ public sealed class UpdatePentesterCommandHandlerTests
   [Test]
   public async Task HandleAsync_ShouldReturnSuccess_WhenUserExists()
   {
-    var userRecord = new UserRecord(
-      "testtest1@gmail.com123123123",
-      "Password123!",
-      RoleType.Pentester
-    );
     var user = new User(
-      userRecord
+      new UserRecord(
+        "testtest1@gmail.com123123123",
+        "Password123!",
+        RoleType.Company
+      )
     );
-    var profileRecord = new PentesterProfileRecord(
-      FirstName: "Alex",
-      LastName: "Kowalsky",
-      NickName: "AlexKowal123",
+    var profileRecord = new CompanyProfileRecord(
+      Nip: "1234567890",
+      Name: "No test company",
       Phone: "123456789",
-      Country: "Poland",
-      City: "London",
-      Street: "Burkina 123",
-      PostalCode: "12-234",
-      Bio: "Nevermind",
-      GithubUrl: "https://www.github.com/xyz",
-      LinkedinUrl: "https://www.linkedin.com/in/xyz",
-      Certificates: [],
-      Experience: ExperienceLevel.Senior
+      Country: "Polska",
+      City: "Warszawa",
+      Street: "Testowa 123",
+      PostalCode: "12-345",
+      Bio: "Test bio",
+      WebsiteUrl: "https://test.com"
     );
-
-    user.CreatePentesterProfile(
-      profileRecord
-    );
-
-    var dto = new UpdatePentesterDto
-    {
-      FirstName = "Jane",
-      Country = "Warsaw",
-      Phone = "987654321"
-    };
-    var command = new UpdatePentesterCommand(
+    
+    user.CreateCompanyProfile(profileRecord);
+    
+    var command = new UpdateCompanyCommand(
       UserId: user.Id,
-      Dto: dto
+      new UpdateCompanyDto
+      {
+        Name = "Test Company S.A",
+        Country = "France"
+      }
     );
 
     var userRepository = new Mock<IUserRepository>();
@@ -113,18 +106,21 @@ public sealed class UpdatePentesterCommandHandlerTests
       )
       .ReturnsAsync(user);
 
-    var handler = new UpdatePentesterCommandHandler(
+
+    var handler = new UpdateCompanyCommandHandler(
       userRepository.Object,
       unitOfWork.Object
     );
 
-    var result = await handler.HandleAsync(command, CancellationToken.None);
+    var result = await handler.HandleAsync(
+      command,
+      CancellationToken.None
+    );
 
     Assert.That(result.IsSuccess, Is.True);
-    Assert.That(user.PentesterProfile, Is.Not.Null);
-    Assert.That(user.PentesterProfile!.FirstName, Is.EqualTo(command.Dto.FirstName));
-    Assert.That(user.PentesterProfile!.Country, Is.EqualTo(command.Dto.Country));
-    Assert.That(user.PentesterProfile!.Phone, Is.EqualTo(command.Dto.Phone));
+    Assert.That(user.CompanyProfile, Is.Not.Null);
+    Assert.That(user.CompanyProfile!.Name, Is.EqualTo(command.Dto.Name));
+    Assert.That(user.CompanyProfile!.Country, Is.EqualTo(command.Dto.Country));
 
     userRepository.Verify(
       x => x.GetByIdAsync(
