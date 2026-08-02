@@ -4,7 +4,7 @@ using backend.Domain.Entities.Enum;
 
 namespace backend.Application.Features.Users.Queries;
 
-public sealed record GetCurrentUserContractQuery(
+public sealed record GetCurrentUserContractsQuery(
   Guid UserId,
   ContractStatus? Status
 ) : IQuery<List<UserContractsDto>>;

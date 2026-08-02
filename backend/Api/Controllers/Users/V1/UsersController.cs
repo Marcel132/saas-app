@@ -20,7 +20,7 @@ public class UsersController : ControllerBase
   // TODO: Create dispacher for all DI Handlers
   private readonly IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> _getPentesterByIdQueryHandler;
   private readonly IQueryHandler<GetCurrentUserQuery, object> _getCurrentUserQueryHandler;
-  private readonly IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> _getCurrentUserContractsQueryHandler;
+  private readonly IQueryHandler<GetCurrentUserContractsQuery, List<UserContractsDto>> _getCurrentUserContractsQueryHandler;
   private readonly IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> _getCurrentUserApplicationsQueryHandler;
   private readonly IQueryHandler<GetUserSummaryQuery, UserSummaryDto> _getSummaryQueryHandler;
 
@@ -30,7 +30,7 @@ public class UsersController : ControllerBase
   public UsersController(
     IQueryHandler<GetPentesterByIdQuery, UserPublicPentesterDto> getPentesterById,
     IQueryHandler<GetCurrentUserQuery, object> getCurrentUser,
-    IQueryHandler<GetCurrentUserContractQuery, List<UserContractsDto>> getCurrentUserContracts,
+    IQueryHandler<GetCurrentUserContractsQuery, List<UserContractsDto>> getCurrentUserContracts,
     IQueryHandler<GetCurrentUserApplicationsQuery, List<UserApplicationsDto>> getCurrentUserApplications,
     IQueryHandler<GetUserSummaryQuery, UserSummaryDto> getSummary,
     ICommandHandler<UpdatePentesterCommand> updatePentester,
@@ -154,7 +154,7 @@ public class UsersController : ControllerBase
   [HttpGet("me/contracts")]
   public async Task<IActionResult> GetCurrentUserContracts(CancellationToken ct, [FromQuery] ContractStatus? status = null)
   {
-    var query = new GetCurrentUserContractQuery(
+    var query = new GetCurrentUserContractsQuery(
       UserId: CurrentUserId,
       Status: status
     );
