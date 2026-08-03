@@ -26,9 +26,9 @@ public sealed class GetCurrentUserContractsQueryHandlerTests
       }
     };
 
-    var userQueryRepository = new Mock<IUserQueryRepository>();
+    var mockRepo = new Mock<IUserQueryRepository>();
 
-    userQueryRepository
+    mockRepo
       .Setup(x => 
         x.GetCurrentUserContractsAsync(
           query.UserId,
@@ -39,7 +39,7 @@ public sealed class GetCurrentUserContractsQueryHandlerTests
   
 
     var handler = new GetCurrentUserContractsQueryHandler(
-      userQueryRepository.Object
+      mockRepo.Object
     );
 
     var result = await handler.HandleAsync(
@@ -50,7 +50,7 @@ public sealed class GetCurrentUserContractsQueryHandlerTests
     Assert.That(result.IsSuccess, Is.True);
     Assert.That(result.Value, Is.SameAs(contractsList));
 
-    userQueryRepository.Verify(x => 
+    mockRepo.Verify(x => 
       x.GetCurrentUserContractsAsync(
         query.UserId,
         query.Status,

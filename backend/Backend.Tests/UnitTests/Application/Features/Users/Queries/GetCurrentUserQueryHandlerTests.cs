@@ -16,7 +16,7 @@ public sealed class GetCurrentUserQueryHandlerTests
     var query = new GetCurrentUserQuery(
       UserId: Guid.NewGuid()
     );
-    var userQueryRepository = new Mock<IUserQueryRepository>();
+    var mockRepo = new Mock<IUserQueryRepository>();
 
     var company = new CompanyPrivateDto
     {
@@ -24,7 +24,7 @@ public sealed class GetCurrentUserQueryHandlerTests
       Role = RoleType.Company
     };
 
-    userQueryRepository
+    mockRepo
       .Setup(x =>
         x.GetRoleTypeAsync(
           query.UserId,
@@ -33,7 +33,7 @@ public sealed class GetCurrentUserQueryHandlerTests
       )
       .ReturnsAsync(RoleType.Company);
 
-    userQueryRepository
+    mockRepo
       .Setup(x =>
         x.GetCurrentCompanyAsync(
           query.UserId,
@@ -43,7 +43,7 @@ public sealed class GetCurrentUserQueryHandlerTests
       .ReturnsAsync(company);
 
     var handler = new GetCurrentUserQueryHandler(
-      userQueryRepository.Object
+      mockRepo.Object
     );
 
     var result = await handler.HandleAsync(
@@ -54,21 +54,21 @@ public sealed class GetCurrentUserQueryHandlerTests
     Assert.That(result.IsSuccess, Is.True);
     Assert.That(result.Value, Is.SameAs(company));
 
-    userQueryRepository.Verify(
+    mockRepo.Verify(
       x => x.GetRoleTypeAsync(
         query.UserId,
         It.IsAny<CancellationToken>()
       ), Times.Once
     );
 
-    userQueryRepository.Verify(
+    mockRepo.Verify(
       x => x.GetCurrentCompanyAsync(
         query.UserId,
         It.IsAny<CancellationToken>()
       ), Times.Once
     );
 
-    userQueryRepository.Verify(
+    mockRepo.Verify(
       x => x.GetCurrentPentesterAsync(
         query.UserId,
         It.IsAny<CancellationToken>()
@@ -89,9 +89,9 @@ public sealed class GetCurrentUserQueryHandlerTests
       Role = RoleType.Pentester
     };
 
-    var userQueryRepository = new Mock<IUserQueryRepository>();
+    var mockRepo = new Mock<IUserQueryRepository>();
 
-    userQueryRepository
+    mockRepo
       .Setup(x =>
         x.GetRoleTypeAsync(
           query.UserId,
@@ -100,7 +100,7 @@ public sealed class GetCurrentUserQueryHandlerTests
       )
       .ReturnsAsync(RoleType.Pentester);
     
-    userQueryRepository
+    mockRepo
     .Setup(x => 
       x.GetCurrentPentesterAsync(
         query.UserId,
@@ -110,7 +110,7 @@ public sealed class GetCurrentUserQueryHandlerTests
     .ReturnsAsync(pentester);
 
     var handler = new GetCurrentUserQueryHandler(
-      userQueryRepository.Object
+      mockRepo.Object
     );
 
     var result = await handler.HandleAsync(
@@ -121,21 +121,21 @@ public sealed class GetCurrentUserQueryHandlerTests
     Assert.That(result.IsSuccess, Is.True);
     Assert.That(result.Value, Is.SameAs(pentester));
 
-    userQueryRepository.Verify(
+    mockRepo.Verify(
       x => x.GetRoleTypeAsync(
         query.UserId,
         It.IsAny<CancellationToken>()
       ), Times.Once
     );
 
-    userQueryRepository.Verify(
+    mockRepo.Verify(
       x => x.GetCurrentPentesterAsync(
         query.UserId,
         It.IsAny<CancellationToken>()
       ), Times.Once
     );
 
-    userQueryRepository.Verify(
+    mockRepo.Verify(
       x => x.GetCurrentCompanyAsync(
         query.UserId,
         It.IsAny<CancellationToken>()
@@ -150,9 +150,9 @@ public sealed class GetCurrentUserQueryHandlerTests
     var query = new GetCurrentUserQuery(
       UserId: Guid.NewGuid()
     );
-    var userQueryRepository = new Mock<IUserQueryRepository>();
+    var mockRepo = new Mock<IUserQueryRepository>();
 
-    userQueryRepository
+    mockRepo
       .Setup(x =>
         x.GetRoleTypeAsync(
           query.UserId,
@@ -162,7 +162,7 @@ public sealed class GetCurrentUserQueryHandlerTests
       .ReturnsAsync((RoleType)999);
 
     var handler = new GetCurrentUserQueryHandler(
-      userQueryRepository.Object
+      mockRepo.Object
     );
 
     var result = await handler.HandleAsync(
@@ -174,21 +174,21 @@ public sealed class GetCurrentUserQueryHandlerTests
     Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.General.BadRequest));
     Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.BadRequest));
 
-    userQueryRepository.Verify(
+    mockRepo.Verify(
       x => x.GetRoleTypeAsync(
         query.UserId,
         It.IsAny<CancellationToken>()
       ), Times.Once
     );
 
-    userQueryRepository.Verify(
+    mockRepo.Verify(
       x => x.GetCurrentCompanyAsync(
         query.UserId,
         It.IsAny<CancellationToken>()
       ), Times.Never
     );
 
-    userQueryRepository.Verify(
+    mockRepo.Verify(
       x => x.GetCurrentPentesterAsync(
         query.UserId,
         It.IsAny<CancellationToken>()

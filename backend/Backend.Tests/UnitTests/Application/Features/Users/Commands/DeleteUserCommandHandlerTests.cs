@@ -18,9 +18,9 @@ public sealed class DeleteUserCommandHandlerTests
     var command = new DeleteUserCommand(
       Guid.NewGuid()
     );
-    var userRepository = new Mock<IUserRepository>();
+    var mockRepo = new Mock<IUserRepository>();
 
-    userRepository
+    mockRepo
       .Setup(x => 
         x.GetByIdAsync(
           command.UserId,
@@ -32,7 +32,7 @@ public sealed class DeleteUserCommandHandlerTests
     var unitOfWork = new Mock<IUnitOfWork>();
 
     var handler = new DeleteUserCommandHandler(
-      userRepository.Object,
+      mockRepo.Object,
       unitOfWork.Object
     );
 
@@ -42,7 +42,7 @@ public sealed class DeleteUserCommandHandlerTests
     Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.User.NotFound));
     Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.NotFound));
 
-    userRepository.Verify(
+    mockRepo.Verify(
       x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
       Times.Once);
 
@@ -54,7 +54,7 @@ public sealed class DeleteUserCommandHandlerTests
   [Test]
   public async Task HandleAsync_ShouldReturnSuccess_WhenUserExists()
   {
-    var userRepository = new Mock<IUserRepository>();
+    var mockRepo = new Mock<IUserRepository>();
     var unitOfWork = new Mock<IUnitOfWork>();
 
     var userRecord = new UserRecord(
@@ -69,7 +69,7 @@ public sealed class DeleteUserCommandHandlerTests
     var command = new DeleteUserCommand(
       user.Id
     );
-    userRepository
+    mockRepo
       .Setup(x => 
         x.GetByIdAsync(
           command.UserId, 
@@ -80,7 +80,7 @@ public sealed class DeleteUserCommandHandlerTests
     
 
     var handler = new DeleteUserCommandHandler(
-      userRepository.Object,
+      mockRepo.Object,
       unitOfWork.Object
     );
 
@@ -89,7 +89,7 @@ public sealed class DeleteUserCommandHandlerTests
     Assert.That(result.IsSuccess, Is.True);
     Assert.That(user.IsActive, Is.False);
 
-    userRepository.Verify(
+    mockRepo.Verify(
       x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
       Times.Once);
 

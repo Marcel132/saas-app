@@ -26,9 +26,9 @@ public sealed class GetCurrentUserApplicationsQueryHandlerTests
       }
     };
 
-    var userQueryRepository = new Mock<IUserQueryRepository>();
+    var mockRepo = new Mock<IUserQueryRepository>();
 
-    userQueryRepository
+    mockRepo
       .Setup(x => 
         x.GetApplicationsAsync(
           query.UserId,
@@ -39,7 +39,7 @@ public sealed class GetCurrentUserApplicationsQueryHandlerTests
   
 
     var handler = new GetCurrentUserApplicationsQueryHandler(
-      userQueryRepository.Object
+      mockRepo.Object
     );
 
     var result = await handler.HandleAsync(
@@ -50,7 +50,7 @@ public sealed class GetCurrentUserApplicationsQueryHandlerTests
     Assert.That(result.IsSuccess, Is.True);
     Assert.That(result.Value, Is.SameAs(applicationsList));
 
-    userQueryRepository.Verify(x => 
+    mockRepo.Verify(x => 
       x.GetApplicationsAsync(
         query.UserId,
         query.Status,

@@ -21,10 +21,10 @@ public sealed class UpdateCompanyCommandHandlerTests
       new UpdateCompanyDto()
     );
 
-    var userRepository = new Mock<IUserRepository>();
+    var mockRepo = new Mock<IUserRepository>();
     var unitOfWork = new Mock<IUnitOfWork>();
 
-    userRepository
+    mockRepo
       .Setup(x =>
         x.GetByIdAsync(
           command.UserId,
@@ -34,7 +34,7 @@ public sealed class UpdateCompanyCommandHandlerTests
       .ReturnsAsync((User?)null);
 
     var handler = new UpdateCompanyCommandHandler(
-      userRepository.Object,
+      mockRepo.Object,
       unitOfWork.Object
     );
 
@@ -47,7 +47,7 @@ public sealed class UpdateCompanyCommandHandlerTests
     Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.User.NotFound));
     Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.NotFound));
 
-    userRepository.Verify(
+    mockRepo.Verify(
       x => x.GetByIdAsync(
         command.UserId,
         It.IsAny<CancellationToken>()
@@ -94,10 +94,10 @@ public sealed class UpdateCompanyCommandHandlerTests
       }
     );
 
-    var userRepository = new Mock<IUserRepository>();
+    var mockRepo = new Mock<IUserRepository>();
     var unitOfWork = new Mock<IUnitOfWork>();
 
-    userRepository
+    mockRepo
       .Setup(x =>
         x.GetByIdAsync(
           user.Id,
@@ -108,7 +108,7 @@ public sealed class UpdateCompanyCommandHandlerTests
 
 
     var handler = new UpdateCompanyCommandHandler(
-      userRepository.Object,
+      mockRepo.Object,
       unitOfWork.Object
     );
 
@@ -122,7 +122,7 @@ public sealed class UpdateCompanyCommandHandlerTests
     Assert.That(user.CompanyProfile!.Name, Is.EqualTo(command.Dto.Name));
     Assert.That(user.CompanyProfile!.Country, Is.EqualTo(command.Dto.Country));
 
-    userRepository.Verify(
+    mockRepo.Verify(
       x => x.GetByIdAsync(
         user.Id,
         It.IsAny<CancellationToken>()
