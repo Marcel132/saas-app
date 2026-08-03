@@ -9,7 +9,7 @@ public interface IUserQueryRepository
 
   Task<RoleType> GetRoleTypeAsync(Guid userId, CancellationToken ct);
 
-  Task<UserPublicPentesterDto> GetPentesterByIdAsync(Guid userId, CancellationToken ct);
+  Task<UserPublicPentesterDto?> GetPentesterByIdAsync(Guid userId, CancellationToken ct);
 
   Task<PentesterPrivateDto> GetCurrentPentesterAsync(Guid userId, CancellationToken ct);
   Task<CompanyPrivateDto> GetCurrentCompanyAsync(Guid userId, CancellationToken ct);

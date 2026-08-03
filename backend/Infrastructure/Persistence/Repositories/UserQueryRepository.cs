@@ -24,7 +24,7 @@ public class UserQueryRepository : IUserQueryRepository
 
     return user.RoleType;
   }
-  public async Task<UserPublicPentesterDto> GetPentesterByIdAsync(Guid userId, CancellationToken ct)
+  public async Task<UserPublicPentesterDto?> GetPentesterByIdAsync(Guid userId, CancellationToken ct)
   {
     return await _context.Users
       .AsNoTracking()
@@ -47,8 +47,7 @@ public class UserQueryRepository : IUserQueryRepository
           .ToList(),
         CreatedAt = u.CreatedAt
       })
-      .FirstOrDefaultAsync(ct)
-      ?? throw new NotFoundAppException();
+      .FirstOrDefaultAsync(ct);
   }
   public async Task<PentesterPrivateDto> GetCurrentPentesterAsync(Guid userId, CancellationToken ct)
   {
