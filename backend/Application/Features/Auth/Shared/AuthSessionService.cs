@@ -1,10 +1,11 @@
 using backend.Domain.Entities;
 using backend.Domain.Interfaces;
+using backend.Domain.Interfaces.Features;
 using backend.Domain.Interfaces.Repositories;
 
 namespace backend.Application.Features.Auth.Shared;
 
-public class AuthSessionService
+public class AuthSessionService : IAuthSessionService
 {
   private readonly ISessionRepository _sessionRepository;
   private readonly ISessionQueryRepository _sessionQueryRepository;
@@ -41,8 +42,6 @@ public class AuthSessionService
 
     return session;
   }
-
-
 
   public async Task RevokeAllSessionsAsync(Guid userId, long? replacedByTokenId, CancellationToken ct)
   {
