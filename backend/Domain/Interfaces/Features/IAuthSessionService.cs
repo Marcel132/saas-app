@@ -1,7 +1,7 @@
 using backend.Domain.Entities;
 
 namespace backend.Domain.Interfaces.Features;
-public interface IAuthSessioonService
+public interface IAuthSessionService
 {
   public Task<Session> CreateSessionAsync(Guid userId, string refreshToken, string deviceIp, string userAgent, CancellationToken ct);
   public Task RevokeAllSessionsAsync(Guid userId, long?  replaceByTokenId, CancellationToken ct);
