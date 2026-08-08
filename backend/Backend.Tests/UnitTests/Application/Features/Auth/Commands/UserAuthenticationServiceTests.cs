@@ -6,7 +6,6 @@ using backend.Domain.Entities.Enum;
 using backend.Domain.Entities.Records;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
-using backend.Infrastructure.Security;
 using Moq;
 using NUnit.Framework;
 
