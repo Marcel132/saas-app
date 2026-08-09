@@ -29,4 +29,15 @@ public sealed class RefreshTokenCommandHandlerTests
     Assert.That(result.Error.Code ,Is.EqualTo(DomainCodes.Auth.TokenNotFound));
     Assert.That(result.Error.State ,Is.EqualTo(HttpResponseState.NotFound));
   }
+
+  [Test]
+  public async Task HandleAsync_ShouldReturnValidationError_WhenValidateTokenIsFailure()
+  {
+    var command = new RefreshTokenCommand(
+      IpAddress: "",
+      UserAgent: "",
+      RefreshToken: "RefreshToken"
+    );
+
+  }
 }
