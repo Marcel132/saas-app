@@ -6,11 +6,13 @@ public static class AuthCookies
   private const string RefreshTokenName = "RefreshToken";
   private const int _jwtTokenExpires = 15; //* IN MINUTES
   private const int _refreshTokenExpires = 7; //* IN DAYS
-  public static string? GetRefreshToken(HttpRequest request)
-  {
-    return request.Cookies[RefreshTokenName];
-  }
 
+  public static string? GetRefreshToken (HttpRequest req)
+    => req.Cookies[RefreshTokenName];
+
+  private static bool IsHttps (HttpResponse res)
+    => res.HttpContext.Request.IsHttps;
+    
   public static CookieOptions CreateAuthCookieOptions(
     bool isHttps,
     string? domain = null,
@@ -34,7 +36,6 @@ public static class AuthCookies
       cookieOptions.MaxAge = TimeSpan.FromDays(_refreshTokenExpires);
     }
 
-
     return cookieOptions;
   }
   public static void SetAuthCookie(HttpResponse response, string? refreshToken, string? authToken)
@@ -42,9 +43,26 @@ public static class AuthCookies
     if (string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(authToken))
       throw new TokenNotFoundAppException();
 
-    response.Cookies.Append(AuthTokenName, authToken, CreateAuthCookieOptions(false, null, false));
 
-    response.Cookies.Append(RefreshTokenName, refreshToken, CreateAuthCookieOptions(false, null, true));
+    response.Cookies.Append(
+      key: AuthTokenName,
+      value: authToken,
+      options: CreateAuthCookieOptions(
+        isHttps: IsHttps(response),
+        domain: null,
+        isPersistent: false
+      )
+    );
+
+    response.Cookies.Append(
+      key: RefreshTokenName,
+      value: refreshToken,
+      options: CreateAuthCookieOptions(
+        isHttps: IsHttps(response),
+        domain: null,
+        isPersistent: true
+      )
+    );
   }
 
   public static void ClearAuthCookie(HttpResponse response)
