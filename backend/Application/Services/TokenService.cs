@@ -23,9 +23,13 @@ public class TokenService
 
     if (string.IsNullOrWhiteSpace(_jwtOptions.Key) || string.IsNullOrWhiteSpace(_jwtOptions.Audience) || string.IsNullOrWhiteSpace(_jwtOptions.Issuer))
       throw new InvalidOperationAppException("JWT options not configured");
+    
+    var keyBytes = Encoding.UTF8.GetBytes(_jwtOptions.Key);
+    if (keyBytes.Length < 32)
+      throw new InvalidOperationAppException("JWT signing key must be at least 256 bits (32 bytes)");
 
+    _signingKey = new SymmetricSecurityKey(keyBytes);
 
-    _signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
     _validationParameters = new TokenValidationParameters
     {
       ValidateIssuer = true,
