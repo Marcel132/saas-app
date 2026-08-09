@@ -1,7 +1,6 @@
 using backend.Api.Http;
 using backend.Application.Abstractions.CQRS;
 using backend.Application.Features.Auth.Dto;
-using backend.Application.Features.Auth.Shared;
 using backend.Domain.Interfaces.Features;
 
 namespace backend.Application.Features.Auth.Commands;
@@ -9,10 +8,10 @@ namespace backend.Application.Features.Auth.Commands;
 public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, CredentialsDto>
 {
 
-  private readonly AuthSessionService _sessionService;
+  private readonly IAuthSessionService _sessionService;
   private readonly ICredentialsService _credsService;
   public RefreshTokenCommandHandler(
-    AuthSessionService sessionService,
+    IAuthSessionService sessionService,
     ICredentialsService credentialsService
   )
   {
