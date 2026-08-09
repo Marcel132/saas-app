@@ -58,20 +58,20 @@ public sealed class AuthSessionServiceTests
 
     var userId = Guid.NewGuid();
     var session1 = Session.Create(
-      userId, 
-      "RefreshToken1", 
-      "", 
+      userId,
+      "RefreshToken1",
+      "",
       ""
     );
     var session2 = Session.Create(
-      userId, 
-      "RefreshToken2", 
-      "", 
+      userId,
+      "RefreshToken2",
+      "",
       ""
     );
 
     mockQueryRepo
-      .Setup(x => 
+      .Setup(x =>
         x.GetAllActiveSessionsAsync(
           userId,
           It.IsAny<CancellationToken>()
@@ -79,7 +79,7 @@ public sealed class AuthSessionServiceTests
       )
       .ReturnsAsync(
         [
-        session1, 
+        session1,
         session2
         ]
       );
@@ -121,7 +121,7 @@ public sealed class AuthSessionServiceTests
   }
 
   [Test]
-  public async Task RevokeAllSessionsAsync_ShouldNotUpdateOrSave_WhenNoActiveSessionsExist ()
+  public async Task RevokeAllSessionsAsync_ShouldNotUpdateOrSave_WhenNoActiveSessionsExist()
   {
     var mockQueryRepo = new Mock<ISessionQueryRepository>();
     var mockRepo = new Mock<ISessionRepository>();
@@ -130,7 +130,7 @@ public sealed class AuthSessionServiceTests
     var userId = Guid.NewGuid();
 
     mockQueryRepo
-      .Setup(x => 
+      .Setup(x =>
         x.GetAllActiveSessionsAsync(
           userId,
           It.IsAny<CancellationToken>()
@@ -167,7 +167,7 @@ public sealed class AuthSessionServiceTests
   }
 
   [Test]
-  public async Task RevokeSessionByIdAsyc_ShouldRevokeSession_AndSaveChanges()
+  public async Task RevokeSessionByIdAsync_ShouldRevokeSession_AndSaveChanges()
   {
     var mockQueryRepo = new Mock<ISessionQueryRepository>();
     var mockRepo = new Mock<ISessionRepository>();
@@ -180,11 +180,11 @@ public sealed class AuthSessionServiceTests
       "",
       ""
     );
-  
+
     mockQueryRepo
-      .Setup(x => 
+      .Setup(x =>
         x.GetSessionByUserAndIdAsync(
-          userId, 
+          userId,
           session.Id,
           It.IsAny<CancellationToken>()
         )
@@ -211,8 +211,8 @@ public sealed class AuthSessionServiceTests
     );
     mockQueryRepo.Verify(
       x => x.GetSessionByUserAndIdAsync(
-        userId, 
-        session.Id, 
+        userId,
+        session.Id,
         It.IsAny<CancellationToken>()
       ), Times.Once
     );
@@ -226,17 +226,17 @@ public sealed class AuthSessionServiceTests
   public void RevokeSessionByIdAsync_ShouldThrowSessionNotFoundAppException_WhenSessionDoesNotExist()
   {
     var mockQueryRepo = new Mock<ISessionQueryRepository>();
-    
+
     long sessionId = 1234;
     var userId = Guid.NewGuid();
 
     mockQueryRepo
-      .Setup(x => 
+      .Setup(x =>
         x.GetSessionByUserAndIdAsync(
           userId,
           sessionId,
           It.IsAny<CancellationToken>()
-        ) 
+        )
       )
       .ReturnsAsync((Session?)null);
 
@@ -247,13 +247,118 @@ public sealed class AuthSessionServiceTests
     );
 
 
-    Assert.ThrowsAsync<SessionNotFoundAppException>(async () => 
+    Assert.ThrowsAsync<SessionNotFoundAppException>(async () =>
       await service.RevokeSessionByIdAsync(
         userId,
         sessionId,
         null,
         CancellationToken.None
       )
+    );
+  }
+
+  [Test]
+  public async Task RevokeActiveSessionAsync_ShouldNotUpdateOrSave_WhenNoActiveSessionExist()
+  {
+    var mockQueryRepo = new Mock<ISessionQueryRepository>();
+    var mockRepo = new Mock<ISessionRepository>();
+    var mockUow = new Mock<IUnitOfWork>();
+
+    var refreshToken = "RefreshToken123";
+
+    mockQueryRepo 
+      .Setup(x => 
+        x.GetSessionByRefreshTokenAsync(
+          refreshToken,
+          It.IsAny<CancellationToken>()
+        )
+      )
+      .ReturnsAsync((Session?)null);
+
+    var service = new AuthSessionService(
+      mockRepo.Object,
+      mockQueryRepo.Object,
+      mockUow.Object
+    );
+
+    await service.RevokeActiveSessionAsync(
+      refreshToken,
+      null,
+      CancellationToken.None
+    );
+  
+    mockQueryRepo.Verify(
+      x => x.GetSessionByRefreshTokenAsync(
+        refreshToken,
+        It.IsAny<CancellationToken>()
+      ), Times.Once
+    );
+
+    mockRepo.Verify(
+      x => x.Update(It.IsAny<Session>()), Times.Never
+    );
+
+    mockUow.Verify(
+      x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never
+    );
+  }
+
+  [Test]
+  public async Task RevokeActiveSessionAsync_ShouldRevokeSession_AndSaveChanges()
+  {
+    var mockQueryRepo = new Mock<ISessionQueryRepository>();
+    var mockRepo = new Mock<ISessionRepository>();
+    var mockUow = new Mock<IUnitOfWork>();
+
+    var userId = Guid.NewGuid();
+    var refreshToken = "RefreshToken123";
+    var session = Session.Create(
+      userId,
+      refreshToken,
+      "",
+      ""
+    );
+
+    mockQueryRepo
+      .Setup(x => 
+        x.GetSessionByRefreshTokenAsync(
+          refreshToken,
+          It.IsAny<CancellationToken>()
+        )
+      )
+      .ReturnsAsync(session);
+
+    var service = new AuthSessionService(
+      mockRepo.Object,
+      mockQueryRepo.Object,
+      mockUow.Object
+    );
+
+    await service.RevokeActiveSessionAsync(
+      refreshToken,
+      3,
+      CancellationToken.None
+    );
+
+    Assert.That(session.Revoked, Is.True);
+    Assert.That(session.Used, Is.True);
+    Assert.That(session.ReplacedByTokenId, Is.EqualTo(3));
+
+    mockRepo.Verify(
+      x => x.Update(session), Times.Once
+    );
+
+    mockQueryRepo.Verify(
+      x => x.GetSessionByRefreshTokenAsync(
+        refreshToken,
+        It.IsAny<CancellationToken>()
+      ), Times.Once
+    );
+
+    mockUow.Verify(
+      x => x.SaveChangesAsync(
+        It.IsAny<CancellationToken>()
+      ), Times.Once
     );
   }
 }
