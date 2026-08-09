@@ -21,7 +21,6 @@ public static class ServiceExtension
     
     services.AddScoped<UserAuthenticationService>();
 
-    services.AddScoped<AuthSessionService>();
     services.AddScoped<TokenService>();
     services.AddScoped<RoleService>();
     services.AddScoped<AuthCredentialsIssuer>();
@@ -57,6 +56,7 @@ public static class ServiceExtension
 
     services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
     services.AddScoped<IUnitOfWork, UnitOfWork>();
+    services.AddScoped<IAuthSessionService, AuthSessionService>();
 
     return services;
 

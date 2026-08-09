@@ -60,4 +60,8 @@ public class Session
     ReplacedByTokenId = sessionId;
   }
 
+  internal void SetExpiresAtForTest(DateTime expiresAt)
+  {
+    ExpiresAt = expiresAt;
+  }
 }
