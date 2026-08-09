@@ -11,8 +11,7 @@ public class AuthSessionService : IAuthSessionService
   private readonly ISessionQueryRepository _sessionQueryRepository;
   private readonly IUnitOfWork _unitOfWork;
 
-  public AuthSessionService
-  (
+  public AuthSessionService(
     ISessionRepository sessionRepository,
     ISessionQueryRepository sessionQueryRepository,
     IUnitOfWork unitOfWork
@@ -22,6 +21,7 @@ public class AuthSessionService : IAuthSessionService
     _sessionQueryRepository = sessionQueryRepository;
     _unitOfWork = unitOfWork;
   }
+  
   public async Task<Session> CreateSessionAsync(
     Guid userId,
     string refreshToken,
@@ -46,6 +46,9 @@ public class AuthSessionService : IAuthSessionService
   public async Task RevokeAllSessionsAsync(Guid userId, long? replacedByTokenId, CancellationToken ct)
   {
     var sessions = await _sessionQueryRepository.GetAllActiveSessionsAsync(userId, ct);
+
+    if(sessions.Count == 0)
+      return;
 
     foreach (var session in sessions)
     {
