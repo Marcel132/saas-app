@@ -2,9 +2,8 @@ using backend.Api.Http;
 using backend.Application.Features.Auth.Commands;
 using backend.Domain.Entities.Enum;
 using backend.Domain.Policies;
-using NUnit.Framework;
 
-namespace backend.Backend.Tests.UnitTests.Domain;
+namespace Backend.Tests.UnitTests.Domain;
 
 public sealed class RegisterPolicyTests
 {

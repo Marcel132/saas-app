@@ -3,9 +3,8 @@ using backend.Application.Features.Users.Queries;
 using backend.Domain.Entities.Enum;
 using backend.Domain.Interfaces.Repositories;
 using Moq;
-using NUnit.Framework;
 
-namespace backend.Backend.Tests.UnitTests.Application.Features.Users.Queries;
+namespace Backend.Tests.UnitTests.Application.Features.Users.Queries;
 
 public sealed class GetCurrentUserContractsQueryHandlerTests
 {

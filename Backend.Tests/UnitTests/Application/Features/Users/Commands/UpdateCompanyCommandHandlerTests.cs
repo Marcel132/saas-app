@@ -7,9 +7,8 @@ using backend.Domain.Entities.Records;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
 using Moq;
-using NUnit.Framework;
 
-namespace backend.Backend.Tests.UnitTests.Application.Features.Users.Commands;
+namespace Backend.Tests.UnitTests.Application.Features.Users.Commands;
 
 public sealed class UpdateCompanyCommandHandlerTests
 {

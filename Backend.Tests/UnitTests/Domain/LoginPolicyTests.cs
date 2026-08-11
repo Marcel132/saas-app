@@ -3,10 +3,8 @@ using backend.Domain.Entities;
 using backend.Domain.Entities.Enum;
 using backend.Domain.Entities.Records;
 using backend.Domain.Policies;
-using NUnit.Framework;
 
-
-namespace backend.Backend.Tests.UnitTests.Domain;
+namespace Backend.Tests.UnitTests.Domain;
 
 public sealed class LoginPolicyTests
 {

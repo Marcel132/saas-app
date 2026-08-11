@@ -3,9 +3,8 @@ using backend.Domain.Entities;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Repositories;
 using Moq;
-using NUnit.Framework;
 
-namespace backend.Backend.Tests.UnitTests.Application.Features.Auth.Shared;
+namespace Backend.Tests.UnitTests.Application.Features.Auth.Shared;
 
 public sealed class AuthSessionServiceTests
 {

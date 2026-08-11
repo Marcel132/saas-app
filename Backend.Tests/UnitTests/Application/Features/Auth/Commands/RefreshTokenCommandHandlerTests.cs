@@ -3,9 +3,8 @@ using backend.Application.Features.Auth.Commands;
 using backend.Domain.Entities;
 using backend.Domain.Interfaces.Features;
 using Moq;
-using NUnit.Framework;
 
-namespace backend.Backend.Tests.UnitTests.Application.Features.Auth.Commands;
+namespace Backend.Tests.UnitTests.Application.Features.Auth.Commands;
 
 public sealed class RefreshTokenCommandHandlerTests
 {
