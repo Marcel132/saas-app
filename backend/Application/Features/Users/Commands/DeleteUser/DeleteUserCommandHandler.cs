@@ -34,6 +34,8 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
         HttpResponseState.NotFound
       ));
 
+    await using var transaction = await _unitOfWork.BeginTransactionAsync();
+      
     user.DeleteAccount();
     await _unitOfWork.SaveChangesAsync(ct);
 
@@ -42,6 +44,8 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
       replaceByTokenId: null, 
       ct: ct
     );
+
+    await transaction.CommitAsync(ct);
     
     return Result.Success();
   }

@@ -43,6 +43,8 @@ public class AuthSessionService : IAuthSessionService
     return session;
   }
 
+  // ! Do not touch saveChangesAync
+  // ! direct use in other functions
   public async Task RevokeAllSessionsAsync(Guid userId, long? replacedByTokenId, CancellationToken ct)
   {
     var sessions = await _sessionQueryRepository.GetAllActiveSessionsAsync(userId, ct);
