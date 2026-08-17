@@ -4,6 +4,7 @@ using backend.Domain.Entities;
 using backend.Domain.Entities.Enum;
 using backend.Domain.Entities.Records;
 using backend.Domain.Interfaces;
+using backend.Domain.Interfaces.Features;
 using backend.Domain.Interfaces.Repositories;
 using Moq;
 
@@ -11,51 +12,73 @@ namespace Backend.Tests.UnitTests.Application.Features.Users.Commands;
 
 public sealed class DeleteUserCommandHandlerTests
 {
+  private readonly Guid UserId = Guid.NewGuid();
+  private Mock<IUserRepository> _mockRepo = null!;
+  private Mock<IAuthSessionService> _mockSession = null!;
+  private Mock<IUnitOfWork> _mockUnitOfWork = null!;
+  private DeleteUserCommandHandler _handler = null!;
+  private DeleteUserCommand _command = null!;
+
+  [SetUp]
+  public void SetUp()
+  {
+    _mockRepo = new Mock<IUserRepository>();
+    _mockUnitOfWork = new Mock<IUnitOfWork>();
+    _mockSession = new Mock<IAuthSessionService>();
+
+    _handler = new DeleteUserCommandHandler(
+      _mockRepo.Object,
+      _mockUnitOfWork.Object,
+      _mockSession.Object
+    );
+
+    _command = new DeleteUserCommand(
+      UserId: UserId
+    );
+  }
+
+
   [Test]
   public async Task HandleAsync_ShouldReturnNotFound_WhenUserDoesNotExist()
   {
-    var command = new DeleteUserCommand(
-      Guid.NewGuid()
-    );
-    var mockRepo = new Mock<IUserRepository>();
-
-    mockRepo
+    _mockRepo
       .Setup(x => 
         x.GetByIdAsync(
-          command.UserId,
+          _command.UserId,
           It.IsAny<CancellationToken>()
         )
       )
       .ReturnsAsync((User?)null);
 
-    var unitOfWork = new Mock<IUnitOfWork>();
-
-    var handler = new DeleteUserCommandHandler(
-      mockRepo.Object,
-      unitOfWork.Object
+    var result = await _handler.HandleAsync(
+      _command, 
+      CancellationToken.None
     );
-
-    var result = await handler.HandleAsync(command, CancellationToken.None);
 
     Assert.That(result.IsFailure, Is.True);
     Assert.That(result.Error.Code, Is.EqualTo(DomainCodes.User.NotFound));
     Assert.That(result.Error.State, Is.EqualTo(HttpResponseState.NotFound));
 
-    mockRepo.Verify(
+    _mockRepo.Verify(
       x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
       Times.Once);
 
-    unitOfWork.Verify(
+    _mockUnitOfWork.Verify(
       x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
       Times.Never);
+    
+    _mockSession.Verify(
+      x => x.RevokeAllSessionsAsync(
+        UserId,
+        It.IsAny<long?>(),
+        It.IsAny<CancellationToken>()
+      ), Times.Never
+    );
   }
 
   [Test]
   public async Task HandleAsync_ShouldReturnSuccess_WhenUserExists()
   {
-    var mockRepo = new Mock<IUserRepository>();
-    var unitOfWork = new Mock<IUnitOfWork>();
-
     var userRecord = new UserRecord(
       "testtest1@gmail.com123123123",
       "Password123!",
@@ -68,7 +91,8 @@ public sealed class DeleteUserCommandHandlerTests
     var command = new DeleteUserCommand(
       user.Id
     );
-    mockRepo
+
+    _mockRepo
       .Setup(x => 
         x.GetByIdAsync(
           command.UserId, 
@@ -76,24 +100,32 @@ public sealed class DeleteUserCommandHandlerTests
         ) 
       )
       .ReturnsAsync(user);
-    
 
-    var handler = new DeleteUserCommandHandler(
-      mockRepo.Object,
-      unitOfWork.Object
+    var result = await _handler.HandleAsync(
+      command, 
+      CancellationToken.None
     );
-
-    var result = await handler.HandleAsync(command, CancellationToken.None);
 
     Assert.That(result.IsSuccess, Is.True);
     Assert.That(user.IsActive, Is.False);
 
-    mockRepo.Verify(
-      x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
-      Times.Once);
+    _mockRepo.Verify(
+      x => x.GetByIdAsync(
+        It.IsAny<Guid>(), 
+        It.IsAny<CancellationToken>()
+      ), Times.Once
+    );
 
-    unitOfWork.Verify(
+    _mockUnitOfWork.Verify(
       x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
       Times.Once);
+    
+    _mockSession.Verify(
+      x => x.RevokeAllSessionsAsync(
+        command.UserId,
+        It.IsAny<long?>(),
+        It.IsAny<CancellationToken>()
+      ), Times.Once
+    );
   }
 }
