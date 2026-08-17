@@ -1,13 +1,13 @@
 using backend.Application.Abstractions.CQRS;
-using backend.Application.Features.Auth.Shared;
+using backend.Domain.Interfaces.Features;
 
 namespace backend.Application.Features.Auth.Commands;
 
 public sealed class LogoutCommandHandler : ICommandHandler<LogoutCommand>
 {
-  private readonly AuthSessionService _sessionService;
+  private readonly IAuthSessionService _sessionService;
   public LogoutCommandHandler(
-    AuthSessionService authSessionService
+    IAuthSessionService authSessionService
   )
   {
     _sessionService = authSessionService;

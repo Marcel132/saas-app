@@ -5,10 +5,13 @@ namespace backend.Application.Features.Auth.Shared;
 
 public class AuthCredentialsIssuer
 {
-  private readonly AuthSessionService _sessionService;
+  private readonly IAuthSessionService _sessionService;
   private readonly ICredentialsService _credentialsService;
 
-  public AuthCredentialsIssuer(AuthSessionService sessionService, ICredentialsService credentialsService)
+  public AuthCredentialsIssuer(
+    IAuthSessionService sessionService, 
+    ICredentialsService credentialsService
+  )
   {
     _sessionService = sessionService;
     _credentialsService = credentialsService;
