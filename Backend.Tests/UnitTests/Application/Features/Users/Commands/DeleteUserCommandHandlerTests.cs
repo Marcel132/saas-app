@@ -6,6 +6,7 @@ using backend.Domain.Entities.Records;
 using backend.Domain.Interfaces;
 using backend.Domain.Interfaces.Features;
 using backend.Domain.Interfaces.Repositories;
+using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 
 namespace Backend.Tests.UnitTests.Application.Features.Users.Commands;
@@ -16,6 +17,7 @@ public sealed class DeleteUserCommandHandlerTests
   private Mock<IUserRepository> _mockRepo = null!;
   private Mock<IAuthSessionService> _mockSession = null!;
   private Mock<IUnitOfWork> _mockUnitOfWork = null!;
+  private Mock<IDbContextTransaction> _mockTransaction = null!;
   private DeleteUserCommandHandler _handler = null!;
   private DeleteUserCommand _command = null!;
 
@@ -25,6 +27,7 @@ public sealed class DeleteUserCommandHandlerTests
     _mockRepo = new Mock<IUserRepository>();
     _mockUnitOfWork = new Mock<IUnitOfWork>();
     _mockSession = new Mock<IAuthSessionService>();
+    _mockTransaction = new Mock<IDbContextTransaction>();
 
     _handler = new DeleteUserCommandHandler(
       _mockRepo.Object,
@@ -100,7 +103,27 @@ public sealed class DeleteUserCommandHandlerTests
         ) 
       )
       .ReturnsAsync(user);
+    
+    _mockUnitOfWork
+      .Setup(x => 
+        x.BeginTransactionAsync()
+      )
+      .ReturnsAsync(_mockTransaction.Object);
+    
+    _mockTransaction
+      .Setup(x => 
+        x.CommitAsync(
+          It.IsAny<CancellationToken>()
+        ))
+      .Returns(Task.CompletedTask);
 
+    _mockUnitOfWork
+      .Setup(x => 
+      x.SaveChangesAsync(
+        It.IsAny<CancellationToken>()
+      ))
+      .Returns(Task.CompletedTask);
+      
     var result = await _handler.HandleAsync(
       command, 
       CancellationToken.None
@@ -119,6 +142,16 @@ public sealed class DeleteUserCommandHandlerTests
     _mockUnitOfWork.Verify(
       x => x.SaveChangesAsync(It.IsAny<CancellationToken>()),
       Times.Once);
+
+    _mockUnitOfWork.Verify(
+      x => x.BeginTransactionAsync(), Times.Once
+    );
+
+    _mockTransaction.Verify(
+      x => x.CommitAsync(
+        It.IsAny<CancellationToken>()
+      ), Times.Once
+    );
     
     _mockSession.Verify(
       x => x.RevokeAllSessionsAsync(
@@ -127,5 +160,6 @@ public sealed class DeleteUserCommandHandlerTests
         It.IsAny<CancellationToken>()
       ), Times.Once
     );
+
   }
 }
