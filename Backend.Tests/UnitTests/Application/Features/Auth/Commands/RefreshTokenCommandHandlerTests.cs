@@ -1,5 +1,6 @@
 using backend.Api.Http;
 using backend.Application.Features.Auth.Commands;
+using backend.Application.Features.Auth.Dto;
 using backend.Domain.Entities;
 using backend.Domain.Interfaces.Features;
 using Moq;
@@ -145,5 +146,114 @@ public sealed class RefreshTokenCommandHandlerTests
         It.IsAny<CancellationToken>()
       ), Times.Never
     );
+  }
+
+  [Test]
+  public async Task HandleAsync_ShouldReturnSuccess_WhenTokenAndSessionExists()
+  {
+    var oldSession = Session.Create(
+      userId: UserId,
+      refreshToken: ValidRefreshToken,
+      userAgent: TestUserAgent,
+      ipAddress: TestIpAddress
+    );
+
+    var tokens = new CredentialsDto(
+      AuthToken: "NewAuthToken",
+      RefreshToken: "NewRefreshToken"
+    );
+
+    var newSession = Session.Create(
+      userId: UserId,
+      refreshToken: tokens.RefreshToken,
+      userAgent: TestUserAgent,
+      ipAddress: TestIpAddress
+    );
+
+    _mockSession
+      .Setup(x => 
+        x.GetSessionByRefreshTokenAsync(
+          ValidRefreshToken,
+          It.IsAny<CancellationToken>()
+        ))
+      .ReturnsAsync(oldSession);
+
+      _mockSession
+        .Setup(x => 
+          x.TryUseRefreshTokenAsync(
+            oldSession.Id,
+            It.IsAny<CancellationToken>()
+          ))
+        .ReturnsAsync(true);
+      
+      _mockCreds
+        .Setup(x => 
+          x.GenerateCredentials(
+            UserId,
+            It.IsAny<CancellationToken>()
+          ))
+        .ReturnsAsync(tokens);
+
+      _mockSession
+        .Setup(x => 
+          x.CreateSessionAsync(
+            UserId,
+            tokens.RefreshToken,
+            It.IsAny<string>(),
+            TestUserAgent,
+            It.IsAny<CancellationToken>()
+          ))
+        .ReturnsAsync(newSession);
+
+      
+
+
+      var result = await _handler.HandleAsync(
+        _command,
+        CancellationToken.None
+      );
+
+      Assert.That(result.IsSuccess, Is.True);
+      Assert.That(result.Value, Is.EqualTo(tokens));
+
+      _mockSession.Verify(
+        x => x.GetSessionByRefreshTokenAsync(
+          ValidRefreshToken,
+          It.IsAny<CancellationToken>()
+        ), Times.Once
+      );
+
+      _mockSession.Verify(
+        x => x.TryUseRefreshTokenAsync(
+          oldSession.Id,
+          It.IsAny<CancellationToken>()
+        ), Times.Once
+      );
+
+      _mockSession.Verify(
+        x => x.CreateSessionAsync(
+          UserId,
+          tokens.RefreshToken,
+          It.IsAny<string>(),
+          TestUserAgent,
+          It.IsAny<CancellationToken>()
+        ), Times.Once
+      );
+
+      _mockSession.Verify(
+        x => x.SetReplacedByAndRevokedAsync(
+          oldSession.Id,
+          newSession.Id,
+          It.IsAny<CancellationToken>()
+        ), Times.Once
+      );
+
+      _mockCreds.Verify(
+        x => x.GenerateCredentials(
+          UserId,
+          It.IsAny<CancellationToken>()
+        ), Times.Once
+      );
+
   }
 }
