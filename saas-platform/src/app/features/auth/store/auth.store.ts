@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { catchError, switchMap, tap, throwError } from "rxjs";
+import { catchError, finalize, switchMap, tap, throwError } from "rxjs";
 
 import { AuthApi } from "../../../core/services/auth-api";
 import { LoginRequest } from "../models/login-request";
@@ -45,7 +45,7 @@ export class AuthStore {
       catchError(err => {
         this.request.set({
           state: "error",
-          message: err.error.message
+          message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
         });
         return throwError(() => err);
       })
@@ -69,12 +69,11 @@ export class AuthStore {
         catchError(err => {
           this.request.set({
             state: 'error',
-            message: err.error.message
+            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
           })
           return throwError(() => err)
         })
       )
-      .subscribe();
   }
 
   registerCompany(request: RegisterCompanyRequest) {
@@ -95,12 +94,11 @@ export class AuthStore {
         catchError(err => {
           this.request.set({
             state: 'error',
-            message: err.error.message
+            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
           })
           return throwError(() => err)
         })
       )
-      .subscribe()
   }
 
   loadCurrentUser() {
@@ -113,7 +111,7 @@ export class AuthStore {
 
   logout() {
     return this.authApiService.logout().pipe(
-      tap(() => this.currentUser.set(null))
+      finalize(() => this.currentUser.set(null))
     )
   }
 

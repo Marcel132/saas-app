@@ -19,6 +19,7 @@
 .side-bar {
   overflow: hidden;
   margin: 0;
+  padding: var(--space-3xl) var(--space-md);
 
   background: var(--color-surface);
 
@@ -26,7 +27,6 @@
   flex-direction: column;
   gap: var(--space-md);
 
-  padding: var(--space-3xl) var(--space-md);
 
   transition: transform 0.25s ease;
 }
@@ -34,8 +34,9 @@
 .content {
   min-width: 0;
   display: grid;
-  grid-template-rows: 65px 1fr auto;
+  grid-template-rows: 50px 1fr auto;
 }
+
 .page-content {
   min-width: 0;
   overflow-x: hidden;
@@ -128,10 +129,6 @@ a.active {
 }
 
 @media screen and (min-width: 741px) {
-  // .wrapper.collapsed {
-  //   grid-template-columns: 0 1fr;
-  // }
-
   .wrapper.collapsed .side-bar {
     width: 0;
     padding: 0;

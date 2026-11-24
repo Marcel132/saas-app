@@ -1,12 +1,22 @@
 import { Routes } from '@angular/router';
 
-import { companyGuard } from '../../core/guards/roles/company-guard';
-import { pentesterGuard } from '../../core/guards/roles/pentester-guard';
+import { roleGuard } from '../../core/guards/role-guard';
+import { AuthStore } from '../auth/store/auth.store';
+import { inject } from '@angular/core';
+import { RoleTypeValues } from '../auth/models/enums/role-type.const';
 
 export const mainLayoutRoutes: Routes = [
   {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: () => {
+      const role = inject(AuthStore).currentUser()?.role.toLowerCase();
+      return role ? `/app/${role}/dashboard` : '/auth/login';
+    }
+  },
+  {
     path: 'company',
-    canActivate: [companyGuard],
+    canActivate: [roleGuard(RoleTypeValues.Company)],
     loadComponent: () =>
       import('./pages/company-layout/company-layout')
         .then(c => c.CompanyLayout),
@@ -32,31 +42,7 @@ export const mainLayoutRoutes: Routes = [
         path: 'contracts',
         loadComponent: () =>
           import('./pages/company-layout/contracts/pages/contracts-page/contracts-page')
-            .then(x => x.ContractsPage),
-      },
-      {
-        path: 'contracts/:id/edit',
-        loadComponent: () =>
-          import('./pages/company-layout/contracts/pages/edit-contract-page/edit-contract-page')
-            .then(x => x.EditContractPage)
-      },
-      {
-        path: 'contracts/:id/applications',
-        loadComponent: () =>
-          import('./pages/company-layout/application-page/application-page')
-            .then(x => x.ApplicationPage)
-      },
-      {
-        path: 'contracts/:id/edit',
-        loadComponent: () =>
-          import('./pages/company-layout/contracts/pages/edit-contract-page/edit-contract-page')
-            .then(x => x.EditContractPage)
-      },
-      {
-        path: 'contracts/:id/requests/create',
-        loadComponent: () =>
-          import('./pages/company-layout/contracts/pages/add-request-page/add-request-page')
-            .then(x => x.AddRequestPage)
+        .then(x => x.ContractsPage),
       },
       {
         path: 'contracts/add',
@@ -81,12 +67,30 @@ export const mainLayoutRoutes: Routes = [
         loadComponent: () =>
           import('./pages/company-layout/settings-page/settings-page')
             .then(x => x.SettingsPage)
-      }
+      },
+      {
+        path: 'contracts/:id/edit',
+        loadComponent: () =>
+          import('./pages/company-layout/contracts/pages/edit-contract-page/edit-contract-page')
+            .then(x => x.EditContractPage)
+      },
+      {
+        path: 'contracts/:id/applications',
+        loadComponent: () =>
+          import('./pages/company-layout/application-page/application-page')
+            .then(x => x.ApplicationPage)
+      },
+      {
+        path: 'contracts/:id/requests/create',
+        loadComponent: () =>
+          import('./pages/company-layout/contracts/pages/add-request-page/add-request-page')
+            .then(x => x.AddRequestPage)
+      },
     ]
   },
   {
     path: 'pentester',
-    canActivate: [pentesterGuard],
+    canActivate: [roleGuard(RoleTypeValues.Pentester)],
     loadComponent: () =>
       import('./pages/pentester-layout/pentester-layout')
         .then(p => p.PentesterLayout),
@@ -115,28 +119,28 @@ export const mainLayoutRoutes: Routes = [
             .then(x => x.OffersPage)
       },
       {
-        path: 'offers/:id',
-        loadComponent: () =>
-          import('./pages/pentester-layout/offers-details-page/offers-details-page')
-            .then(x => x.OffersDetailsPage)
-      },
-      {
         path: 'profile',
         loadComponent: () =>
           import('./pages/pentester-layout/profile-page/profile-page')
-            .then(x => x.ProfilePage)
+        .then(x => x.ProfilePage)
       },
       {
         path: 'reports',
         loadComponent: () =>
           import('./pages/pentester-layout/reports-page/reports-page')
-            .then(x => x.ReportsPage)
+        .then(x => x.ReportsPage)
       },
       {
         path: 'settings',
         loadComponent: () =>
           import('./pages/pentester-layout/settings-page/settings-page')
-            .then(x => x.SettingsPage)
+        .then(x => x.SettingsPage)
+      },
+      {
+        path: 'offers/:id',
+        loadComponent: () =>
+          import('./pages/pentester-layout/offers-details-page/offers-details-page')
+            .then(x => x.OffersDetailsPage)
       }
     ]
   }
