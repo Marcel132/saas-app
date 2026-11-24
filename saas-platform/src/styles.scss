@@ -1,31 +1,31 @@
 @use '@angular/material' as mat;
 
-html {
-  height: 100%;
-  @include mat.theme(
-    (
-      color: (
-        primary: mat.$magenta-palette,
-        tertiary: mat.$violet-palette,
-      ),
-      typography: Roboto,
-      density: 0,
-    )
-  );
-}
+// html {
+//   height: 100%;
+//   @include mat.theme(
+//     (
+//       color: (
+//         primary: mat.$magenta-palette,
+//         tertiary: mat.$violet-palette,
+//       ),
+//       typography: Roboto,
+//       density: 0,
+//     )
+//   );
+// }
 
-body {
-  color-scheme: light;
-  background-color: var(
-    --mat-sys-surface
-  );
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
+// body {
+//   color-scheme: light;
+//   background-color: var(
+//     --mat-sys-surface
+//   );
+//   color: var(--mat-sys-on-surface);
+//   font: var(--mat-sys-body-medium);
 
-  // Reset the user agent margin.
-  margin: 0;
-  height: 100%;
-}
+//   // Reset the user agent margin.
+//   margin: 0;
+//   height: 100%;
+// }
 :root {
   // font-size
   --font-size-xs: 0.5rem;
@@ -75,6 +75,45 @@ body {
   --color-button-delete-text: #dc2626;
 
   --color-border-primary: #3f4239;
+
+  --cancelled-bg: #fee2e2;
+  --cancelled-txt: #b91c1c;
+
+  --completed-bg: #dcfce7;
+  --completed-txt: #15803d;
+
+  --draft-bg: #e2e8f0;
+  --draft-txt: #475569;
+
+  --error-bg: #fee2e2;
+  --error-txt: #b91c1c;
+
+  --idle-bg: #f1f5f9;
+  --idle-txt: #64748b;
+
+  --info-bg: #dbeafe;
+  --info-txt: #1d4ed8;
+
+  --in-progress-bg: #dbeafe;
+  --in-progress-txt: #2563eb;
+
+  --open-bg: #dcfce7;
+  --open-txt: #16a34a;
+
+  --pending-bg: #fef3c7;
+  --pending-txt: #b45309;
+
+  --primary-bg: #dbeafe;
+  --primary-txt: #2563eb;
+
+  --rejected-bg: #fee2e2;
+  --rejected-txt: #dc2626;
+
+  --success-bg: #dcfce7;
+  --success-txt: #16a34a;
+
+  --warning-bg: #fef3c7;
+  --warning-txt: #d97706;
 }
 :root[data-theme='dark'] {
   --color-background: #121212;
@@ -99,13 +138,51 @@ body {
   --color-button-delete-text: #f87171;
 
   --color-border-primary: #edeede;
+
+  --cancelled-bg: #3f1d1d;
+  --cancelled-txt: #fca5a5;
+
+  --completed-bg: #163322;
+  --completed-txt: #86efac;
+
+  --draft-bg: #2d3748;
+  --draft-txt: #cbd5e1;
+
+  --error-bg: #451a1a;
+  --error-txt: #f87171;
+
+  --idle-bg: #1f2937;
+  --idle-txt: #94a3b8;
+
+  --info-bg: #1e3a5f;
+  --info-txt: #93c5fd;
+
+  --in-progress-bg: #1e3a5f;
+  --in-progress-txt: #60a5fa;
+
+  --open-bg: #1b3a24;
+  --open-txt: #7ee787;
+
+  --pending-bg: #3b2f12;
+  --pending-txt: #fbbf24;
+
+  --primary-bg: #1e3a5f;
+  --primary-txt: #93c5fd;
+
+  --rejected-bg: #451a1a;
+  --rejected-txt: #f87171;
+
+  --success-bg: #1b3a24;
+  --success-txt: #7ee787;
+
+  --warning-bg: #3b2f12;
+  --warning-txt: #fbbf24;
 }
 
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
+
 
 body {
   width: 100%;
@@ -115,6 +192,8 @@ body {
   color: var(--color-text);
   font-size: 16px;
   font-family: var(--font-family);
+  margin: 0;
+  padding: 0;
 }
 
 a {
@@ -125,17 +204,6 @@ a {
   &:hover {
     text-decoration: underline;
   }
-}
-a.active {
-  color: var(--color-primary);
-  text-decoration: underline
-    var(--color-primary);
-  border-left: 3px solid
-    var(--color-primary);
-  padding-left: calc(
-    var(--space-md) - 3px
-  );
-  font-weight: 600;
 }
 
 .card {
@@ -154,7 +222,7 @@ a.active {
     opacity: 0.9;
     border-color: var(--color-text);
     box-shadow: 4px 4px 16px
-      var(--color-text);
+      rgba(0, 0, 0, 0.12);
     transform: translateY(-2px);
   }
 }
@@ -169,7 +237,6 @@ a.active {
 
   background: var(--color-background);
   color: var(--color-text);
-  cursor: focus;
 
   &:focus {
     outline: none;
@@ -256,92 +323,8 @@ h6 {
   vertical-align: middle;
   cursor: help;
 }
-
-html[data-theme='light'] {
-  --cancelled-bg: #fee2e2;
-  --cancelled-txt: #b91c1c;
-
-  --completed-bg: #dcfce7;
-  --completed-txt: #15803d;
-
-  --draft-bg: #e2e8f0;
-  --draft-txt: #475569;
-
-  --error-bg: #fee2e2;
-  --error-txt: #b91c1c;
-
-  --idle-bg: #f1f5f9;
-  --idle-txt: #64748b;
-
-  --info-bg: #dbeafe;
-  --info-txt: #1d4ed8;
-
-  --in-progress-bg: #dbeafe;
-  --in-progress-txt: #2563eb;
-
-  --open-bg: #dcfce7;
-  --open-txt: #16a34a;
-
-  --pending-bg: #fef3c7;
-  --pending-txt: #b45309;
-
-  --primary-bg: #dbeafe;
-  --primary-txt: #2563eb;
-
-  --rejected-bg: #fee2e2;
-  --rejected-txt: #dc2626;
-
-  --success-bg: #dcfce7;
-  --success-txt: #16a34a;
-
-  --warning-bg: #fef3c7;
-  --warning-txt: #d97706;
-}
-
-html[data-theme='dark'] {
-  --cancelled-bg: #3f1d1d;
-  --cancelled-txt: #fca5a5;
-
-  --completed-bg: #163322;
-  --completed-txt: #86efac;
-
-  --draft-bg: #2d3748;
-  --draft-txt: #cbd5e1;
-
-  --error-bg: #451a1a;
-  --error-txt: #f87171;
-
-  --idle-bg: #1f2937;
-  --idle-txt: #94a3b8;
-
-  --info-bg: #1e3a5f;
-  --info-txt: #93c5fd;
-
-  --in-progress-bg: #1e3a5f;
-  --in-progress-txt: #60a5fa;
-
-  --open-bg: #1b3a24;
-  --open-txt: #7ee787;
-
-  --pending-bg: #3b2f12;
-  --pending-txt: #fbbf24;
-
-  --primary-bg: #1e3a5f;
-  --primary-txt: #93c5fd;
-
-  --rejected-bg: #451a1a;
-  --rejected-txt: #f87171;
-
-  --success-bg: #1b3a24;
-  --success-txt: #7ee787;
-
-  --warning-bg: #3b2f12;
-  --warning-txt: #fbbf24;
-}
-
 .error-message {
   color: var(--color-error);
-  font-size: .8rem;
+  font-size: 0.8rem;
   font-weight: 500;
 }
-

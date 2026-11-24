@@ -1,11 +1,11 @@
 @if(isMobile()) {
-  <button class="mobile-menu-btn" (click)="toogleSidebar()">
+  <button class="mobile-menu-btn" (click)="toggleSidebar()">
     <img src="/icons/menu.svg" alt="Menu">
   </button>
 }
 
 @if(isMobile() && !isSidebarCollapsed()) {
-  <div class="backdrop" (click)="toogleSidebar()"></div>
+  <div class="backdrop" (click)="toggleSidebar()"></div>
 }
 
 <div class="wrapper" [class.collapsed]="isSidebarCollapsed()">
@@ -13,9 +13,11 @@
   <nav class="side-bar">
 
     @for(item of navItems(); track item.route){
+
       <a class="nav-link"
         [routerLink]='[baseRoute(), item.route]'
         routerLinkActive='active'
+        (click)="onNavClickOnMobile()"
       >
         {{item.label}}
       </a>
@@ -33,7 +35,7 @@
 
     <nav class="top-bar">
       @if(!isMobile()){
-      <button class="button" (click)="toogleSidebar()">
+      <button class="button" (click)="toggleSidebar()">
         <img src="/icons/menu.svg" alt="Menu">
       </button>
       }
@@ -48,11 +50,8 @@
       }
 
       <div class="user-menu">
-        @if(isMobile()) {
-          <img src="/icons/account.svg" alt="Account">
-        }
-        @else {
-          <img src="/icons/account.svg" alt="Account">
+        <img src="/icons/account.svg" alt="Account">
+        @if(!isMobile()) {
           <span>{{ displayName() }}, Witamy</span>
         }
       </div>
