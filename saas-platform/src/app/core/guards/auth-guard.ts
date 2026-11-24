@@ -5,7 +5,9 @@ import { AuthStore } from '../../features/auth/store/auth.store';
 export const authGuard: CanActivateFn = (route, state) => {
   const authStore = inject(AuthStore);
   const router = inject(Router);
-  
-  return authStore.currentUser() ? true : router.createUrlTree(['/auth/login']);
+  const user = authStore.currentUser();
 
+  if(user) return true;
+
+  return router.createUrlTree([`/auth/login`])
 };
