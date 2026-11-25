@@ -4,6 +4,8 @@ import { roleGuard } from '../../core/guards/role-guard';
 import { AuthStore } from '../auth/store/auth.store';
 import { inject } from '@angular/core';
 import { RoleTypeValues } from '../auth/models/enums/role-type.const';
+import { PentesterApplicationStore } from './store/pentester-application.store';
+import { PentesterStore } from './store/pentester.store';
 
 export const mainLayoutRoutes: Routes = [
   {
@@ -17,6 +19,9 @@ export const mainLayoutRoutes: Routes = [
   {
     path: 'company',
     canActivate: [roleGuard(RoleTypeValues.Company)],
+    providers: [
+
+    ],
     loadComponent: () =>
       import('./pages/company-layout/company-layout')
         .then(c => c.CompanyLayout),
@@ -91,6 +96,10 @@ export const mainLayoutRoutes: Routes = [
   {
     path: 'pentester',
     canActivate: [roleGuard(RoleTypeValues.Pentester)],
+    providers: [
+      PentesterStore,
+      PentesterApplicationStore
+    ],
     loadComponent: () =>
       import('./pages/pentester-layout/pentester-layout')
         .then(p => p.PentesterLayout),

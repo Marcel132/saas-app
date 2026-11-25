@@ -11,7 +11,7 @@ import { CurrentUser } from '../../features/auth/models/current-user/current-use
 })
 export class UserApi {
 
-  private readonly http = inject(HttpClient)
+  private readonly http = inject(HttpClient);
 
   getCurrentUser() {
     return this.http.get<ApiResponseModel<CurrentUser>>(

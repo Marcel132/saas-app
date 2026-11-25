@@ -14,6 +14,7 @@ import { PagedResponseModel } from "../../../core/models/paged-response-model";
 import { CompanyContractDto } from "../models/response/company-contract-dto";
 import { ContractDetailsDto } from "../models/contracts/contract-details-dto";
 import { CreateRequestDto } from "../pages/company-layout/contracts/models/create-request-dto";
+import { ReportApi } from "../../../core/services/report-api";
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +23,7 @@ import { CreateRequestDto } from "../pages/company-layout/contracts/models/creat
 export class CompanyStore {
   // DI
   private readonly contractApi = inject(ContractApi);
+  private readonly reportApi = inject(ReportApi);
   private readonly applicationApi = inject(ApplicationApi);
 
   // SIGNALS
@@ -78,13 +80,13 @@ export class CompanyStore {
             })
           }
         }),
-        catchError(error => {
+        catchError(err => {
           this.request.set({
             state: 'error',
-            message: error.error.message
+            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
           })
 
-          return throwError(() => error)
+          return throwError(() => err)
         })
       )
   }
@@ -134,13 +136,13 @@ export class CompanyStore {
             message: ``
           })
         }),
-        catchError(error => {
+        catchError(err => {
           this.request.set({
             state: 'error',
-            message: error.error.message
+            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
           })
 
-          return throwError(() => error)
+          return throwError(() => err)
         })
       )
   }
@@ -165,13 +167,13 @@ export class CompanyStore {
             message: res.message ?? "Dodano Kontrakt"
           })
         }),
-        catchError(error => {
+        catchError(err => {
           this.request.set({
             state: 'error',
-            message: error.error.message ?? "Błąd w danych formularza"
+            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
           })
 
-          return throwError(() => error)
+          return throwError(() => err)
         })
       )
   }
@@ -216,17 +218,17 @@ export class CompanyStore {
         tap(res => {
           this.request.set({
             state: 'success',
-            message: res.message ?? "Dodano Kontrakt"
+            message: res.message ?? "Zaakceptowano Aplikację"
           })
         }),
         switchMap(() => this.getContractApplications(contractId)),
-        catchError(error => {
+        catchError(err => {
           this.request.set({
             state: 'error',
-            message: error.error.message ?? "Nie można zaakceptować tej samej aplikacji"
+            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
           })
 
-          return throwError(() => error)
+          return throwError(() => err)
         })
       )
   }
@@ -247,22 +249,22 @@ export class CompanyStore {
           );
           this.request.set({
             state: 'success',
-            message: res.message ?? "Dodano Kontrakt"
+            message: res.message ?? "Odrzucono aplikację"
           })
         }),
-        catchError(error => {
+        catchError(err => {
           this.request.set({
             state: 'error',
-            message: error.error.message ?? "Błąd odrzucenia"
+            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
           })
 
-          return throwError(() => error)
+          return throwError(() => err)
         })
       )
   }
 
-  createRequest(dto: CreateRequestDto){
-    return this.contractApi.createRequest(dto)
+  createRequest(dto: CreateRequestDto) {
+    return this.reportApi.createRequest(dto)
       .pipe(
         tap(res => {
           console.log(res)
