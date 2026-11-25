@@ -12,23 +12,29 @@ import { PublicContractDto } from '../../features/main/models/response/public-co
 import { PentesterContractDto } from '../../features/main/models/response/open-contract-dto';
 import { CompanyContractDto } from '../../features/main/models/response/company-contract-dto';
 import { ContractDetailsDto } from '../../features/main/models/contracts/contract-details-dto';
-import { CreateRequestDto } from '../../features/main/pages/company-layout/contracts/models/create-request-dto';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ContractApi {
+  private readonly http = inject(HttpClient);
 
-  private readonly http = inject(HttpClient)
+  private addParamsToQuery(paramsRequest: PagedRequestModel) : HttpParams{
+    let params = new HttpParams()
+      .set('page', paramsRequest.page)
+      .set('pageSize', paramsRequest.pageSize);
+
+    const search = paramsRequest.search?.trim();
+
+    if(search){
+      params = params.set('search', search);
+    }
+
+    return params;
+  }
 
   getPublicContracts(paramsReq: PagedRequestModel) {
-    let params = new HttpParams()
-      .set('page', paramsReq.page)
-      .set('pageSize', paramsReq.pageSize)
-
-    if (paramsReq.search?.trim()) {
-      params.set('search', paramsReq.search)
-    }
+    let params = this.addParamsToQuery(paramsReq);
 
     return this.http.get<ApiResponseModel<PagedResponseModel<PublicContractDto>>>(
       ApiEndpoints.contracts.public,
@@ -36,13 +42,7 @@ export class ContractApi {
     )
   }
   getPentesterContracts(paramsReq: PagedRequestModel) {
-    let params = new HttpParams()
-      .set('page', paramsReq.page)
-      .set('pageSize', paramsReq.pageSize)
-
-    if (paramsReq.search?.trim()) {
-      params.set('search', paramsReq.search)
-    }
+    let params = this.addParamsToQuery(paramsReq);
 
     return this.http.get<ApiResponseModel<PagedResponseModel<PentesterContractDto>>>(
       ApiEndpoints.contracts.open,
@@ -50,13 +50,7 @@ export class ContractApi {
     )
   }
   getCompanyContracts(paramsReq: PagedRequestModel) {
-    let params = new HttpParams()
-      .set('page', paramsReq.page)
-      .set('pageSize', paramsReq.pageSize)
-
-    if (paramsReq.search?.trim()) {
-      params.set('search', paramsReq.search)
-    }
+    let params = this.addParamsToQuery(paramsReq);
 
     return this.http.get<ApiResponseModel<PagedResponseModel<CompanyContractDto>>>(
       ApiEndpoints.contracts.company,
@@ -97,13 +91,6 @@ export class ContractApi {
   getContractApplications(contractId: number) {
     return this.http.get<ApiResponseModel<CompanyApplicationsDto[]>>(
       ApiEndpoints.contracts.applications(contractId),
-    )
-  }
-
-  createRequest(dto: CreateRequestDto){
-    return this.http.post<ApiResponseModel<null>>(
-      ApiEndpoints.reports.create,
-      {dto}
     )
   }
 }

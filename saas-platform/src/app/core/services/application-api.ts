@@ -12,21 +12,21 @@ export class ApplicationApi {
 
   acceptApplication(applicationId: number) {
     return this.http.patch<ApiResponseModel<null>>(
-      `${ApiEndpoints.applications.accept(applicationId)}`,
+      ApiEndpoints.applications.accept(applicationId),
       {},
     )
   }
 
   rejectApplication(applicationId: number) {
     return this.http.patch<ApiResponseModel<null>>(
-      `${ApiEndpoints.applications.reject(applicationId)}`,
+      ApiEndpoints.applications.reject(applicationId),
       {},
     )
   }
 
   getApplications() {
     return this.http.get<ApiResponseModel<UserApplicationDto[]>>(
-      `${ApiEndpoints.users.currentUserApplications}`
+      ApiEndpoints.users.currentUserApplications
     )
   }
 }
