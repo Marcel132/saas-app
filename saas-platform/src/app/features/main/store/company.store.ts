@@ -1,14 +1,11 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { catchError, EMPTY, switchMap, tap, throwError } from "rxjs";
+import { catchError, EMPTY, tap, throwError } from "rxjs";
 
 import { ContractApi } from "../../../core/services/contract-api";
 import { EditContractDto } from "../pages/company-layout/contracts/models/edit-contract-dto";
 import { AddContractDto } from "../pages/company-layout/contracts/models/add-contract-dto";
-import { CompanyApplicationsDto } from "../models/company-applications-dto";
-import { ApplicationApi } from "../../../core/services/application-api";
 import { RequestState } from "../../../core/models/request-state";
 import { CONTRACT_STATUS_ORDER } from "../../../core/constants/contract-status-order";
-import { APPLICATIONS_STATUS_ORDER } from "../../../core/constants/application-status-order";
 import { PagedRequestModel } from "../../../core/models/paged-request-model";
 import { PagedResponseModel } from "../../../core/models/paged-response-model";
 import { CompanyContractDto } from "../models/response/company-contract-dto";
@@ -16,26 +13,21 @@ import { ContractDetailsDto } from "../models/contracts/contract-details-dto";
 import { CreateRequestDto } from "../pages/company-layout/contracts/models/create-request-dto";
 import { ReportApi } from "../../../core/services/report-api";
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 
 export class CompanyStore {
   // DI
   private readonly contractApi = inject(ContractApi);
   private readonly reportApi = inject(ReportApi);
-  private readonly applicationApi = inject(ApplicationApi);
 
   // SIGNALS
-  request = signal<RequestState>({
+  readonly request = signal<RequestState>({
     state: 'idle',
     message: ''
   })
 
   readonly contracts = signal<CompanyContractDto[]>([])
   readonly selectedContract = signal<ContractDetailsDto | null>(null)
-
-  readonly applications = signal<CompanyApplicationsDto[]>([])
 
   // CONST
   private readonly pageSize = 4;
@@ -119,6 +111,7 @@ export class CompanyStore {
         })
       )
   }
+  
   getContractById(id: number) {
     this.request.set({
       state: 'loading',
@@ -194,71 +187,6 @@ export class CompanyStore {
                 : contract
             )
           )
-        })
-      )
-  }
-
-  getContractApplications(id: number) {
-    return this.contractApi.getContractApplications(id)
-      .pipe(
-        tap(res => {
-          if (res.data) {
-            res.data.sort(
-              (a, b) => APPLICATIONS_STATUS_ORDER[a.status] - APPLICATIONS_STATUS_ORDER[b.status]
-            )
-            this.applications.set(res.data)
-          }
-        })
-      )
-  }
-
-  acceptApplication(applicationId: number, contractId: number) {
-    return this.applicationApi.acceptApplication(applicationId)
-      .pipe(
-        tap(res => {
-          this.request.set({
-            state: 'success',
-            message: res.message ?? "Zaakceptowano Aplikację"
-          })
-        }),
-        switchMap(() => this.getContractApplications(contractId)),
-        catchError(err => {
-          this.request.set({
-            state: 'error',
-            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
-          })
-
-          return throwError(() => err)
-        })
-      )
-  }
-
-  rejectApplication(applicationId: number) {
-    return this.applicationApi.rejectApplication(applicationId)
-      .pipe(
-        tap(res => {
-          this.applications.update(applications =>
-            applications.map(app =>
-              app.applicationId === applicationId
-                ? {
-                  ...app,
-                  status: 'Rejected'
-                }
-                : app
-            )
-          );
-          this.request.set({
-            state: 'success',
-            message: res.message ?? "Odrzucono aplikację"
-          })
-        }),
-        catchError(err => {
-          this.request.set({
-            state: 'error',
-            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
-          })
-
-          return throwError(() => err)
         })
       )
   }
