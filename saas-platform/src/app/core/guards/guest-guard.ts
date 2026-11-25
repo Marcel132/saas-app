@@ -9,5 +9,7 @@ export const guestGuard: CanActivateFn = (route, state) => {
 
   if(!user) return true;
 
+  console.log(`GuestGuard ${user}`)
+
   return router.createUrlTree([`/home`])
 };
