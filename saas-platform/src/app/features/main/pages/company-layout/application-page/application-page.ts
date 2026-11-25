@@ -1,11 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { CompanyStore } from '../../../store/company.store';
+import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { Badge } from "../../../../../shared/ui/badge/badge";
 import { ApplicationStatus } from '../../../../../shared/models/application-status';
 import { BadgeVariant } from '../../../../../shared/models/badge-variant';
 import { Message } from '../../../../../shared/ui/message/message';
+import { CompanyApplicationStore } from '../../../store/company-application.store';
 
 @Component({
   selector: 'app-application-page',
@@ -21,15 +21,15 @@ import { Message } from '../../../../../shared/ui/message/message';
 export class ApplicationPage {
 
   // DI
-  private readonly companyStore = inject(CompanyStore);
+  private readonly companyApplicationStore = inject(CompanyApplicationStore);
   private readonly route = inject(ActivatedRoute);
-  readonly applications = this.companyStore.applications.asReadonly();
+  readonly applications = this.companyApplicationStore.applications.asReadonly();
   private id!: number;
 
-  request = this.companyStore.request.asReadonly();
+  request = this.companyApplicationStore.applicationRequest;
 
   ngOnInit(): void {
-    this.companyStore.clearRequestState();
+    this.companyApplicationStore.clearRequestState();
 
     const id = Number(
       this.route.snapshot.paramMap.get('id')
@@ -39,7 +39,7 @@ export class ApplicationPage {
       return;
 
     this.id = id;
-    this.companyStore.getContractApplications(id)
+    this.companyApplicationStore.getContractApplications(id)
       .subscribe()
   }
 
@@ -48,11 +48,11 @@ export class ApplicationPage {
   }
 
   accept(applicationId: number, contractId: number) {
-    this.companyStore.acceptApplication(applicationId, contractId)
+    this.companyApplicationStore.acceptApplication(applicationId, contractId)
       .subscribe()
   }
   reject(applicationId: number) {
-    this.companyStore.rejectApplication(applicationId)
+    this.companyApplicationStore.rejectApplication(applicationId)
       .subscribe()
   }
 

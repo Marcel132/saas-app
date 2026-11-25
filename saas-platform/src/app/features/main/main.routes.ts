@@ -6,6 +6,8 @@ import { inject } from '@angular/core';
 import { RoleTypeValues } from '../auth/models/enums/role-type.const';
 import { PentesterApplicationStore } from './store/pentester-application.store';
 import { PentesterStore } from './store/pentester.store';
+import { CompanyStore } from './store/company.store';
+import { CompanyApplicationStore } from './store/company-application.store';
 
 export const mainLayoutRoutes: Routes = [
   {
@@ -20,7 +22,8 @@ export const mainLayoutRoutes: Routes = [
     path: 'company',
     canActivate: [roleGuard(RoleTypeValues.Company)],
     providers: [
-
+      CompanyStore,
+      CompanyApplicationStore
     ],
     loadComponent: () =>
       import('./pages/company-layout/company-layout')
