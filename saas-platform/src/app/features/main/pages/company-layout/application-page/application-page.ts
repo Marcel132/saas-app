@@ -23,7 +23,7 @@ export class ApplicationPage {
   // DI
   private readonly companyApplicationStore = inject(CompanyApplicationStore);
   private readonly route = inject(ActivatedRoute);
-  readonly applications = this.companyApplicationStore.applications.asReadonly();
+  readonly applications = this.companyApplicationStore.applications;
   private id!: number;
 
   request = this.companyApplicationStore.applicationRequest;
