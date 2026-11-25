@@ -18,11 +18,11 @@ export class CompanyApplicationStore {
   private readonly _applicationRequest = signal<RequestState>({
     state: 'idle',
     message: ''
-  })
-
+  });
   readonly applicationRequest = this._applicationRequest.asReadonly();
 
-  readonly applications = signal<CompanyApplicationsDto[]>([])
+  private readonly _applications = signal<CompanyApplicationsDto[]>([]);
+  readonly applications = this._applications.asReadonly();
 
   getContractApplications(id: number) {
     return this.contractApi.getContractApplications(id)
@@ -32,7 +32,7 @@ export class CompanyApplicationStore {
             [...res.data].sort(
               (a, b) => APPLICATIONS_STATUS_ORDER[a.status] - APPLICATIONS_STATUS_ORDER[b.status]
             )
-            this.applications.set(res.data)
+            this._applications.set(res.data)
           }
         })
       )
@@ -63,7 +63,7 @@ export class CompanyApplicationStore {
     return this.applicationApi.rejectApplication(applicationId)
       .pipe(
         tap(res => {
-          this.applications.update(applications =>
+          this._applications.update(applications =>
             applications.map(app =>
               app.applicationId === applicationId
                 ? {
