@@ -4,7 +4,6 @@ import { catchError, EMPTY, tap, throwError } from "rxjs";
 import { ContractApi } from "../../../core/services/contract-api";
 import { EditContractDto } from "../pages/company-layout/contracts/models/edit-contract-dto";
 import { AddContractDto } from "../pages/company-layout/contracts/models/add-contract-dto";
-import { RequestState, RequestStateStatus } from "../../../core/models/request-state";
 import { CONTRACT_STATUS_ORDER } from "../../../core/constants/contract-status-order";
 import { PagedRequestModel } from "../../../core/models/paged-request-model";
 import { PagedResponseModel } from "../../../core/models/paged-response-model";
@@ -12,6 +11,7 @@ import { CompanyContractDto } from "../models/response/company-contract-dto";
 import { ContractDetailsDto } from "../models/contracts/contract-details-dto";
 import { CreateRequestDto } from "../pages/company-layout/contracts/models/create-request-dto";
 import { ReportApi } from "../../../core/services/report-api";
+import { createRequestState } from "../../../core/utils/create-request-state";
 
 @Injectable()
 
@@ -25,10 +25,7 @@ export class CompanyStore {
   private readonly page = 1;
 
   // PRIVATE SIGNALS
-  private readonly _request = signal<RequestState>({
-    state: 'idle',
-    message: ''
-  });
+  private readonly _requestState = createRequestState()
   private readonly _contracts = signal<CompanyContractDto[]>([]);
   private readonly _selectedContract = signal<ContractDetailsDto | null>(null);
   private readonly _pagedRequest = signal<PagedRequestModel>({
@@ -39,25 +36,15 @@ export class CompanyStore {
   private readonly _pagedResponse = signal<PagedResponseModel<CompanyContractDto> | null>(null);
 
   // PUBLIC SIGNALS with flag asReadonly()
-
-  readonly requestState = this._request.asReadonly();
+  readonly requestState = this._requestState.state;
   readonly contracts = this._contracts.asReadonly();
   readonly selectedContract = this._selectedContract.asReadonly();
   readonly pagedRequest = this._pagedRequest.asReadonly()
   readonly pagedResponse = this._pagedResponse.asReadonly()
 
 
-  clearRequestState() {
-    this._request.set({ state: 'idle', message: '' });
-  }
+  readonly clearRequestState = this._requestState.clear;
 
-  private setRequestState(state: RequestStateStatus, message: string) {
-    if (!message?.trim()) {
-      console.error('Error detected: message not found');
-      message = 'Wystąpił nieoczekiwany błąd';
-    }
-    this._request.set({ state, message });
-  }
   loadContracts(force = false, page: number | null = null) {
     const isPageChanging = page !== null && page > 0 && page !== this._pagedRequest().page;
 
@@ -69,7 +56,7 @@ export class CompanyStore {
       this._pagedRequest.update(req => ({ ...req, page }));
     }
 
-    this.setRequestState('loading', 'Ładowanie kontraktów...');
+    this._requestState.set('loading', 'Ładowanie kontraktów...');
 
     return this.contractApi.getCompanyContracts(this._pagedRequest()).pipe(
       tap(res => {
@@ -84,7 +71,7 @@ export class CompanyStore {
         this.clearRequestState();
       }),
       catchError(err => {
-        this.setRequestState('error', err?.error?.message ?? 'Wystąpił nieoczekiwany błąd');
+        this._requestState.set('error', err?.error?.message);
         return throwError(() => err);
       })
     );
@@ -95,7 +82,7 @@ export class CompanyStore {
       this._selectedContract.set(null);
     }
 
-    this.setRequestState('loading', 'Ładowanie kontraktu...');
+    this._requestState.set('loading', 'Ładowanie kontraktu...');
 
     return this.contractApi.getContractDetailsById(id).pipe(
       tap(res => {
@@ -105,42 +92,50 @@ export class CompanyStore {
         this.clearRequestState();
       }),
       catchError(err => {
-        this.setRequestState('error', err?.error?.message ?? 'Wystąpił nieoczekiwany błąd');
+        this._requestState.set('error', err?.error?.message);
         return throwError(() => err);
       })
     );
   }
 
-  updateContract(id: number, form: EditContractDto) {
-    return this.contractApi.updateContract(id, form)
-      .pipe(
-        tap(res => {
-          let message: string = res.message ?? "Zaktualizowano kontrakt";
-          this.setRequestState('success', message)
-        })
-      )
-  }
-
   addContract(form: AddContractDto) {
+    this._requestState.set('loading', "Dodawanie...")
+
     return this.contractApi.createContract(form)
       .pipe(
         tap(res => {
           let message: string = res.message ?? "Dodano kontrakt";
-          this.setRequestState('success', message)
+          this._requestState.set('success', message)
         }),
         catchError(err => {
-          this.setRequestState('error', err?.error?.message)
+          this._requestState.set('error', err?.error?.message)
           return throwError(() => err)
         })
       )
   }
 
+  updateContract(id: number, form: EditContractDto) {
+    this._requestState.set('loading', "Aktualizowanie...")
+    return this.contractApi.updateContract(id, form)
+      .pipe(
+        tap(res => {
+          let message: string = res.message ?? "Zaktualizowano kontrakt";
+          this._requestState.set('success', message)
+        }),
+        catchError(err => {
+          this._requestState.set('error', err?.error?.message);
+          return throwError(() => err);
+        })
+      )
+  }
+
+
   deleteContract(id: number) {
+    this._requestState.set('loading', "Usuwanie...")
     return this.contractApi.deleteContractSoft(id)
       .pipe(
         tap(res => {
-          console.log(res)
-
+          this._requestState.set('success', "Usunieto kontrakt")
           this._contracts.update(contracts =>
             contracts.map(contract =>
               contract.contractId === id
@@ -151,15 +146,26 @@ export class CompanyStore {
                 : contract
             )
           )
+        }),
+        catchError(err => {
+          this._requestState.set('error', err?.error?.message);
+          return throwError(() => err)
         })
       )
   }
 
   createRequest(dto: CreateRequestDto) {
+    this._requestState.set('loading', "Dodawanie...")
+
     return this.reportApi.createRequest(dto)
       .pipe(
         tap(res => {
           console.log(res)
+          this._requestState.set('success', "Utworzono request")
+        }),
+        catchError(err => {
+          this._requestState.set('error', err?.error?.message);
+          return throwError(() => err)
         })
       )
 
