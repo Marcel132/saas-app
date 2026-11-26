@@ -16,34 +16,36 @@ export class AuthStore {
   private readonly authApiService = inject(AuthApi)
   private readonly userApiService = inject(UserApi)
 
-  readonly request = signal<RequestState>({
+  private readonly _request = signal<RequestState>({
     state: 'idle',
     message: ''
   })
+  private readonly _currentUser = signal<CurrentUser | null>(null);
 
-  readonly currentUser = signal<CurrentUser | null>(null);
+  readonly request = this._request.asReadonly();
+  readonly currentUser = this._currentUser.asReadonly();
 
   clearRequestState() {
-    this.request.set({
+    this._request.set({
       state: 'idle',
       message: ''
     })
   }
 
   login(request: LoginRequest) {
-    this.request.set({
+    this._request.set({
       state: 'loading',
       message: 'Logowanie...'
     })
     return this.authApiService.login(request).pipe(
       switchMap(response => this.loadCurrentUser().pipe(
-        tap(() => this.request.set({
+        tap(() => this._request.set({
           state: "success",
           message: response.message ?? "Zalogowano"
         }))
       )),
       catchError(err => {
-        this.request.set({
+        this._request.set({
           state: "error",
           message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
         });
@@ -53,7 +55,7 @@ export class AuthStore {
   }
 
   registerPentester(request: RegisterPentesterRequest) {
-    this.request.set({
+    this._request.set({
       state: 'loading',
       message: 'Rejestracja...'
     })
@@ -61,13 +63,13 @@ export class AuthStore {
     return this.authApiService.registerPentester(request)
       .pipe(
         switchMap(response => this.loadCurrentUser().pipe(
-          tap(() => this.request.set({
+          tap(() => this._request.set({
             state: 'success',
             message: response.message ?? "Zarejestrowano"
           }))
         )),
         catchError(err => {
-          this.request.set({
+          this._request.set({
             state: 'error',
             message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
           })
@@ -77,7 +79,7 @@ export class AuthStore {
   }
 
   registerCompany(request: RegisterCompanyRequest) {
-    this.request.set({
+    this._request.set({
       state: 'loading',
       message: 'Rejestracja...'
     })
@@ -86,13 +88,13 @@ export class AuthStore {
     return this.authApiService.registerCompany(request)
       .pipe(
         switchMap(response => this.loadCurrentUser().pipe(
-          tap(() => this.request.set({
+          tap(() => this._request.set({
             state: 'success',
             message: response.message ?? "Zarejestrowano"
           }))
         )),
         catchError(err => {
-          this.request.set({
+          this._request.set({
             state: 'error',
             message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
           })
@@ -104,14 +106,18 @@ export class AuthStore {
   loadCurrentUser() {
     return this.userApiService.getCurrentUser().pipe(
       tap(response => {
-        this.currentUser.set(response.data);
+        this._currentUser.set(response.data);
       })
     )
   }
 
+  clearCurrentUser() {
+    return this._currentUser.set(null);
+  }
+
   logout() {
     return this.authApiService.logout().pipe(
-      finalize(() => this.currentUser.set(null))
+      finalize(() => this.clearCurrentUser())
     )
   }
 

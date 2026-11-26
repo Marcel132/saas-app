@@ -23,7 +23,7 @@ export class MainLayout {
   private readonly layoutStore = inject(LayoutStore);
   private readonly breakpointObserver = inject(BreakpointObserver);
 
-  readonly currentUser = this.authStore.currentUser.asReadonly();
+  readonly currentUser = this.authStore.currentUser;
 
   readonly isSidebarCollapsed = this.layoutStore.isSidebarCollapsed.asReadonly();
 

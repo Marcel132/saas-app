@@ -27,7 +27,7 @@ export class RegisterPage {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
-  readonly request = this.authStore.request.asReadonly();
+  readonly request = this.authStore.request;
 
   // readonly specializations = [
   //   {
