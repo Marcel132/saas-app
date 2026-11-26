@@ -17,9 +17,16 @@ import { InfoTooltip } from "../../../../../../../shared/ui/info-tooltip/info-to
 })
 export class AddContractPage {
   // DI
-  readonly companyStore = inject(CompanyStore)
+  private readonly companyStore = inject(CompanyStore)
+  request = this.companyStore.request
 
-  request = this.companyStore.request.asReadonly()
+  private setDefaultDeadline() : string{
+    const date = new Date();
+    date.setDate(date.getDate() + 30);
+    return date.toLocaleDateString('en-Ca');
+  }
+
+  defaultDeadline = this.setDefaultDeadline();
 
 
   form = new FormGroup({
@@ -52,7 +59,7 @@ export class AddContractPage {
       ],
       nonNullable: true,
     }),
-    deadline: new FormControl("", {
+    deadline: new FormControl(this.defaultDeadline, {
       validators: [
         Validators.required
       ],

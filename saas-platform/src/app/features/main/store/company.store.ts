@@ -111,7 +111,7 @@ export class CompanyStore {
         })
       )
   }
-  
+
   getContractById(id: number) {
     this.request.set({
       state: 'loading',
@@ -152,6 +152,10 @@ export class CompanyStore {
   }
 
   addContract(form: AddContractDto) {
+    this.request.set({
+      state: 'error',
+      message: 'nv'
+    })
     return this.contractApi.createContract(form)
       .pipe(
         tap(res => {
