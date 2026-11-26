@@ -3,12 +3,14 @@ import { CompanyStore } from '../../../../../store/company.store';
 import { ActivatedRoute } from '@angular/router';
 import { RequestCard } from '../../components/request-card/request-card';
 import { CreateRequestDto } from '../../models/create-request-dto';
+import { Message } from '../../../../../../../shared/ui/message/message';
 
 @Component({
   selector: 'app-add-request-page',
   imports: [
-    RequestCard
-  ],
+    RequestCard,
+    Message
+],
   templateUrl:
     './add-request-page.html',
   styleUrl: './add-request-page.scss',
@@ -19,7 +21,8 @@ export class AddRequestPage {
   private readonly route = inject(ActivatedRoute);
 
   // SIGNALS
-  readonly selectedContract = this.companyStore.selectedContract.asReadonly();
+  readonly selectedContract = this.companyStore.selectedContract;
+  readonly requestState = this.companyStore.requestState;
 
   // VAR
   private id!: number
@@ -41,7 +44,7 @@ export class AddRequestPage {
 
     this.id = id;
 
-    this.companyStore.getContractById(id)
+    this.companyStore.loadContractById(id)
       .subscribe()
   }
 

@@ -22,12 +22,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
 
   if (EXCLUDED_ENDPOINTS.some(x => req.url.includes(x))) {
-    return next(req)
+    console.log(`Exluded endpoint`);
+    return next(req);
   }
 
   return next(req).pipe(
     catchError(error => {
-      // Odświeżamy TYLKO przy 401
       if (error.status !== 401) {
         return throwError(() => error);
       }
@@ -35,7 +35,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (!refreshInProgress$) {
         refreshInProgress$ = authApi.refreshToken().pipe(
           catchError(refreshError => {
-            authStore.currentUser.set(null);
+            authStore.clearCurrentUser();
             router.navigate(['/auth/login']);
             return throwError(() => refreshError);
           }),

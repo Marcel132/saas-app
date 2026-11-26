@@ -4,7 +4,6 @@ import { catchError, EMPTY, tap, throwError } from "rxjs";
 import { ContractApi } from "../../../core/services/contract-api";
 import { EditContractDto } from "../pages/company-layout/contracts/models/edit-contract-dto";
 import { AddContractDto } from "../pages/company-layout/contracts/models/add-contract-dto";
-import { RequestState } from "../../../core/models/request-state";
 import { CONTRACT_STATUS_ORDER } from "../../../core/constants/contract-status-order";
 import { PagedRequestModel } from "../../../core/models/paged-request-model";
 import { PagedResponseModel } from "../../../core/models/paged-response-model";
@@ -12,6 +11,7 @@ import { CompanyContractDto } from "../models/response/company-contract-dto";
 import { ContractDetailsDto } from "../models/contracts/contract-details-dto";
 import { CreateRequestDto } from "../pages/company-layout/contracts/models/create-request-dto";
 import { ReportApi } from "../../../core/services/report-api";
+import { createRequestState } from "../../../core/utils/create-request-state";
 
 @Injectable()
 
@@ -20,164 +20,123 @@ export class CompanyStore {
   private readonly contractApi = inject(ContractApi);
   private readonly reportApi = inject(ReportApi);
 
-  // SIGNALS
-  readonly request = signal<RequestState>({
-    state: 'idle',
-    message: ''
-  })
-
-  readonly contracts = signal<CompanyContractDto[]>([])
-  readonly selectedContract = signal<ContractDetailsDto | null>(null)
-
   // CONST
   private readonly pageSize = 4;
   private readonly page = 1;
 
-  readonly pagedRequest = signal<PagedRequestModel>({
+  // PRIVATE SIGNALS
+  private readonly _requestState = createRequestState()
+  private readonly _contracts = signal<CompanyContractDto[]>([]);
+  private readonly _selectedContract = signal<ContractDetailsDto | null>(null);
+  private readonly _pagedRequest = signal<PagedRequestModel>({
     page: this.page,
     pageSize: this.pageSize,
     search: null
-  })
+  });
+  private readonly _pagedResponse = signal<PagedResponseModel<CompanyContractDto> | null>(null);
 
-  readonly pagedResponse = signal<PagedResponseModel<CompanyContractDto> | null>(null)
+  // PUBLIC SIGNALS with flag asReadonly()
+  readonly requestState = this._requestState.state;
+  readonly contracts = this._contracts.asReadonly();
+  readonly selectedContract = this._selectedContract.asReadonly();
+  readonly pagedRequest = this._pagedRequest.asReadonly()
+  readonly pagedResponse = this._pagedResponse.asReadonly()
 
-  clearRequestState() {
-    this.request.set({
-      state: 'idle',
-      message: ''
-    })
-  }
 
-  getContracts() {
-    this.request.set({
-      state: 'loading',
-      message: "Ładowanie kontraktów..."
-    })
+  readonly clearRequestState = this._requestState.clear;
 
-    return this.contractApi.getCompanyContracts(this.pagedRequest())
-      .pipe(
-        tap(res => {
-          if (res.data) {
-            res.data.items.sort(
-              (a, b) => CONTRACT_STATUS_ORDER[a.contractStatus] - CONTRACT_STATUS_ORDER[b.contractStatus]
-            )
-            this.pagedResponse.set(res.data);
-            this.contracts.set(res.data.items)
+  loadContracts(force = false, page: number | null = null) {
+    const isPageChanging = page !== null && page > 0 && page !== this._pagedRequest().page;
 
-            console.log(this.contracts())
-
-            this.request.set({
-              state: 'success',
-              message: 'Pobrano Kontrakty'
-            })
-          }
-        }),
-        catchError(err => {
-          this.request.set({
-            state: 'error',
-            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
-          })
-
-          return throwError(() => err)
-        })
-      )
-  }
-
-  loadOffers(force: boolean = false, page: number | null = null) {
-    if (!force && this.contracts().length > 0) {
-      console.log("empty")
+    if (!force && !isPageChanging && this._contracts().length > 0) {
       return EMPTY;
     }
 
-    if (page != null && page > 0)
-      this.pagedRequest.set({
-        page: page,
-        pageSize: this.pageSize,
-        search: null,
+    if (isPageChanging) {
+      this._pagedRequest.update(req => ({ ...req, page }));
+    }
+
+    this._requestState.set('loading', 'Ładowanie kontraktów...');
+
+    return this.contractApi.getCompanyContracts(this._pagedRequest()).pipe(
+      tap(res => {
+        if (!res.data) return;
+
+        const sortedItems = [...res.data.items].sort(
+          (a, b) => CONTRACT_STATUS_ORDER[a.contractStatus] - CONTRACT_STATUS_ORDER[b.contractStatus]
+        );
+
+        this._pagedResponse.set(res.data);
+        this._contracts.set(sortedItems);
+        this.clearRequestState();
+      }),
+      catchError(err => {
+        this._requestState.set('error', err?.error?.message);
+        return throwError(() => err);
       })
-
-    return this.contractApi.getCompanyContracts(this.pagedRequest())
-      .pipe(
-        tap(res => {
-          if (!res.data)
-            return
-
-          res.data.items.sort(
-            (a, b) => CONTRACT_STATUS_ORDER[a.contractStatus] - CONTRACT_STATUS_ORDER[b.contractStatus]
-          )
-
-          this.pagedResponse.set(res.data);
-          this.contracts.set(res.data.items);
-        })
-      )
+    );
   }
-  
-  getContractById(id: number) {
-    this.request.set({
-      state: 'loading',
-      message: "Ładowanie kontraktów..."
-    })
 
-    return this.contractApi.getContractDetailsById(id)
-      .pipe(
-        tap(res => {
-          if (res.data)
-            this.selectedContract.set(res.data)
+  loadContractById(id: number) {
+    if (this._selectedContract()?.contractId !== id) {
+      this._selectedContract.set(null);
+    }
 
-          this.request.set({
-            state: 'idle',
-            message: ``
-          })
-        }),
-        catchError(err => {
-          this.request.set({
-            state: 'error',
-            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
-          })
+    this._requestState.set('loading', 'Ładowanie kontraktu...');
 
-          return throwError(() => err)
-        })
-      )
-  }
-  updateContract(id: number, form: EditContractDto) {
-    return this.contractApi.updateContract(id, form)
-      .pipe(
-        tap(res => {
-          this.request.set({
-            state: 'success',
-            message: res.message ?? "Zaktualizowano kontrakt"
-          })
-        })
-      )
+    return this.contractApi.getContractDetailsById(id).pipe(
+      tap(res => {
+        if (res.data) {
+          this._selectedContract.set(res.data);
+        }
+        this.clearRequestState();
+      }),
+      catchError(err => {
+        this._requestState.set('error', err?.error?.message);
+        return throwError(() => err);
+      })
+    );
   }
 
   addContract(form: AddContractDto) {
+    this._requestState.set('loading', "Dodawanie...")
+
     return this.contractApi.createContract(form)
       .pipe(
         tap(res => {
-          this.request.set({
-            state: 'success',
-            message: res.message ?? "Dodano Kontrakt"
-          })
+          let message: string = res.message ?? "Dodano kontrakt";
+          this._requestState.set('success', message)
         }),
         catchError(err => {
-          this.request.set({
-            state: 'error',
-            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
-          })
-
+          this._requestState.set('error', err?.error?.message)
           return throwError(() => err)
         })
       )
   }
 
+  updateContract(id: number, form: EditContractDto) {
+    this._requestState.set('loading', "Aktualizowanie...")
+    return this.contractApi.updateContract(id, form)
+      .pipe(
+        tap(res => {
+          let message: string = res.message ?? "Zaktualizowano kontrakt";
+          this._requestState.set('success', message)
+        }),
+        catchError(err => {
+          this._requestState.set('error', err?.error?.message);
+          return throwError(() => err);
+        })
+      )
+  }
+
+
   deleteContract(id: number) {
+    this._requestState.set('loading', "Usuwanie...")
     return this.contractApi.deleteContractSoft(id)
       .pipe(
         tap(res => {
-          console.log(res)
-
-          this.contracts.update(contracts =>
+          this._requestState.set('success', "Usunieto kontrakt")
+          this._contracts.update(contracts =>
             contracts.map(contract =>
               contract.contractId === id
                 ? {
@@ -187,15 +146,26 @@ export class CompanyStore {
                 : contract
             )
           )
+        }),
+        catchError(err => {
+          this._requestState.set('error', err?.error?.message);
+          return throwError(() => err)
         })
       )
   }
 
   createRequest(dto: CreateRequestDto) {
+    this._requestState.set('loading', "Dodawanie...")
+
     return this.reportApi.createRequest(dto)
       .pipe(
         tap(res => {
           console.log(res)
+          this._requestState.set('success', "Utworzono request")
+        }),
+        catchError(err => {
+          this._requestState.set('error', err?.error?.message);
+          return throwError(() => err)
         })
       )
 
