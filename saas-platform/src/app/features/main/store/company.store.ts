@@ -4,7 +4,7 @@ import { catchError, EMPTY, tap, throwError } from "rxjs";
 import { ContractApi } from "../../../core/services/contract-api";
 import { EditContractDto } from "../pages/company-layout/contracts/models/edit-contract-dto";
 import { AddContractDto } from "../pages/company-layout/contracts/models/add-contract-dto";
-import { RequestState } from "../../../core/models/request-state";
+import { RequestState, RequestStateStatus } from "../../../core/models/request-state";
 import { CONTRACT_STATUS_ORDER } from "../../../core/constants/contract-status-order";
 import { PagedRequestModel } from "../../../core/models/paged-request-model";
 import { PagedResponseModel } from "../../../core/models/paged-response-model";
@@ -20,156 +20,116 @@ export class CompanyStore {
   private readonly contractApi = inject(ContractApi);
   private readonly reportApi = inject(ReportApi);
 
-  // SIGNALS
-  readonly request = signal<RequestState>({
-    state: 'idle',
-    message: ''
-  })
-
-  readonly contracts = signal<CompanyContractDto[]>([])
-  readonly selectedContract = signal<ContractDetailsDto | null>(null)
-
   // CONST
   private readonly pageSize = 4;
   private readonly page = 1;
 
-  readonly pagedRequest = signal<PagedRequestModel>({
+  // PRIVATE SIGNALS
+  private readonly _request = signal<RequestState>({
+    state: 'idle',
+    message: ''
+  });
+  private readonly _contracts = signal<CompanyContractDto[]>([]);
+  private readonly _selectedContract = signal<ContractDetailsDto | null>(null);
+  private readonly _pagedRequest = signal<PagedRequestModel>({
     page: this.page,
     pageSize: this.pageSize,
     search: null
-  })
+  });
+  private readonly _pagedResponse = signal<PagedResponseModel<CompanyContractDto> | null>(null);
 
-  readonly pagedResponse = signal<PagedResponseModel<CompanyContractDto> | null>(null)
+  // PUBLIC SIGNALS with flag asReadonly()
+
+  readonly requestState = this._request.asReadonly();
+  readonly contracts = this._contracts.asReadonly();
+  readonly selectedContract = this._selectedContract.asReadonly();
+  readonly pagedRequest = this._pagedRequest.asReadonly()
+  readonly pagedResponse = this._pagedResponse.asReadonly()
+
 
   clearRequestState() {
-    this.request.set({
-      state: 'idle',
-      message: ''
-    })
+    this._request.set({ state: 'idle', message: '' });
   }
 
-  getContracts() {
-    this.request.set({
-      state: 'loading',
-      message: "Ładowanie kontraktów..."
-    })
-
-    return this.contractApi.getCompanyContracts(this.pagedRequest())
-      .pipe(
-        tap(res => {
-          if (res.data) {
-            res.data.items.sort(
-              (a, b) => CONTRACT_STATUS_ORDER[a.contractStatus] - CONTRACT_STATUS_ORDER[b.contractStatus]
-            )
-            this.pagedResponse.set(res.data);
-            this.contracts.set(res.data.items)
-
-            console.log(this.contracts())
-
-            this.request.set({
-              state: 'success',
-              message: 'Pobrano Kontrakty'
-            })
-          }
-        }),
-        catchError(err => {
-          this.request.set({
-            state: 'error',
-            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
-          })
-
-          return throwError(() => err)
-        })
-      )
+  private setRequestState(state: RequestStateStatus, message: string) {
+    if (!message?.trim()) {
+      console.error('Error detected: message not found');
+      message = 'Wystąpił nieoczekiwany błąd';
+    }
+    this._request.set({ state, message });
   }
+  loadContracts(force = false, page: number | null = null) {
+    const isPageChanging = page !== null && page > 0 && page !== this._pagedRequest().page;
 
-  loadOffers(force: boolean = false, page: number | null = null) {
-    if (!force && this.contracts().length > 0) {
-      console.log("empty")
+    if (!force && !isPageChanging && this._contracts().length > 0) {
       return EMPTY;
     }
 
-    if (page != null && page > 0)
-      this.pagedRequest.set({
-        page: page,
-        pageSize: this.pageSize,
-        search: null,
+    if (isPageChanging) {
+      this._pagedRequest.update(req => ({ ...req, page }));
+    }
+
+    this.setRequestState('loading', 'Ładowanie kontraktów...');
+
+    return this.contractApi.getCompanyContracts(this._pagedRequest()).pipe(
+      tap(res => {
+        if (!res.data) return;
+
+        const sortedItems = [...res.data.items].sort(
+          (a, b) => CONTRACT_STATUS_ORDER[a.contractStatus] - CONTRACT_STATUS_ORDER[b.contractStatus]
+        );
+
+        this._pagedResponse.set(res.data);
+        this._contracts.set(sortedItems);
+        this.clearRequestState();
+      }),
+      catchError(err => {
+        this.setRequestState('error', err?.error?.message ?? 'Wystąpił nieoczekiwany błąd');
+        return throwError(() => err);
       })
-
-    return this.contractApi.getCompanyContracts(this.pagedRequest())
-      .pipe(
-        tap(res => {
-          if (!res.data)
-            return
-
-          res.data.items.sort(
-            (a, b) => CONTRACT_STATUS_ORDER[a.contractStatus] - CONTRACT_STATUS_ORDER[b.contractStatus]
-          )
-
-          this.pagedResponse.set(res.data);
-          this.contracts.set(res.data.items);
-        })
-      )
+    );
   }
 
-  getContractById(id: number) {
-    this.request.set({
-      state: 'loading',
-      message: "Ładowanie kontraktów..."
-    })
+  loadContractById(id: number) {
+    if (this._selectedContract()?.contractId !== id) {
+      this._selectedContract.set(null);
+    }
 
-    return this.contractApi.getContractDetailsById(id)
-      .pipe(
-        tap(res => {
-          if (res.data)
-            this.selectedContract.set(res.data)
+    this.setRequestState('loading', 'Ładowanie kontraktu...');
 
-          this.request.set({
-            state: 'idle',
-            message: ``
-          })
-        }),
-        catchError(err => {
-          this.request.set({
-            state: 'error',
-            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
-          })
-
-          return throwError(() => err)
-        })
-      )
+    return this.contractApi.getContractDetailsById(id).pipe(
+      tap(res => {
+        if (res.data) {
+          this._selectedContract.set(res.data);
+        }
+        this.clearRequestState();
+      }),
+      catchError(err => {
+        this.setRequestState('error', err?.error?.message ?? 'Wystąpił nieoczekiwany błąd');
+        return throwError(() => err);
+      })
+    );
   }
+
   updateContract(id: number, form: EditContractDto) {
     return this.contractApi.updateContract(id, form)
       .pipe(
         tap(res => {
-          this.request.set({
-            state: 'success',
-            message: res.message ?? "Zaktualizowano kontrakt"
-          })
+          let message: string = res.message ?? "Zaktualizowano kontrakt";
+          this.setRequestState('success', message)
         })
       )
   }
 
   addContract(form: AddContractDto) {
-    this.request.set({
-      state: 'error',
-      message: 'nv'
-    })
     return this.contractApi.createContract(form)
       .pipe(
         tap(res => {
-          this.request.set({
-            state: 'success',
-            message: res.message ?? "Dodano Kontrakt"
-          })
+          let message: string = res.message ?? "Dodano kontrakt";
+          this.setRequestState('success', message)
         }),
         catchError(err => {
-          this.request.set({
-            state: 'error',
-            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
-          })
-
+          this.setRequestState('error', err?.error?.message)
           return throwError(() => err)
         })
       )
@@ -181,7 +141,7 @@ export class CompanyStore {
         tap(res => {
           console.log(res)
 
-          this.contracts.update(contracts =>
+          this._contracts.update(contracts =>
             contracts.map(contract =>
               contract.contractId === id
                 ? {

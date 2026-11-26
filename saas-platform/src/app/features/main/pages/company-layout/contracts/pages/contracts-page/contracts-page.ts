@@ -21,7 +21,7 @@ export class ContractsPage {
   private readonly router = inject(Router)
 
   // SIGNALS
-  readonly contracts = this.companyStore.contracts.asReadonly()
+  readonly contracts = this.companyStore.contracts;
   // TODO: Move logic to backend
   selectedStatuses = signal<ContractStatus[]>([])
   filtredContracts = computed(() => {
@@ -56,7 +56,7 @@ export class ContractsPage {
 
 
   ngOnInit(): void {
-    this.companyStore.getContracts()
+    this.companyStore.loadContracts()
       .subscribe()
   }
   toggleStatus(status: ContractStatus) {
@@ -83,7 +83,7 @@ export class ContractsPage {
   }
 
   loadOfferByPage(pageNumber: number) {
-    this.companyStore.loadOffers(true, pageNumber)
+    this.companyStore.loadContracts(true, pageNumber)
       .subscribe()
   }
 }

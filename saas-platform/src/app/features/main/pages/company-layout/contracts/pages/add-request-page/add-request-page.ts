@@ -19,7 +19,7 @@ export class AddRequestPage {
   private readonly route = inject(ActivatedRoute);
 
   // SIGNALS
-  readonly selectedContract = this.companyStore.selectedContract.asReadonly();
+  readonly selectedContract = this.companyStore.selectedContract;
 
   // VAR
   private id!: number
@@ -41,7 +41,7 @@ export class AddRequestPage {
 
     this.id = id;
 
-    this.companyStore.getContractById(id)
+    this.companyStore.loadContractById(id)
       .subscribe()
   }
 

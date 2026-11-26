@@ -22,9 +22,9 @@ export class EditContractPage {
   private readonly companyStore = inject(CompanyStore)
   private readonly route = inject(ActivatedRoute)
 
-  request = this.companyStore.request.asReadonly()
+  request = this.companyStore.requestState;
 
-  readonly contract = this.companyStore.selectedContract.asReadonly()
+  readonly contract = this.companyStore.selectedContract;
   private id!: number
   actualDate = Date.now()
 
@@ -66,7 +66,7 @@ export class EditContractPage {
       return
 
     this.id = id;
-    this.companyStore.getContractById(id)
+    this.companyStore.loadContractById(id)
       .subscribe()
   }
 

@@ -18,7 +18,7 @@ import { InfoTooltip } from "../../../../../../../shared/ui/info-tooltip/info-to
 export class AddContractPage {
   // DI
   private readonly companyStore = inject(CompanyStore)
-  request = this.companyStore.request
+  request = this.companyStore.requestState
 
   private setDefaultDeadline() : string{
     const date = new Date();
