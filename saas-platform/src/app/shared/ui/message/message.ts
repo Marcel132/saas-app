@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { RequestState } from '../../../core/models/request-state';
+import { RequestState } from '../../../core/utils/request-state';
 
 @Component({
   selector: 'ui-message',

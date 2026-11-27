@@ -5,13 +5,13 @@ import { ContractApi } from "../../../core/services/contract-api";
 import { EditContractDto } from "../pages/company-layout/contracts/models/edit-contract-dto";
 import { AddContractDto } from "../pages/company-layout/contracts/models/add-contract-dto";
 import { CONTRACT_STATUS_ORDER } from "../../../core/constants/contract-status-order";
-import { PagedRequestModel } from "../../../core/models/paged-request-model";
 import { PagedResponseModel } from "../../../core/models/paged-response-model";
 import { CompanyContractDto } from "../models/response/company-contract-dto";
 import { ContractDetailsDto } from "../models/contracts/contract-details-dto";
 import { CreateRequestDto } from "../pages/company-layout/contracts/models/create-request-dto";
 import { ReportApi } from "../../../core/services/report-api";
-import { createRequestState } from "../../../core/utils/create-request-state";
+import { createRequestState } from "../../../core/utils/request-state";
+import { createRequestPagedState } from "../../../core/utils/paged-helpers";
 
 @Injectable()
 
@@ -20,33 +20,26 @@ export class CompanyStore {
   private readonly contractApi = inject(ContractApi);
   private readonly reportApi = inject(ReportApi);
 
-  // CONST
-  private readonly pageSize = 4;
-  private readonly page = 1;
-
   // PRIVATE SIGNALS
   private readonly _requestState = createRequestState()
   private readonly _contracts = signal<CompanyContractDto[]>([]);
   private readonly _selectedContract = signal<ContractDetailsDto | null>(null);
-  private readonly _pagedRequest = signal<PagedRequestModel>({
-    page: this.page,
-    pageSize: this.pageSize,
-    search: null
-  });
+  private readonly _pagedRequest = createRequestPagedState();
   private readonly _pagedResponse = signal<PagedResponseModel<CompanyContractDto> | null>(null);
 
   // PUBLIC SIGNALS with flag asReadonly()
   readonly requestState = this._requestState.state;
   readonly contracts = this._contracts.asReadonly();
   readonly selectedContract = this._selectedContract.asReadonly();
-  readonly pagedRequest = this._pagedRequest.asReadonly()
+  readonly pagedRequest = this._pagedRequest.state
   readonly pagedResponse = this._pagedResponse.asReadonly()
 
 
   readonly clearRequestState = this._requestState.clear;
 
   loadContracts(force = false, page: number | null = null) {
-    const isPageChanging = page !== null && page > 0 && page !== this._pagedRequest().page;
+    const isPageChanging = page !== null && page > 0 && page !== this._pagedRequest.state().page;
+
 
     if (!force && !isPageChanging && this._contracts().length > 0) {
       return EMPTY;
@@ -58,7 +51,7 @@ export class CompanyStore {
 
     this._requestState.set('loading', 'Ładowanie kontraktów...');
 
-    return this.contractApi.getCompanyContracts(this._pagedRequest()).pipe(
+    return this.contractApi.getCompanyContracts(this._pagedRequest.state()).pipe(
       tap(res => {
         if (!res.data) return;
 

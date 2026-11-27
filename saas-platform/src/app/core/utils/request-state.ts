@@ -1,25 +1,24 @@
 import { signal } from "@angular/core";
-import { RequestState, RequestStateStatus } from "../models/request-state";
 
 const INITIAL_STATE: RequestState = { state: 'idle', message: '' };
 const DEFAULT_ERROR_MESSAGE = "Wystąpił nieoczekwiany błąd";
 
-export function createRequestState(){
+export function createRequestState() {
   const _request = signal<RequestState>(INITIAL_STATE);
 
-  function set(state: RequestStateStatus, message: string | null){
-    const trimed = message?.trim() ?? ''
+  function set(state: RequestStateStatus, message: string | null) {
+    const trimmed = message?.trim() ?? ''
 
-    if(state === 'error' && !trimed){
+    if (state === 'error' && !trimmed) {
       console.error('Error detected: message not found');
       _request.set({ state, message: DEFAULT_ERROR_MESSAGE });
       return;
     }
 
-    _request.set({state, message: trimed});
+    _request.set({ state, message: trimmed });
   }
 
-  function clear(){
+  function clear() {
     _request.set(INITIAL_STATE);
   }
 
@@ -28,4 +27,10 @@ export function createRequestState(){
     set,
     clear
   }
+}
+export type RequestStateStatus = 'idle' | 'loading' | 'success' | 'error';
+
+export interface RequestState {
+  state: 'idle' | 'loading' | 'success' | 'error',
+  message: string;
 }

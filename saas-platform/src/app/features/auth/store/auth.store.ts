@@ -7,7 +7,7 @@ import { UserApi } from "../../../core/services/user-api";
 import { RegisterPentesterRequest } from "../models/register-pentester-request";
 import { RegisterCompanyRequest } from "../models/register-company-request";
 import { CurrentUser } from "../models/current-user/current-user-base";
-import { createRequestState } from "../../../core/utils/create-request-state";
+import { createRequestState } from "../../../core/utils/request-state";
 
 @Injectable({
   providedIn: 'root'

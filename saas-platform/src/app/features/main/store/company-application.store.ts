@@ -4,7 +4,7 @@ import { catchError, switchMap, tap, throwError } from "rxjs";
 import { ContractApi } from "../../../core/services/contract-api";
 import { APPLICATIONS_STATUS_ORDER } from "../../../core/constants/application-status-order";
 import { CompanyApplicationsDto } from "../models/company-applications-dto";
-import { createRequestState } from "../../../core/utils/create-request-state";
+import { createRequestState } from "../../../core/utils/request-state";
 
 @Injectable()
 
