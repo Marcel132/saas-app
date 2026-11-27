@@ -26,10 +26,10 @@ export class ApplicationPage {
   readonly applications = this.companyApplicationStore.applications;
   private id!: number;
 
-  request = this.companyApplicationStore.applicationRequest;
+  readonly request = this.companyApplicationStore.applicationRequest;
 
   ngOnInit(): void {
-    this.companyApplicationStore.clearRequestState();
+    this.companyApplicationStore.clearApplicationRequest;
 
     const id = Number(
       this.route.snapshot.paramMap.get('id')
@@ -39,7 +39,7 @@ export class ApplicationPage {
       return;
 
     this.id = id;
-    this.companyApplicationStore.getContractApplications(id)
+    this.companyApplicationStore.loadContractApplications(id)
       .subscribe()
   }
 

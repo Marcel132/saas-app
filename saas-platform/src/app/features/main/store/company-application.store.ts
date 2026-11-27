@@ -1,10 +1,10 @@
 import { inject, Injectable, signal } from "@angular/core";
 import { ApplicationApi } from "../../../core/services/application-api";
-import { RequestState } from "../../../core/models/request-state";
 import { catchError, switchMap, tap, throwError } from "rxjs";
 import { ContractApi } from "../../../core/services/contract-api";
 import { APPLICATIONS_STATUS_ORDER } from "../../../core/constants/application-status-order";
 import { CompanyApplicationsDto } from "../models/company-applications-dto";
+import { createRequestState } from "../../../core/utils/create-request-state";
 
 @Injectable()
 
@@ -14,52 +14,52 @@ export class CompanyApplicationStore {
 
 
   // SIGNALS
-
-  private readonly _applicationRequest = signal<RequestState>({
-    state: 'idle',
-    message: ''
-  });
-  readonly applicationRequest = this._applicationRequest.asReadonly();
+  private readonly _applicationRequest = createRequestState();
+  readonly applicationRequest = this._applicationRequest.state;
+  readonly clearApplicationRequest = this._applicationRequest.clear;
 
   private readonly _applications = signal<CompanyApplicationsDto[]>([]);
   readonly applications = this._applications.asReadonly();
 
-  getContractApplications(id: number) {
+  loadContractApplications(id: number) {
+    this._applicationRequest.set('loading', "Ładowanie aplikacji...");
     return this.contractApi.getContractApplications(id)
       .pipe(
         tap(res => {
           if (res.data) {
-            [...res.data].sort(
+            const sorted = [...res.data].sort(
               (a, b) => APPLICATIONS_STATUS_ORDER[a.status] - APPLICATIONS_STATUS_ORDER[b.status]
             )
-            this._applications.set(res.data)
+            this._applications.set(sorted)
           }
-        })
-      )
-  }
-
-  acceptApplication(applicationId: number, contractId: number) {
-    return this.applicationApi.acceptApplication(applicationId)
-      .pipe(
-        switchMap(() => this.getContractApplications(contractId)),
-        tap(res => {
-          this._applicationRequest.set({
-            state: 'success',
-            message: res.message ?? "Zaakceptowano Aplikację"
-          })
         }),
         catchError(err => {
-          this._applicationRequest.set({
-            state: 'error',
-            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
-          })
-
+          this._applicationRequest.set('error', err?.error?.message);
           return throwError(() => err)
         })
       )
   }
 
+  acceptApplication(applicationId: number, contractId: number) {
+    this._applicationRequest.set('loading', "Akceptowanie...");
+    return this.applicationApi.acceptApplication(applicationId)
+      .pipe(
+        switchMap(() =>
+          this.loadContractApplications(contractId).pipe(
+            tap(res => {
+              this._applicationRequest.set('success', res.message);
+            }),
+          )
+        ),
+        catchError(err => {
+          this._applicationRequest.set('error', err?.error?.message);
+          return throwError(() => err);
+        })
+      )
+  }
+
   rejectApplication(applicationId: number) {
+    this._applicationRequest.set('loading', 'Odrzucanie aplikacji...')
     return this.applicationApi.rejectApplication(applicationId)
       .pipe(
         tap(res => {
@@ -73,26 +73,13 @@ export class CompanyApplicationStore {
                 : app
             )
           );
-          this._applicationRequest.set({
-            state: 'success',
-            message: res.message ?? "Odrzucono aplikację"
-          })
+          this._applicationRequest.set('success',res.message ?? "Odrzucono aplikację")
         }),
         catchError(err => {
-          this._applicationRequest.set({
-            state: 'error',
-            message: err?.error?.message ?? 'Wystąpił nieoczekiwany błąd'
-          })
+          this._applicationRequest.set('error', err?.error?.message)
 
           return throwError(() => err)
         })
       )
-  }
-
-  clearRequestState() {
-    this._applicationRequest.set({
-      state: 'idle',
-      message: ''
-    })
   }
 }
