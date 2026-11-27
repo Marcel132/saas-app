@@ -21,7 +21,7 @@ export class LoginPage {
 
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
-  readonly request = this.authStore.request;
+  readonly request = this.authStore.requestState;
   showPassword: boolean = false;
 
   constructor() {
@@ -67,6 +67,7 @@ export class LoginPage {
 
     if(this.form.invalid)
       return;
+    
     this.authStore.login(request)
       .subscribe()
   }
